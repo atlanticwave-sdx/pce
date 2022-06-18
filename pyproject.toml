@@ -15,10 +15,22 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent"
 ]
+dependencies = [
+    "matplotlib >= 3.4.3",
+    "networkx >= 2.6.3",
+    "numpy >= 1.20.3",
+    "ortools >= 9.2.9972",
+]
 
 [project.urls]
 Home = "https://github.com/atlanticwave-sdx/pce"
 Issues = "https://github.com/atlanticwave-sdx/pce/issues"
+
+[project.optional-dependencies]
+test = [
+    "pytest >= 2.7.3",
+    "pytest-cov",
+]
 
 [options.packages.find]
 where = "src"
