@@ -34,3 +34,9 @@ test = [
 
 [options.packages.find]
 where = "src"
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-report html --cov-report term-missing"
+testpaths = [
+    "tests"
+]
