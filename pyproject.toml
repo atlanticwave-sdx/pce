@@ -3,7 +3,7 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "src"
+name = "LoadBalancing"
 version = "0.0.1"
 authors = [{name = "Yifei Wang", email = "ywang13@renci.org"}]
 description = "Heuristic and Optimal Algorithms for CSP and TE Computation"
