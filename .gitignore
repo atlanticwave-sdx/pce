@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Generated when running `python -m build`, with setuptools +
+# setuptools_scm.
+/src/_version.py
