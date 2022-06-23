@@ -67,8 +67,8 @@ jobs:
 
       - name: Test that the package can be built with flit
         run: |
-          pip install flit
-          python -m flit build
+          pip install build
+          python -m build
 
       - name: Run tests
         run: |
