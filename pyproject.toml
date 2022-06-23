@@ -47,5 +47,6 @@ testpaths = [
 ]
 
 [tool.setuptools_scm]
-# Write version info collected from git to a file.
+# Write version info collected from git to a file.  This happens when
+# we run `python -m build`.
 write_to = "src/_version.py"
