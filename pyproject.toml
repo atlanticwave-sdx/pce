@@ -43,3 +43,5 @@ addopts = "--cov --cov-report html --cov-report term-missing"
 testpaths = [
     "tests"
 ]
+
+[tool.setuptools_scm]
