@@ -87,7 +87,7 @@ idea anyway.
 ### Building packages
 
 You can build source and wheel packages using
-[build](https://pypi.org/project/build/)))):
+[build](https://pypi.org/project/build/):
 
 ```shell
 $ python3 -m pip install build
