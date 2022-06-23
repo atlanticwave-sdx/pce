@@ -45,3 +45,5 @@ testpaths = [
 ]
 
 [tool.setuptools_scm]
+# Write version info collected from git to a file.
+write_to = "src/_version.py"
