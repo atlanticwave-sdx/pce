@@ -8,7 +8,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "LoadBalancing"
 dynamic = [ "version" ]
-authors = [{name = "Yifei Wang", email = "ywang13@renci.org"}]
+authors = [
+    { name = "Yifei Wang", email = "ywang13@renci.org" }
+]
 description = "Heuristic and Optimal Algorithms for CSP and TE Computation"
 readme = "README.md"
 requires-python = ">=3.6"
