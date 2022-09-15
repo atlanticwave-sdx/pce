@@ -28,26 +28,11 @@ class TE_Solver:
     #form OR matrix
     def create_data_model(self):
         g=self.graph_generator.get_g()
-
         nodenum = len(g.nodes) 
         linknum = 2*len(g.edges)
-        
-        #Adjcent matrix
-        adj = nx.to_dict_of_lists(g)
-        keys=adj.keys()
-        links = []
-        #list of all links
-        for k in keys:
-            links = chain(links,zip(cycle([k]),adj[k]))
-        
-        #flow matrix: 1 means flow into the nodes, -1 meanse flow out of the node
-        inputmatrix = np.zeros((nodenum,linknum), dtype=int)
-        n=0
-        for link in links:
-            src=link[0]
-            dest=link[1]
-            inputmatrix[src][n] = -1
-            inputmatrix[n][dest] = 1
+
+        #graph flow matrix
+        inputmatrix= self.flow_matrix(g)
         
         #inputdistancelist:link weight
         distance_list=self.graph_generator.get_distance_list()
@@ -75,14 +60,14 @@ class TE_Solver:
 
         #form the constraints: lhs
         jsonoutput = {}
-        flowconstraints = self.duplicatematrixmaker(self.tm,inputmatrix)
+        flowconstraints = self.lhsflow(self.tm,inputmatrix)
         bwconstraints = self.lhsbw(self.tm, inputmatrix)
         lhs = flowconstraints + bwconstraints
 
         lhs+=latconstraint['lhs']
 
-        #objective functions
-        inputdistance = np.zeros(linknum, dtype=int)
+        #objective function
+        inputdistance = distance_list
         cost_list = copy.deepcopy(inputdistance)
         cost = []
         for i in range(len(self.tm)):
@@ -97,15 +82,38 @@ class TE_Solver:
         jsonoutput['num_vars'] = len(cost)
         jsonoutput['num_inequality'] = linknum + int(len(self.tm))
 
+    #flowmatrix
+    def flow_matrix(self, g):
+        nodenum = len(g.nodes) 
+        linknum = 2*len(g.edges)
+        
+        #Adjcent matrix
+        adj = nx.to_dict_of_lists(g)
+        keys=adj.keys()
+        links = []
+        #list of all links
+        for k in keys:
+            links = chain(links,zip(cycle([k]),adj[k]))
+        
+        #flow matrix: 1 means flow into the nodes, -1 meanse flow out of the node
+        inputmatrix = np.zeros((nodenum,linknum), dtype=int)
+        n=0
+        for link in links:
+            src=link[0]
+            dest=link[1]
+            inputmatrix[src][n] = -1
+            inputmatrix[n][dest] = 1
+
+        return inputmatrix
+
     #
-    def duplicatematrixmaker(self,request_list,inputmatrix):
-        #zeros = self.zerolistmaker(len(inputmatrix[0]))
-        zeros = np.zeros(len(inputmatrix[0]))
-        outputmatrix = []
-        for i in range(len(request_list)):
-            for line in inputmatrix:
-                outputmatrix.append(zeros * i + line + zeros * (len(request_list)-i-1) )
-        return outputmatrix
+    def lhsflow(self,request_list,inputmatrix):
+        r = len(request_list)
+        m,n = inputmatrix.shape
+        out = np.zeros((r,m,r,n), dtype=inputmatrix.dtype)
+        diag = np.einsum('ijik->ijk',out)
+        diag[:] = inputmatrix
+        return out.reshape(-1,n*r)
 
     #
     def lhsbw(self,request_list, inputmatrix):
