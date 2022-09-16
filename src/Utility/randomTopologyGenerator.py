@@ -7,6 +7,7 @@ Created on Tue Mar  8 13:34:06 2022
 """
 import time
 from networkx.generators.random_graphs import erdos_renyi_graph
+from networkx.algorithms import approximation as approx
 import networkx as nx
 import numpy as np
 import random
@@ -121,12 +122,9 @@ class RandomTopologyGenerator:
     def nodes_connected(g, u, v):
         return u in g.neighbors(v)
 
-
-    def GetConnection(self,path):
-        with open(path) as f:
-            connection = json.load(f)
-        return connection
-
+    def get_connectivity(self):
+        con=approx.node_connectivity(self.graph)
+        return con
 
     # connection = GetConnection('../test/data/test_connection.json')
     # g = GetNetworkToplogy(25,0.4)

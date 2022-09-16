@@ -17,15 +17,76 @@ import json
 import copy
 
 import Utility.global_name as global_name
-from Utility.randomTopologyGenerator import RandomtopologyGenerator
 
 class TE_Solver:
     def __init__(self, g_g = None, tm = None, obj = global_name.Obj_Cost):
         self.graph_generator = g_g 
         self.objective = obj
         self.tm = tm
+
+    def solve(self):
+        data = self.create_data_model()
+        
+        num_inequality = data['num_inequality']
+
+        # Create the mip solver with the SCIP backend.
+        solver = pywraplp.Solver.CreateSolver('SCIP')
+
+
+        x = {}
+        for j in range(data['num_vars']):
+            x[j] = solver.IntVar(0, 1, 'x[%i]' % j)
+        print('Number of variables =', solver.NumVariables())
+
+
+        for i in range(data['num_constraints']-num_inequality):
+            constraint_expr = [data['constraint_coeffs'][i][j] * x[j] for j in range(data['num_vars'])]
+            solver.Add(sum(constraint_expr) == data['bounds'][i])
+        for i in range(data['num_constraints']-num_inequality, data['num_constraints']):
+            constraint_expr = [data['constraint_coeffs'][i][j] * x[j] for j in range(data['num_vars'])]
+            solver.Add(sum(constraint_expr) <= data['bounds'][i])     
+        print('Number of constraints =', solver.NumConstraints())
+
+        objective = solver.Objective()
+        for j in range(data['num_vars']):
+            objective.SetCoefficient(x[j], data['obj_coeffs'][j])
+        objective.SetMinimization()
+
+        status = solver.Solve()
+        solution = []
+
+        if status == pywraplp.Solver.OPTIMAL:
+            print('Objective value =', solver.Objective().Value())
+            for j in range(data['num_vars']):
+                # print(x[j].name(), ' = ', x[j].solution_value())
+                solution.append(x[j].solution_value())
+            print()
+            # print('Problem solved in %f milliseconds' % solver.wall_time())
+            # print('Problem solved in %d iterations' % solver.iterations())
+            # print('Problem solved in %d branch-and-bound nodes' % solver.nodes())
+        else:
+            print('The problem does not have an optimal solution.')
+        
+        return solution, solver.Objective().Value()
+
+    def set_obj(self,obj):
+        self.objective = obj
     
     #form OR matrix
+    def mc_cost(self,inputdistance):
+        cost_list = copy.deepcopy(inputdistance)
+        cost = []
+        for i in range(len(self.tm)):
+            cost += cost_list
+
+    def lb_cost(self,inputdistance):
+        cost_list = copy.deepcopy(inputdistance)
+        cost = []
+        for connection in range(len(self.tm)):
+            bw=connection[2]
+            cost += cost_list       
+            cost+=[bw/link for link in cost_list]
+
     def create_data_model(self):
         g=self.graph_generator.get_g()
         nodenum = len(g.nodes) 
@@ -67,11 +128,10 @@ class TE_Solver:
         lhs+=latconstraint['lhs']
 
         #objective function
-        inputdistance = distance_list
-        cost_list = copy.deepcopy(inputdistance)
-        cost = []
-        for i in range(len(self.tm)):
-            cost += cost_list
+        if self.objective == global_name.Obj_Cost:
+            cost=self.mc_cost(distance_list)
+        if self.objective == global_name.Obj_LB:
+            cost=self.lb_cost(distance_list)
 
         #form the OR datamodel
         jsonoutput = {}
@@ -81,6 +141,8 @@ class TE_Solver:
         jsonoutput['obj_coeffs'] = cost
         jsonoutput['num_vars'] = len(cost)
         jsonoutput['num_inequality'] = linknum + int(len(self.tm))
+
+        return jsonoutput
 
     #flowmatrix
     def flow_matrix(self, g):
@@ -152,9 +214,6 @@ class TE_Solver:
         #    json.dump(data, json_file, indent=4)
 
         return latdata
-
-    def solve(self):
-        pass
 
     def is_connected(self):
         return nx.is_connected(self.g)
