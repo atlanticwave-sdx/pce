@@ -88,9 +88,10 @@ class TE_Solver:
             cost+=[bw/link for link in cost_list]
 
     def create_data_model(self):
-        g=self.graph_generator.get_g()
-        nodenum = len(g.nodes) 
-        linknum = 2*len(g.edges)
+        g=self.graph_generator.get_graph()
+
+        nodenum = g.number_of_nodes()
+        linknum = g.number_of_edges()
 
         #graph flow matrix
         inputmatrix= self.flow_matrix(g)
@@ -110,7 +111,7 @@ class TE_Solver:
             bounds += rhs
         #rhsbw
         bwlinklist = []
-        for u,v,w in self.g.edges(data=True):
+        for u,v,w in g.edges(data=True):
             bw = w[global_name.bandwidth]
             bwlinklist.append(bw)
 

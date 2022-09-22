@@ -1,7 +1,7 @@
 import unittest
 import json
 
-from Utility.randomTopologyGenerator import RandomtopologyGenerator
+from Utility.randomTopologyGenerator import RandomTopologyGenerator
 from LoadBalancing.TE_Solver import TE_Solver
 import Utility.global_name as global_name
 
@@ -14,14 +14,14 @@ class Test_TE_Solver(unittest.TestCase):
             solution = json.load(s)    
         self.solution = solution
 
-        graph = RandomtopologyGenerator(25, 0.4, l_bw= 2000, u_bw=3000, l_lat =1, u_lat=10, seed=2022)
-        self.topology = graph.generate_graph()
+        self.graph_generator = RandomTopologyGenerator(25, 0.4, l_bw= 2000, u_bw=3000, l_lat =1, u_lat=10, seed=2022)
+        self.graph_generator.generate_graph()
 
         with open(Connection) as f:
             self.connection = json.load(f)
 
     def test_mc_solve(self):
-        solver = TE_Solver()
+        solver = TE_Solver(self.graph_generator)
 
         solver.create_data_model()
 
@@ -30,7 +30,7 @@ class Test_TE_Solver(unittest.TestCase):
         self.assertEqual(self.solution, path)
 
     def test_lb_solve(self):
-        solver = TE_Solver(obj = global_name.Obj_LB)
+        solver = TE_Solver(self.graph_generator, None, obj = global_name.Obj_LB)
 
         solver.create_data_model()
 

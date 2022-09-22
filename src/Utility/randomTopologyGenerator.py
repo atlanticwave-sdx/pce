@@ -16,9 +16,9 @@ import json
 
 import copy
 
-import global_name
+import Utility.global_name as global_name
 
-class RandomTopologyGenerator:
+class RandomTopologyGenerator():
     # inputs:
     #   N: Total number of the random network's nodes
     #   P: link creation probability
@@ -45,8 +45,8 @@ class RandomTopologyGenerator:
     def graph(self, g):
         self.graph = g
 
-    def get_g(self):
-        return self.g
+    def get_graph(self):
+        return self.graph
 
     def get_latency_list(self):
         return self.latency_list
@@ -75,7 +75,7 @@ class RandomTopologyGenerator:
     # set the random bw and latency per link
     def link_property_assign(self): ## pass in the bw name
         self.latency_list = []
-        for (u,v,w) in self.g.edges(data=True):
+        for (u,v,w) in self.graph.edges(data=True):
             w[global_name.bandwidth] = random.randint(self.low_bw,self.upper_bw)
             latency = random.randint(self.low_latency,self.upper_latency) 
             w[global_name.latency] =latency
@@ -96,23 +96,23 @@ class RandomTopologyGenerator:
 
         if flag == 1:
             alpha=10^6
-            for (u,v,w) in self.g.edges(data=True):
+            for (u,v,w) in self.graph.edges(data=True):
                 w[global_name.weight] = alpha*(1.0/w[global_name.bandwidth])
                 distance_list.append(w[global_name.weight])
         elif flag == 2:
-            for (u,v,w) in self.g.edges(data=True):
+            for (u,v,w) in self.graph.edges(data=True):
                 w[global_name.weight] = w[global_name.latency]
                 distance_list.append(w[global_name.weight])
         elif flag == 3:
-            for (u,v,w) in self.g.edges(data=True):
+            for (u,v,w) in self.graph.edges(data=True):
                 w[global_name.weight] = random.randint(1,2**24)
                 distance_list.append(w[global_name.weight])
         elif flag == 4:
-            for (u,v,w) in self.g.edges(data=True):
+            for (u,v,w) in self.graph.edges(data=True):
                 w[global_name.weight] = cost[u,v] 
                 distance_list.append(w[global_name.weight])
         else:
-            for (u,v,w) in self.g.edges(data=True):
+            for (u,v,w) in self.graph.edges(data=True):
                 w[global_name.weight] = 1.0
                 distance_list.append(w[global_name.weight])
         self.distance_list = distance_list
