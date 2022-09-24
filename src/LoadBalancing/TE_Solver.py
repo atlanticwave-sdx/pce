@@ -38,13 +38,19 @@ class TE_Solver:
             x[j] = solver.IntVar(0, 1, 'x[%i]' % j)
         print('Number of variables =', solver.NumVariables())
 
-
         for i in range(data['num_constraints']-num_inequality):
             constraint_expr = [data['constraint_coeffs'][i][j] * x[j] for j in range(data['num_vars'])]
             solver.Add(sum(constraint_expr) == data['bounds'][i])
-        for i in range(data['num_constraints']-num_inequality, data['num_constraints']):
+        
+        print(len(data['bounds']))
+        print(data['bounds'])
+        print(data['num_constraints'])
+        print(len(data['constraint_coeffs']))
+        print(num_inequality)
+        for i in range(data['num_constraints'] - num_inequality, data['num_constraints']):
             constraint_expr = [data['constraint_coeffs'][i][j] * x[j] for j in range(data['num_vars'])]
-            solver.Add(sum(constraint_expr) <= data['bounds'][i])     
+            solver.Add(sum(constraint_expr) <= data['bounds'][i]) 
+            print(i)    
         print('Number of constraints =', solver.NumConstraints())
 
         objective = solver.Objective()
@@ -73,19 +79,30 @@ class TE_Solver:
         self.objective = obj
     
     #form OR matrix
-    def mc_cost(self,inputdistance):
-        cost_list = copy.deepcopy(inputdistance)
+    def mc_cost(self,links):
+        g=self.graph_generator.get_graph()
+        cost_list=[]
+        for link in links:
+            cost_list.append(g[link[0]][link[1]][global_name.weight])
+
         cost = []
         for i in range(len(self.tm)):
             cost += cost_list
+        
+        return cost
 
-    def lb_cost(self,inputdistance):
-        cost_list = copy.deepcopy(inputdistance)
+    def lb_cost(self,links):
+        g=self.graph_generator.get_graph()
+        cost_list=[]
+        for link in links:
+            cost_list.append(g[link[0]][link[1]][global_name.weight])
         cost = []
-        for connection in range(len(self.tm)):
+        for connection in self.tm:
             bw=connection[2]
-            cost += cost_list       
+            #cost += cost_list       
             cost+=[bw/link for link in cost_list]
+        
+        return cost
 
     def create_data_model(self):
         g=self.graph_generator.get_graph()
@@ -93,23 +110,32 @@ class TE_Solver:
         nodenum = g.number_of_nodes()
         linknum = g.number_of_edges()
 
+        print("\n #Nodes:" + str(nodenum))
+        print("\n #Links:" + str(linknum))
+
         #graph flow matrix
-        inputmatrix= self.flow_matrix(g)
+        inputmatrix,links = self.flow_matrix(g)
         
         #inputdistancelist:link weight
-        distance_list=self.graph_generator.get_distance_list()
-        latency_list=self.graph_generator.get_latency_list()
-        latconstraint = self.latconstraintmaker(self.tm, latency_list)
+        #distance_list=self.graph_generator.get_distance_list()
+        #latency_list=self.graph_generator.get_latency_list()
+
+        #print("distance_list:"+str(np.shape(distance_list)))        
+        #print("latency_list:"+str(np.shape(latency_list)))
+
+        latconstraint = self.latconstraintmaker(links)
 
         #form the bound: rhs
-        #flows
+        #flows: numnode*len(request)
         bounds = []
         for request in self.tm:
             rhs = np.zeros(nodenum, dtype=int)
             rhs[request[0]] = -1
             rhs[request[1]] = 1   
-            bounds += rhs
-        #rhsbw
+            bounds+=list(rhs)
+
+        print("bound 1:"+str(len(bounds)))
+        #rhsbw -TODO *2 edges
         bwlinklist = []
         for u,v,w in g.edges(data=True):
             bw = w[global_name.bandwidth]
@@ -117,47 +143,68 @@ class TE_Solver:
 
         # add the bwconstraint rhs
         bounds+=bwlinklist
+        print("bound 2:"+str(len(bounds)))
         # add the latconstraint rhs
         bounds+=latconstraint['rhs']
-
+        print("bound 3:"+str(len(bounds)))
         #form the constraints: lhs
-        jsonoutput = {}
         flowconstraints = self.lhsflow(self.tm,inputmatrix)
         bwconstraints = self.lhsbw(self.tm, inputmatrix)
-        lhs = flowconstraints + bwconstraints
 
-        lhs+=latconstraint['lhs']
+        print("\n Shape:"+str(len(flowconstraints))+":"+str(len(bwconstraints)))
+        #print("\n flow"+str(flowconstraints))
+        print("\n bw:"+str(type(bwconstraints)))
+
+        bw_np = np.array(bwconstraints)
+        print("np:"+str(flowconstraints.shape)+":"+str(bw_np.shape))
+        flow_lhs = np.concatenate((flowconstraints,bw_np))
+        print("flow_lhs:"+str(np.shape(flow_lhs)))
+        print("latcons:"+str(np.shape(latconstraint['lhs'])))
+
+        lhs=np.concatenate((flow_lhs,latconstraint['lhs']))
 
         #objective function
         if self.objective == global_name.Obj_Cost:
-            cost=self.mc_cost(distance_list)
+            cost=self.mc_cost(links)
         if self.objective == global_name.Obj_LB:
-            cost=self.lb_cost(distance_list)
+            cost=self.lb_cost(links)
+
+        print("cost:"+str(len(cost)))
+        print(type(cost))
+
+        coeffs=[]
+        for i in range(lhs.shape[0]):
+            row = list(lhs[i])
+            coeffs.append(row)
 
         #form the OR datamodel
         jsonoutput = {}
-        jsonoutput['constraint_coeffs'] = lhs
-        jsonoutput['bounds'] = bounds
+        jsonoutput['constraint_coeffs'] = coeffs
+        jsonoutput['bounds'] = list(bounds)
         jsonoutput['num_constraints'] = len(bounds)
-        jsonoutput['obj_coeffs'] = cost
+        jsonoutput['obj_coeffs'] = list(cost)
         jsonoutput['num_vars'] = len(cost)
         jsonoutput['num_inequality'] = linknum + int(len(self.tm))
 
         return jsonoutput
 
     #flowmatrix
+    #also set self.links: 2*links
     def flow_matrix(self, g):
         nodenum = len(g.nodes) 
         linknum = 2*len(g.edges)
         
-        #Adjcent matrix
+        #Adjcent matrix, key:node; value:list of neighboring nodes
         adj = nx.to_dict_of_lists(g)
+
         keys=adj.keys()
         links = []
         #list of all links
         for k in keys:
             links = chain(links,zip(cycle([k]),adj[k]))
         
+        #list of links directional: tuple (src,nei), len =2*#edges
+        link_list = list(links)
         #flow matrix: 1 means flow into the nodes, -1 meanse flow out of the node
         inputmatrix = np.zeros((nodenum,linknum), dtype=int)
         n=0
@@ -166,23 +213,29 @@ class TE_Solver:
             dest=link[1]
             inputmatrix[src][n] = -1
             inputmatrix[n][dest] = 1
-
-        return inputmatrix
+            n+=1
+        
+        return inputmatrix,link_list
 
     #
     def lhsflow(self,request_list,inputmatrix):
         r = len(request_list)
         m,n = inputmatrix.shape
+        print("r="+str(r)+":m="+str(m)+":n="+str(n))
         out = np.zeros((r,m,r,n), dtype=inputmatrix.dtype)
+        print("out shape:"+str(len(out)) +":"+str(len(out[0])) 
+        + ":" +str(len(out[0][0]))+":" +str(len(out[0][0][0])) )
+        #print("out shape:"+str(out))
         diag = np.einsum('ijik->ijk',out)
         diag[:] = inputmatrix
-        return out.reshape(-1,n*r)
+        print("diag:" + str(diag.shape))
+        return diag.reshape(m*r,n*r)
 
     #
     def lhsbw(self,request_list, inputmatrix):
         bwconstraints = []
         #zeros = self.zerolistmaker(len(inputmatrix[0])*len(request_list))
-        zeros = np.zeros(len(inputmatrix[0])*len(request_list))                  
+        zeros = np.zeros(len(inputmatrix[0])*len(request_list),dtype=int)                  
         for i in range(len(inputmatrix[0])):
             addzeros = copy.deepcopy(zeros)
             bwconstraints.append(addzeros)
@@ -192,15 +245,25 @@ class TE_Solver:
                 count += 1
         return bwconstraints
 
-    def latconstraintmaker(self, request_list, latency_list):
+    def latconstraintmaker(self, links):
         lhs = []
         rhs = []
-        zerolist = np.zeros(len(latency_list))
+
+        request_list = self.tm
+        print("request:"+str(len(request_list)))
+        print("links:"+str(len(links)))
+
+        g=self.graph_generator.get_graph()
+        zerolist = np.zeros(len(links),dtype=int)
+        latency_list=[]
+        for link in links:
+            latency_list.append(g[link[0]][link[1]][global_name.latency])
 
         requestnum = len(request_list)
         for i in range(requestnum):
             constraint = []
-            constraint = i * zerolist + latency_list + (requestnum - 1 - i) * zerolist
+            constraint = i*zerolist.tolist() + latency_list + (requestnum - 1 - i) * zerolist.tolist()
+            print("constraint:"+str(len(constraint)))
             lhs.append(constraint)
 
         for request in request_list:

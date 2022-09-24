@@ -10,6 +10,8 @@ from networkx.generators.random_graphs import erdos_renyi_graph
 from networkx.algorithms import approximation as approx
 import networkx as nx
 import numpy as np
+import pylab as plt
+
 import random
 import operator
 import json
@@ -62,9 +64,13 @@ class RandomTopologyGenerator():
                 if nx.is_connected(g):
                     break
                 else:
-                    seed += 1
+                    self.seed += 1
         
         self.graph = g
+
+        nx.draw(g, with_labels = True)
+        plt.savefig('rg.png')
+        plt.clf()
 
         self.link_property_assign()
         self.weight_assign()

@@ -44,6 +44,6 @@ class RandomConnectionGenerator:
         print(splitted_list)
 
 
-tm = RandomConnectionGenerator(20)
-connection = tm.randomConnectionGenerator(3, 100, 1000, 1000, 1500, 2022)
-split_connection = tm.connectionSplitter(5)
+#tm = RandomConnectionGenerator(20)
+#connection = tm.randomConnectionGenerator(3, 100, 1000, 1000, 1500, 2022)
+#split_connection = tm.connectionSplitter(5)
