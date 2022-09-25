@@ -47,10 +47,9 @@ class TE_Solver:
         print(data['num_constraints'])
         print(len(data['constraint_coeffs']))
         print(num_inequality)
-        for i in range(data['num_constraints'] - num_inequality, data['num_constraints']):
-            constraint_expr = [data['constraint_coeffs'][i][j] * x[j] for j in range(data['num_vars'])]
-            solver.Add(sum(constraint_expr) <= data['bounds'][i]) 
-            print(i)    
+        #for i in range(data['num_constraints'] - num_inequality, data['num_constraints']):
+        #    constraint_expr = [data['constraint_coeffs'][i][j] * x[j] for j in range(data['num_vars'])]
+        #    solver.Add(sum(constraint_expr) <= data['bounds'][i])   
         print('Number of constraints =', solver.NumConstraints())
 
         objective = solver.Objective()
@@ -217,20 +216,21 @@ class TE_Solver:
         
         return inputmatrix,link_list
 
-    #
+    #shape: (len(tm)*numnode, len(num)*2*numedge)
     def lhsflow(self,request_list,inputmatrix):
         r = len(request_list)
         m,n = inputmatrix.shape
         print("r="+str(r)+":m="+str(m)+":n="+str(n))
-        out = np.zeros((r,m,r,n), dtype=inputmatrix.dtype)
-        print("out shape:"+str(len(out)) +":"+str(len(out[0])) 
-        + ":" +str(len(out[0][0]))+":" +str(len(out[0][0][0])) )
-        #print("out shape:"+str(out))
-        diag = np.einsum('ijik->ijk',out)
-        diag[:] = inputmatrix
-        print("diag:" + str(diag.shape))
-        return diag.reshape(m*r,n*r)
-
+        #out = np.zeros((r,m,r,n), dtype=inputmatrix.dtype)
+        #diag = np.einsum('ijik->ijk',out)
+        #diag[:] = inputmatrix
+        #print("diag:" + str(diag.shape))
+        #return diag.reshape(m*r,n*r)
+        out = np.zeros((r*m,r*n), dtype=inputmatrix.dtype)
+        for i in range(r):
+            out[i*m:(i+1)*m,i*n:(i+1)*n]=inputmatrix
+        print("out:"+str(out.shape))
+        return out
     #
     def lhsbw(self,request_list, inputmatrix):
         bwconstraints = []

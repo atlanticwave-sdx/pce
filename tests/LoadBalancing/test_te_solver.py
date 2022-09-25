@@ -9,18 +9,20 @@ import Utility.global_name as global_name
 Connection = './tests/data/test_connection.json'
 Solution = './tests/data/test_MC_solution.json'
 
-N=10
+N=5
+M=1
 class Test_TE_Solver(unittest.TestCase):
     def setUp(self):
         with open(Solution, 'r') as s:
             solution = json.load(s)    
         self.solution = solution
  
-        self.graph_generator = RandomTopologyGenerator(N, 0.2, l_bw= 2000, u_bw=3000, l_lat =1, u_lat=10, seed=2022)
+        self.graph_generator = RandomTopologyGenerator(N, 0.4, l_bw= 5000, u_bw=10000, l_lat =1, u_lat=5, seed=2022)
         self.graph_generator.generate_graph()
 
         self.tm_generator = RandomConnectionGenerator(N)
-        self.tm = self.tm_generator.randomConnectionGenerator(3, 200, 1000, 30, 50, seed = 2022)
+        self.tm = self.tm_generator.randomConnectionGenerator(M, 100, 500, 100, 200, seed = 2022)
+        print("tm:"+str(self.tm))
 
         #with open(Connection) as f:
         #    self.connection = json.load(f)
