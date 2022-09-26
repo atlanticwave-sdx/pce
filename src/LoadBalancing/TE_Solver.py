@@ -44,8 +44,8 @@ class TE_Solver:
         
         print(len(data['bounds']))
         print(data['bounds'])
-        print(data['num_constraints'])
         print(len(data['constraint_coeffs']))
+        print(data['constraint_coeffs'])
         print(num_inequality)
         #for i in range(data['num_constraints'] - num_inequality, data['num_constraints']):
         #    constraint_expr = [data['constraint_coeffs'][i][j] * x[j] for j in range(data['num_vars'])]
@@ -129,8 +129,8 @@ class TE_Solver:
         bounds = []
         for request in self.tm:
             rhs = np.zeros(nodenum, dtype=int)
-            rhs[request[0]] = -1
-            rhs[request[1]] = 1   
+            rhs[request[0]] = 1
+            rhs[request[1]] = -1   
             bounds+=list(rhs)
 
         print("bound 1:"+str(len(bounds)))
@@ -169,7 +169,6 @@ class TE_Solver:
             cost=self.lb_cost(links)
 
         print("cost:"+str(len(cost)))
-        print(type(cost))
 
         coeffs=[]
         for i in range(lhs.shape[0]):

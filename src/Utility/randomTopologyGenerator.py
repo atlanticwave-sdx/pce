@@ -44,7 +44,7 @@ class RandomTopologyGenerator():
         self.low_latency = l_lat   
         self.upper_latency = u_lat 
 
-    def graph(self, g):
+    def set_graph(self, g):
         self.graph = g
 
     def get_graph(self):
