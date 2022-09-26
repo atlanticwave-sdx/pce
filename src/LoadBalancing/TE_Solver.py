@@ -37,6 +37,8 @@ class TE_Solver:
         for j in range(data['num_vars']):
             x[j] = solver.IntVar(0, 1, 'x[%i]' % j)
         print('Number of variables =', solver.NumVariables())
+        print('num_constraints:', data['num_constraints'])
+        print('num_inequality', num_inequality)
 
         for i in range(data['num_constraints']-num_inequality):
             constraint_expr = [data['constraint_coeffs'][i][j] * x[j] for j in range(data['num_vars'])]
@@ -67,14 +69,15 @@ class TE_Solver:
             for j in range(data['num_vars']):
                 # print(x[j].name(), ' = ', x[j].solution_value())
                 solution.append(x[j].solution_value())
-            print()
+            path = np.array(solution).reshape(len(self.tm),-1)
+
             # print('Problem solved in %f milliseconds' % solver.wall_time())
             # print('Problem solved in %d iterations' % solver.iterations())
             # print('Problem solved in %d branch-and-bound nodes' % solver.nodes())
         else:
             print('The problem does not have an optimal solution.')
         
-        return solution, solver.Objective().Value()
+        return path, solver.Objective().Value()
 
     def set_obj(self,obj):
         self.objective = obj
@@ -131,30 +134,40 @@ class TE_Solver:
         bounds = []
         for request in self.tm:
             rhs = np.zeros(nodenum, dtype=int)
-            rhs[request[0]] = 1
-            rhs[request[1]] = -1   
+            rhs[request[0]] = -1
+            rhs[request[1]] = 1   
             bounds+=list(rhs)
 
         print("bound 1:"+str(len(bounds)))
+
         #rhsbw -TODO *2 edges
         bwlinklist = []
-        for u,v,w in g.edges(data=True):
-            bw = w[global_name.bandwidth]
+        for link in links:
+            u=link[0]
+            v=link[1]
+            if g.has_edge(u,v):
+                bw = g[u][v][global_name.bandwidth]
+            elif g.has_edge(v,u):
+                bw = g[v][u][global_name.bandwidth]
+
             bwlinklist.append(bw)
 
         # add the bwconstraint rhs
         bounds+=bwlinklist
         print("bound 2:"+str(len(bounds)))
+
         # add the latconstraint rhs
         bounds+=latconstraint['rhs']
         print("bound 3:"+str(len(bounds)))
+        print(bounds)
+
         #form the constraints: lhs
         flowconstraints = self.lhsflow(self.tm,inputmatrix)
         bwconstraints = self.lhsbw(self.tm, inputmatrix)
 
         print("\n Shape:"+str(len(flowconstraints))+":"+str(len(bwconstraints)))
         #print("\n flow"+str(flowconstraints))
-        print("\n bw:"+str(type(bwconstraints)))
+        #print("\n bw:"+str(type(bwconstraints)))
 
         bw_np = np.array(bwconstraints)
         print("np:"+str(flowconstraints.shape)+":"+str(bw_np.shape))
@@ -171,6 +184,8 @@ class TE_Solver:
             cost=self.lb_cost(links)
 
         print("cost:"+str(len(cost)))
+        print("lhs shape:"+str(lhs.shape))
+        print("rhs shape:"+str(len(bounds)))
 
         coeffs=[]
         for i in range(lhs.shape[0]):
@@ -184,7 +199,7 @@ class TE_Solver:
         jsonoutput['num_constraints'] = len(bounds)
         jsonoutput['obj_coeffs'] = list(cost)
         jsonoutput['num_vars'] = len(cost)
-        jsonoutput['num_inequality'] = linknum + int(len(self.tm))
+        jsonoutput['num_inequality'] = 2*linknum + int(len(self.tm))
 
         return jsonoutput
 
@@ -200,11 +215,13 @@ class TE_Solver:
         keys=adj.keys()
         links = []
         #list of all links
+
         for k in keys:
             links = chain(links,zip(cycle([k]),adj[k]))
         
         #list of links directional: tuple (src,nei), len =2*#edges
         link_list = list(links)
+        #print(link_list)
 
         #flow matrix: 1 means flow into the nodes, -1 meanse flow out of the node
         inputmatrix = np.zeros((nodenum,linknum), dtype=int)
@@ -212,6 +229,7 @@ class TE_Solver:
         for link in link_list:
             src=link[0]
             dest=link[1]
+            #print(str(src)+":"+str(dest)+"\n")
             inputmatrix[src][n] = -1
             inputmatrix[dest][n] = 1
             n+=1
@@ -246,6 +264,7 @@ class TE_Solver:
             for request in request_list:
                 bwconstraints[i][i+count * len(inputmatrix[0])] = request[2]
                 count += 1
+
         return bwconstraints
 
     def latconstraintmaker(self, links):
