@@ -43,14 +43,16 @@ class TE_Solver:
             solver.Add(sum(constraint_expr) == data['bounds'][i])
         
         print(len(data['bounds']))
-        print(data['bounds'])
+        #print(data['bounds'])
         print(len(data['constraint_coeffs']))
-        print(data['constraint_coeffs'])
+        #print(data['constraint_coeffs'])
         print(num_inequality)
-        #for i in range(data['num_constraints'] - num_inequality, data['num_constraints']):
-        #    constraint_expr = [data['constraint_coeffs'][i][j] * x[j] for j in range(data['num_vars'])]
-        #    solver.Add(sum(constraint_expr) <= data['bounds'][i])   
+        
+        for i in range(data['num_constraints'] - num_inequality, data['num_constraints']):
+            constraint_expr = [data['constraint_coeffs'][i][j] * x[j] for j in range(data['num_vars'])]
+            solver.Add(sum(constraint_expr) <= data['bounds'][i])   
         print('Number of constraints =', solver.NumConstraints())
+
 
         objective = solver.Objective()
         for j in range(data['num_vars']):
@@ -203,16 +205,17 @@ class TE_Solver:
         
         #list of links directional: tuple (src,nei), len =2*#edges
         link_list = list(links)
+
         #flow matrix: 1 means flow into the nodes, -1 meanse flow out of the node
         inputmatrix = np.zeros((nodenum,linknum), dtype=int)
         n=0
-        for link in links:
+        for link in link_list:
             src=link[0]
             dest=link[1]
             inputmatrix[src][n] = -1
-            inputmatrix[n][dest] = 1
+            inputmatrix[dest][n] = 1
             n+=1
-        
+
         return inputmatrix,link_list
 
     #shape: (len(tm)*numnode, len(num)*2*numedge)
@@ -225,6 +228,7 @@ class TE_Solver:
         #diag[:] = inputmatrix
         #print("diag:" + str(diag.shape))
         #return diag.reshape(m*r,n*r)
+        print(inputmatrix)
         out = np.zeros((r*m,r*n), dtype=inputmatrix.dtype)
         for i in range(r):
             out[i*m:(i+1)*m,i*n:(i+1)*n]=inputmatrix
