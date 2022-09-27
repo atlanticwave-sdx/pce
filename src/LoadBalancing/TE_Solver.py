@@ -17,10 +17,16 @@ import json
 import copy
 
 import Utility.global_name as global_name
+from Utility.functions import GraphFunction
 
 class TE_Solver:
-    def __init__(self, g = None, tm = None, obj = global_name.Obj_Cost):
+    def __init__(self, g = None, tm = None, cost_flag=0, obj = global_name.Obj_Cost):
         self.graph = g
+
+        self.graphFunction = GraphFunction()
+        self.graphFunction.set_graph(self.graph)
+        self.graphFunction.weight_assign(cost_flag)
+
         self.objective = obj
         self.tm = tm
 

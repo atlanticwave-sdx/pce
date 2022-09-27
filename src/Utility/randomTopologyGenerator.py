@@ -3,7 +3,7 @@
 """
 Created on Tue Mar  8 13:34:06 2022
 
-@author: yifeiwang
+@author: Yufeng Xin (yxin@renci.org)
 """
 import time
 from networkx.generators.random_graphs import erdos_renyi_graph
@@ -19,6 +19,7 @@ import json
 import copy
 
 import Utility.global_name as global_name
+from Utility.functions import GraphFunction
 
 class RandomTopologyGenerator():
     # inputs:
@@ -35,6 +36,8 @@ class RandomTopologyGenerator():
         self.upper_bw = u_bw
         self.low_latency = l_lat   
         self.upper_latency = u_lat 
+
+        self.graphFunction = GraphFunction()
 
     def bw_range(self, l_bw, u_bw):
         self.low_bw = l_bw   
@@ -73,7 +76,10 @@ class RandomTopologyGenerator():
         plt.clf()
 
         self.link_property_assign()
-        self.weight_assign()
+
+        self.graphFunction.set_graph(g)
+
+        self.graphFunction.weight_assign()
 
         return self.graph
 

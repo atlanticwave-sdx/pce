@@ -15,21 +15,18 @@ class GraphFunction():
     def __init__(self, g = None)  -> None:
         self.graph = g
 
-    def dijsktra(self,u,v):
-        pass
-
-    def backup(self, u, v):
-        pass
+    def set_graph(self, g=None):
+        self.graph = g
 
     # set weight (cost) per link, assuming the objective is minizing a function of weight 
     #   flag:
     #       1: bw: weight = alpha*(1.0/bw)
     #       2: latency: weight = latency
-    #       2: random: weight = random cost
-    #       3: cost: given from outside (static) definition
-    #       default: hop: weight =1
-    def weight_assign(self, flag=5, cost=None):
-        random.seed(self.seed)
+    #       3: random: weight = random cost
+    #       4: cost: given from outside (static) definition
+    #       0 and default: hop: weight =1
+    def weight_assign(self, flag=0, cost=None):
+
         distance_list = []
 
         if flag == 1:
@@ -67,6 +64,11 @@ class GraphFunction():
     def biconnectivity(self):
         pass
 
+    def dijsktra(self,u,v):
+        pass
+
+    def backup(self, u, v):
+        pass
 
 def create_unvisited_list(link_list):
     unvisited_list=[]

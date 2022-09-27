@@ -12,6 +12,7 @@ Solution = './tests/data/test_MC_solution.json'
 
 N=25
 M=3
+COST_FLAG=0
 class Test_TE_Solver(unittest.TestCase):
     def setup(self):
         self.graph=None
@@ -36,7 +37,7 @@ class Test_TE_Solver(unittest.TestCase):
     def test_mc_solve(self):
         self.random_graph()
         print("tm:"+str(self.tm))
-        solver = TE_Solver(self.graph, self.tm)
+        solver = TE_Solver(self.graph, self.tm, COST_FLAG)
 
         solver.create_data_model()
 
@@ -50,7 +51,7 @@ class Test_TE_Solver(unittest.TestCase):
     def test_lb_solve(self):
         self.random_graph()
         print("tm:"+str(self.tm))
-        solver = TE_Solver(self.graph, self.tm, obj = global_name.Obj_LB)
+        solver = TE_Solver(self.graph, self.tm, COST_FLAG, global_name.Obj_LB)
 
         solver.create_data_model()
 
@@ -70,7 +71,7 @@ class Test_TE_Solver(unittest.TestCase):
         with open("./tests/data/test_five_node_request.json") as f:
            self.tm = json.load(f)
 
-        solver = TE_Solver(self.graph, self.tm)
+        solver = TE_Solver(self.graph, self.tm, COST_FLAG)
         solver.create_data_model()
         path,result = solver.solve()
 
