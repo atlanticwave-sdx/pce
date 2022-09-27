@@ -19,8 +19,8 @@ import copy
 import Utility.global_name as global_name
 
 class TE_Solver:
-    def __init__(self, g_g = None, tm = None, obj = global_name.Obj_Cost):
-        self.graph_generator = g_g 
+    def __init__(self, g = None, tm = None, obj = global_name.Obj_Cost):
+        self.graph = g
         self.objective = obj
         self.tm = tm
 
@@ -84,7 +84,7 @@ class TE_Solver:
     
     #form OR matrix
     def mc_cost(self,links):
-        g=self.graph_generator.get_graph()
+        g=self.graph
         cost_list=[]
         for link in links:
             cost_list.append(g[link[0]][link[1]][global_name.weight])
@@ -96,7 +96,7 @@ class TE_Solver:
         return cost
 
     def lb_cost(self,links):
-        g=self.graph_generator.get_graph()
+        g=self.graph
         cost_list=[]
         for link in links:
             cost_list.append(g[link[0]][link[1]][global_name.weight])
@@ -109,7 +109,7 @@ class TE_Solver:
         return cost
 
     def create_data_model(self):
-        g=self.graph_generator.get_graph()
+        g=self.graph
 
         nodenum = g.number_of_nodes()
         linknum = g.number_of_edges()
@@ -178,12 +178,16 @@ class TE_Solver:
         lhs=np.concatenate((flow_lhs,latconstraint['lhs']))
 
         #objective function
+        print(self.objective)
         if self.objective == global_name.Obj_Cost:
+            print("Objecive: Cost")
             cost=self.mc_cost(links)
         if self.objective == global_name.Obj_LB:
+            print("Objecive: Load Balance")
             cost=self.lb_cost(links)
 
-        print("cost:"+str(len(cost)))
+        print("cost len:"+str(len(cost)))
+        #print(cost)
         print("lhs shape:"+str(lhs.shape))
         print("rhs shape:"+str(len(bounds)))
 
@@ -275,7 +279,7 @@ class TE_Solver:
         print("request:"+str(len(request_list)))
         print("links:"+str(len(links)))
 
-        g=self.graph_generator.get_graph()
+        g=self.graph
         zerolist = np.zeros(len(links),dtype=int)
         latency_list=[]
         for link in links:

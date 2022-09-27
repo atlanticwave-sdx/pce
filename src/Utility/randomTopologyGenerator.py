@@ -96,7 +96,7 @@ class RandomTopologyGenerator():
     #       2: random: weight = random cost
     #       3: cost: given from outside (static) definition
     #       default: hop: weight =1
-    def weight_assign(self, flag=1, cost=None):
+    def weight_assign(self, flag=5, cost=None):
         random.seed(self.seed)
         distance_list = []
 
