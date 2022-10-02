@@ -19,8 +19,8 @@ class RandomConnectionGenerator:
         connection = []
         for i in range(querynum):
             query = []
-            query.append(np.random.randint(1,(self.num_nodes+1)/2))
-            query.append(np.random.randint((self.num_nodes+1)/2, self.num_nodes + 1))
+            query.append(np.random.randint(1,(self.num_nodes+1)/2.0))
+            query.append(np.random.randint((self.num_nodes+1)/2.0, self.num_nodes))
             query.append(np.random.randint(l_bw, u_bw))
             query.append(np.random.randint(l_lat, u_lat))
             connection.append(query)
