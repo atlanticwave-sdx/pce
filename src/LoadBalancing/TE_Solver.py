@@ -69,7 +69,7 @@ class TE_Solver:
 
         status = solver.Solve()
         solution = []
-
+        path=None
         if status == pywraplp.Solver.OPTIMAL:
             print('Objective value =', solver.Objective().Value())
             for j in range(data['num_vars']):

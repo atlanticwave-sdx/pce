@@ -17,15 +17,28 @@ class RandomConnectionGenerator:
         """
         np.random.seed(seed)
         connection = []
-        for i in range(querynum):
-            query = []
-            query.append(np.random.randint(1,(self.num_nodes+1)/2.0))
-            query.append(np.random.randint((self.num_nodes+1)/2.0, self.num_nodes))
-            query.append(np.random.randint(l_bw, u_bw))
-            query.append(np.random.randint(l_lat, u_lat))
-            connection.append(query)
+        if querynum <= self.num_nodes:
+            for i in range(querynum):
+                query = []
+                query.append(np.random.randint(1,(self.num_nodes+1)/2.0))
+                query.append(np.random.randint((self.num_nodes+1)/2.0, self.num_nodes))
+                query.append(np.random.randint(l_bw, u_bw))
+                query.append(np.random.randint(l_lat, u_lat))
+                connection.append(query)
+        else:
+            for i in range(querynum):
+                query = []
+                src=np.random.randint(0,self.num_nodes)
+                query.append(src)
+                dest=np.random.randint(0,self.num_nodes)
+                while (dest ==src):
+                    dest=np.random.randint(0,self.num_nodes)
+                query.append(dest)
+                query.append(np.random.randint(l_bw, u_bw))
+                query.append(np.random.randint(l_lat, u_lat))
+                connection.append(query)
 
-        with open('../test/data/connection.json', 'w') as json_file:
+        with open('connection.json', 'w') as json_file:
             data = connection
             json.dump(data, json_file, indent=4)
         
@@ -37,7 +50,7 @@ class RandomConnectionGenerator:
 
         splitted_list = [connection[x:x+group_size] for x in range(0, len(connection),group_size)]
 
-        with open('../test/data/splittedconnection.json', 'w') as json_file:
+        with open('splittedconnection.json', 'w') as json_file:
             data = splitted_list
             json.dump(data, json_file, indent=4)
 
