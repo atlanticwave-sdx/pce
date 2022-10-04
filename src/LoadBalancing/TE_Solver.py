@@ -165,7 +165,7 @@ class TE_Solver:
         # add the latconstraint rhs
         bounds+=latconstraint['rhs']
         print("bound 3:"+str(len(bounds)))
-        print(bounds)
+        #print(bounds)
 
         #form the constraints: lhs
         flowconstraints = self.lhsflow(self.tm,inputmatrix)
@@ -295,7 +295,7 @@ class TE_Solver:
         for i in range(requestnum):
             constraint = []
             constraint = i*zerolist.tolist() + latency_list + (requestnum - 1 - i) * zerolist.tolist()
-            print("constraint:"+str(len(constraint)))
+            #print("constraint:"+str(len(constraint)))
             lhs.append(constraint)
 
         for request in request_list:
