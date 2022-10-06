@@ -25,7 +25,7 @@ class RandomTopologyGenerator():
     # inputs:
     #   N: Total number of the random network's nodes
     #   P: link creation probability
-    def __init__(self, N, P, l_bw= 2000, u_bw=3000, l_lat =1, u_lat=10, seed=2022):
+    def __init__(self, N, P = 0.2, l_bw= global_name.Min_L_BW, u_bw=global_name.Max_L_bw, l_lat =global_name.Min_L_LAT, u_lat=global_name.Max_L_LAT, seed=2022):
         random.seed(seed)
         self.seed=seed
 
@@ -65,7 +65,12 @@ class RandomTopologyGenerator():
             while True:
                 g = erdos_renyi_graph(self.num_node, self.link_probability, self.seed)
                 if nx.is_connected(g):
-                    break
+                    connectivity = approx.node_connectivity(g)
+                    if connectivity>1:
+                        print("Connectivity:"+str(connectivity))
+                        break
+                    else:
+                        self.seed += 1
                 else:
                     self.seed += 1
         

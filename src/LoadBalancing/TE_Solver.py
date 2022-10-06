@@ -75,7 +75,10 @@ class TE_Solver:
             for j in range(data['num_vars']):
                 # print(x[j].name(), ' = ', x[j].solution_value())
                 solution.append(x[j].solution_value())
+            
             path = np.array(solution).reshape(len(self.tm),-1)
+            print(path.shape)
+            print(path)
 
             # print('Problem solved in %f milliseconds' % solver.wall_time())
             # print('Problem solved in %d iterations' % solver.iterations())
@@ -111,7 +114,7 @@ class TE_Solver:
             bw=connection[2]
             #cost += cost_list       
             cost+=[bw/link for link in cost_list]
-        
+
         return cost
 
     def create_data_model(self):
@@ -171,7 +174,7 @@ class TE_Solver:
         flowconstraints = self.lhsflow(self.tm,inputmatrix)
         bwconstraints = self.lhsbw(self.tm, inputmatrix)
 
-        print("\n Shape:"+str(len(flowconstraints))+":"+str(len(bwconstraints)))
+        print("\nConstraints Shape:"+str(len(flowconstraints))+":"+str(len(bwconstraints)))
         #print("\n flow"+str(flowconstraints))
         #print("\n bw:"+str(type(bwconstraints)))
 
@@ -184,7 +187,6 @@ class TE_Solver:
         lhs=np.concatenate((flow_lhs,latconstraint['lhs']))
 
         #objective function
-        print(self.objective)
         if self.objective == global_name.Obj_Cost:
             print("Objecive: Cost")
             cost=self.mc_cost(links)

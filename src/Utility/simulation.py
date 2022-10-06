@@ -7,15 +7,15 @@ import Utility.global_name as global_name
 
 def random_graph(n, p, m):
  
-    graph_generator = RandomTopologyGenerator(n, p, l_bw= 10000, u_bw=50000, l_lat =10, u_lat=20, seed=2022)
+    graph_generator = RandomTopologyGenerator(n, p)
     graph=graph_generator.generate_graph()
 
     tm_generator = RandomConnectionGenerator(n)
-    tm = tm_generator.randomConnectionGenerator(m, 5000, 15000, 50, 80, seed = 2022)
+    tm = tm_generator.randomConnectionGenerator(m, 1000, 5000, 50, 100)
 
     return graph,tm
 
-def graph_file(g_file, tm_file):
+def dot_file(g_file, tm_file):
     pass
 
 if __name__ == "__main__":
@@ -24,8 +24,9 @@ if __name__ == "__main__":
     parse.add_argument('-n', dest='n', required=False, help='Number of nodes when creating random topology', type=int)
     parse.add_argument('-p', dest='p', required=False, help='Probability of links when random topology', type=float)
     parse.add_argument('-m', dest='m', required=False, help='Number of connections in the random TE', type=int)
-    parse.add_argument('-c', dest='c', required=False, help='Link cost definition', type=str)
-    parse.add_argument('-b', dest='b', required=False, help='Objective: MinCost or Load balancing', type=str)
+    parse.add_argument('-c', dest='c', required=False, default=0, help='Link cost definition', type=int)
+    parse.add_argument('-b', dest='b', required=False, default=0, help='Objective: MinCost or Load balancing', type=int)
+    parse.add_argument('-l', dest='l', required=False, help='Objective: MinCost or Load balancing', type=str)
     parse.add_argument('-t', dest='te_file', required=False, help='Input file for the connections or traiffc matrix, e.g. c connection.json. Required.', type=str)
     parse.add_argument('-g', dest='topology_file', required=False, help='Input file for the network topology, e.g. t topology.json. Required.', type=str)
     parse.add_argument('-o' , dest='result', default='OUTPUT.txt', help='Output file, e.g. o result.txt. If this option is not given, assume standard output.', type=str)
@@ -35,7 +36,7 @@ if __name__ == "__main__":
     
     if args.topology_file is not None:
         if args.te_file is not None:
-            graph, tm = graph_file(args.topology_file,args.te_file)
+            graph, tm = dot_file(args.topology_file,args.te_file)
         else:
             print("Missing files!")
             exit()    
@@ -52,9 +53,13 @@ if __name__ == "__main__":
 
         graph, tm = random_graph(args.n,args.p,args.m)
 
+    if args.c == global_name.COST_FLAG_STATIC: #4
+        if args.l is None:
+            print("Error: Static cost file is needed!")
+            exit(1)
 
-    solver = TE_Solver(graph, tm, global_name.COST_FLAG_HOP)
+    solver = TE_Solver(graph, tm, args.c, args.b)
 
-    solver.create_data_model()
+    #solver.create_data_model()
 
     path,result = solver.solve()
