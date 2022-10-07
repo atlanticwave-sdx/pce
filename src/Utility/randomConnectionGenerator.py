@@ -48,24 +48,33 @@ class RandomConnectionGenerator:
         return connection
 
     def lognormal(self, mu, sigma, size):
-        normal_std = np.sqrt(np.log(1 + (sigma/mu)**2))
+        normal_std = 0.5
+        #normal_std = np.sqrt(np.log(1 + (sigma/mu)**2))
         normal_mean = np.log(mu) - normal_std**2 / 2
         return np.random.lognormal(normal_mean, normal_std, size)
 
     def random(self, min, mx, size):
         return np.random.randint(min, max, 1000)
 
-    def connectionSplitter(self, connection, group_size):
-        if len(connection) > 20:
-            connection.sort(key=lambda x: x[2])
+    def linearGrouping(self, tm, k):
+        if len(tm) > 20:
+            tm.sort(key=lambda x: x[2])
 
-        splitted_list = [connection[x:x+group_size] for x in range(0, len(connection),group_size)]
+        group_list = [tm[x:x + k] for x in range(0, len(tm), k)]
 
-        with open('splittedconnection.json', 'w') as json_file:
-            data = splitted_list
-            json.dump(data, json_file, indent=4)
+        #with open('splittedconnection.json', 'w') as json_file:
+        #    data = splitted_list
+        #    json.dump(data, json_file, indent=4)
 
-        print(splitted_list)
+        print(group_list)
+
+        return group_list
+
+    def geometricGrouping(self, tm, k):
+        pass
+
+    def altGeometricGrouping(self, tm, k):
+        pass
 
 
 #tm = RandomConnectionGenerator(20)

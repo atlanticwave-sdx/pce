@@ -11,7 +11,7 @@ def random_graph(n, p, m):
     graph=graph_generator.generate_graph()
 
     tm_generator = RandomConnectionGenerator(n)
-    tm = tm_generator.randomConnectionGenerator(m, 1000, 5000, 50, 100)
+    tm = tm_generator.randomConnectionGenerator(m, 500, 3000, 50, 100)
 
     return graph,tm
 
