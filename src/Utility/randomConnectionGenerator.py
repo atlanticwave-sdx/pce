@@ -26,7 +26,7 @@ class RandomConnectionGenerator:
                 #query.append(np.random.randint(l_bw, u_bw))
                 query.append(bw[i])
                 query.append(np.random.randint(l_lat, u_lat))
-                connection.append(query)
+                connection.append(tuple(query))
         else:
             for i in range(querynum):
                 query = []
@@ -39,7 +39,7 @@ class RandomConnectionGenerator:
                 #query.append(np.random.randint(l_bw, u_bw))
                 query.append(bw[i])
                 query.append(np.random.randint(l_lat, u_lat))
-                connection.append(query)
+                connection.append(tuple(query))
 
         with open('connection.json', 'w') as json_file:
             data = connection

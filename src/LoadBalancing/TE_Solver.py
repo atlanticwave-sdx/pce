@@ -30,6 +30,8 @@ class TE_Solver:
         self.objective = obj
         self.tm = tm
 
+        self.links=None #list of links[src][dest], 2*numEdges 
+
     def solve(self):
         data = self.create_data_model()
         
@@ -88,6 +90,45 @@ class TE_Solver:
         
         return path, solver.Objective().Value()
 
+    def solution_translator(self,paths,solution):
+        #extract the edge/path
+        real_paths=[]
+        for path in paths:
+            real_path=[]
+            i=0
+            for edge in path:
+                if abs(edge - 1) < 0.001: # =1: edge on the path
+                    real_path.append(self.links[i])
+                i=i+1
+            real_paths.append(real_path)
+
+        #associate with the TM requests
+        ordered_paths={}
+        for connection in self.tm:
+            src=connection[0]
+            dest=connection[1]
+            bw=connection[2]
+            latency=connection[3]
+            ordered_path=[]
+            ordered_paths[(src,dest,bw)] = ordered_path
+            print("src:"+str(src)+"-dest:"+str(dest))
+            for path in real_paths:
+                i=0
+                print(i)
+                while src != dest and i<10:
+                    for edge in path:
+                        print("edge:"+str(edge))
+                        if edge[0] == src:
+                            ordered_path.append(edge)
+                            src=edge[1]
+                    if src==dest:
+                        print(src)
+                        print(dest)
+                        break
+                    i=i+1
+        print(ordered_paths)
+        return ordered_paths
+
     def set_obj(self,obj):
         self.objective = obj
     
@@ -128,7 +169,7 @@ class TE_Solver:
 
         #graph flow matrix
         inputmatrix,links = self.flow_matrix(g)
-        
+        self.links=links
         #inputdistancelist:link weight
         #distance_list=self.graph_generator.get_distance_list()
         #latency_list=self.graph_generator.get_latency_list()
