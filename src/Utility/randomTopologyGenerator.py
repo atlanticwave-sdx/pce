@@ -59,7 +59,7 @@ class RandomTopologyGenerator():
     def get_distance_list(self):
         return self.distance_list
 
-    def generate_graph(self,plt = False, g=None):
+    def generate_graph(self,plot = True, g=None):
         #generate a random graph
         if g is None:
             while True:
@@ -76,7 +76,7 @@ class RandomTopologyGenerator():
         
         self.graph = g
 
-        if plt:
+        if plot:
             nx.draw(g, with_labels = True)
             plt.savefig('rg.png')
             plt.clf()

@@ -103,6 +103,7 @@ class TE_Solver:
             real_paths.append(real_path)
 
         #associate with the TM requests
+        id_connection=0
         ordered_paths={}
         for connection in self.tm:
             src=connection[0]
@@ -112,20 +113,20 @@ class TE_Solver:
             ordered_path=[]
             ordered_paths[(src,dest,bw)] = ordered_path
             print("src:"+str(src)+"-dest:"+str(dest))
-            for path in real_paths:
-                i=0
-                print(i)
-                while src != dest and i<10:
-                    for edge in path:
-                        print("edge:"+str(edge))
-                        if edge[0] == src:
-                            ordered_path.append(edge)
-                            src=edge[1]
-                    if src==dest:
-                        print(src)
-                        print(dest)
+            path = real_paths[id_connection]
+            i=0
+            while src != dest and i<10:
+                for edge in path:
+                    #print("edge:"+str(edge))
+                    if edge[0] == src:
+                        ordered_path.append(edge)
+                        src=edge[1]
                         break
-                    i=i+1
+                    #if src==dest:
+                    #    print("ordered the path:"+str(src) +":"+str(dest)+":"+str(i)+";"+str(ordered_path))
+                    #    break
+                i=i+1
+            id_connection=id_connection+1
         print(ordered_paths)
         return ordered_paths
 
