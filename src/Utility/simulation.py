@@ -13,7 +13,7 @@ def random_graph(n, p, m):
     graph=graph_generator.generate_graph()
 
     tm_generator = RandomConnectionGenerator(n)
-    tm = tm_generator.randomConnectionGenerator(m, 500, 5000, 80, 100)
+    tm = tm_generator.randomConnectionGenerator(m, 500, 1000, 80, 100)
 
     return graph,tm
 

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+#SBATCH --mail-type=begin --mail-type=end --mail-type=fail --mail-user=yxin@email.unc.edu
+#SBATCH -p batch
+#SBATCH --mem=128g
+
+#SBATCH --ntasks=2
+
+#SBATCH --output=simulation.%A_%a.out
+#SBATCH --error=simulation.%A_%a.error
+
+#SBATCH --array=10-110:10
+
+echo "My SLURM_ARRAY_TASK_ID: " $SLURM_ARRAY_TASK_ID
+echo "Welcome $SLURM_ARRAY_TASK_ID times"
+start=$(date +%s.%N)
+	
+python src/Utility/simulation.py -m $SLURM_ARRAY_TASK_ID -p 0.2 -c 1 -b 1
+	
+duration=$(echo "$(date +%s.%N) - $start" | bc)
+execution_time=`printf "%.2f seconds" $duration`
+
+echo "Script Execution Time: $execution_time"
+

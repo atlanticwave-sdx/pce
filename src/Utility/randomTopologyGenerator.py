@@ -68,6 +68,7 @@ class RandomTopologyGenerator():
                     connectivity = approx.node_connectivity(g)
                     if connectivity>1:
                         print("Connectivity:"+str(connectivity))
+                        print("Min edge cut:"+str(len(nx.minimum_edge_cut(g))))
                         break
                     else:
                         self.seed += 1
