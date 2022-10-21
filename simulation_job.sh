@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --mail-type=begin --mail-type=end --mail-type=fail --mail-user=yxin@email.unc.edu
+#SBATCH --mail-type=begin,end,fail --mail-user=yxin@email.unc.edu
 #SBATCH -p batch
 #SBATCH --mem=128g
 
