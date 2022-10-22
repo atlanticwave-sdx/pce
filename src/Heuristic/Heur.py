@@ -30,7 +30,7 @@ class TE_Group_Solver():
         connection grouping: linear grouping (k largest items on); geometric grouping (interval [B/2^(r+1), B/2^2])  
     """
 
-    def __init__(self, tm, topology, cost, objective):
+    def __init__(self, topology, tm, cost, objective):
         self.tm = tm
         self.topology = topology
         self.cost = cost
@@ -69,9 +69,9 @@ class TE_Group_Solver():
             dtype = {'names':['src', 'dest', 'bandwidth', 'latency'], 'formats':[int, int, float, float]}
             self.pad=k-mod
             pad_zeros = np.zeros((self.pad,),dtype=dtype)
-            print(pad_zeros)
-            print(type(pad_zeros))
-            print(sorted_tm.shape)
+            #print(pad_zeros)
+            #print(type(pad_zeros))
+            #print(sorted_tm.shape)
             partition = sorted_tm[0:mod-1]
             sorted_tm = np.append(pad_zeros,sorted_tm, axis=0)
             num=num+1
@@ -107,13 +107,13 @@ class TE_Group_Solver():
         partition_shape = np.shape(partition_tm)
         graph = self.topology
         for i in range(partition_shape[0]-1,-1,-1):
-            print("i="+str(i))
+            #print("i="+str(i))
             if i==0:
                 partition=partition_tm[i][self.pad:]
             else:
                 partition=partition_tm[i] 
             print(partition)
-            solver = TE_Solver(graph, partition, args.c, args.b)
+            solver = TE_Solver(graph, partition, self.cost, self.objective)
             path,result = solver.solve()
             ordered_paths = solver.solution_translator(path,result)
             graph=self.update_graph(graph,ordered_paths)
@@ -171,7 +171,7 @@ if __name__ == '__main__':
 
         graph, tm = random_graph(n,p,args.m)
 
-    te = TE_Group_Solver(tm, graph, args.c, args.b)
+    te = TE_Group_Solver(graph, tm, args.c, args.b)
     partition_tm = te.ConnectionSplit(args.alg, args.group)
     te.solve(partition_tm)
 

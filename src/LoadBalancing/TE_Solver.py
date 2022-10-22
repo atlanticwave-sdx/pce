@@ -112,7 +112,7 @@ class TE_Solver:
             latency=connection[3]
             ordered_path=[]
             ordered_paths[(src,dest,bw)] = ordered_path
-            print("src:"+str(src)+"-dest:"+str(dest))
+            #print("src:"+str(src)+"-dest:"+str(dest))
             path = real_paths[id_connection]
             i=0
             while src != dest and i<10:

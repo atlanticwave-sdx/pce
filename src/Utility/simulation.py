@@ -32,6 +32,8 @@ if __name__ == "__main__":
     parse.add_argument('-t', dest='te_file', required=False, help='Input file for the connections or traiffc matrix, e.g. c connection.json. Required.', type=str)
     parse.add_argument('-g', dest='topology_file', required=False, help='Input file for the network topology, e.g. t topology.json. Required.', type=str)
     parse.add_argument('-heur', dest='heur', default=0, help='Heuristic = 1, Default = 0 for the optimal. ', type=int)
+    parse.add_argument('-k', dest='k', default=2, help='Group Heuristic  -- Number of groups', type=int)
+    parse.add_argument('-a', dest='alg', default=0, help='Flag for different grouping heuristic algorithms, default is the linear partition', type=int)
     parse.add_argument('-o' , dest='result', default='OUTPUT.txt', help='Output file, e.g. o result.txt. If this option is not given, assume standard output.', type=str)
 
     parse.print_help()
@@ -64,7 +66,10 @@ if __name__ == "__main__":
     if args.heur == 0:
         print(tm)
         solver = TE_Solver(graph, tm, args.c, args.b)
+        path,result = solver.solve()
     else:
         solver = TE_Group_Solver(graph, tm, args.c, args.b)
+        partition_tm = solver.ConnectionSplit(args.alg, args.k)
+        solver.solve(partition_tm)
 
-    path,result = solver.solve()
+    
