@@ -6,8 +6,8 @@
 #SBATCH --time=0-12:00:00
 #SBATCH --ntasks=2
 
-#SBATCH --output=simulation.%A_%a.out
-#SBATCH --error=simulation.%A_%a.error
+#SBATCH --output=heur.%A_%a.out
+#SBATCH --error=heur.%A_%a.error
 
 #SBATCH --array=2,5,10,15,20
 
