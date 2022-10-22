@@ -3,13 +3,16 @@
 #SBATCH --mail-type=begin,end,fail --mail-user=yxin@email.unc.edu
 #SBATCH -p batch
 #SBATCH --mem=128g
-
+#SBATCH --time=0-12:00:00
 #SBATCH --ntasks=2
 
 #SBATCH --output=simulation.%A_%a.out
 #SBATCH --error=simulation.%A_%a.error
 
 #SBATCH --array=10-110:10
+
+export PYTHONPATH=$PYTHONPATH:$PWD/src
+pip install -r requirements.txt
 
 echo "My SLURM_ARRAY_TASK_ID: " $SLURM_ARRAY_TASK_ID
 echo "Welcome $SLURM_ARRAY_TASK_ID times"
