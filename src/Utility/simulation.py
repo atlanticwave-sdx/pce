@@ -20,6 +20,23 @@ def random_graph(n, p, m):
 def dot_file(g_file, tm_file):
     pass
 
+def bw_stat(g):
+    total_weigh=0.0
+    total_util=0.0
+    max_util=0.0
+    for (u,v,w) in g.edges(data=True):
+        avail_bw = w[global_name.bandwidth]
+        bw = w[global_name.original_bandwidth]
+        weight = global_name.alpha*(1.0/avail_bw)
+        total_weigh=total_weigh + weight
+        util = 1.0 - avail_bw/bw
+        total_util = total_util + util
+        if util > max_util:
+            max_util=util
+    
+    print("total_weight="+str(total_weigh)+";total_util="+str(total_util)+";max_util="+str(max_util))
+
+
 if __name__ == "__main__":
     parse = argparse.ArgumentParser()
 
@@ -47,15 +64,12 @@ if __name__ == "__main__":
             exit()    
     else:
         if args.n is None:
-            print("Using default:"+"n=25;")
             args.n = 25
         if args.p is None:
-            print("Using default:"+"p=0.2")
             args.p = 0.2
         if args.m is None:
-            print("Using default:"+"m=3")
             args.m = 3
-
+        print("n="+str(args.n)+";p="+str(args.p)+";m="+str(args.m))
         graph, tm = random_graph(args.n,args.p,args.m)
 
     if args.c == global_name.COST_FLAG_STATIC: #4
@@ -64,12 +78,17 @@ if __name__ == "__main__":
             exit(1)
 
     if args.heur == 0:
-        print(tm)
+        print("Optimal solver")
         solver = TE_Solver(graph, tm, args.c, args.b)
         path,result = solver.solve()
+        ordered_paths = solver.solution_translator(path,result)
+        graph=solver.update_graph(graph,ordered_paths)
     else:
+        print("Heuristic solver")
         solver = TE_Group_Solver(graph, tm, args.c, args.b)
         partition_tm = solver.ConnectionSplit(args.alg, args.k)
         solver.solve(partition_tm)
+
+    bw_stat(graph)
 
     

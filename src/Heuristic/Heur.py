@@ -87,21 +87,6 @@ class TE_Group_Solver():
 
     def alt_partition(self):
         pass
-
-    def update_graph(self,graph,paths):
-        for connection, path in paths.items():
-            
-            src=connection[0]
-            dest=connection[1]
-            bw=connection[2]
-
-            for edge in path:
-                u=edge[0]
-                v=edge[1]
-                if graph.has_edge(u,v):
-                    bandwidth = graph[u][v][global_name.bandwidth] - bw
-                    graph[u][v][global_name.bandwidth] = max(bandwidth,0)
-        return graph
     
     def solve(self, partition_tm):
         partition_shape = np.shape(partition_tm)
@@ -116,7 +101,7 @@ class TE_Group_Solver():
             solver = TE_Solver(graph, partition, self.cost, self.objective)
             path,result = solver.solve()
             ordered_paths = solver.solution_translator(path,result)
-            graph=self.update_graph(graph,ordered_paths)
+            graph=solver.update_graph(graph,ordered_paths)
 
     def Heuristic_CSP(self,connection,g):
         self.ConnectionSplit(connection)

@@ -130,6 +130,21 @@ class TE_Solver:
         print(ordered_paths)
         return ordered_paths
 
+    def update_graph(self,graph,paths):
+        for connection, path in paths.items():
+            
+            src=connection[0]
+            dest=connection[1]
+            bw=connection[2]
+
+            for edge in path:
+                u=edge[0]
+                v=edge[1]
+                if graph.has_edge(u,v):
+                    bandwidth = graph[u][v][global_name.bandwidth] - bw
+                    graph[u][v][global_name.bandwidth] = max(bandwidth,0)
+        return graph
+
     def set_obj(self,obj):
         self.objective = obj
     
@@ -150,7 +165,7 @@ class TE_Solver:
         g=self.graph
         cost_list=[]
         for link in links:
-            cost_list.append(g[link[0]][link[1]][global_name.weight])
+            cost_list.append(g[link[0]][link[1]][global_name.bandwidth])
         cost = []
         for connection in self.tm:
             bw=connection[2]

@@ -1,5 +1,5 @@
 bandwidth = 'bandwidth'
-residual_bandwidth = 'residual_bandwidth'
+original_bandwidth = 'original_bandwidth'
 latency = 'latency'
 packet_loss = 'packet_loss'
 availability = 'availability'
@@ -20,3 +20,4 @@ Max_L_bw = 10000
 Min_L_LAT = 10 
 Max_L_LAT = 25
 
+alpha=10^6

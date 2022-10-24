@@ -96,6 +96,7 @@ class RandomTopologyGenerator():
         self.latency_list = []
         for (u,v,w) in self.graph.edges(data=True):
             w[global_name.bandwidth] = random.randint(self.low_bw,self.upper_bw)
+            w[global_name.original_bandwidth] = w[global_name.bandwidth]
             latency = random.randint(self.low_latency,self.upper_latency) 
             w[global_name.latency] =latency
             self.latency_list.append(latency)
@@ -114,9 +115,8 @@ class RandomTopologyGenerator():
         distance_list = []
 
         if flag == 1:
-            alpha=10^6
             for (u,v,w) in self.graph.edges(data=True):
-                w[global_name.weight] = alpha*(1.0/w[global_name.bandwidth])
+                w[global_name.weight] = global_name.alpha*(1.0/w[global_name.bandwidth])
                 distance_list.append(w[global_name.weight])
         elif flag == 2:
             for (u,v,w) in self.graph.edges(data=True):
