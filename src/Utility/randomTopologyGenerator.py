@@ -25,7 +25,7 @@ class RandomTopologyGenerator():
     # inputs:
     #   N: Total number of the random network's nodes
     #   P: link creation probability
-    def __init__(self, N, P = 0.2, l_bw= global_name.Min_L_BW, u_bw=global_name.Max_L_bw, l_lat =global_name.Min_L_LAT, u_lat=global_name.Max_L_LAT, seed=2022):
+    def __init__(self, N, P = 0.2, l_bw= global_name.Min_L_BW, u_bw=global_name.Max_L_BW, l_lat =global_name.Min_L_LAT, u_lat=global_name.Max_L_LAT, seed=2022):
         random.seed(seed)
         self.seed=seed
 

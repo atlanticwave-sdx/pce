@@ -33,7 +33,7 @@ class GraphFunction():
         if flag == 1:
             alpha=10^6
             for (u,v,w) in self.graph.edges(data=True):
-                w[global_name.weight] = global_name.Max_L_bw - w[global_name.bandwidth]
+                w[global_name.weight] = global_name.Max_L_BW - w[global_name.bandwidth]
                 distance_list.append(w[global_name.weight])
         elif flag == 2:
             for (u,v,w) in self.graph.edges(data=True):

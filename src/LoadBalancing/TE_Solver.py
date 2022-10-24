@@ -80,7 +80,7 @@ class TE_Solver:
             
             path = np.array(solution).reshape(len(self.tm),-1)
             print(path.shape)
-            print(path)
+            #print(path)
 
             # print('Problem solved in %f milliseconds' % solver.wall_time())
             # print('Problem solved in %d iterations' % solver.iterations())
@@ -127,7 +127,7 @@ class TE_Solver:
                     #    break
                 i=i+1
             id_connection=id_connection+1
-        print(ordered_paths)
+        print("ordered paths:"+str(ordered_paths))
         return ordered_paths
 
     def update_graph(self,graph,paths):
@@ -315,7 +315,7 @@ class TE_Solver:
         #diag[:] = inputmatrix
         #print("diag:" + str(diag.shape))
         #return diag.reshape(m*r,n*r)
-        print(inputmatrix)
+        #print(inputmatrix)
         out = np.zeros((r*m,r*n), dtype=inputmatrix.dtype)
         for i in range(r):
             out[i*m:(i+1)*m,i*n:(i+1)*n]=inputmatrix

@@ -9,7 +9,7 @@
 #SBATCH --output=heur.%A_%a.out
 #SBATCH --error=heur.%A_%a.error
 
-#SBATCH --array=2,5,10,15,20
+#SBATCH --array=2,4,6,8,10
 
 export PYTHONPATH=$PYTHONPATH:$PWD/src
 pip install -r requirements.txt

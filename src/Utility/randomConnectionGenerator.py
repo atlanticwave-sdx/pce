@@ -8,7 +8,7 @@ class RandomConnectionGenerator:
         @param N number of nodes of the topology 
         """
         self.num_nodes = N
-
+    #Output: list of tuples of request
     def randomConnectionGenerator(self, querynum, l_bw, u_bw, l_lat, u_lat, seed = 2022):
         """
         Create a random TM

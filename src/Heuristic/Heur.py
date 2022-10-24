@@ -1,6 +1,7 @@
 import argparse
 import json
 import numpy as np
+import prtpy
 
 from LoadBalancing.MC_Solver import runMC_Solver
 from LoadBalancing.RandomTopologyGenerator import lbnxgraphgenerator
@@ -42,9 +43,9 @@ class TE_Group_Solver():
         if s==0:
             partition_tm=self.linear_partition(s_tm,k)
         if s==1:
-            partition_tm=self.geometry_partition()
+            partition_tm=self.geometry_partition(s_tm,k)
         if s==2:
-            partition_tm=self.alt_partition()
+            partition_tm=self.kk_partition(s_tm,k)
         
         return partition_tm
 
@@ -56,9 +57,10 @@ class TE_Group_Solver():
         np_tm= np.array(self.tm,dtype=dtype)
         #sorted_tm = np_tm[np_tm[:,2].argsort()]
         sorted_tm = np.sort(np_tm, order='bandwidth')
-        print(sorted_tm)
+        #print(sorted_tm)
         return sorted_tm
     
+    #sorted_tm: np array, dtype = {'names':['src', 'dest', 'bandwidth', 'latency'], 'formats':[int, int, float, float]}
     def linear_partition(self, sorted_tm, k):
         partition_tm=[]
         num_connection = sorted_tm.shape[0]
@@ -79,18 +81,48 @@ class TE_Group_Solver():
             partition = sorted_tm[i:i+num]
             partition_tm.append(partition) 
         print("Linear tm partitioning:"+str(k)+":"+str(num)+":"+str(mod)+":shape="+str(np.shape(partition_tm)))
-        #
+        #print(partition_tm)
         return partition_tm
 
-    def geometry_partition(self):
-        pass
+    def geometry_partition(self, sorted_tm, k):
+        tm_size=len(sorted_tm)
+        r=[]
+        partition_list = []
+        for i in range(k):
+            v = tm_size/(2**(i+1))
+            r.append(v*global_name.Min_C_BW)
+            partition=[]
+            partition_list.append(partition)
+        r.append(0)
+        print(r)    
+        for connection in sorted_tm:
+            for i in range(k):
+                if connection[2] >= r[k-i] and connection[2]<r[k-i-1]:
+                    partition_list[i].append(connection)
 
-    def alt_partition(self):
-        pass
-    
+        partition_tm=[]
+        for partition in partition_list:
+            if len(partition)!=0:
+                partition_tm.append(partition)
+        #print(partition_tm)
+        print("Geometry tm partitioning:"+str(k)+":shape="+str(np.shape(partition_tm)))
+        return partition_tm
+
+    def kk_partition(self, sorted_tm, k):
+        map_items={}
+        for connection in sorted_tm:
+            print(connection)
+            print(type(tuple(connection)))
+            map_items[tuple(connection)]=connection[2] #{connection:bw}
+        partition_tm = prtpy.partition(algorithm=prtpy.partitioning.kk, numbins=k, items=map_items)
+        print("kk tm partitioning:"+str(k)+":shape="+str(np.shape(partition_tm)))
+        return partition_tm
+
     def solve(self, partition_tm):
         partition_shape = np.shape(partition_tm)
         graph = self.topology
+        print("Partition_shape="+str(partition_shape))
+        #print(partition_tm)
         for i in range(partition_shape[0]-1,-1,-1):
             #print("i="+str(i))
             if i==0:
