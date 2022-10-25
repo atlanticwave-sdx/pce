@@ -21,20 +21,20 @@ def dot_file(g_file, tm_file):
     pass
 
 def bw_stat(g):
-    total_weigh=0.0
+    total_weight=0.0
     total_util=0.0
     max_util=0.0
     for (u,v,w) in g.edges(data=True):
         avail_bw = w[global_name.bandwidth]
         bw = w[global_name.original_bandwidth]
-        weight = global_name.alpha*(1.0/avail_bw)
-        total_weigh=total_weigh + weight
+        weight = global_name.alpha*(1.0/(avail_bw+0.1))
+        total_weight=total_weight + weight
         util = 1.0 - avail_bw/bw
         total_util = total_util + util
         if util > max_util:
             max_util=util
     
-    print("total_weight="+str(total_weigh)+";total_util="+str(total_util)+";max_util="+str(max_util))
+    print("total_weight="+str(total_weight)+";total_util="+str(total_util)+";max_util="+str(max_util))
 
 
 if __name__ == "__main__":
