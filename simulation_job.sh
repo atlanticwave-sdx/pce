@@ -11,9 +11,6 @@
 
 #SBATCH --array=10-110:10
 
-export PYTHONPATH=$PYTHONPATH:$PWD/src
-pip install -r requirements.txt
-
 echo "My SLURM_ARRAY_TASK_ID: " $SLURM_ARRAY_TASK_ID
 echo "Welcome $SLURM_ARRAY_TASK_ID times"
 start=$(date +%s.%N)

@@ -127,7 +127,7 @@ class TE_Solver:
                     #    break
                 i=i+1
             id_connection=id_connection+1
-        print("ordered paths:"+str(ordered_paths))
+        #print("ordered paths:"+str(ordered_paths))
         return ordered_paths
 
     def update_graph(self,graph,paths):
