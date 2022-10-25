@@ -9,7 +9,7 @@
 #SBATCH --output=simulation.%A_%a.out
 #SBATCH --error=simulation.%A_%a.error
 
-#SBATCH --array=10-110:10
+#SBATCH --array=10-200:10
 
 echo "My SLURM_ARRAY_TASK_ID: " $SLURM_ARRAY_TASK_ID
 echo "Welcome $SLURM_ARRAY_TASK_ID times"
