@@ -142,7 +142,7 @@ class TE_Solver:
                 v=edge[1]
                 if graph.has_edge(u,v):
                     bandwidth = graph[u][v][global_name.bandwidth] - bw
-                    graph[u][v][global_name.bandwidth] = max(bandwidth,0)
+                    graph[u][v][global_name.bandwidth] = max(bandwidth,0.01) ##avoid being divided by 0
         return graph
 
     def set_obj(self,obj):
