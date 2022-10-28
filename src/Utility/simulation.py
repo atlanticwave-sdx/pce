@@ -1,4 +1,5 @@
 import argparse
+import numpy as np
 
 import Utility.global_name as global_name
 from Utility.randomTopologyGenerator import RandomTopologyGenerator
@@ -24,6 +25,7 @@ def bw_stat(g):
     total_weight=0.0
     total_util=0.0
     max_util=0.0
+    util_list=[]
     for (u,v,w) in g.edges(data=True):
         avail_bw = w[global_name.bandwidth]
         bw = w[global_name.original_bandwidth]
@@ -33,7 +35,13 @@ def bw_stat(g):
         total_util = total_util + util
         if util > max_util:
             max_util=util
-    
+        util_list.append(util)
+    util_array=np.array(util_list)
+    mean_util=np.mean(util_array)
+    std_util=np.std(util_array)
+    ninetypercetile_util=np.percentile(util_array,90)
+    #print(util_array)
+    print("mean_util="+str(mean_util)+";std_util="+str(std_util)+";ninetypercetile_util="+str(ninetypercetile_util))
     print("total_weight="+str(total_weight)+";total_util="+str(total_util)+";max_util="+str(max_util))
 
 
