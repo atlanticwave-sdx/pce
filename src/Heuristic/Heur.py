@@ -135,6 +135,13 @@ class TE_Group_Solver():
             ordered_paths = solver.solution_translator(path,result)
             graph=solver.update_graph(graph,ordered_paths)
 
+    def disjoint_path(self,connection):
+        #Prime path:solver
+        #prune the graph
+        #Backup path: solver again
+        #path translator -> dict.
+        pass
+
     def Heuristic_CSP(self,connection,g):
         self.ConnectionSplit(connection)
         pathlist = {}

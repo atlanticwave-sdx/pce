@@ -42,11 +42,12 @@ class Test_TE_Solver(unittest.TestCase):
         solver.create_data_model()
 
         path,result = solver.solve()
+        ordered_paths = solver.solution_translator(path,result)
 
-        print("path:"+str(path))
+        print("path:"+str(ordered_paths))
         print("Optimal:"+str(result))
 
-        self.assertEqual(10.0, result)
+        self.assertEqual(6.0, result)
 
     def test_lb_solve(self):
         self.random_graph()
@@ -57,11 +58,13 @@ class Test_TE_Solver(unittest.TestCase):
 
         path,result = solver.solve()
 
-        print("path:"+str(path))
+        ordered_paths = solver.solution_translator(path,result)
+
+        print("path:"+str(ordered_paths))
         print("Optimal:"+str(result))
 
         #self.assertEqual(self.solution, path)   
-        self.assertEqual(93857.0, result)  
+        self.assertEqual(1.851450328047331, result)  
 
     def test_mc_solve_5(self):
         g = nx.read_edgelist("./tests/data/test_five_node_topology.txt", nodetype=int, data=
@@ -75,10 +78,12 @@ class Test_TE_Solver(unittest.TestCase):
         solver.create_data_model()
         path,result = solver.solve()
 
-        print("path:"+str(path))
+        ordered_paths = solver.solution_translator(path,result)
+
+        print("path:"+str(ordered_paths))
         print("Optimal:"+str(result))
 
-        self.assertEqual(24.0, result) 
+        self.assertEqual(7.0, result) 
 
 
 if __name__ == '__main__':
