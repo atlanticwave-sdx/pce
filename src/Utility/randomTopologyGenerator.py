@@ -11,6 +11,7 @@ from networkx.algorithms import approximation as approx
 import networkx as nx
 import numpy as np
 import pylab as plt
+import re
 
 import random
 import operator
@@ -145,6 +146,41 @@ class RandomTopologyGenerator():
         con=approx.node_connectivity(self.graph)
         return con
 
+def dot_file(topology_file,te_file=None):
+    graph = nx.Graph(nx.nx_pydot.read_dot(topology_file))
+    #graph = nx.Graph(nx.nx_agraph.read_dot(topology_file))
+    num_nodes=graph.number_of_nodes()
+    mapping = dict(zip(graph, range(num_nodes)))
+    graph = nx.relabel_nodes(graph, mapping)
+
+    for (u,v,w) in graph.edges(data=True):
+        if not 'capacity' in w.keys():
+            bandwidth=1000.0
+        else:
+            capacity=w['capacity'].strip('\"')
+            bw=re.split(r'(\D+)',capacity)
+            bandwidth=bw[0]
+            if bw[1].startswith('G'):
+                bandwidth=float(bw[0])*1000
+
+        w[global_name.original_bandwidth] = float(bandwidth)
+        w[global_name.bandwidth] = float(bandwidth)
+        w[global_name.weight] = float(w['cost'])
+        if not 'latency' in w.keys():
+            latency = 10
+            w[global_name.latency] =latency
+    
+    connectivity = approx.node_connectivity(graph)
+    print("Connectivity:"+str(connectivity))
+    
+    with open(te_file) as f:
+        tm = json.load(f)
+    o_tm=[]
+    for t in tm:
+        tr=tuple(t)
+        o_tm.append(tr)
+
+    return graph, o_tm
     # connection = GetConnection('../test/data/test_connection.json')
     # g = GetNetworkToplogy(25,0.4)
     # print(lbnxgraphgenerator(25, 0.4,connection,g))

@@ -9,6 +9,7 @@ from LoadBalancing.RandomTopologyGenerator import GetNetworkToplogy
 
 import Utility.global_name as global_name
 from Utility.randomTopologyGenerator import RandomTopologyGenerator
+from Utility.randomTopologyGenerator import dot_file
 from Utility.randomConnectionGenerator import RandomConnectionGenerator
 
 from LoadBalancing.TE_Solver import TE_Solver
@@ -123,6 +124,8 @@ class TE_Group_Solver():
         graph = self.topology
         print("Partition_shape="+str(partition_shape))
         #print(partition_tm)
+        final_result=0
+        final_ordered_paths=[]
         for i in range(partition_shape[0]-1,-1,-1):
             #print("i="+str(i))
             if i==0:
@@ -134,6 +137,9 @@ class TE_Group_Solver():
             path,result = solver.solve()
             ordered_paths = solver.solution_translator(path,result)
             graph=solver.update_graph(graph,ordered_paths)
+            final_result=final_result+result
+            final_ordered_paths.append(ordered_paths)
+        return final_ordered_paths,final_result
 
     def disjoint_path(self,connection):
         #Prime path:solver
@@ -197,8 +203,10 @@ if __name__ == '__main__':
 
     te = TE_Group_Solver(graph, tm, args.c, args.b)
     partition_tm = te.ConnectionSplit(args.alg, args.group)
-    te.solve(partition_tm)
+    ordered_paths,result = te.solve(partition_tm)
 
+    print("path:"+str(ordered_paths))
+    print("Optimal:"+str(result))
 # with open('../test/data/connection.json') as f:
 #       connection= json.load(f)
 #

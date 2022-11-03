@@ -93,6 +93,9 @@ class TE_Solver:
     def solution_translator(self,paths,solution):
         #extract the edge/path
         real_paths=[]
+        if paths is None:
+            print("No solution")
+            return
         for path in paths:
             real_path=[]
             i=0
@@ -131,6 +134,8 @@ class TE_Solver:
         return ordered_paths
 
     def update_graph(self,graph,paths):
+        if paths is None:
+            return graph
         for connection, path in paths.items():
             
             src=connection[0]

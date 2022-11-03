@@ -4,11 +4,14 @@ import json
 import networkx as nx
 from Utility.randomTopologyGenerator import RandomTopologyGenerator
 from Utility.randomConnectionGenerator import RandomConnectionGenerator
+from Utility.randomTopologyGenerator import dot_file
 from LoadBalancing.TE_Solver import TE_Solver
 import Utility.global_name as global_name
 
 Connection = './tests/data/test_connection.json'
 Solution = './tests/data/test_MC_solution.json'
+
+topology_file='./tests/data/Geant2012.dot'
 
 N=25
 M=3
@@ -84,6 +87,18 @@ class Test_TE_Solver(unittest.TestCase):
         print("Optimal:"+str(result))
 
         self.assertEqual(7.0, result) 
+
+    def test_mc_solve_geant2012(self):
+
+        self.graph, self.tm = dot_file(topology_file,Connection)
+        solver = TE_Solver(self.graph, self.tm, COST_FLAG)
+        solver.create_data_model()
+        path,result = solver.solve()
+
+        ordered_paths = solver.solution_translator(path,result)
+
+        print("path:"+str(ordered_paths))
+        print("Optimal:"+str(result))
 
 
 if __name__ == '__main__':
