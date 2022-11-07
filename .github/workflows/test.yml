@@ -72,10 +72,8 @@ jobs:
 
       - name: Send coverage data to coveralls.io
         run: |
-          python -m coveralls
+          python -m coveralls --service=github.com
         env:
-          # Coveralls checks for this environment variable. 
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # COVERALLS_REPO_TOKEN helps coveralls identify our project.
           # On GitHub, the variable is set at
           # https://github.com/atlanticwave-sdx/pce/settings/secrets/actions
