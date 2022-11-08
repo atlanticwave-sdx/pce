@@ -74,7 +74,7 @@ jobs:
           # Install requirements
           pip install -r requirements.txt
           # Install package so that tests can be run.
-          pip install .
+          pip install --editable .
           # Run tests and collect coverage data.
           python -m pytest
           # Check if we have a coverage report. This should fail if no
