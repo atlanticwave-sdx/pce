@@ -67,6 +67,8 @@ jobs:
 
       - name: Run tests
         run: |
+          # Install package so that tests can be run.
+          pip install .
           # Run tests and collect coverage data.
           python -m pytest
           # Check if we have a coverage report. This should fail if no
