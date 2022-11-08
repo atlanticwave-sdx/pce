@@ -70,7 +70,7 @@ jobs:
           # Install package so that tests can be run.
           pip install .
           # Run tests and collect coverage data.
-          coverage run --module pytest
+          coverage run --source src --module pytest
 
       - name: Send coverage data to coveralls.io
         run: |
