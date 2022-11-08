@@ -67,6 +67,9 @@ jobs:
 
       - name: Run tests
         run: |
+          # Set up a virtual environment.
+          python -m venv venv
+          source venv/bin/activate
           # Install package so that tests can be run.
           pip install .
           # Run tests and collect coverage data.
