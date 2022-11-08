@@ -54,6 +54,9 @@ jobs:
           
       - name: Install dependencies
         run: |
+          # Set up a virtual environment.
+          python -m venv venv
+          source venv/bin/activate
           python -m pip install --upgrade pip
           pip install flake8 pytest pytest-cov wheel coverage coveralls
           if [ -f requirements.txt ]; then pip install --prefer-binary -r requirements.txt; fi
@@ -67,9 +70,6 @@ jobs:
 
       - name: Run tests
         run: |
-          # Set up a virtual environment.
-          python -m venv venv
-          source venv/bin/activate
           # Install package so that tests can be run.
           pip install .
           # Run tests and collect coverage data.
