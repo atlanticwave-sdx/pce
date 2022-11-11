@@ -180,6 +180,7 @@ class TE_Solver:
         return cost
 
     def create_data_model(self):
+        latency = True
         g=self.graph
 
         nodenum = g.number_of_nodes()
@@ -228,9 +229,10 @@ class TE_Solver:
         print("bound 2:"+str(len(bounds)))
 
         # add the latconstraint rhs
-        bounds+=latconstraint['rhs']
-        print("bound 3:"+str(len(bounds)))
-        #print(bounds)
+        if latency:
+            bounds+=latconstraint['rhs']
+            print("bound 3:"+str(len(bounds)))
+            #print(bounds)
 
         #form the constraints: lhs
         flowconstraints = self.lhsflow(self.tm,inputmatrix)
@@ -244,9 +246,12 @@ class TE_Solver:
         print("np:"+str(flowconstraints.shape)+":"+str(bw_np.shape))
         flow_lhs = np.concatenate((flowconstraints,bw_np))
         print("flow_lhs:"+str(np.shape(flow_lhs)))
-        print("latcons:"+str(np.shape(latconstraint['lhs'])))
 
-        lhs=np.concatenate((flow_lhs,latconstraint['lhs']))
+        if latency:
+            print("latcons:"+str(np.shape(latconstraint['lhs'])))
+            lhs=np.concatenate((flow_lhs,latconstraint['lhs']))
+        else:
+            lhs=flow_lhs
 
         #objective function
         if self.objective == global_name.Obj_Cost:
