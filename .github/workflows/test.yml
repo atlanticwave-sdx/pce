@@ -55,7 +55,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest pytest-cov wheel
+          pip install flake8 pytest pytest-cov wheel coveralls
           if [ -f requirements.txt ]; then pip install --prefer-binary -r requirements.txt; fi
 
       - name: Lint with flake8
@@ -67,5 +67,18 @@ jobs:
 
       - name: Run tests
         run: |
-          pip install .
-          pytest
+          # Install package so that tests can be run.  Note that
+          # editable mode install is important here -- it helps
+          # coveralls.io to match coverage and sources correctly.
+          pip install --editable .
+          # Run tests and collect coverage data.
+          python -m pytest
+
+      - name: Send coverage data to coveralls.io
+        run: |
+          python -m coveralls --service=github.com
+        env:
+          # COVERALLS_REPO_TOKEN helps coveralls identify our project.
+          # On GitHub, the variable is set at
+          # https://github.com/atlanticwave-sdx/pce/settings/secrets/actions
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
