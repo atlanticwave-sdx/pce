@@ -14,8 +14,8 @@
 echo "My SLURM_ARRAY_TASK_ID: " $SLURM_ARRAY_TASK_ID
 echo "Welcome $SLURM_ARRAY_TASK_ID times"
 start=$(date +%s.%N)
-	
-python src/Utility/simulation.py -m $SLURM_ARRAY_TASK_ID -p 0.2 -c 1 -b 1
+
+python src/Utility/simulation.py -n 50 -m $SLURM_ARRAY_TASK_ID -p 0.2 -c 1 -b 1
 	
 duration=$(echo "$(date +%s.%N) - $start" | bc)
 execution_time=`printf "%.2f seconds" $duration`
