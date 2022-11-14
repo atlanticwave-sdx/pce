@@ -1,5 +1,9 @@
 import argparse
 import json
+
+# importing the module
+from datetime import datetime
+
 import numpy as np
 import prtpy
 
@@ -112,8 +116,8 @@ class TE_Group_Solver():
     def kk_partition(self, sorted_tm, k):
         map_items={}
         for connection in sorted_tm:
-            print(connection)
-            print(type(tuple(connection)))
+            #print(connection)
+            #print(type(tuple(connection)))
             map_items[tuple(connection)]=connection[2] #{connection:bw}
         partition_tm = prtpy.partition(algorithm=prtpy.partitioning.kk, numbins=k, items=map_items)
         print("kk tm partitioning:"+str(k)+":shape="+str(np.shape(partition_tm)))
@@ -122,7 +126,7 @@ class TE_Group_Solver():
     def solve(self, partition_tm):
         partition_shape = np.shape(partition_tm)
         graph = self.topology
-        print("Partition_shape="+str(partition_shape))
+        #print("Partition_shape="+str(partition_shape))
         #print(partition_tm)
         final_result=0
         final_ordered_paths=[]
@@ -202,7 +206,12 @@ if __name__ == '__main__':
         graph, tm = random_graph(n,p,args.m)
 
     te = TE_Group_Solver(graph, tm, args.c, args.b)
+    start = datetime.now()
     partition_tm = te.ConnectionSplit(args.alg, args.group)
+    end = datetime.now()
+    # print elapsed time in microseconds
+    print("Elapsed", (end - start).total_seconds(), "s")
+    
     ordered_paths,result = te.solve(partition_tm)
 
     print("path:"+str(ordered_paths))
