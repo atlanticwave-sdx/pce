@@ -1,7 +1,7 @@
 import unittest
 import json
 
-from Heuristic.Heur_CSP import Heuristic_CSP
+from Heuristic.Heur import Heuristic_CSP
 from LoadBalancing.RandomTopologyGenerator import GetConnection
 from LoadBalancing.RandomTopologyGenerator import GetNetworkToplogy
 from LoadBalancing.RandomTopologyGenerator import lbnxgraphgenerator
