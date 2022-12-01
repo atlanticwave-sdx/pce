@@ -67,7 +67,7 @@ class Test_TE_Solver(unittest.TestCase):
         print("Optimal:"+str(result))
 
         #self.assertEqual(self.solution, path)   
-        self.assertEqual(1.851450328047331, result)  
+        self.assertEqual(1.851, round(result,3))  
 
     def test_mc_solve_5(self):
         g = nx.read_edgelist("./tests/data/test_five_node_topology.txt", nodetype=int, data=
