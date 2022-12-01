@@ -153,7 +153,7 @@ class TE_Group_Solver():
         pass
 
     def Heuristic_CSP(self,connection,g):
-        self.ConnectionSplit(connection)
+        self.ConnectionSplit(0,1)
         pathlist = {}
         cost = 0
         c = 1
