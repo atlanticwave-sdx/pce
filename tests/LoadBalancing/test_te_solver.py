@@ -1,4 +1,3 @@
-from formatter import NullFormatter
 import unittest
 import json
 import networkx as nx
