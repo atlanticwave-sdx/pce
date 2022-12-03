@@ -54,9 +54,6 @@ finalmatrix = constraint_matrix + matrix_lessthan
 
 print(len(bounds) - len(finalmatrix))
 
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Mon Mar  7 13:42:31 2022
 
