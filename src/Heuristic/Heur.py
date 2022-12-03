@@ -72,7 +72,8 @@ class TE_Group_Solver:
         # print(sorted_tm)
         return sorted_tm
 
-    # sorted_tm: np array, dtype = {'names':['src', 'dest', 'bandwidth', 'latency'], 'formats':[int, int, float, float]}
+    # sorted_tm: np array, dtype = {'names':['src', 'dest',
+    # 'bandwidth', 'latency'], 'formats':[int, int, float, float]}
     def linear_partition(self, sorted_tm, k):
         partition_tm = []
         num_connection = sorted_tm.shape[0]
@@ -89,11 +90,11 @@ class TE_Group_Solver:
             # print(pad_zeros)
             # print(type(pad_zeros))
             # print(sorted_tm.shape)
-            partition = sorted_tm[0 : mod - 1]
+            partition = sorted_tm[0: mod - 1]
             sorted_tm = np.append(pad_zeros, sorted_tm, axis=0)
             num = num + 1
         for i in range(0, num_connection + mod, num):
-            partition = sorted_tm[i : i + num]
+            partition = sorted_tm[i: i + num]
             partition_tm.append(partition)
         print(
             "Linear tm partitioning:"
@@ -159,7 +160,7 @@ class TE_Group_Solver:
         for i in range(partition_shape[0] - 1, -1, -1):
             # print("i="+str(i))
             if i == 0:
-                partition = partition_tm[i][self.pad :]
+                partition = partition_tm[i][self.pad:]
             else:
                 partition = partition_tm[i]
             print(partition)
