@@ -33,7 +33,7 @@ def last_n_lines(fname, n):
 
 
 def plot_heur(path, title, tag):
-    N = 5
+    n = 5
     num_connection_list = []
 
     time_list_dict = {}
@@ -72,7 +72,7 @@ def plot_heur(path, title, tag):
 
         for i in (2, 4, 8, 10, 16, 20):
             fname = path + dir + name + str(i) + ".out"
-            results = last_n_lines(fname, N)
+            results = last_n_lines(fname, n)
             if results is not None:
                 if "Script Execution Time" in results.keys():
                     time_list.append(float(results["Script Execution Time"]))
