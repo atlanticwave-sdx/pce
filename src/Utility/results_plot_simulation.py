@@ -1,8 +1,6 @@
-import json
 import re
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 # Function to read
