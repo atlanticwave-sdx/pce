@@ -5,18 +5,19 @@ from LoadBalancing.LB_Utilization_Solver import runLB_UT_Solver
 from LoadBalancing.RandomTopologyGenerator import GetNetworkToplogy
 from LoadBalancing.RandomTopologyGenerator import lbnxgraphgenerator
 
-Topology = GetNetworkToplogy(25,0.4)
-Connection = GetConnection('./tests/data/test_connection.json')
-Solution = './tests/data/test_LB_solution.json'
+Topology = GetNetworkToplogy(25, 0.4)
+Connection = GetConnection("./tests/data/test_connection.json")
+Solution = "./tests/data/test_LB_solution.json"
+
 
 class Test_Load_Balancing_Solver(unittest.TestCase):
     def setUp(self):
-        with open(Solution, 'r') as s:
+        with open(Solution, "r") as s:
             solution = json.load(s)
         self.connection = Connection
         self.topology = Topology
         self.solution = solution
-        with open('./tests/data/connection.json', 'w') as json_file:
+        with open("./tests/data/connection.json", "w") as json_file:
             json.dump(self.connection, json_file, indent=4)
 
     def test_Computation(self):
@@ -26,12 +27,8 @@ class Test_Load_Balancing_Solver(unittest.TestCase):
         print(result)
         print("Self solution:")
         print(self.solution)
-        #self.assertEqual(self.solution, result)
+        # self.assertEqual(self.solution, result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
-
-
-
-

@@ -12,14 +12,15 @@ import copy
 
 import Utility.global_name as global_name
 
-class GraphFunction():
-    def __init__(self, g = None)  -> None:
+
+class GraphFunction:
+    def __init__(self, g=None) -> None:
         self.graph = g
 
     def set_graph(self, g=None):
         self.graph = g
 
-    # set weight (cost) per link, assuming the objective is minizing a function of weight 
+    # set weight (cost) per link, assuming the objective is minizing a function of weight
     #   flag:
     #       1: bw: weight = alpha*(1.0/bw)
     #       2: latency: weight = latency
@@ -31,24 +32,26 @@ class GraphFunction():
         distance_list = []
 
         if flag == 1:
-            for (u,v,w) in self.graph.edges(data=True):
-                #w[global_name.weight] = global_name.Max_L_BW - w[global_name.bandwidth]
-                w[global_name.weight] = global_name.alpha*(1.0/w[global_name.bandwidth])
+            for (u, v, w) in self.graph.edges(data=True):
+                # w[global_name.weight] = global_name.Max_L_BW - w[global_name.bandwidth]
+                w[global_name.weight] = global_name.alpha * (
+                    1.0 / w[global_name.bandwidth]
+                )
                 distance_list.append(w[global_name.weight])
         elif flag == 2:
-            for (u,v,w) in self.graph.edges(data=True):
+            for (u, v, w) in self.graph.edges(data=True):
                 w[global_name.weight] = w[global_name.latency]
                 distance_list.append(w[global_name.weight])
         elif flag == 3:
-            for (u,v,w) in self.graph.edges(data=True):
-                w[global_name.weight] = random.randint(1,2**24)
+            for (u, v, w) in self.graph.edges(data=True):
+                w[global_name.weight] = random.randint(1, 2**24)
                 distance_list.append(w[global_name.weight])
         elif flag == 4:
-            for (u,v,w) in self.graph.edges(data=True):
-                w[global_name.weight] = cost[u,v] 
+            for (u, v, w) in self.graph.edges(data=True):
+                w[global_name.weight] = cost[u, v]
                 distance_list.append(w[global_name.weight])
         else:
-            for (u,v,w) in self.graph.edges(data=True):
+            for (u, v, w) in self.graph.edges(data=True):
                 w[global_name.weight] = 1.0
                 distance_list.append(w[global_name.weight])
         self.distance_list = distance_list
@@ -59,11 +62,13 @@ class GraphFunction():
         return u in g.neighbors(v)
 
     def get_connectivity(self):
-        con=approx.node_connectivity(self.graph)
+        con = approx.node_connectivity(self.graph)
         return con
 
     def biconnectivity(self):
         pass
+
+
 # use dijsktra to get the primary shortest path
 def dijnew(graph, start_node, end_node):
     graph_new = graph_simplify(graph)
@@ -96,12 +101,14 @@ def dijnew(graph, start_node, end_node):
             path.insert(0, currentNode)
             currentNode = predecessor[currentNode]
         except KeyError:
-            print('Path not reachable')
+            print("Path not reachable")
             break
     path.insert(0, start_node)
-    if shortest_distance[end_node] != infinity:  # check if the end_node has been reached
-        print('Shortest distance is ' + str(shortest_distance[end_node]))
-        print('And the path is ' + str(path))
+    if (
+        shortest_distance[end_node] != infinity
+    ):  # check if the end_node has been reached
+        print("Shortest distance is " + str(shortest_distance[end_node]))
+        print("And the path is " + str(path))
     return path
 
 
@@ -130,7 +137,9 @@ def backup_path(graph, start_node, end_node):
     path_new = path.copy()
     path_new.pop()
 
-    for ele in path_new:  # update the graph, delete the path that was used in primary path
+    for (
+        ele
+    ) in path_new:  # update the graph, delete the path that was used in primary path
         index = path.index(ele)
         try:
             graph_original[ele][path[index + 1]].remove(graph_new[ele][path[index + 1]])
@@ -141,27 +150,32 @@ def backup_path(graph, start_node, end_node):
         for end_node in graph_original[start_node]:
             try:
                 if len(graph_original[start_node][end_node]) == 1:
-                    graph_original[start_node][end_node] = graph_original[start_node][end_node][0]
+                    graph_original[start_node][end_node] = graph_original[start_node][
+                        end_node
+                    ][0]
             except TypeError:
                 continue
 
     print("The back up path: ")
     dijnew(graph_original, backupstart_node, backupend_node)
 
+
 def create_unvisited_list(link_list):
-    unvisited_list=[]
+    unvisited_list = []
     for keys in link_list:
         unvisited_list.append(keys)
     return unvisited_list
 
+
 def create_unvisited_node(my_list):
-    unvisited_node={}
+    unvisited_node = {}
     for keys in my_list:
-         unvisited_node[keys]=0
-    return  unvisited_node
-        
+        unvisited_node[keys] = 0
+    return unvisited_node
+
+
 def get_graph_info(link_list):
-    key_list=[]
+    key_list = []
     for keys in link_list:
         key_list.append()
     print(key_list)
