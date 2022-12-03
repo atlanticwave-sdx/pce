@@ -9,7 +9,6 @@ import copy
 import json
 import operator
 import random
-import time
 
 import networkx as nx
 from networkx.generators.random_graphs import erdos_renyi_graph
