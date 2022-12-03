@@ -8,7 +8,6 @@ Created on Wed Aug 11 16:40:56 2021
 import copy
 import random
 
-import networkx as nx
 from networkx.algorithms import approximation as approx
 
 import Utility.global_name as global_name
