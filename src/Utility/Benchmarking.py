@@ -1,8 +1,10 @@
+import json
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 from LoadBalancing.MC_Solver import runMC_Solver
 from LoadBalancing.RandomTopologyGenerator import lbnxgraphgenerator
-import numpy as np
-import matplotlib.pyplot as plt
-import json
 
 
 def filesave(file):

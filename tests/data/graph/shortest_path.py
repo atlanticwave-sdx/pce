@@ -1,4 +1,4 @@
-from dijsktra import dijkstra, dijnew, graph_simplify, backup_path
+from dijsktra import backup_path, dijkstra, dijnew, graph_simplify
 
 graph1 = {
     "A": {"B": 1, "C": 2},

@@ -1,11 +1,12 @@
-import unittest
 import json
+import unittest
+
 import networkx as nx
-from Utility.randomTopologyGenerator import RandomTopologyGenerator
-from Utility.randomConnectionGenerator import RandomConnectionGenerator
-from Utility.randomTopologyGenerator import dot_file
-from LoadBalancing.TE_Solver import TE_Solver
+
 import Utility.global_name as global_name
+from LoadBalancing.TE_Solver import TE_Solver
+from Utility.randomConnectionGenerator import RandomConnectionGenerator
+from Utility.randomTopologyGenerator import RandomTopologyGenerator, dot_file
 
 Connection = "./tests/data/test_connection.json"
 Solution = "./tests/data/test_MC_solution.json"

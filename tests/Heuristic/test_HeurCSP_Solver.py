@@ -1,10 +1,12 @@
-import unittest
 import json
+import unittest
 
 from Heuristic.Heur import TE_Group_Solver
-from LoadBalancing.RandomTopologyGenerator import GetConnection
-from LoadBalancing.RandomTopologyGenerator import GetNetworkToplogy
-from LoadBalancing.RandomTopologyGenerator import lbnxgraphgenerator
+from LoadBalancing.RandomTopologyGenerator import (
+    GetConnection,
+    GetNetworkToplogy,
+    lbnxgraphgenerator,
+)
 
 Topology = GetNetworkToplogy(25, 0.4)
 Connection = GetConnection("./tests/data/test_connection.json")

@@ -6,8 +6,9 @@ Created on Mon Mar  7 13:42:31 2022
 @author: yifeiwang, Yufeng Xin at RENCI
 """
 
-from ortools.linear_solver import pywraplp
 import json
+
+from ortools.linear_solver import pywraplp
 
 
 def create_data_model(graph):

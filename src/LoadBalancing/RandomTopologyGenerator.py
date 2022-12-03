@@ -5,14 +5,14 @@ Created on Tue Mar  8 13:34:06 2022
 
 @author: yifeiwang
 """
-import time
-from networkx.generators.random_graphs import erdos_renyi_graph
-import networkx as nx
-import random
-import operator
-import json
-
 import copy
+import json
+import operator
+import random
+import time
+
+import networkx as nx
+from networkx.generators.random_graphs import erdos_renyi_graph
 
 random.seed(2022)
 

@@ -6,15 +6,13 @@ Created on Mon Sep  7 13:42:31 2022
 @author: Yufeng Xin (RENCI)
 """
 
-from ortools.linear_solver import pywraplp
+import copy
+import json
+from itertools import chain, cycle
+
 import networkx as nx
 import numpy as np
-
-from itertools import cycle
-from itertools import chain
-
-import json
-import copy
+from ortools.linear_solver import pywraplp
 
 import Utility.global_name as global_name
 from Utility.functions import GraphFunction

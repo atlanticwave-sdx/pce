@@ -1,7 +1,9 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import json
 import re
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 # Function to read
 # last N lines of the file

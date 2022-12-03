@@ -1,8 +1,10 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
 import json
 import re
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.ticker import MaxNLocator
+
 
 # Function to read
 # last N lines of the file

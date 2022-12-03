@@ -1,12 +1,12 @@
 import argparse
+
 import numpy as np
 
 import Utility.global_name as global_name
-from Utility.randomTopologyGenerator import RandomTopologyGenerator
-from Utility.randomConnectionGenerator import RandomConnectionGenerator
-
-from LoadBalancing.TE_Solver import TE_Solver
 from Heuristic.Heur import TE_Group_Solver
+from LoadBalancing.TE_Solver import TE_Solver
+from Utility.randomConnectionGenerator import RandomConnectionGenerator
+from Utility.randomTopologyGenerator import RandomTopologyGenerator
 
 
 def random_graph(n, p, m):

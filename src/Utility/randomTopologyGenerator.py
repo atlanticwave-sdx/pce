@@ -5,19 +5,18 @@ Created on Tue Mar  8 13:34:06 2022
 
 @author: Yufeng Xin (yxin@renci.org)
 """
+import copy
+import json
+import operator
+import random
+import re
 import time
-from networkx.generators.random_graphs import erdos_renyi_graph
-from networkx.algorithms import approximation as approx
+
 import networkx as nx
 import numpy as np
 import pylab as plt
-import re
-
-import random
-import operator
-import json
-
-import copy
+from networkx.algorithms import approximation as approx
+from networkx.generators.random_graphs import erdos_renyi_graph
 
 import Utility.global_name as global_name
 from Utility.functions import GraphFunction

@@ -1,4 +1,5 @@
 import unittest
+
 import dijsktra
 
 graph4 = {

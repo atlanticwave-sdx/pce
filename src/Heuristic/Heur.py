@@ -7,16 +7,12 @@ from datetime import datetime
 import numpy as np
 import prtpy
 
-from LoadBalancing.MC_Solver import runMC_Solver
-from LoadBalancing.RandomTopologyGenerator import lbnxgraphgenerator
-from LoadBalancing.RandomTopologyGenerator import GetNetworkToplogy
-
 import Utility.global_name as global_name
-from Utility.randomTopologyGenerator import RandomTopologyGenerator
-from Utility.randomTopologyGenerator import dot_file
-from Utility.randomConnectionGenerator import RandomConnectionGenerator
-
+from LoadBalancing.MC_Solver import runMC_Solver
+from LoadBalancing.RandomTopologyGenerator import GetNetworkToplogy, lbnxgraphgenerator
 from LoadBalancing.TE_Solver import TE_Solver
+from Utility.randomConnectionGenerator import RandomConnectionGenerator
+from Utility.randomTopologyGenerator import RandomTopologyGenerator, dot_file
 
 
 def random_graph(n, p, m):
