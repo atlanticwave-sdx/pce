@@ -253,14 +253,15 @@ def lbnxgraphgenerator(nodes, p, connection, g):
             inputlatency[count] = latency_list[edgelist.index((link[1], link[0]))]
             count += 1
 
-    pos = nx.spring_layout(g)
+    # pos = nx.spring_layout(g)
 
     with open("./tests/data/latency_list.json", "w") as json_file:
         data = inputlatency
         json.dump(data, json_file, indent=4)
 
     # Draw the graph according to node positions
-    labels = nx.get_edge_attributes(g, "bandwidth")
+    # labels = nx.get_edge_attributes(g, "bandwidth")
+
     with open("./tests/data/LB_linklist.json", "w") as json_file:
         data = link_list
         json.dump(data, json_file, indent=4)
