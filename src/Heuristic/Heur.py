@@ -27,11 +27,17 @@ def random_graph(n, p, m):
 
 
 class TE_Group_Solver:
-    """ "
-    Class for a connection (TE matrix) splitting based heuristic
-    1. Sequential: binpacking like heuristic: first-fit(any-fit)-decreasing, refined first fit (4 classes): Online
-    2. Grouping: k-shortest-path based grouping: (k, then all other pairs sharing a same link) :
-        connection grouping: linear grouping (k largest items on); geometric grouping (interval [B/2^(r+1), B/2^2])
+    """
+    Class for a connection (TE matrix) splitting based heuristic.
+
+        1. Sequential: binpacking like heuristic:
+           first-fit(any-fit)-decreasing, refined first fit (4
+           classes): Online
+
+        2. Grouping: k-shortest-path based grouping: (k, then all
+           other pairs sharing a same link) : connection grouping:
+           linear grouping (k largest items on); geometric grouping
+           (interval [B/2^(r+1), B/2^2])
     """
 
     def __init__(self, topology, tm, cost, objective):
