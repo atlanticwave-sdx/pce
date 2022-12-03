@@ -7,6 +7,8 @@ Created on Tue Mar  1 15:16:36 2022
 """
 import copy
 
+from ortools.linear_solver import pywraplp
+
 constraint_matrix = []
 commodity_matrix_1 = [1, 1, 0, 0, 0, 0, 0]
 commodity_matrix_2 = [-1, 0, 1, 1, 0, 0, 0]
@@ -59,8 +61,6 @@ Created on Mon Mar  7 13:42:31 2022
 
 @author: yifeiwang
 """
-
-from ortools.linear_solver import pywraplp
 
 
 def create_data_model():
