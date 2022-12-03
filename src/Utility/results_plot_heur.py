@@ -19,7 +19,7 @@ def last_n_lines(fname, n):
             results = {}
             for line in file.readlines()[-n:]:
                 # print(line, end ='')
-                list = re.split(", |=|;|:|\+", line.splitlines()[0])
+                list = re.split(r", |=|;|:|\+", line.splitlines()[0])
                 it = iter(list)
                 res_dct = dict(zip(it, it))
                 results = {**results, **res_dct}
