@@ -9,7 +9,7 @@ import prtpy
 
 import Utility.global_name as global_name
 from LoadBalancing.MC_Solver import runMC_Solver
-from LoadBalancing.RandomTopologyGenerator import GetNetworkToplogy, lbnxgraphgenerator
+from LoadBalancing.RandomTopologyGenerator import lbnxgraphgenerator
 from LoadBalancing.TE_Solver import TE_Solver
 from Utility.randomConnectionGenerator import RandomConnectionGenerator
 from Utility.randomTopologyGenerator import RandomTopologyGenerator, dot_file
