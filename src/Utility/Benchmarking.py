@@ -61,20 +61,20 @@ def draw_weightcomparison(
     nodes, heuravglist_latency, heuravglist_weight, solveravglist
 ):
 
-    Y = heuravglist_latency
-    Z = solveravglist
-    W = heuravglist_weight
+    y = heuravglist_latency
+    z = solveravglist
+    w = heuravglist_weight
 
-    X = list(range(nodes[0], nodes[1]))
+    x = list(range(nodes[0], nodes[1]))
 
-    X_axis = np.arange(len(X))
+    x_axis = np.arange(len(x))
     width = 0.25
 
-    plt.bar(X_axis, Y, width, label="Latency Solution")
-    plt.bar(X_axis + width, W, width, label="Weight Solution")
-    plt.bar(X_axis + 2 * width, Z, width, label="Solver Solution")
+    plt.bar(x_axis, y, width, label="Latency Solution")
+    plt.bar(x_axis + width, w, width, label="Weight Solution")
+    plt.bar(x_axis + 2 * width, z, width, label="Solver Solution")
 
-    plt.xticks(X_axis, X)
+    plt.xticks(x_axis, x)
     plt.xlabel("Nodes")
     plt.ylabel("NWeights")
     plt.title("Heuristic VS Solver (Sorted by latency)")
@@ -92,20 +92,20 @@ def draw_errorplotweightplot(
     solveravglist,
     solstd,
 ):
-    W = heuravglist_weight
-    Y = heuravglist_latency
-    Z = solveravglist
-    Yerr = heurstd_latency
-    Zerr = solstd
-    Werr = heurstd_weight
+    w = heuravglist_weight
+    y = heuravglist_latency
+    z = solveravglist
+    yerr = heurstd_latency
+    zerr = solstd
+    werr = heurstd_weight
 
     x_axis = np.linspace(nodes[0], nodes[1] - 1, nodes[1] - nodes[0])
 
     fig, ax = plt.subplots()
 
-    ax.errorbar(x_axis, W, yerr=Werr, fmt="-o", label="weight")
-    ax.errorbar(x_axis, Y, yerr=Yerr, fmt="-o", label="Latency")
-    ax.errorbar(x_axis, Z, yerr=Zerr, fmt="-o", label="Solver")
+    ax.errorbar(x_axis, w, yerr=werr, fmt="-o", label="weight")
+    ax.errorbar(x_axis, y, yerr=yerr, fmt="-o", label="Latency")
+    ax.errorbar(x_axis, z, yerr=zerr, fmt="-o", label="Solver")
 
     ax.set_xlabel("Nodes")
     ax.set_ylabel("Weight")
