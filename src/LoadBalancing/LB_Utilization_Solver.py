@@ -4,7 +4,7 @@
 """
 Created on Mon Mar  7 13:42:31 2022
 
-@author: yifeiwang
+@author: yifeiwang, Yufeng Xin at RENCI
 """
 
 from ortools.linear_solver import pywraplp

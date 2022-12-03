@@ -79,6 +79,10 @@ pip install -r requirements.txt
 pip install -e .
 ```
 ## Unittest
+```
+python -m unittest -v tests.LoadBalancing.test_te_solver
+
+```
 
 ```
 python -m unittest -v tests.LoadBalancing.test_LB_Solver
