@@ -97,9 +97,7 @@ class TE_Group_Solver:
         for i in range(0, num_connection + mod, num):
             partition = sorted_tm[i : i + num]
             partition_tm.append(partition)
-        print(
-            f"Linear tm partitioning: {k}:{num}:{mod}:shape={np.shape(partition_tm)}"
-        )
+        print(f"Linear tm partitioning: {k}:{num}:{mod}:shape={np.shape(partition_tm)}")
         # print(partition_tm)
         return partition_tm
 
@@ -124,9 +122,7 @@ class TE_Group_Solver:
             if len(partition) != 0:
                 partition_tm.append(partition)
         # print(partition_tm)
-        print(
-            f"Geometry tm partitioning:{k}:shape={np.shape(partition_tm)}"
-        )
+        print(f"Geometry tm partitioning:{k}:shape={np.shape(partition_tm)}")
         return partition_tm
 
     def kk_partition(self, sorted_tm, k):
