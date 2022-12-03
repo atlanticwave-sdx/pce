@@ -6,7 +6,7 @@ from matplotlib.ticker import MaxNLocator
 
 # Function to read
 # last N lines of the file
-def LastNlines(fname, N):
+def last_n_lines(fname, N):
     # opening file using with() method
     # so that file get closed
     # after completing work
@@ -72,7 +72,7 @@ def plot_heur(path, title, tag):
 
         for i in (2, 4, 8, 10, 16, 20):
             fname = path + dir + name + str(i) + ".out"
-            results = LastNlines(fname, N)
+            results = last_n_lines(fname, N)
             if results is not None:
                 if "Script Execution Time" in results.keys():
                     time_list.append(float(results["Script Execution Time"]))
