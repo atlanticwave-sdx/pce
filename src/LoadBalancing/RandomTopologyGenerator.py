@@ -274,12 +274,8 @@ def lbnxgraphgenerator(nodes, p, connection, g):
     jsonfilemaker(nodes, inputmatrix, inputdistance, connection, rhsbw, linknum)
 
     print("Topology Generated!")
-    return (
-        "Random Graph is created with "
-        + str(nodes)
-        + " nodes, probability of link creation is "
-        + str(p)
-    )
+
+    return f"Random Graph is created with {nodes} nodes, probability of link creation is {p}"
 
 
 # connection = GetConnection('../test/data/test_connection.json')
