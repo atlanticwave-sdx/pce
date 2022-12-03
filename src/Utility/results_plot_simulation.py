@@ -7,7 +7,7 @@ import numpy as np
 
 # Function to read
 # last N lines of the file
-def LastNlines(fname, N):
+def last_n_lines(fname, n):
     # opening file using with() method
     # so that file get closed
     # after completing work
@@ -18,7 +18,7 @@ def LastNlines(fname, N):
             # loop to read iterate
             # last n lines and convert to a dict
             results = {}
-            for line in file.readlines()[-N:]:
+            for line in file.readlines()[-n:]:
                 # print(line, end ='')
                 list = re.split(", |=|;|:|\+", line.splitlines()[0])
                 it = iter(list)
