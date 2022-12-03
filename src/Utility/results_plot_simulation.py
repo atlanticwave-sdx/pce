@@ -33,7 +33,7 @@ def last_n_lines(fname, n):
 
 def plot_simulation(path, title):
     tag = " Simulation"
-    N = 5
+    n = 5
     num_connection_list = []
 
     time_list_dict = {}
@@ -66,7 +66,7 @@ def plot_simulation(path, title):
 
         for i in range(10, 210, 10):
             fname = path + dir + name + str(i) + ".out"
-            results = LastNlines(fname, N)
+            results = last_n_lines(fname, n)
             if results is not None:
                 time_list.append(float(results["Script Execution Time"]))
                 total_util_list.append(float(results["total_util"]))
@@ -178,7 +178,7 @@ def plot_heur(title, path):
     for i in (2, 4, 8, 10):
         name = path + title + str(i) + ".out"
         num_connection_list.append(i)
-        results = LastNlines(name, 2)
+        results = last_n_lines(name, 2)
         time_list.append(float(results["Script Execution Time"]))
         weight_list.append(float(results["total_weight"]))
         util_list.append(float(results["total_util"]))
