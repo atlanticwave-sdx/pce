@@ -10,7 +10,7 @@ import random
 
 from networkx.algorithms import approximation as approx
 
-import Utility.global_name as global_name
+from Utility import global_name
 
 
 class GraphFunction:
