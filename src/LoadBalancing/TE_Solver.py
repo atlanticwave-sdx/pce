@@ -7,7 +7,6 @@ Created on Mon Sep  7 13:42:31 2022
 """
 
 import copy
-import json
 from itertools import chain, cycle
 
 import networkx as nx
