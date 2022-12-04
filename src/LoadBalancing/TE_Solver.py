@@ -243,12 +243,7 @@ class TE_Solver:
         flowconstraints = self.lhsflow(self.tm, inputmatrix)
         bwconstraints = self.lhsbw(self.tm, inputmatrix)
 
-        print(
-            "\nConstraints Shape:"
-            + str(len(flowconstraints))
-            + ":"
-            + str(len(bwconstraints))
-        )
+        print(f"\nConstraints Shape:{len(flowconstraints))}:{len(bwconstraints)}")
         # print("\n flow"+str(flowconstraints))
         # print("\n bw:"+str(type(bwconstraints)))
 
