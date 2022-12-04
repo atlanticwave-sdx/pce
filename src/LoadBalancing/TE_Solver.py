@@ -13,7 +13,7 @@ import networkx as nx
 import numpy as np
 from ortools.linear_solver import pywraplp
 
-import Utility.global_name as global_name
+from Utility import global_name
 from Utility.functions import GraphFunction
 
 
