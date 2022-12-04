@@ -42,9 +42,10 @@ class TE_Solver:
         x = {}
         for j in range(data["num_vars"]):
             x[j] = solver.IntVar(0, 1, "x[%i]" % j)
-        print("Number of variables =", solver.NumVariables())
-        print("num_constraints:", data["num_constraints"])
-        print("num_inequality", num_inequality)
+
+        print(f"Number of variables = {solver.NumVariables()}")
+        print(f"num_constraints: {data['num_constraints']}")
+        print(f"num_inequality: {num_inequality}")
 
         for i in range(data["num_constraints"] - num_inequality):
             constraint_expr = [
@@ -65,7 +66,8 @@ class TE_Solver:
                 data["constraint_coeffs"][i][j] * x[j] for j in range(data["num_vars"])
             ]
             solver.Add(sum(constraint_expr) <= data["bounds"][i])
-        print("Number of constraints =", solver.NumConstraints())
+
+        print(f"Number of constraints = {solver.NumConstraints()}")
 
         objective = solver.Objective()
         for j in range(data["num_vars"]):
@@ -76,7 +78,7 @@ class TE_Solver:
         solution = []
         path = None
         if status == pywraplp.Solver.OPTIMAL:
-            print("Objective value =", solver.Objective().Value())
+            print("Objective value = f{solver.Objective().Value()}")
             for j in range(data["num_vars"]):
                 # print(x[j].name(), ' = ', x[j].solution_value())
                 solution.append(x[j].solution_value())
@@ -191,8 +193,8 @@ class TE_Solver:
         nodenum = g.number_of_nodes()
         linknum = g.number_of_edges()
 
-        print("\n #Nodes:" + str(nodenum))
-        print("\n #Links:" + str(linknum))
+        print(f"\n #Nodes: {nodenum}")
+        print(f"\n #Links: {linknum}")
 
         # graph flow matrix
         inputmatrix, links = self.flow_matrix(g)
@@ -215,7 +217,7 @@ class TE_Solver:
             rhs[request[1]] = 1
             bounds += list(rhs)
 
-        print("bound 1:" + str(len(bounds)))
+        print(f"bound 1: {len(bounds)}")
 
         # rhsbw -TODO *2 edges
         bwlinklist = []
@@ -231,29 +233,29 @@ class TE_Solver:
 
         # add the bwconstraint rhs
         bounds += bwlinklist
-        print("bound 2:" + str(len(bounds)))
+        print(f"bound 2: {len(bounds)}")
 
         # add the latconstraint rhs
         if latency:
             bounds += latconstraint["rhs"]
-            print("bound 3:" + str(len(bounds)))
+            print(f"bound 3: {len(bounds)}")
             # print(bounds)
 
         # form the constraints: lhs
         flowconstraints = self.lhsflow(self.tm, inputmatrix)
         bwconstraints = self.lhsbw(self.tm, inputmatrix)
 
-        print(f"\nConstraints Shape:{len(flowconstraints))}:{len(bwconstraints)}")
+        print(f"\nConstraints Shape:{len(flowconstraints)}:{len(bwconstraints)}")
         # print("\n flow"+str(flowconstraints))
         # print("\n bw:"+str(type(bwconstraints)))
 
         bw_np = np.array(bwconstraints)
-        print("np:" + str(flowconstraints.shape) + ":" + str(bw_np.shape))
+        print(f"np:{flowconstraints.shape} : {bw_np.shape}")
         flow_lhs = np.concatenate((flowconstraints, bw_np))
-        print("flow_lhs:" + str(np.shape(flow_lhs)))
+        print(f"flow_lhs: {np.shape(flow_lhs)}")
 
         if latency:
-            print("latcons:" + str(np.shape(latconstraint["lhs"])))
+            print(f"latcons: {np.shape(latconstraint['lhs'])}")
             lhs = np.concatenate((flow_lhs, latconstraint["lhs"]))
         else:
             lhs = flow_lhs
@@ -266,10 +268,10 @@ class TE_Solver:
             print("Objecive: Load Balance")
             cost = self.lb_cost(links)
 
-        print("cost len:" + str(len(cost)))
+        print(f"cost len: {len(cost)}")
         # print(cost)
-        print("lhs shape:" + str(lhs.shape))
-        print("rhs shape:" + str(len(bounds)))
+        print(f"lhs shape: {lhs.shape}")
+        print(f"rhs shape: {len(bounds)}")
 
         coeffs = []
         for i in range(lhs.shape[0]):
@@ -324,7 +326,7 @@ class TE_Solver:
     def lhsflow(self, request_list, inputmatrix):
         r = len(request_list)
         m, n = inputmatrix.shape
-        print("r=" + str(r) + ":m=" + str(m) + ":n=" + str(n))
+        print(f"r={r}:m={m}:n={n}")
         # out = np.zeros((r,m,r,n), dtype=inputmatrix.dtype)
         # diag = np.einsum('ijik->ijk',out)
         # diag[:] = inputmatrix
@@ -334,7 +336,7 @@ class TE_Solver:
         out = np.zeros((r * m, r * n), dtype=inputmatrix.dtype)
         for i in range(r):
             out[i * m : (i + 1) * m, i * n : (i + 1) * n] = inputmatrix
-        print("out:" + str(out.shape))
+        print(f"out: {out.shape}")
         return out
 
     #
@@ -357,8 +359,8 @@ class TE_Solver:
         rhs = []
 
         request_list = self.tm
-        print("request:" + str(len(request_list)))
-        print("links:" + str(len(links)))
+        print(f"request: {len(request_list)}")
+        print(f"links: {len(links)}")
 
         g = self.graph
         zerolist = np.zeros(len(links), dtype=int)
