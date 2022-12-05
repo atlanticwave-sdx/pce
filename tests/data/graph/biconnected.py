@@ -1,6 +1,6 @@
 import sys
 
-import functions as functions
+from Utility import functions
 
 my_path = "C:\\Users\\Michael\\Desktop\\wyf\\intern\\connected graph"
 sys.path.append(my_path)
