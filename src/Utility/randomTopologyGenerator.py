@@ -5,15 +5,11 @@ Created on Tue Mar  8 13:34:06 2022
 
 @author: Yufeng Xin (yxin@renci.org)
 """
-import copy
 import json
-import operator
 import random
 import re
-import time
 
 import networkx as nx
-import numpy as np
 import pylab as plt
 from networkx.algorithms import approximation as approx
 from networkx.generators.random_graphs import erdos_renyi_graph
