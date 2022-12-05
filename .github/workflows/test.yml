@@ -52,15 +52,17 @@ jobs:
 
       - name: Run complexity checks with flake8
         run: |
-          # exit-zero treats all errors as warnings.
+          # Note that `--exit-zero` treats all errors as warnings.
+          # Code that is too complex is not considered an error, for
+          # now.
           #
           # The ignored checks are due to black's preferences:
           #
           # - E203 Whitespace before ':': black adds whitespace before
-          #   and after ':')
+          #   and after ':'.
           #
           # - E501 Line too long: black's default is 88, and black
-          #   leaves comments alone.)
+          #   leaves comments alone.
           #
           # - W503 Line break before binary operator: per flake8, line
           #   break after is a violation (which black added), but per
