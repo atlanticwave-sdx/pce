@@ -116,7 +116,7 @@ class TE_Solver:
             src = connection[0]
             dest = connection[1]
             bw = connection[2]
-            latency = connection[3]
+            # latency = connection[3]  # latency is unused
             ordered_path = []
             ordered_paths[(src, dest, bw)] = ordered_path
             # print("src:"+str(src)+"-dest:"+str(dest))
@@ -142,8 +142,8 @@ class TE_Solver:
             return graph
         for connection, path in paths.items():
 
-            src = connection[0]
-            dest = connection[1]
+            # src = connection[0]   # src is unused
+            # dest = connection[1]  # dest is unused
             bw = connection[2]
 
             for edge in path:
