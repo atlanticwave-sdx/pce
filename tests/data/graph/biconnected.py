@@ -1,5 +1,3 @@
-import sys
-
 from Utility import functions
 
 link_list = {
