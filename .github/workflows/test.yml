@@ -67,7 +67,7 @@ jobs:
           #   flake8, W503 and W504 mutually contradicts.
           #   https://www.flake8rules.com/rules/W503.html
           #   https://www.flake8rules.com/rules/W504.html
-          flake8 . --count --exit-zero --ignore=E203,E501,W503 --max-complexity=10 --statistics
+          flake8 . --count --exit-zero --ignore=E203,E501,W503 --max-complexity=10
 
       - name: Run tests
         run: |
