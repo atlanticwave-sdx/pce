@@ -56,12 +56,18 @@ jobs:
           #
           # The ignored checks are due to black's preferences:
           #
-          # - E203 Whitespace before ':' (black adds whitespace before
+          # - E203 Whitespace before ':': black adds whitespace before
           #   and after ':')
+          #
           # - E501 Line too long: black's default is 88, and black
           #   leaves comments alone.)
           #
-          flake8 . --count --exit-zero --ignore=E203,E501 --max-complexity=10 --statistics
+          # - W503 Line break before binary operator: per flake8, line
+          #   break after is a violation (which black added), but per
+          #   flake8, W503 and W504 mutually contradicts.
+          #   https://www.flake8rules.com/rules/W503.html
+          #   https://www.flake8rules.com/rules/W504.html
+          flake8 . --count --exit-zero --ignore=E203,E501,W503 --max-complexity=10 --statistics
 
       - name: Run tests
         run: |
