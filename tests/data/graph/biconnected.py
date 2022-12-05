@@ -2,9 +2,6 @@ import sys
 
 from Utility import functions
 
-my_path = "C:\\Users\\Michael\\Desktop\\wyf\\intern\\connected graph"
-sys.path.append(my_path)
-
 link_list = {
     "1": ["4", "2"],
     "2": ["1", "3"],
