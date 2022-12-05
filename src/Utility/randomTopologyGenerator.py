@@ -101,7 +101,7 @@ class RandomTopologyGenerator:
         return self.graph
 
     # set the random bw and latency per link
-    def link_property_assign(self):  ## pass in the bw name
+    def link_property_assign(self):  # Pass in the bw name
         self.latency_list = []
         for (u, v, w) in self.graph.edges(data=True):
             w[global_name.bandwidth] = random.randint(self.low_bw, self.upper_bw)

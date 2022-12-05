@@ -153,7 +153,7 @@ class TE_Solver:
                     bandwidth = graph[u][v][global_name.bandwidth] - bw
                     graph[u][v][global_name.bandwidth] = max(
                         bandwidth, 0.01
-                    )  ##avoid being divided by 0
+                    )  # Avoid being divided by 0.
         return graph
 
     def set_obj(self, obj):
