@@ -53,7 +53,15 @@ jobs:
       - name: Run complexity checks with flake8
         run: |
           # exit-zero treats all errors as warnings.
-          flake8 . --count --exit-zero --max-complexity=10 --statistics
+          #
+          # The ignored checks are due to black's preferences:
+          #
+          # - E203 Whitespace before ':' (black adds whitespace before
+          #   and after ':')
+          # - E501 Line too long: black's default is 88, and black
+          #   leaves comments alone.)
+          #
+          flake8 . --count --exit-zero --ignore=E203,E501 --max-complexity=10 --statistics
 
       - name: Run tests
         run: |
