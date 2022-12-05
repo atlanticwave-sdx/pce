@@ -165,7 +165,7 @@ def dot_file(topology_file, te_file=None):
     graph = nx.relabel_nodes(graph, mapping)
 
     for (u, v, w) in graph.edges(data=True):
-        if not "capacity" in w.keys():
+        if "capacity" not in w.keys():
             bandwidth = 1000.0
         else:
             capacity = w["capacity"].strip('"')
@@ -177,7 +177,7 @@ def dot_file(topology_file, te_file=None):
         w[global_name.original_bandwidth] = float(bandwidth)
         w[global_name.bandwidth] = float(bandwidth)
         w[global_name.weight] = float(w["cost"])
-        if not "latency" in w.keys():
+        if "latency" not in w.keys():
             latency = 10
             w[global_name.latency] = latency
 
