@@ -75,3 +75,5 @@ jobs:
           # On GitHub, the variable is set at
           # https://github.com/atlanticwave-sdx/pce/settings/secrets/actions
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          # This seems to be required, although we specified the service.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
