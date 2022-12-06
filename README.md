@@ -78,6 +78,22 @@ $ source venv/bin/activate
 $ python3 -m pip install --upgrade pip
 $ python3 -m pip install -e .
 ```
+git clone https://github.com/atlanticwave-sdx/pce.git
+```
+```
+cd pce
+```
+```
+pip install -r requirements.txt
+```
+```
+pip install -e .
+```
+## Unittest
+```
+python -m unittest -v tests.LoadBalancing.test_te_solver
+
+```
 
 Note that we will need a recent version of pip for "editable" mode to
 work, which is why there's a step where we upgrade pip.  It is a good
