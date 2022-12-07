@@ -67,9 +67,9 @@ jobs:
           # Run tests and collect coverage data.
           python -m pytest
 
+      # See https://coveralls-python.readthedocs.io/en/latest/usage/configuration.html#github-actions-support
       - name: Send coverage data to coveralls.io
         run: |
           python -m coveralls --service=github
         env:
-          # See https://coveralls-python.readthedocs.io/en/latest/usage/configuration.html#github-actions-support
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
