@@ -71,5 +71,5 @@ jobs:
         run: |
           python -m coveralls --service=github
         env:
-          # This seems to be required, although we specified the service.
+          # See https://coveralls-python.readthedocs.io/en/latest/usage/configuration.html#github-actions-support
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
