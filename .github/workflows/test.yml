@@ -61,11 +61,9 @@ jobs:
           # Run tests and collect coverage data.
           python -m pytest
 
+      # See https://coveralls-python.readthedocs.io/en/latest/usage/configuration.html#github-actions-support
       - name: Send coverage data to coveralls.io
         run: |
           python -m coveralls --service=github.com
         env:
-          # COVERALLS_REPO_TOKEN helps coveralls identify our project.
-          # On GitHub, the variable is set at
-          # https://github.com/atlanticwave-sdx/pce/settings/secrets/actions
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
