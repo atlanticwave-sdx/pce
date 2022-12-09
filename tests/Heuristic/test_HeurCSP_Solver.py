@@ -1,8 +1,8 @@
 import json
 import unittest
 
-from Heuristic.Heur import TE_Group_Solver
-from LoadBalancing.RandomTopologyGenerator import (
+from sdx.pce.Heuristic.Heur import TE_Group_Solver
+from sdx.pce.LoadBalancing.RandomTopologyGenerator import (
     GetConnection,
     GetNetworkToplogy,
     lbnxgraphgenerator,
