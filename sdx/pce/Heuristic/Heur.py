@@ -9,7 +9,10 @@ import prtpy
 
 import sdx.pce.Utility.global_name as global_name
 from sdx.pce.LoadBalancing.MC_Solver import runMC_Solver
-from sdx.pce.LoadBalancing.RandomTopologyGenerator import GetNetworkToplogy, lbnxgraphgenerator
+from sdx.pce.LoadBalancing.RandomTopologyGenerator import (
+    GetNetworkToplogy,
+    lbnxgraphgenerator,
+)
 from sdx.pce.LoadBalancing.TE_Solver import TE_Solver
 from sdx.pce.Utility.randomConnectionGenerator import RandomConnectionGenerator
 from sdx.pce.Utility.randomTopologyGenerator import RandomTopologyGenerator, dot_file
