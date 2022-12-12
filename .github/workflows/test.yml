@@ -60,10 +60,12 @@ jobs:
           pip install --editable .
           # Run tests and collect coverage data.
           python -m pytest
+          # Generate LCOV data.
+          python -m coverage lcov
 
       # See https://github.com/marketplace/actions/coveralls-github-action
       - name: Send coverage data to coveralls.io
         run: |
-          python -m coveralls --service=github.com
+          python -m coveralls --service=github.com --submit=coverage.lcov
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
