@@ -77,7 +77,7 @@ jobs:
     steps:
     - name: Indicate completion to coveralls.io
       run: |
-        pip install --upgrade coveralls
+        pip --no-cache-dir install --upgrade coveralls
         python -m coveralls --service=github --finish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
