@@ -66,6 +66,6 @@ jobs:
       # See https://github.com/marketplace/actions/coveralls-github-action
       - name: Send coverage data to coveralls.io
         run: |
-          python -m coveralls --service=github --verbose --submit=coverage.lcov
+          python -m coveralls --service=github --submit=coverage.lcov
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
