@@ -61,7 +61,6 @@ jobs:
           # Run tests and collect coverage data.
           python -m pytest
 
-      # See https://github.com/marketplace/actions/coveralls-github-action
       - name: Send coverage data to coveralls.io
         run: |
           python -m coveralls --service=github
