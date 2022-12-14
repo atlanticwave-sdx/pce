@@ -79,5 +79,5 @@ jobs:
         run: |
           pip --no-cache-dir install --upgrade coveralls
           python -m coveralls --service=github --finish
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
