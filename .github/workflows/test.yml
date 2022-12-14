@@ -75,9 +75,9 @@ jobs:
     runs-on: ubuntu-latest
     container: python:3-slim
     steps:
-    - name: Indicate completion to coveralls.io
-      run: |
-        pip --no-cache-dir install --upgrade coveralls
-        python -m coveralls --service=github --finish
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Indicate completion to coveralls.io
+        run: |
+          pip --no-cache-dir install --upgrade coveralls
+          python -m coveralls --service=github --finish
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
