@@ -1,7 +1,0 @@
-matplotlib
-networkx
-numpy
-ortools
-prtpy
-pydot
-graphviz

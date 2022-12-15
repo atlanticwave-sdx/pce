@@ -1,18 +1,20 @@
 import argparse
 import json
 
-# importing the module
 from datetime import datetime
 
 import numpy as np
 import prtpy
 
-import Utility.global_name as global_name
-from LoadBalancing.MC_Solver import runMC_Solver
-from LoadBalancing.RandomTopologyGenerator import lbnxgraphgenerator
-from LoadBalancing.TE_Solver import TE_Solver
-from Utility.randomConnectionGenerator import RandomConnectionGenerator
-from Utility.randomTopologyGenerator import RandomTopologyGenerator, dot_file
+import sdx.pce.Utility.global_name as global_name
+from sdx.pce.LoadBalancing.MC_Solver import runMC_Solver
+from sdx.pce.LoadBalancing.RandomTopologyGenerator import (
+    GetNetworkToplogy,
+    lbnxgraphgenerator,
+)
+from sdx.pce.LoadBalancing.TE_Solver import TE_Solver
+from sdx.pce.Utility.randomConnectionGenerator import RandomConnectionGenerator
+from sdx.pce.Utility.randomTopologyGenerator import RandomTopologyGenerator, dot_file
 
 
 def random_graph(n, p, m):

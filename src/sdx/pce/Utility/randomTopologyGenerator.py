@@ -14,8 +14,8 @@ import pylab as plt
 from networkx.algorithms import approximation as approx
 from networkx.generators.random_graphs import erdos_renyi_graph
 
-import Utility.global_name as global_name
-from Utility.functions import GraphFunction
+import sdx.pce.Utility.global_name as global_name
+from sdx.pce.Utility.functions import GraphFunction
 
 
 class RandomTopologyGenerator:

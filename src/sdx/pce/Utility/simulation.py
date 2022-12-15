@@ -2,11 +2,11 @@ import argparse
 
 import numpy as np
 
-from Heuristic.Heur import TE_Group_Solver
-from LoadBalancing.TE_Solver import TE_Solver
-from Utility import global_name
-from Utility.randomConnectionGenerator import RandomConnectionGenerator
-from Utility.randomTopologyGenerator import RandomTopologyGenerator
+import sdx.pce.Utility.global_name as global_name
+from sdx.pce.Heuristic.Heur import TE_Group_Solver
+from sdx.pce.LoadBalancing.TE_Solver import TE_Solver
+from sdx.pce.Utility.randomConnectionGenerator import RandomConnectionGenerator
+from sdx.pce.Utility.randomTopologyGenerator import RandomTopologyGenerator
 
 
 def random_graph(n, p, m):

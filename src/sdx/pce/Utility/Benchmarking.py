@@ -3,8 +3,8 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 
-from LoadBalancing.MC_Solver import runMC_Solver
-from LoadBalancing.RandomTopologyGenerator import lbnxgraphgenerator
+from sdx.pce.LoadBalancing.MC_Solver import runMC_Solver
+from sdx.pce.LoadBalancing.RandomTopologyGenerator import lbnxgraphgenerator
 
 
 def filesave(file):

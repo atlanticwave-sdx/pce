@@ -3,10 +3,10 @@ import unittest
 
 import networkx as nx
 
-import Utility.global_name as global_name
-from LoadBalancing.TE_Solver import TE_Solver
-from Utility.randomConnectionGenerator import RandomConnectionGenerator
-from Utility.randomTopologyGenerator import RandomTopologyGenerator, dot_file
+import sdx.pce.Utility.global_name as global_name
+from sdx.pce.LoadBalancing.TE_Solver import TE_Solver
+from sdx.pce.Utility.randomConnectionGenerator import RandomConnectionGenerator
+from sdx.pce.Utility.randomTopologyGenerator import RandomTopologyGenerator, dot_file
 
 Connection = "./tests/data/test_connection.json"
 Solution = "./tests/data/test_MC_solution.json"

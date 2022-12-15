@@ -25,6 +25,7 @@ jobs:
         with:
           python-version: "3.9"
           cache: 'pip'  # cache pip dependencies
+          cache-dependency-path: setup.cfg
 
       - name: Install dependencies
         run: |

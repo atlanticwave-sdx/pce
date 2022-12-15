@@ -3,8 +3,8 @@ import unittest
 
 from networkx.algorithms import approximation as approx
 
-from LoadBalancing.MC_Solver import runMC_Solver
-from LoadBalancing.RandomTopologyGenerator import (
+from sdx.pce.LoadBalancing.MC_Solver import runMC_Solver
+from sdx.pce.LoadBalancing.RandomTopologyGenerator import (
     GetConnection,
     GetNetworkToplogy,
     lbnxgraphgenerator,
