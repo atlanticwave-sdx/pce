@@ -11,7 +11,7 @@ import random
 import networkx as nx
 from networkx.algorithms import approximation as approx
 
-import Utility.global_name as global_name
+import sdx.pce.Utility.global_name as global_name
 
 
 class GraphFunction:

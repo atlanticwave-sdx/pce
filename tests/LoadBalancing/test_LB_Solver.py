@@ -1,8 +1,8 @@
 import json
 import unittest
 
-from LoadBalancing.LB_Utilization_Solver import runLB_UT_Solver
-from LoadBalancing.RandomTopologyGenerator import (
+from sdx.pce.LoadBalancing.LB_Utilization_Solver import runLB_UT_Solver
+from sdx.pce.LoadBalancing.RandomTopologyGenerator import (
     GetConnection,
     GetNetworkToplogy,
     lbnxgraphgenerator,
