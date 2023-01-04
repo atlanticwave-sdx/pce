@@ -9,7 +9,6 @@ import copy
 import json
 import operator
 import random
-import time
 
 import networkx as nx
 from networkx.generators.random_graphs import erdos_renyi_graph
@@ -23,7 +22,7 @@ def zerolistmaker(n):
 
 
 # use global variable to represent bw
-def bwassign(g):  ## pass in the bw name
+def bwassign(g):  # pass in the bw name
     random.seed(2022)
     for (u, v, w) in g.edges(data=True):
         w["bandwidth"] = random.randint(2000, 3000)
@@ -102,7 +101,7 @@ def jsonfilemaker(nodes, inputmatrix, inputdistance, request_list, rhsbw, linknu
         rhs[request[1]] = 1
         bounds += rhs
 
-    ## add the bwconstraint rhs
+    # add the bwconstraint rhs
     bounds += rhsbw
 
     jsonoutput = {}
@@ -182,7 +181,7 @@ def lbnxgraphgenerator(nodes, p, connection, g):
 
     edgelist = list(g.edges)
 
-    ## generate each node's parent node
+    # generate each node's parent node
     for pair in g.edges:
         if pair[0] in link_dict:
             link_dict[pair[0]].append(pair[1])
@@ -197,24 +196,25 @@ def lbnxgraphgenerator(nodes, p, connection, g):
 
     sorted_dict = dict(sorted(link_dict.items(), key=operator.itemgetter(0)))
 
-    ## show every link (bidirectional link means 2 different link)
+    # show every link (bidirectional link means 2 different link)
     link_list = []
     for startnode in sorted_dict:
         for endnode in sorted_dict[startnode]:
             link_list.append([startnode, endnode])
 
-    ## generte a link name list for future look up and reference
+    # generte a link name list for future look up and reference
     linktitle_dict = {}
     for n in range(len(link_list)):
         linktitle_dict[n] = link_list[n]
 
-    ## create the  contraint matrix of 0s
+    # create the  contraint matrix of 0s
     nodenum = len(g.nodes)
     inputmatrix = []
     for n in range(nodenum):
         inputmatrix.append(zerolistmaker(linknum))
 
-    ## input values based on the linklist into the matrix, 1 means flow into the nodes, -1 meanse flow out of the node
+    # input values based on the linklist into the matrix, 1 means flow
+    # into the nodes, -1 meanse flow out of the node
     c = 0
     for line in inputmatrix:
         n = 0
@@ -234,7 +234,7 @@ def lbnxgraphgenerator(nodes, p, connection, g):
     distance_list = weightassignment[0]
     latency_list = weightassignment[1]
 
-    ## look up and form the distance and latency array for each link
+    # look up and form the distance and latency array for each link
     count = 0
     for link in link_list:
         try:
@@ -253,14 +253,15 @@ def lbnxgraphgenerator(nodes, p, connection, g):
             inputlatency[count] = latency_list[edgelist.index((link[1], link[0]))]
             count += 1
 
-    pos = nx.spring_layout(g)
+    # pos = nx.spring_layout(g)
 
     with open("./tests/data/latency_list.json", "w") as json_file:
         data = inputlatency
         json.dump(data, json_file, indent=4)
 
     # Draw the graph according to node positions
-    labels = nx.get_edge_attributes(g, "bandwidth")
+    # labels = nx.get_edge_attributes(g, "bandwidth")
+
     with open("./tests/data/LB_linklist.json", "w") as json_file:
         data = link_list
         json.dump(data, json_file, indent=4)
@@ -274,12 +275,8 @@ def lbnxgraphgenerator(nodes, p, connection, g):
     jsonfilemaker(nodes, inputmatrix, inputdistance, connection, rhsbw, linknum)
 
     print("Topology Generated!")
-    return (
-        "Random Graph is created with "
-        + str(nodes)
-        + " nodes, probability of link creation is "
-        + str(p)
-    )
+
+    return f"Random Graph is created with {nodes} nodes, probability of link creation is {p}"
 
 
 # connection = GetConnection('../test/data/test_connection.json')

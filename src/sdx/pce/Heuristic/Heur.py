@@ -1,7 +1,5 @@
 import argparse
 import json
-
-# importing the module
 from datetime import datetime
 
 import numpy as np
@@ -30,11 +28,17 @@ def random_graph(n, p, m):
 
 
 class TE_Group_Solver:
-    """ "
-    Class for a connection (TE matrix) splitting based heuristic
-    1. Sequential: binpacking like heuristic: first-fit(any-fit)-decreasing, refined first fit (4 classes): Online
-    2. Grouping: k-shortest-path based grouping: (k, then all other pairs sharing a same link) :
-        connection grouping: linear grouping (k largest items on); geometric grouping (interval [B/2^(r+1), B/2^2])
+    """
+    Class for a connection (TE matrix) splitting based heuristic.
+
+        1. Sequential: binpacking like heuristic:
+           first-fit(any-fit)-decreasing, refined first fit (4
+           classes): Online
+
+        2. Grouping: k-shortest-path based grouping: (k, then all
+           other pairs sharing a same link) : connection grouping:
+           linear grouping (k largest items on); geometric grouping
+           (interval [B/2^(r+1), B/2^2])
     """
 
     def __init__(self, topology, tm, cost, objective):
@@ -58,7 +62,8 @@ class TE_Group_Solver:
     def sort_tm(self):
         # sorted_tm = np.sort(np.asarray(self.tm), axis = -1)
         print("tm shape:" + str(np.shape(self.tm)))
-        # dtype = ('src', int),('dest', int), ('bandwidth', float), ('latency', float)
+        # dtype = ('src', int),('dest', int),
+        # ('bandwidth', float), ('latency', float)
         dtype = {
             "names": ["src", "dest", "bandwidth", "latency"],
             "formats": [int, int, float, float],
@@ -69,7 +74,8 @@ class TE_Group_Solver:
         # print(sorted_tm)
         return sorted_tm
 
-    # sorted_tm: np array, dtype = {'names':['src', 'dest', 'bandwidth', 'latency'], 'formats':[int, int, float, float]}
+    # sorted_tm: np array, dtype = {'names':['src', 'dest',
+    # 'bandwidth', 'latency'], 'formats':[int, int, float, float]}
     def linear_partition(self, sorted_tm, k):
         partition_tm = []
         num_connection = sorted_tm.shape[0]
@@ -92,16 +98,7 @@ class TE_Group_Solver:
         for i in range(0, num_connection + mod, num):
             partition = sorted_tm[i : i + num]
             partition_tm.append(partition)
-        print(
-            "Linear tm partitioning:"
-            + str(k)
-            + ":"
-            + str(num)
-            + ":"
-            + str(mod)
-            + ":shape="
-            + str(np.shape(partition_tm))
-        )
+        print(f"Linear tm partitioning: {k}:{num}:{mod}:shape={np.shape(partition_tm)}")
         # print(partition_tm)
         return partition_tm
 
@@ -126,12 +123,7 @@ class TE_Group_Solver:
             if len(partition) != 0:
                 partition_tm.append(partition)
         # print(partition_tm)
-        print(
-            "Geometry tm partitioning:"
-            + str(k)
-            + ":shape="
-            + str(np.shape(partition_tm))
-        )
+        print(f"Geometry tm partitioning:{k}:shape={np.shape(partition_tm)}")
         return partition_tm
 
     def kk_partition(self, sorted_tm, k):
@@ -143,7 +135,7 @@ class TE_Group_Solver:
         partition_tm = prtpy.partition(
             algorithm=prtpy.partitioning.kk, numbins=k, items=map_items
         )
-        print("kk tm partitioning:" + str(k) + ":shape=" + str(np.shape(partition_tm)))
+        print(f"kk tm partitioning: {k} :shape={np.shape(partition_tm)}")
         return partition_tm
 
     def solve(self, partition_tm):
@@ -156,7 +148,7 @@ class TE_Group_Solver:
         for i in range(partition_shape[0] - 1, -1, -1):
             # print("i="+str(i))
             if i == 0:
-                partition = partition_tm[i][self.pad :]
+                partition = partition_tm[i][self.pad :]  # noqa: E203
             else:
                 partition = partition_tm[i]
             print(partition)
@@ -205,7 +197,7 @@ if __name__ == "__main__":
         "-t",
         dest="te_file",
         required=False,
-        help="Input file for the connections or traiffc matrix, e.g. c connection.json. Required.",
+        help="Input file for the connections or traiffc matrix, e.g. connection.json. Required.",  # noqa: E501
         type=str,
     )
     parse.add_argument(
@@ -216,7 +208,12 @@ if __name__ == "__main__":
         type=str,
     )
     parse.add_argument(
-        "-c", dest="c", required=False, default=0, help="Link cost definition", type=int
+        "-c",
+        dest="c",
+        required=False,
+        default=0,
+        help="Link cost definition",
+        type=int,
     )
     parse.add_argument(
         "-b",
@@ -240,7 +237,13 @@ if __name__ == "__main__":
         help="Flag for different grouping heuristic algorithms, default is the linear partition",
         type=int,
     )
-    parse.add_argument("-g", dest="group", default=2, help="number of groups", type=int)
+    parse.add_argument(
+        "-g",
+        dest="group",
+        default=2,
+        help="number of groups",
+        type=int,
+    )
     parse.add_argument(
         "-o",
         dest="result",

@@ -1,0 +1,32 @@
+# -*- conf -*-
+
+[flake8]
+# Use black's default line length of 88, rather than using the
+# flake8's default line length of 79.
+max-line-length = 88
+
+ignore =
+    # E203 is Whitespace before ':': black adds whitespace before and
+    # after ':'.
+    E203,
+    # E501 Line too long: ignore lines black couldn't/didn't handle.
+    E501,
+    # W503 Line break before binary operator: per flake8, line break
+    # after is a violation (which black added), but per flake8, W503
+    # and W504 mutually contradicts.
+    # https://www.flake8rules.com/rules/W503.html
+    # https://www.flake8rules.com/rules/W504.html
+    W503,
+
+statistics = True
+exclude =
+    .git,
+    .eggs,
+    __pycache__,
+    .tox/    
+    venv/
+    doc/,
+    docs/,
+    build/,
+    dist/,
+    archive/

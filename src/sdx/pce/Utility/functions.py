@@ -8,7 +8,6 @@ Created on Wed Aug 11 16:40:56 2021
 import copy
 import random
 
-import networkx as nx
 from networkx.algorithms import approximation as approx
 
 import sdx.pce.Utility.global_name as global_name
@@ -59,7 +58,7 @@ class GraphFunction:
         return distance_list
 
     # if u and v connected
-    def nodes_connected(g, u, v):
+    def nodes_connected(self, g, u, v):
         return u in g.neighbors(v)
 
     def get_connectivity(self):
@@ -75,32 +74,32 @@ def dijnew(graph, start_node, end_node):
     graph_new = graph_simplify(graph)
     shortest_distance = {}
     predecessor = {}
-    unseenNodes = graph_new
+    unseen_nodes = graph_new
     infinity = 9999999
     path = []
-    for node in unseenNodes:
+    for node in unseen_nodes:
         shortest_distance[node] = infinity
     shortest_distance[start_node] = 0
 
-    while unseenNodes:  # loop all the nodes in the list
-        minNode = None
-        for node in unseenNodes:
-            if minNode is None:
-                minNode = node
-            elif shortest_distance[node] < shortest_distance[minNode]:
-                minNode = node  # find the current node
+    while unseen_nodes:  # loop all the nodes in the list
+        min_node = None
+        for node in unseen_nodes:
+            if min_node is None:
+                min_node = node
+            elif shortest_distance[node] < shortest_distance[min_node]:
+                min_node = node  # find the current node
 
-        for childNode, weight in graph[minNode].items():
-            if weight + shortest_distance[minNode] < shortest_distance[childNode]:
-                shortest_distance[childNode] = weight + shortest_distance[minNode]
-                predecessor[childNode] = minNode
-        unseenNodes.pop(minNode)
+        for child_node, weight in graph[min_node].items():
+            if weight + shortest_distance[min_node] < shortest_distance[child_node]:
+                shortest_distance[child_node] = weight + shortest_distance[min_node]
+                predecessor[child_node] = min_node
+        unseen_nodes.pop(min_node)
 
-    currentNode = end_node  # run path backwards to get the real path
-    while currentNode != start_node:
+    current_node = end_node  # run path backwards to get the real path
+    while current_node != start_node:
         try:
-            path.insert(0, currentNode)
-            currentNode = predecessor[currentNode]
+            path.insert(0, current_node)
+            current_node = predecessor[current_node]
         except KeyError:
             print("Path not reachable")
             break

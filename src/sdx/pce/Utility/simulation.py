@@ -45,20 +45,11 @@ def bw_stat(g):
     ninetypercetile_util = np.percentile(util_array, 90)
     # print(util_array)
     print(
-        "mean_util="
-        + str(mean_util)
-        + ";std_util="
-        + str(std_util)
-        + ";ninetypercetile_util="
-        + str(ninetypercetile_util)
+        f"mean_util={mean_util};std_util={std_util};"
+        f"ninetypercetile_util={ninetypercetile_util}"
     )
     print(
-        "total_weight="
-        + str(total_weight)
-        + ";total_util="
-        + str(total_util)
-        + ";max_util="
-        + str(max_util)
+        f"total_weight={total_weight};total_util={total_util};" f"max_util={max_util}"
     )
 
 

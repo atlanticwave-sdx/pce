@@ -5,15 +5,11 @@ Created on Tue Mar  8 13:34:06 2022
 
 @author: Yufeng Xin (yxin@renci.org)
 """
-import copy
 import json
-import operator
 import random
 import re
-import time
 
 import networkx as nx
-import numpy as np
 import pylab as plt
 from networkx.algorithms import approximation as approx
 from networkx.generators.random_graphs import erdos_renyi_graph
@@ -101,7 +97,7 @@ class RandomTopologyGenerator:
         return self.graph
 
     # set the random bw and latency per link
-    def link_property_assign(self):  ## pass in the bw name
+    def link_property_assign(self):  # Pass in the bw name
         self.latency_list = []
         for (u, v, w) in self.graph.edges(data=True):
             w[global_name.bandwidth] = random.randint(self.low_bw, self.upper_bw)
@@ -165,7 +161,7 @@ def dot_file(topology_file, te_file=None):
     graph = nx.relabel_nodes(graph, mapping)
 
     for (u, v, w) in graph.edges(data=True):
-        if not "capacity" in w.keys():
+        if "capacity" not in w.keys():
             bandwidth = 1000.0
         else:
             capacity = w["capacity"].strip('"')
@@ -177,7 +173,7 @@ def dot_file(topology_file, te_file=None):
         w[global_name.original_bandwidth] = float(bandwidth)
         w[global_name.bandwidth] = float(bandwidth)
         w[global_name.weight] = float(w["cost"])
-        if not "latency" in w.keys():
+        if "latency" not in w.keys():
             latency = 10
             w[global_name.latency] = latency
 

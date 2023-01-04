@@ -1,14 +1,12 @@
-import json
 import re
 
 import matplotlib.pyplot as plt
-import numpy as np
 from matplotlib.ticker import MaxNLocator
 
 
 # Function to read
 # last N lines of the file
-def LastNlines(fname, N):
+def last_n_lines(fname, n):
     # opening file using with() method
     # so that file get closed
     # after completing work
@@ -19,9 +17,9 @@ def LastNlines(fname, N):
             # loop to read iterate
             # last n lines and convert to a dict
             results = {}
-            for line in file.readlines()[-N:]:
+            for line in file.readlines()[-n:]:
                 # print(line, end ='')
-                list = re.split(", |=|;|:|\+", line.splitlines()[0])
+                list = re.split(r", |=|;|:|\+", line.splitlines()[0])
                 it = iter(list)
                 res_dct = dict(zip(it, it))
                 results = {**results, **res_dct}
@@ -35,7 +33,7 @@ def LastNlines(fname, N):
 
 
 def plot_heur(path, title, tag):
-    N = 5
+    n = 5
     num_connection_list = []
 
     time_list_dict = {}
@@ -74,7 +72,7 @@ def plot_heur(path, title, tag):
 
         for i in (2, 4, 8, 10, 16, 20):
             fname = path + dir + name + str(i) + ".out"
-            results = LastNlines(fname, N)
+            results = last_n_lines(fname, n)
             if results is not None:
                 if "Script Execution Time" in results.keys():
                     time_list.append(float(results["Script Execution Time"]))
