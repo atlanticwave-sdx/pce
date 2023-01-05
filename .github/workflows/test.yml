@@ -43,13 +43,18 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest pytest-cov wheel coveralls
+          pip install flake8 pep8-naming pytest pytest-cov wheel coveralls
           if [ -f requirements.txt ]; then pip install --prefer-binary -r requirements.txt; fi
 
       - name: Run some basic checks with flake8
         run: |
           # Stop the build if there are Python syntax errors or undefined names.
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Check against PEP8 naming conventions
+        run: |
+          # This needs pep8-naming, installed above
+          flake8 . --count --select=N8 --show-source --statistics
 
       - name: Run complexity checks with flake8
         run: |
