@@ -2,7 +2,7 @@ import argparse
 
 import numpy as np
 
-from sdx.pce.load_balancing.te_solver import TE_Solver
+from sdx.pce.load_balancing.te_solver import TESolver
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
@@ -14,7 +14,7 @@ def random_graph(n, p, m):
     graph = graph_generator.generate_graph()
 
     tm_generator = RandomConnectionGenerator(n)
-    tm = tm_generator.randomConnectionGenerator(m, 500, 1000, 80, 100)
+    tm = tm_generator.generate_connection(m, 500, 1000, 80, 100)
 
     return graph, tm
 
@@ -147,7 +147,7 @@ if __name__ == "__main__":
             exit(1)
 
     print("Optimal solver")
-    solver = TE_Solver(graph, tm, args.c, args.b)
+    solver = TESolver(graph, tm, args.c, args.b)
     path, result = solver.solve()
     ordered_paths = solver.solution_translator(path, result)
     graph = solver.update_graph(graph, ordered_paths)
