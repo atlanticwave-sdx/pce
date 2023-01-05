@@ -5,7 +5,7 @@ import networkx as nx
 
 import sdx.pce.utils.global_name as global_name
 from sdx.pce.load_balancing.te_solver import TE_Solver
-from sdx.pce.utils.randomConnectionGenerator import RandomConnectionGenerator
+from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.randomTopologyGenerator import RandomTopologyGenerator, dot_file
 
 Connection = "./tests/data/test_connection.json"
