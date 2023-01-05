@@ -14,8 +14,8 @@ class RandomConnectionGenerator:
     def randomConnectionGenerator(self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022):
         """
         Create a random TM
-        @param querynum number of connections
-        @return a list of connections, each of which is a list [src, des, bw, lat]
+        :param querynum:  Number of connections.
+        :return: A list of connections, each of which is a list [src, des, bw, lat].
         """
         np.random.seed(seed)
         connection = []
