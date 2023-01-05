@@ -35,9 +35,7 @@ class TESolverTests(unittest.TestCase):
         self.graph = graph_generator.generate_graph()
 
         tm_generator = RandomConnectionGenerator(N)
-        self.tm = tm_generator.generate_connection(
-            M, 5000, 15000, 50, 80, seed=2022
-        )
+        self.tm = tm_generator.generate_connection(M, 5000, 15000, 50, 80, seed=2022)
 
         # with open(Connection) as f:
         #    self.connection = json.load(f)
