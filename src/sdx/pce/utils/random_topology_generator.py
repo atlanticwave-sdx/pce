@@ -19,24 +19,25 @@ from sdx.pce.utils.functions import GraphFunction
 
 
 class RandomTopologyGenerator:
-    # inputs:
-    #   N: Total number of the random network's nodes
-    #   P: link creation probability
     def __init__(
         self,
-        N,
-        P=0.2,
+        num_node,
+        link_probability=0.2,
         l_bw=Constants.MIN_L_BW,
         u_bw=Constants.MAX_L_BW,
         l_lat=Constants.MIN_L_LAT,
         u_lat=Constants.MAX_L_LAT,
         seed=2022,
     ):
+        """
+        :param num_nodes: Total number of the random network's nodes
+        :param link_probability: Link creation probability.
+        """
         random.seed(seed)
         self.seed = seed
 
-        self.num_node = N
-        self.link_probability = P
+        self.num_node = num_node
+        self.link_probability = link_probability
 
         self.low_bw = l_bw
         self.upper_bw = u_bw
