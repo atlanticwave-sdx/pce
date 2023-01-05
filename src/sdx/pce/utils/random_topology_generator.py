@@ -144,7 +144,7 @@ class RandomTopologyGenerator:
         return distance_list
 
     # if u and v connected
-    def nodes_connected(g, u, v):
+    def nodes_connected(self, g, u, v):
         return u in g.neighbors(v)
 
     def get_connectivity(self):
