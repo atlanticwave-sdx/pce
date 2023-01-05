@@ -3,7 +3,7 @@ import unittest
 
 import networkx as nx
 
-from sdx.pce.load_balancing.te_solver import TE_Solver
+from sdx.pce.load_balancing.te_solver import TESolver
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator, dot_file
@@ -18,7 +18,7 @@ M = 3
 COST_FLAG = 0
 
 
-class Test_TE_Solver(unittest.TestCase):
+class Test_TESolver(unittest.TestCase):
     def setup(self):
         self.graph = None
         self.tm = None
@@ -45,7 +45,7 @@ class Test_TE_Solver(unittest.TestCase):
     def test_mc_solve(self):
         self.random_graph()
         print("tm:" + str(self.tm))
-        solver = TE_Solver(self.graph, self.tm, COST_FLAG)
+        solver = TESolver(self.graph, self.tm, COST_FLAG)
 
         solver.create_data_model()
 
@@ -60,7 +60,7 @@ class Test_TE_Solver(unittest.TestCase):
     def test_lb_solve(self):
         self.random_graph()
         print("tm:" + str(self.tm))
-        solver = TE_Solver(
+        solver = TESolver(
             self.graph, self.tm, COST_FLAG, Constants.OBJECTIVE_LOAD_BALANCING
         )
 
@@ -91,7 +91,7 @@ class Test_TE_Solver(unittest.TestCase):
         with open("./tests/data/test_five_node_request.json") as f:
             self.tm = json.load(f)
 
-        solver = TE_Solver(self.graph, self.tm, COST_FLAG)
+        solver = TESolver(self.graph, self.tm, COST_FLAG)
         solver.create_data_model()
         path, result = solver.solve()
 
@@ -105,7 +105,7 @@ class Test_TE_Solver(unittest.TestCase):
     def test_mc_solve_geant2012(self):
 
         self.graph, self.tm = dot_file(topology_file, Connection)
-        solver = TE_Solver(self.graph, self.tm, COST_FLAG)
+        solver = TESolver(self.graph, self.tm, COST_FLAG)
         solver.create_data_model()
         path, result = solver.solve()
 

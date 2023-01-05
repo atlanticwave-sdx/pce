@@ -17,7 +17,7 @@ from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.functions import GraphFunction
 
 
-class TE_Solver:
+class TESolver:
     def __init__(self, g=None, tm=None, cost_flag=0, obj=Constants.OBJECTIVE_COST):
         self.graph = g
 
