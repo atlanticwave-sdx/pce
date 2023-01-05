@@ -10,7 +10,7 @@ import random
 
 from networkx.algorithms import approximation as approx
 
-import sdx.pce.Utility.global_name as global_name
+import sdx.pce.utils.global_name as global_name
 
 
 class GraphFunction:
