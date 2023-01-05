@@ -121,9 +121,7 @@ class RandomTopologyGenerator:
 
         if flag == 1:
             for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.WEIGHT] = Constants.ALPHA * (
-                    1.0 / w[Constants.bandwidth]
-                )
+                w[Constants.WEIGHT] = Constants.ALPHA * (1.0 / w[Constants.bandwidth])
                 distance_list.append(w[Constants.WEIGHT])
         elif flag == 2:
             for (u, v, w) in self.graph.edges(data=True):
