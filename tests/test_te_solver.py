@@ -3,7 +3,7 @@ import unittest
 
 import networkx as nx
 
-import sdx.pce.utils.constants as global_name
+from sdx.pce.utils.constants import Constants
 from sdx.pce.load_balancing.te_solver import TE_Solver
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator, dot_file
@@ -60,7 +60,7 @@ class Test_TE_Solver(unittest.TestCase):
     def test_lb_solve(self):
         self.random_graph()
         print("tm:" + str(self.tm))
-        solver = TE_Solver(self.graph, self.tm, COST_FLAG, global_name.Obj_LB)
+        solver = TE_Solver(self.graph, self.tm, COST_FLAG, Constants.Obj_LB)
 
         solver.create_data_model()
 
