@@ -60,7 +60,7 @@ class RandomConnectionGenerator:
     def random(self, min, mx, size):
         return np.random.randint(min, max, 1000)
 
-    def linearGrouping(self, tm, k):
+    def linear_grouping(self, tm, k):
         if len(tm) > 20:
             tm.sort(key=lambda x: x[2])
 
@@ -74,10 +74,10 @@ class RandomConnectionGenerator:
 
         return group_list
 
-    def geometricGrouping(self, tm, k):
+    def geometric_grouping(self, tm, k):
         pass
 
-    def altGeometricGrouping(self, tm, k):
+    def alt_geometric_grouping(self, tm, k):
         pass
 
 
