@@ -18,7 +18,7 @@ M = 3
 COST_FLAG = 0
 
 
-class Test_TESolver(unittest.TestCase):
+class TESolverTests(unittest.TestCase):
     def setup(self):
         self.graph = None
         self.tm = None
