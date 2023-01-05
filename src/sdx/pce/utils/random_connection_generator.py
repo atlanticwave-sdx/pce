@@ -11,7 +11,7 @@ class RandomConnectionGenerator:
         self.num_nodes = num_nodes
 
     # Output: list of tuples of request
-    def randomConnectionGenerator(self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022):
+    def generate_connection(self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022):
         """
         Create a random TM
         :param querynum:  Number of connections.
