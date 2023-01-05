@@ -2,11 +2,11 @@ import argparse
 
 import numpy as np
 
-import sdx.pce.Utility.global_name as global_name
-from sdx.pce.Heuristic.Heur import TE_Group_Solver
-from sdx.pce.LoadBalancing.TE_Solver import TE_Solver
-from sdx.pce.Utility.randomConnectionGenerator import RandomConnectionGenerator
-from sdx.pce.Utility.randomTopologyGenerator import RandomTopologyGenerator
+from sdx.pce.utils.constants import Constants
+# from sdx.pce.Heuristic.Heur import TE_Group_Solver
+from sdx.pce.load_balancing.te_solver import TE_Solver
+from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
+from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
 
 
 def random_graph(n, p, m):
@@ -30,9 +30,9 @@ def bw_stat(g):
     max_util = 0.0
     util_list = []
     for (u, v, w) in g.edges(data=True):
-        avail_bw = w[global_name.bandwidth]
-        bw = w[global_name.original_bandwidth]
-        weight = global_name.alpha * (1.0 / (avail_bw + 0.1))
+        avail_bw = w[Constants.BANDWIDTH]
+        bw = w[Constants.ORIGINAL_BANDWIDTH]
+        weight = Constants.ALPHA * (1.0 / (avail_bw + 0.1))
         total_weight = total_weight + weight
         util = 1.0 - avail_bw / bw
         total_util = total_util + util
@@ -149,7 +149,7 @@ if __name__ == "__main__":
         print("n=" + str(args.n) + ";p=" + str(args.p) + ";m=" + str(args.m))
         graph, tm = random_graph(args.n, args.p, args.m)
 
-    if args.c == global_name.COST_FLAG_STATIC:  # 4
+    if args.c == Constants.COST_FLAG_STATIC:  # 4
         if args.l is None:
             print("Error: Static cost file is needed!")
             exit(1)
