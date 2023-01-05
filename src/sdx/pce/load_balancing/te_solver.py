@@ -13,7 +13,7 @@ import networkx as nx
 import numpy as np
 from ortools.linear_solver import pywraplp
 
-import sdx.pce.utils.global_name as global_name
+import sdx.pce.utils.constants as global_name
 from sdx.pce.utils.functions import GraphFunction
 
 
