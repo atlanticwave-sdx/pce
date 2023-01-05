@@ -3,7 +3,6 @@ import argparse
 import numpy as np
 
 from sdx.pce.utils.constants import Constants
-# from sdx.pce.Heuristic.Heur import TE_Group_Solver
 from sdx.pce.load_balancing.te_solver import TE_Solver
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
@@ -106,13 +105,6 @@ if __name__ == "__main__":
         type=str,
     )
     parse.add_argument(
-        "-heur",
-        dest="heur",
-        default=0,
-        help="Heuristic = 1, Default = 0 for the optimal. ",
-        type=int,
-    )
-    parse.add_argument(
         "-k", dest="k", default=2, help="Group Heuristic  -- Number of groups", type=int
     )
     parse.add_argument(
@@ -154,16 +146,10 @@ if __name__ == "__main__":
             print("Error: Static cost file is needed!")
             exit(1)
 
-    if args.heur == 0:
-        print("Optimal solver")
-        solver = TE_Solver(graph, tm, args.c, args.b)
-        path, result = solver.solve()
-        ordered_paths = solver.solution_translator(path, result)
-        graph = solver.update_graph(graph, ordered_paths)
-    else:
-        print("Heuristic solver")
-        solver = TE_Group_Solver(graph, tm, args.c, args.b)
-        partition_tm = solver.ConnectionSplit(args.alg, args.k)
-        solver.solve(partition_tm)
+    print("Optimal solver")
+    solver = TE_Solver(graph, tm, args.c, args.b)
+    path, result = solver.solve()
+    ordered_paths = solver.solution_translator(path, result)
+    graph = solver.update_graph(graph, ordered_paths)
 
     bw_stat(graph)
