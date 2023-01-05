@@ -26,10 +26,10 @@ class RandomTopologyGenerator:
         self,
         N,
         P=0.2,
-        l_bw=Constants.Min_L_BW,
-        u_bw=Constants.Max_L_BW,
-        l_lat=Constants.Min_L_LAT,
-        u_lat=Constants.Max_L_LAT,
+        l_bw=Constants.MIN_L_BW,
+        u_bw=Constants.MAX_L_BW,
+        l_lat=Constants.MIN_L_LAT,
+        u_lat=Constants.MAX_L_LAT,
         seed=2022,
     ):
         random.seed(seed)
@@ -100,10 +100,10 @@ class RandomTopologyGenerator:
     def link_property_assign(self):  # Pass in the bw name
         self.latency_list = []
         for (u, v, w) in self.graph.edges(data=True):
-            w[Constants.bandwidth] = random.randint(self.low_bw, self.upper_bw)
-            w[Constants.original_bandwidth] = w[Constants.bandwidth]
+            w[Constants.BANDWIDTH] = random.randint(self.low_bw, self.upper_bw)
+            w[Constants.ORIGINAL_BANDWIDTH] = w[Constants.BANDWIDTH]
             latency = random.randint(self.low_latency, self.upper_latency)
-            w[Constants.latency] = latency
+            w[Constants.LATENCY] = latency
             self.latency_list.append(latency)
 
         return self.latency_list
@@ -121,26 +121,26 @@ class RandomTopologyGenerator:
 
         if flag == 1:
             for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.weight] = Constants.alpha * (
+                w[Constants.WEIGHT] = Constants.ALPHA * (
                     1.0 / w[Constants.bandwidth]
                 )
-                distance_list.append(w[Constants.weight])
+                distance_list.append(w[Constants.WEIGHT])
         elif flag == 2:
             for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.weight] = w[Constants.latency]
-                distance_list.append(w[Constants.weight])
+                w[Constants.WEIGHT] = w[Constants.LATENCY]
+                distance_list.append(w[Constants.WEIGHT])
         elif flag == 3:
             for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.weight] = random.randint(1, 2**24)
-                distance_list.append(w[Constants.weight])
+                w[Constants.WEIGHT] = random.randint(1, 2**24)
+                distance_list.append(w[Constants.WEIGHT])
         elif flag == 4:
             for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.weight] = cost[u, v]
-                distance_list.append(w[Constants.weight])
+                w[Constants.WEIGHT] = cost[u, v]
+                distance_list.append(w[Constants.WEIGHT])
         else:
             for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.weight] = 1.0
-                distance_list.append(w[Constants.weight])
+                w[Constants.WEIGHT] = 1.0
+                distance_list.append(w[Constants.WEIGHT])
         self.distance_list = distance_list
         return distance_list
 
@@ -170,12 +170,12 @@ def dot_file(topology_file, te_file=None):
             if bw[1].startswith("G"):
                 bandwidth = float(bw[0]) * 1000
 
-        w[Constants.original_bandwidth] = float(bandwidth)
-        w[Constants.bandwidth] = float(bandwidth)
-        w[Constants.weight] = float(w["cost"])
+        w[Constants.ORIGINAL_BANDWIDTH] = float(bandwidth)
+        w[Constants.BANDWIDTH] = float(bandwidth)
+        w[Constants.WEIGHT] = float(w["cost"])
         if "latency" not in w.keys():
             latency = 10
-            w[Constants.latency] = latency
+            w[Constants.LATENCY] = latency
 
     connectivity = approx.node_connectivity(graph)
     print("Connectivity:" + str(connectivity))

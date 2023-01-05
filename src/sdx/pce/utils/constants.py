@@ -1,13 +1,13 @@
 class Constants:
-    bandwidth = "bandwidth"
-    original_bandwidth = "original_bandwidth"
-    latency = "latency"
-    packet_loss = "packet_loss"
-    availability = "availability"
-    weight = "weight"
+    BANDWIDTH = "bandwidth"
+    ORIGINAL_BANDWIDTH = "original_bandwidth"
+    LATENCY = "latency"
+    PACKET_LOSS = "packet_loss"
+    AVAILABILITY = "availability"
+    WEIGHT = "weight"
 
-    Obj_Cost = 0
-    Obj_LB = 1
+    OBJECTIVE_COST = 0
+    OBJECTIVE_LOAD_BALANCING = 1
 
     COST_FLAG_HOP = 0
     COST_FLAG_BW = 1
@@ -15,13 +15,13 @@ class Constants:
     COST_FLAG_RANDOM = 3
     COST_FLAG_STATIC = 4
 
-    Min_L_BW = 5000
-    Max_L_BW = 10000
+    MIN_L_BW = 5000
+    MAX_L_BW = 10000
 
-    Min_C_BW = 500
-    Max_C_BW = 1000
+    MIN_C_BW = 500
+    MAX_C_BW = 1000
 
-    Min_L_LAT = 10
-    Max_L_LAT = 25
+    MIN_L_LAT = 10
+    MAX_L_LAT = 25
 
-    alpha = 10 ^ 6
+    ALPHA = 10 ^ 6

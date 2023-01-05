@@ -33,27 +33,27 @@ class GraphFunction:
 
         if flag == 1:
             for (u, v, w) in self.graph.edges(data=True):
-                # w[Constants.weight] = Constants.Max_L_BW - w[Constants.bandwidth]
-                w[Constants.weight] = Constants.alpha * (
-                    1.0 / w[Constants.bandwidth]
+                # w[Constants.WEIGHT] = Constants.Max_L_BW - w[Constants.BANDWIDTH]
+                w[Constants.WEIGHT] = Constants.alpha * (
+                    1.0 / w[Constants.BANDWIDTH]
                 )
-                distance_list.append(w[Constants.weight])
+                distance_list.append(w[Constants.WEIGHT])
         elif flag == 2:
             for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.weight] = w[Constants.latency]
-                distance_list.append(w[Constants.weight])
+                w[Constants.WEIGHT] = w[Constants.latency]
+                distance_list.append(w[Constants.WEIGHT])
         elif flag == 3:
             for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.weight] = random.randint(1, 2**24)
-                distance_list.append(w[Constants.weight])
+                w[Constants.WEIGHT] = random.randint(1, 2**24)
+                distance_list.append(w[Constants.WEIGHT])
         elif flag == 4:
             for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.weight] = cost[u, v]
-                distance_list.append(w[Constants.weight])
+                w[Constants.WEIGHT] = cost[u, v]
+                distance_list.append(w[Constants.WEIGHT])
         else:
             for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.weight] = 1.0
-                distance_list.append(w[Constants.weight])
+                w[Constants.WEIGHT] = 1.0
+                distance_list.append(w[Constants.WEIGHT])
         self.distance_list = distance_list
         return distance_list
 

@@ -60,7 +60,7 @@ class Test_TE_Solver(unittest.TestCase):
     def test_lb_solve(self):
         self.random_graph()
         print("tm:" + str(self.tm))
-        solver = TE_Solver(self.graph, self.tm, COST_FLAG, Constants.Obj_LB)
+        solver = TE_Solver(self.graph, self.tm, COST_FLAG, Constants.OBJECTIVE_LOAD_BALANCING)
 
         solver.create_data_model()
 
