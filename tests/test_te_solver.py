@@ -4,7 +4,7 @@ import unittest
 import networkx as nx
 
 import sdx.pce.Utility.global_name as global_name
-from sdx.pce.LoadBalancing.TE_Solver import TE_Solver
+from sdx.pce.load_balancing.TE_Solver import TE_Solver
 from sdx.pce.Utility.randomConnectionGenerator import RandomConnectionGenerator
 from sdx.pce.Utility.randomTopologyGenerator import RandomTopologyGenerator, dot_file
 
