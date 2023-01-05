@@ -4,12 +4,11 @@ import numpy as np
 
 
 class RandomConnectionGenerator:
-    def __init__(self, N):
+    def __init__(self, num_nodes):
         """
-        init
-        @param N number of nodes of the topology
+        :param num_nodes: Number of nodes of the topology.
         """
-        self.num_nodes = N
+        self.num_nodes = num_nodes
 
     # Output: list of tuples of request
     def randomConnectionGenerator(self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022):
