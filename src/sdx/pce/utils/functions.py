@@ -10,7 +10,7 @@ import random
 
 from networkx.algorithms import approximation as approx
 
-import sdx.pce.Utility.global_name as global_name
+from sdx.pce.utils.constants import Constants
 
 
 class GraphFunction:
@@ -33,27 +33,25 @@ class GraphFunction:
 
         if flag == 1:
             for (u, v, w) in self.graph.edges(data=True):
-                # w[global_name.weight] = global_name.Max_L_BW - w[global_name.bandwidth]
-                w[global_name.weight] = global_name.alpha * (
-                    1.0 / w[global_name.bandwidth]
-                )
-                distance_list.append(w[global_name.weight])
+                # w[Constants.WEIGHT] = Constants.Max_L_BW - w[Constants.BANDWIDTH]
+                w[Constants.WEIGHT] = Constants.alpha * (1.0 / w[Constants.BANDWIDTH])
+                distance_list.append(w[Constants.WEIGHT])
         elif flag == 2:
             for (u, v, w) in self.graph.edges(data=True):
-                w[global_name.weight] = w[global_name.latency]
-                distance_list.append(w[global_name.weight])
+                w[Constants.WEIGHT] = w[Constants.latency]
+                distance_list.append(w[Constants.WEIGHT])
         elif flag == 3:
             for (u, v, w) in self.graph.edges(data=True):
-                w[global_name.weight] = random.randint(1, 2**24)
-                distance_list.append(w[global_name.weight])
+                w[Constants.WEIGHT] = random.randint(1, 2**24)
+                distance_list.append(w[Constants.WEIGHT])
         elif flag == 4:
             for (u, v, w) in self.graph.edges(data=True):
-                w[global_name.weight] = cost[u, v]
-                distance_list.append(w[global_name.weight])
+                w[Constants.WEIGHT] = cost[u, v]
+                distance_list.append(w[Constants.WEIGHT])
         else:
             for (u, v, w) in self.graph.edges(data=True):
-                w[global_name.weight] = 1.0
-                distance_list.append(w[global_name.weight])
+                w[Constants.WEIGHT] = 1.0
+                distance_list.append(w[Constants.WEIGHT])
         self.distance_list = distance_list
         return distance_list
 

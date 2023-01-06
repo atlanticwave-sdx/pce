@@ -14,29 +14,30 @@ import pylab as plt
 from networkx.algorithms import approximation as approx
 from networkx.generators.random_graphs import erdos_renyi_graph
 
-import sdx.pce.Utility.global_name as global_name
-from sdx.pce.Utility.functions import GraphFunction
+from sdx.pce.utils.constants import Constants
+from sdx.pce.utils.functions import GraphFunction
 
 
 class RandomTopologyGenerator:
-    # inputs:
-    #   N: Total number of the random network's nodes
-    #   P: link creation probability
     def __init__(
         self,
-        N,
-        P=0.2,
-        l_bw=global_name.Min_L_BW,
-        u_bw=global_name.Max_L_BW,
-        l_lat=global_name.Min_L_LAT,
-        u_lat=global_name.Max_L_LAT,
+        num_node,
+        link_probability=0.2,
+        l_bw=Constants.MIN_L_BW,
+        u_bw=Constants.MAX_L_BW,
+        l_lat=Constants.MIN_L_LAT,
+        u_lat=Constants.MAX_L_LAT,
         seed=2022,
     ):
+        """
+        :param num_nodes: Total number of the random network's nodes
+        :param link_probability: Link creation probability.
+        """
         random.seed(seed)
         self.seed = seed
 
-        self.num_node = N
-        self.link_probability = P
+        self.num_node = num_node
+        self.link_probability = link_probability
 
         self.low_bw = l_bw
         self.upper_bw = u_bw
@@ -100,10 +101,10 @@ class RandomTopologyGenerator:
     def link_property_assign(self):  # Pass in the bw name
         self.latency_list = []
         for (u, v, w) in self.graph.edges(data=True):
-            w[global_name.bandwidth] = random.randint(self.low_bw, self.upper_bw)
-            w[global_name.original_bandwidth] = w[global_name.bandwidth]
+            w[Constants.BANDWIDTH] = random.randint(self.low_bw, self.upper_bw)
+            w[Constants.ORIGINAL_BANDWIDTH] = w[Constants.BANDWIDTH]
             latency = random.randint(self.low_latency, self.upper_latency)
-            w[global_name.latency] = latency
+            w[Constants.LATENCY] = latency
             self.latency_list.append(latency)
 
         return self.latency_list
@@ -121,31 +122,29 @@ class RandomTopologyGenerator:
 
         if flag == 1:
             for (u, v, w) in self.graph.edges(data=True):
-                w[global_name.weight] = global_name.alpha * (
-                    1.0 / w[global_name.bandwidth]
-                )
-                distance_list.append(w[global_name.weight])
+                w[Constants.WEIGHT] = Constants.ALPHA * (1.0 / w[Constants.bandwidth])
+                distance_list.append(w[Constants.WEIGHT])
         elif flag == 2:
             for (u, v, w) in self.graph.edges(data=True):
-                w[global_name.weight] = w[global_name.latency]
-                distance_list.append(w[global_name.weight])
+                w[Constants.WEIGHT] = w[Constants.LATENCY]
+                distance_list.append(w[Constants.WEIGHT])
         elif flag == 3:
             for (u, v, w) in self.graph.edges(data=True):
-                w[global_name.weight] = random.randint(1, 2**24)
-                distance_list.append(w[global_name.weight])
+                w[Constants.WEIGHT] = random.randint(1, 2**24)
+                distance_list.append(w[Constants.WEIGHT])
         elif flag == 4:
             for (u, v, w) in self.graph.edges(data=True):
-                w[global_name.weight] = cost[u, v]
-                distance_list.append(w[global_name.weight])
+                w[Constants.WEIGHT] = cost[u, v]
+                distance_list.append(w[Constants.WEIGHT])
         else:
             for (u, v, w) in self.graph.edges(data=True):
-                w[global_name.weight] = 1.0
-                distance_list.append(w[global_name.weight])
+                w[Constants.WEIGHT] = 1.0
+                distance_list.append(w[Constants.WEIGHT])
         self.distance_list = distance_list
         return distance_list
 
     # if u and v connected
-    def nodes_connected(g, u, v):
+    def nodes_connected(self, g, u, v):
         return u in g.neighbors(v)
 
     def get_connectivity(self):
@@ -170,12 +169,12 @@ def dot_file(topology_file, te_file=None):
             if bw[1].startswith("G"):
                 bandwidth = float(bw[0]) * 1000
 
-        w[global_name.original_bandwidth] = float(bandwidth)
-        w[global_name.bandwidth] = float(bandwidth)
-        w[global_name.weight] = float(w["cost"])
+        w[Constants.ORIGINAL_BANDWIDTH] = float(bandwidth)
+        w[Constants.BANDWIDTH] = float(bandwidth)
+        w[Constants.WEIGHT] = float(w["cost"])
         if "latency" not in w.keys():
             latency = 10
-            w[global_name.latency] = latency
+            w[Constants.LATENCY] = latency
 
     connectivity = approx.node_connectivity(graph)
     print("Connectivity:" + str(connectivity))

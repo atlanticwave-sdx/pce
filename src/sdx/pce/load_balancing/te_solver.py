@@ -13,12 +13,12 @@ import networkx as nx
 import numpy as np
 from ortools.linear_solver import pywraplp
 
-import sdx.pce.Utility.global_name as global_name
-from sdx.pce.Utility.functions import GraphFunction
+from sdx.pce.utils.constants import Constants
+from sdx.pce.utils.functions import GraphFunction
 
 
-class TE_Solver:
-    def __init__(self, g=None, tm=None, cost_flag=0, obj=global_name.Obj_Cost):
+class TESolver:
+    def __init__(self, g=None, tm=None, cost_flag=0, obj=Constants.OBJECTIVE_COST):
         self.graph = g
 
         self.graphFunction = GraphFunction()
@@ -150,8 +150,8 @@ class TE_Solver:
                 u = edge[0]
                 v = edge[1]
                 if graph.has_edge(u, v):
-                    bandwidth = graph[u][v][global_name.bandwidth] - bw
-                    graph[u][v][global_name.bandwidth] = max(
+                    bandwidth = graph[u][v][Constants.BANDWIDTH] - bw
+                    graph[u][v][Constants.BANDWIDTH] = max(
                         bandwidth, 0.01
                     )  # Avoid being divided by 0.
         return graph
@@ -164,7 +164,7 @@ class TE_Solver:
         g = self.graph
         cost_list = []
         for link in links:
-            cost_list.append(g[link[0]][link[1]][global_name.weight])
+            cost_list.append(g[link[0]][link[1]][Constants.WEIGHT])
 
         cost = []
         for i in range(len(self.tm)):
@@ -176,7 +176,7 @@ class TE_Solver:
         g = self.graph
         cost_list = []
         for link in links:
-            cost_list.append(g[link[0]][link[1]][global_name.bandwidth])
+            cost_list.append(g[link[0]][link[1]][Constants.BANDWIDTH])
         cost = []
         for connection in self.tm:
             bw = connection[2]
@@ -224,9 +224,9 @@ class TE_Solver:
             u = link[0]
             v = link[1]
             if g.has_edge(u, v):
-                bw = g[u][v][global_name.bandwidth]
+                bw = g[u][v][Constants.BANDWIDTH]
             elif g.has_edge(v, u):
-                bw = g[v][u][global_name.bandwidth]
+                bw = g[v][u][Constants.BANDWIDTH]
 
             bwlinklist.append(bw)
 
@@ -260,10 +260,10 @@ class TE_Solver:
             lhs = flow_lhs
 
         # objective function
-        if self.objective == global_name.Obj_Cost:
+        if self.objective == Constants.OBJECTIVE_COST:
             print("Objecive: Cost")
             cost = self.mc_cost(links)
-        if self.objective == global_name.Obj_LB:
+        if self.objective == Constants.OBJECTIVE_LOAD_BALANCING:
             print("Objecive: Load Balance")
             cost = self.lb_cost(links)
 
@@ -365,7 +365,7 @@ class TE_Solver:
         zerolist = np.zeros(len(links), dtype=int)
         latency_list = []
         for link in links:
-            latency_list.append(g[link[0]][link[1]][global_name.latency])
+            latency_list.append(g[link[0]][link[1]][Constants.LATENCY])
 
         requestnum = len(request_list)
         for i in range(requestnum):

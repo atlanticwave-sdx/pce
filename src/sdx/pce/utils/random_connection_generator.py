@@ -4,19 +4,18 @@ import numpy as np
 
 
 class RandomConnectionGenerator:
-    def __init__(self, N):
+    def __init__(self, num_nodes):
         """
-        init
-        @param N number of nodes of the topology
+        :param num_nodes: Number of nodes of the topology.
         """
-        self.num_nodes = N
+        self.num_nodes = num_nodes
 
     # Output: list of tuples of request
-    def randomConnectionGenerator(self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022):
+    def generate_connection(self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022):
         """
         Create a random TM
-        @param querynum number of connections
-        @return a list of connections, each of which is a list [src, des, bw, lat]
+        :param querynum:  Number of connections.
+        :return: A list of connections, each of which is a list [src, des, bw, lat].
         """
         np.random.seed(seed)
         connection = []
@@ -61,7 +60,7 @@ class RandomConnectionGenerator:
     def random(self, min, mx, size):
         return np.random.randint(min, max, 1000)
 
-    def linearGrouping(self, tm, k):
+    def linear_grouping(self, tm, k):
         if len(tm) > 20:
             tm.sort(key=lambda x: x[2])
 
@@ -75,10 +74,10 @@ class RandomConnectionGenerator:
 
         return group_list
 
-    def geometricGrouping(self, tm, k):
+    def geometric_grouping(self, tm, k):
         pass
 
-    def altGeometricGrouping(self, tm, k):
+    def alt_geometric_grouping(self, tm, k):
         pass
 
 
