@@ -31,27 +31,27 @@ class TESolverTests(unittest.TestCase):
 
     def test_mc_solve(self):
         graph, tm = self.random_graph()
-        print("tm:" + str(tm))
+        print(f"tm: {tm}")
 
         solver = TESolver(graph, tm, COST_FLAG)
         path, result = solver.solve()
         ordered_paths = solver.solution_translator(path, result)
 
-        print("path:" + str(ordered_paths))
-        print("Optimal:" + str(result))
+        print(f"Path: {ordered_paths}")
+        print(f"Optimal: {result}")
 
         self.assertEqual(6.0, result)
 
     def test_lb_solve(self):
         graph, tm = self.random_graph()
-        print("tm:" + str(tm))
+        print(f"tm: {tm}")
 
         solver = TESolver(graph, tm, COST_FLAG, Constants.OBJECTIVE_LOAD_BALANCING)
         path, result = solver.solve()
         ordered_paths = solver.solution_translator(path, result)
 
-        print("path:" + str(ordered_paths))
-        print("Optimal:" + str(result))
+        print(f"Path: {ordered_paths}")
+        print(f"Optimal: {result}")
 
         # self.assertEqual(self.solution, path)
         self.assertEqual(1.851, round(result, 3))
@@ -74,8 +74,8 @@ class TESolverTests(unittest.TestCase):
         path, result = solver.solve()
         ordered_paths = solver.solution_translator(path, result)
 
-        print("path:" + str(ordered_paths))
-        print("Optimal:" + str(result))
+        print(f"Path: {ordered_paths}")
+        print(f"Optimal: {result}")
 
         self.assertEqual(7.0, result)
 
@@ -86,8 +86,8 @@ class TESolverTests(unittest.TestCase):
         path, result = solver.solve()
         ordered_paths = solver.solution_translator(path, result)
 
-        print("path:" + str(ordered_paths))
-        print("Optimal:" + str(result))
+        print(f"Path: {ordered_paths}")
+        print(f"Optimal: {result}")
 
 
 if __name__ == "__main__":
