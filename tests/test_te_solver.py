@@ -11,25 +11,34 @@ from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator, dot
 Connection = "./tests/data/test_connection.json"
 topology_file = "./tests/data/Geant2012.dot"
 
-N = 25
-M = 3
-
 
 class TESolverTests(unittest.TestCase):
-    def random_graph(self):
-
+    def make_random_graph(self, num_nodes=25, num_connections=3):
         graph_generator = RandomTopologyGenerator(
-            N, 0.1, l_bw=10000, u_bw=50000, l_lat=10, u_lat=20, seed=2022
+            num_node=num_nodes,
+            link_probability=0.1,
+            l_bw=10000,
+            u_bw=50000,
+            l_lat=10,
+            u_lat=20,
+            seed=2022,
         )
         graph = graph_generator.generate_graph()
 
-        tm_generator = RandomConnectionGenerator(N)
-        tm = tm_generator.generate_connection(M, 5000, 15000, 50, 80, seed=2022)
+        tm_generator = RandomConnectionGenerator(num_nodes=num_nodes)
+        tm = tm_generator.generate_connection(
+            querynum=num_connections,
+            l_bw=5000,
+            u_bw=15000,
+            l_lat=50,
+            u_lat=80,
+            seed=2022,
+        )
 
         return graph, tm
 
     def test_mc_solve(self):
-        graph, tm = self.random_graph()
+        graph, tm = self.make_random_graph()
         print(f"tm: {tm}")
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
@@ -42,7 +51,7 @@ class TESolverTests(unittest.TestCase):
         self.assertEqual(6.0, result)
 
     def test_lb_solve(self):
-        graph, tm = self.random_graph()
+        graph, tm = self.make_random_graph()
         print(f"tm: {tm}")
 
         solver = TESolver(
