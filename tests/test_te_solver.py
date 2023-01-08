@@ -1,4 +1,5 @@
 import json
+import os
 import unittest
 
 import networkx as nx
@@ -8,8 +9,7 @@ from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator, dot_file
 
-Connection = "./tests/data/test_connection.json"
-topology_file = "./tests/data/Geant2012.dot"
+TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
 
 class TESolverTests(unittest.TestCase):
@@ -67,8 +67,11 @@ class TESolverTests(unittest.TestCase):
         self.assertEqual(1.851, round(result, 3))
 
     def test_mc_solve_5(self):
+        edge_list_file = os.path.join(TEST_DATA_DIR, "test_five_node_topology.txt")
+        traffic_matrix_file = os.path.join(TEST_DATA_DIR, "test_five_node_request.json")
+
         graph = nx.read_edgelist(
-            "./tests/data/test_five_node_topology.txt",
+            edge_list_file,
             nodetype=int,
             data=(
                 ("weight", float),
@@ -77,7 +80,7 @@ class TESolverTests(unittest.TestCase):
             ),
         )
 
-        with open("./tests/data/test_five_node_request.json") as f:
+        with open(traffic_matrix_file) as f:
             tm = json.load(f)
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
@@ -90,7 +93,10 @@ class TESolverTests(unittest.TestCase):
         self.assertEqual(7.0, result)
 
     def test_mc_solve_geant2012(self):
-        graph, tm = dot_file(topology_file, Connection)
+        connection_file = os.path.join(TEST_DATA_DIR, "test_connection.json")
+        topology_file = os.path.join(TEST_DATA_DIR, "Geant2012.dot")
+
+        graph, tm = dot_file(topology_file, connection_file)
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
         path, result = solver.solve()
