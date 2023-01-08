@@ -17,24 +17,23 @@ COST_FLAG = 0
 
 
 class TESolverTests(unittest.TestCase):
-    def setup(self):
-        self.graph = None
-        self.tm = None
 
     def random_graph(self):
 
         graph_generator = RandomTopologyGenerator(
             N, 0.1, l_bw=10000, u_bw=50000, l_lat=10, u_lat=20, seed=2022
         )
-        self.graph = graph_generator.generate_graph()
+        graph = graph_generator.generate_graph()
 
         tm_generator = RandomConnectionGenerator(N)
-        self.tm = tm_generator.generate_connection(M, 5000, 15000, 50, 80, seed=2022)
+        tm = tm_generator.generate_connection(M, 5000, 15000, 50, 80, seed=2022)
+
+        return graph, tm
 
     def test_mc_solve(self):
-        self.random_graph()
-        print("tm:" + str(self.tm))
-        solver = TESolver(self.graph, self.tm, COST_FLAG)
+        graph, tm = self.random_graph()
+        print("tm:" + str(tm))
+        solver = TESolver(graph, tm, COST_FLAG)
 
         solver.create_data_model()
 
@@ -47,10 +46,10 @@ class TESolverTests(unittest.TestCase):
         self.assertEqual(6.0, result)
 
     def test_lb_solve(self):
-        self.random_graph()
-        print("tm:" + str(self.tm))
+        graph, tm = self.random_graph()
+        print("tm:" + str(tm))
         solver = TESolver(
-            self.graph, self.tm, COST_FLAG, Constants.OBJECTIVE_LOAD_BALANCING
+            graph, tm, COST_FLAG, Constants.OBJECTIVE_LOAD_BALANCING
         )
 
         solver.create_data_model()
@@ -66,7 +65,7 @@ class TESolverTests(unittest.TestCase):
         self.assertEqual(1.851, round(result, 3))
 
     def test_mc_solve_5(self):
-        g = nx.read_edgelist(
+        graph = nx.read_edgelist(
             "./tests/data/test_five_node_topology.txt",
             nodetype=int,
             data=(
@@ -75,12 +74,11 @@ class TESolverTests(unittest.TestCase):
                 ("latency", float),
             ),
         )
-        self.graph = g
 
         with open("./tests/data/test_five_node_request.json") as f:
-            self.tm = json.load(f)
+            tm = json.load(f)
 
-        solver = TESolver(self.graph, self.tm, COST_FLAG)
+        solver = TESolver(graph, tm, COST_FLAG)
         solver.create_data_model()
         path, result = solver.solve()
 
@@ -92,9 +90,9 @@ class TESolverTests(unittest.TestCase):
         self.assertEqual(7.0, result)
 
     def test_mc_solve_geant2012(self):
-
-        self.graph, self.tm = dot_file(topology_file, Connection)
-        solver = TESolver(self.graph, self.tm, COST_FLAG)
+        graph, tm = dot_file(topology_file, Connection)
+        
+        solver = TESolver(graph, tm, COST_FLAG)
         solver.create_data_model()
         path, result = solver.solve()
 
