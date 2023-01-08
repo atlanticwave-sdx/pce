@@ -17,7 +17,6 @@ COST_FLAG = 0
 
 
 class TESolverTests(unittest.TestCase):
-
     def random_graph(self):
 
         graph_generator = RandomTopologyGenerator(
@@ -33,10 +32,8 @@ class TESolverTests(unittest.TestCase):
     def test_mc_solve(self):
         graph, tm = self.random_graph()
         print("tm:" + str(tm))
+
         solver = TESolver(graph, tm, COST_FLAG)
-
-        solver.create_data_model()
-
         path, result = solver.solve()
         ordered_paths = solver.solution_translator(path, result)
 
@@ -48,14 +45,9 @@ class TESolverTests(unittest.TestCase):
     def test_lb_solve(self):
         graph, tm = self.random_graph()
         print("tm:" + str(tm))
-        solver = TESolver(
-            graph, tm, COST_FLAG, Constants.OBJECTIVE_LOAD_BALANCING
-        )
 
-        solver.create_data_model()
-
+        solver = TESolver(graph, tm, COST_FLAG, Constants.OBJECTIVE_LOAD_BALANCING)
         path, result = solver.solve()
-
         ordered_paths = solver.solution_translator(path, result)
 
         print("path:" + str(ordered_paths))
@@ -79,9 +71,7 @@ class TESolverTests(unittest.TestCase):
             tm = json.load(f)
 
         solver = TESolver(graph, tm, COST_FLAG)
-        solver.create_data_model()
         path, result = solver.solve()
-
         ordered_paths = solver.solution_translator(path, result)
 
         print("path:" + str(ordered_paths))
@@ -91,11 +81,9 @@ class TESolverTests(unittest.TestCase):
 
     def test_mc_solve_geant2012(self):
         graph, tm = dot_file(topology_file, Connection)
-        
-        solver = TESolver(graph, tm, COST_FLAG)
-        solver.create_data_model()
-        path, result = solver.solve()
 
+        solver = TESolver(graph, tm, COST_FLAG)
+        path, result = solver.solve()
         ordered_paths = solver.solution_translator(path, result)
 
         print("path:" + str(ordered_paths))
