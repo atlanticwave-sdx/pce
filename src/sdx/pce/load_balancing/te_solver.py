@@ -77,7 +77,7 @@ class TESolver:
         solution = []
         path = None
         if status == pywraplp.Solver.OPTIMAL:
-            print("Objective value = f{solver.Objective().Value()}")
+            print(f"Objective value = {solver.Objective().Value()}")
             for j in range(data["num_vars"]):
                 # print(x[j].name(), ' = ', x[j].solution_value())
                 solution.append(x[j].solution_value())
