@@ -9,8 +9,6 @@ from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator, dot_file
 
 Connection = "./tests/data/test_connection.json"
-Solution = "./tests/data/test_MC_solution.json"
-
 topology_file = "./tests/data/Geant2012.dot"
 
 N = 25
@@ -22,12 +20,8 @@ class TESolverTests(unittest.TestCase):
     def setup(self):
         self.graph = None
         self.tm = None
-        self.solution = None
 
     def random_graph(self):
-        with open(Solution, "r") as s:
-            solution = json.load(s)
-        self.solution = solution
 
         graph_generator = RandomTopologyGenerator(
             N, 0.1, l_bw=10000, u_bw=50000, l_lat=10, u_lat=20, seed=2022
@@ -36,9 +30,6 @@ class TESolverTests(unittest.TestCase):
 
         tm_generator = RandomConnectionGenerator(N)
         self.tm = tm_generator.generate_connection(M, 5000, 15000, 50, 80, seed=2022)
-
-        # with open(Connection) as f:
-        #    self.connection = json.load(f)
 
     def test_mc_solve(self):
         self.random_graph()
