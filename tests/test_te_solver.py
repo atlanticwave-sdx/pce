@@ -1,4 +1,5 @@
 import json
+import os
 import unittest
 
 import networkx as nx
@@ -8,75 +9,89 @@ from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator, dot_file
 
-Connection = "./tests/data/test_connection.json"
-Solution = "./tests/data/test_MC_solution.json"
-
-topology_file = "./tests/data/Geant2012.dot"
-
-N = 25
-M = 3
-COST_FLAG = 0
+TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
 
 class TESolverTests(unittest.TestCase):
-    def setup(self):
-        self.graph = None
-        self.tm = None
-        self.solution = None
-
-    def random_graph(self):
-        with open(Solution, "r") as s:
-            solution = json.load(s)
-        self.solution = solution
-
+    def make_random_graph(self, num_nodes=25, num_connections=3):
         graph_generator = RandomTopologyGenerator(
-            N, 0.1, l_bw=10000, u_bw=50000, l_lat=10, u_lat=20, seed=2022
+            num_node=num_nodes,
+            link_probability=0.1,
+            l_bw=10000,
+            u_bw=50000,
+            l_lat=10,
+            u_lat=20,
+            seed=2022,
         )
-        self.graph = graph_generator.generate_graph()
+        return graph_generator.generate_graph()
 
-        tm_generator = RandomConnectionGenerator(N)
-        self.tm = tm_generator.generate_connection(M, 5000, 15000, 50, 80, seed=2022)
-
-        # with open(Connection) as f:
-        #    self.connection = json.load(f)
+    def make_random_traffic_matrix(self, num_nodes=25, num_connections=3):
+        tm_generator = RandomConnectionGenerator(num_nodes=num_nodes)
+        return tm_generator.generate_connection(
+            querynum=num_connections,
+            l_bw=5000,
+            u_bw=15000,
+            l_lat=50,
+            u_lat=80,
+            seed=2022,
+        )
 
     def test_mc_solve(self):
-        self.random_graph()
-        print("tm:" + str(self.tm))
-        solver = TESolver(self.graph, self.tm, COST_FLAG)
+        graph = self.make_random_graph()
+        tm = self.make_random_traffic_matrix()
+        print(f"tm: {tm}")
 
-        solver.create_data_model()
-
+        solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
         path, result = solver.solve()
         ordered_paths = solver.solution_translator(path, result)
 
-        print("path:" + str(ordered_paths))
-        print("Optimal:" + str(result))
+        print(f"Path: {ordered_paths}")
+        print(f"Optimal: {result}")
 
         self.assertEqual(6.0, result)
 
     def test_lb_solve(self):
-        self.random_graph()
-        print("tm:" + str(self.tm))
+        graph = self.make_random_graph()
+        tm = self.make_random_traffic_matrix()
+        print(f"tm: {tm}")
+
         solver = TESolver(
-            self.graph, self.tm, COST_FLAG, Constants.OBJECTIVE_LOAD_BALANCING
+            graph, tm, Constants.COST_FLAG_HOP, Constants.OBJECTIVE_LOAD_BALANCING
         )
-
-        solver.create_data_model()
-
         path, result = solver.solve()
-
         ordered_paths = solver.solution_translator(path, result)
 
-        print("path:" + str(ordered_paths))
-        print("Optimal:" + str(result))
+        print(f"Path: {ordered_paths}")
+        print(f"Optimal: {result}")
 
         # self.assertEqual(self.solution, path)
         self.assertEqual(1.851, round(result, 3))
 
+    def test_mc_solve_more_connections_than_nodes(self):
+        graph = self.make_random_graph(num_nodes=10)
+
+        # Exercised querynum > num_nodes code path.
+        tm = self.make_random_traffic_matrix(num_nodes=10, num_connections=20)
+        print(f"tm: {tm}")
+
+        solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
+        path, result = solver.solve()
+        ordered_paths = solver.solution_translator(path, result)
+
+        print(f"Path: {ordered_paths}")
+        print(f"Optimal: {result}")
+
+        # The above doesn't seem to find a solution, but hey, at least
+        # we exercised one more code path without any crashes.
+        self.assertIs(ordered_paths, None)
+        self.assertEqual(result, 0.0)
+
     def test_mc_solve_5(self):
-        g = nx.read_edgelist(
-            "./tests/data/test_five_node_topology.txt",
+        edge_list_file = os.path.join(TEST_DATA_DIR, "test_five_node_topology.txt")
+        traffic_matrix_file = os.path.join(TEST_DATA_DIR, "test_five_node_request.json")
+
+        graph = nx.read_edgelist(
+            edge_list_file,
             nodetype=int,
             data=(
                 ("weight", float),
@@ -84,33 +99,31 @@ class TESolverTests(unittest.TestCase):
                 ("latency", float),
             ),
         )
-        self.graph = g
 
-        with open("./tests/data/test_five_node_request.json") as f:
-            self.tm = json.load(f)
+        with open(traffic_matrix_file) as f:
+            tm = json.load(f)
 
-        solver = TESolver(self.graph, self.tm, COST_FLAG)
-        solver.create_data_model()
+        solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
         path, result = solver.solve()
-
         ordered_paths = solver.solution_translator(path, result)
 
-        print("path:" + str(ordered_paths))
-        print("Optimal:" + str(result))
+        print(f"Path: {ordered_paths}")
+        print(f"Optimal: {result}")
 
         self.assertEqual(7.0, result)
 
     def test_mc_solve_geant2012(self):
+        connection_file = os.path.join(TEST_DATA_DIR, "test_connection.json")
+        topology_file = os.path.join(TEST_DATA_DIR, "Geant2012.dot")
 
-        self.graph, self.tm = dot_file(topology_file, Connection)
-        solver = TESolver(self.graph, self.tm, COST_FLAG)
-        solver.create_data_model()
+        graph, tm = dot_file(topology_file, connection_file)
+
+        solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
         path, result = solver.solve()
-
         ordered_paths = solver.solution_translator(path, result)
 
-        print("path:" + str(ordered_paths))
-        print("Optimal:" + str(result))
+        print(f"Path: {ordered_paths}")
+        print(f"Optimal: {result}")
 
 
 if __name__ == "__main__":
