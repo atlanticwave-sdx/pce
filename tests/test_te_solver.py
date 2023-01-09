@@ -84,7 +84,7 @@ class TESolverTests(unittest.TestCase):
         # The above doesn't seem to find a solution, but hey, at least
         # we exercised one more code path without any crashes.
         self.assertIs(ordered_paths, None)
-        self.assertEqual(0.0, result)
+        self.assertEqual(result, 0.0)
 
     def test_mc_solve_5(self):
         edge_list_file = os.path.join(TEST_DATA_DIR, "test_five_node_topology.txt")
