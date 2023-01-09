@@ -23,10 +23,11 @@ class TESolverTests(unittest.TestCase):
             u_lat=20,
             seed=2022,
         )
-        graph = graph_generator.generate_graph()
+        return graph_generator.generate_graph()
 
+    def make_random_traffic_matrix(self, num_nodes=25, num_connections=3):
         tm_generator = RandomConnectionGenerator(num_nodes=num_nodes)
-        tm = tm_generator.generate_connection(
+        return tm_generator.generate_connection(
             querynum=num_connections,
             l_bw=5000,
             u_bw=15000,
@@ -35,10 +36,9 @@ class TESolverTests(unittest.TestCase):
             seed=2022,
         )
 
-        return graph, tm
-
     def test_mc_solve(self):
-        graph, tm = self.make_random_graph()
+        graph = self.make_random_graph()
+        tm = self.make_random_traffic_matrix()
         print(f"tm: {tm}")
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
@@ -51,7 +51,8 @@ class TESolverTests(unittest.TestCase):
         self.assertEqual(6.0, result)
 
     def test_lb_solve(self):
-        graph, tm = self.make_random_graph()
+        graph = self.make_random_graph()
+        tm = self.make_random_traffic_matrix()
         print(f"tm: {tm}")
 
         solver = TESolver(
@@ -65,6 +66,25 @@ class TESolverTests(unittest.TestCase):
 
         # self.assertEqual(self.solution, path)
         self.assertEqual(1.851, round(result, 3))
+
+    def test_mc_solve_more_connections_than_nodes(self):
+        graph = self.make_random_graph(num_nodes=10)
+
+        # Exercised querynum > num_nodes code path.
+        tm = self.make_random_traffic_matrix(num_nodes=10, num_connections=20)
+        print(f"tm: {tm}")
+
+        solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
+        path, result = solver.solve()
+        ordered_paths = solver.solution_translator(path, result)
+
+        print(f"Path: {ordered_paths}")
+        print(f"Optimal: {result}")
+
+        # The above doesn't seem to find a solution, but hey, at least
+        # we exercised one more code path without any crashes.
+        self.assertIs(ordered_paths, None)
+        self.assertEqual(0.0, result)
 
     def test_mc_solve_5(self):
         edge_list_file = os.path.join(TEST_DATA_DIR, "test_five_node_topology.txt")
