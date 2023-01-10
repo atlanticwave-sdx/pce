@@ -26,6 +26,25 @@ from networkx.algorithms import approximation as approx
 from sdx.pce.utils.constants import Constants
 
 
+def can_read_dot_file():
+    """
+    See if we have pygraphviz or pydot installed.
+    """
+    try:
+        # try to read dot file using pygraphviz
+        nx.nx_agraph.read_dot(None)
+        return True
+    except ImportError as e:
+        print(f"pygraphviz doesn't seem to be available: {e}")
+        try:
+            # try to use pydot
+            print("Trying to use pydot")
+            nx.nx_pydot.read_dot(None)
+            return True
+        except ImportError:
+            print(f"Neither pygraphviz nor pydot seem to be available")
+            return False
+
 def read_dot_file(topology_file):
     """
     Read a Graphviz dot file and return a graph.
