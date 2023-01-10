@@ -46,6 +46,10 @@ jobs:
           pip install flake8 pep8-naming pytest pytest-cov wheel coveralls
           if [ -f requirements.txt ]; then pip install --prefer-binary -r requirements.txt; fi
 
+      - name: Install graphviz dependency
+        run: |
+          sudo apt -y install libgraphviz-dev
+
       - name: Run some basic checks with flake8
         run: |
           # Stop the build if there are Python syntax errors or undefined names.
@@ -68,7 +72,7 @@ jobs:
           # Install package so that tests can be run.  Note that
           # editable mode install is important here -- it helps
           # coveralls.io to match coverage and sources correctly.
-          pip install --editable .[test]
+          pip install --editable .[test,pygraphviz]
           # Run tests and collect coverage data.
           python -m pytest
 
