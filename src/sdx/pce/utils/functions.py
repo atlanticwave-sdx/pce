@@ -34,11 +34,11 @@ class GraphFunction:
         if flag == 1:
             for (u, v, w) in self.graph.edges(data=True):
                 # w[Constants.WEIGHT] = Constants.Max_L_BW - w[Constants.BANDWIDTH]
-                w[Constants.WEIGHT] = Constants.alpha * (1.0 / w[Constants.BANDWIDTH])
+                w[Constants.WEIGHT] = Constants.ALPHA * (1.0 / w[Constants.BANDWIDTH])
                 distance_list.append(w[Constants.WEIGHT])
         elif flag == 2:
             for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.WEIGHT] = w[Constants.latency]
+                w[Constants.WEIGHT] = w[Constants.LATENCY]
                 distance_list.append(w[Constants.WEIGHT])
         elif flag == 3:
             for (u, v, w) in self.graph.edges(data=True):
