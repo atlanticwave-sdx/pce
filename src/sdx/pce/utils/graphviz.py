@@ -17,8 +17,8 @@ Pydot is "pure" Python, and pygraphviz is implemented as bindings to
 graphviz C library, so installing the latter is a little more work.
 """
 
-import re
 import json
+import re
 
 import networkx as nx
 from networkx.algorithms import approximation as approx

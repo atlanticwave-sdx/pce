@@ -6,13 +6,13 @@ import networkx as nx
 
 from sdx.pce.load_balancing.te_solver import TESolver
 from sdx.pce.utils.constants import Constants
-from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
-from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
 from sdx.pce.utils.graphviz import (
     can_read_dot_file,
     read_dot_file,
     read_topology_json_file,
 )
+from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
+from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
