@@ -27,7 +27,7 @@ class GraphFunction:
     #       3: random: weight = random cost
     #       4: cost: given from outside (static) definition
     #       0 and default: hop: weight =1
-    def weight_assign(self, cost_flag=0, cost=None):
+    def weight_assign(self, cost_flag=Constants.COST_FLAG_HOP, cost=None):
 
         distance_list = []
         
