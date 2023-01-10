@@ -93,6 +93,14 @@ Or you can use Python's unittest module:
 $ python -m unittest -v tests.LoadBalancing.test_te_solver
 ```
 
+One of the tests attempt to read a Graphviz dot file.  For this test
+to work, you will need pygraphviz, which can be installed as an
+optional dependency:
+
+```
+$ pip install --editable .[test,pygraphviz]
+```
+
 Test data is stored in `test/data` as JSON files.  You might want to
 be in the top-level directory when running tests.
 
