@@ -20,15 +20,27 @@ class GraphFunction:
     def set_graph(self, g=None):
         self.graph = g
 
-    # set weight (cost) per link, assuming the objective is minizing a function of weight
-    #   flag:
-    #       1: bw: weight = alpha*(1.0/bw)
-    #       2: latency: weight = latency
-    #       3: random: weight = random cost
-    #       4: cost: given from outside (static) definition
-    #       0 and default: hop: weight =1
     def weight_assign(self, cost_flag=Constants.COST_FLAG_HOP, cost=None):
+        """
+        Set weight (cost) per link.
 
+        The assumption is that the objective is minizing a function of
+        weight.
+
+        :param cost_flag: a constant defined in constants.py, whose
+            possible values are:
+
+                - COST_FLAG_BW : weight = alpha*(1.0/bw)
+
+                - COST_FLAG_LATENCY: weight = latency
+
+                - COST_FLAG_RANDOM: weight = random cost
+
+                - COST_FLAG_STATIC: given from outside (static)
+                  definition
+
+                - COST_FLAG_HOP (the defaul): hop: weight = 1
+        """
         distance_list = []
         
         if cost_flag == Constants.COST_FLAG_BW:
