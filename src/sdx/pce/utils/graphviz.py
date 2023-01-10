@@ -7,7 +7,7 @@ from networkx.algorithms import approximation as approx
 from sdx.pce.utils.constants import Constants
 
 
-def dot_file(topology_file, te_file=None):
+def read_dot_file(topology_file, te_file=None):
     """
     Read a Graphviz dot file and return a graph.
     """
@@ -45,6 +45,3 @@ def dot_file(topology_file, te_file=None):
         o_tm.append(tr)
 
     return graph, o_tm
-    # connection = GetConnection('../test/data/test_connection.json')
-    # g = GetNetworkToplogy(25,0.4)
-    # print(lbnxgraphgenerator(25, 0.4,connection,g))
