@@ -46,9 +46,11 @@ jobs:
           pip install flake8 pep8-naming pytest pytest-cov wheel coveralls
           if [ -f requirements.txt ]; then pip install --prefer-binary -r requirements.txt; fi
 
-      - name: Install graphviz dependency
+      # See https://docs.github.com/en/enterprise-cloud@latest/actions/using-github-hosted-runners/customizing-github-hosted-runners
+      - name: Install libgraphviz-dev
         run: |
-          sudo apt -y install libgraphviz-dev
+          sudo apt-get update
+          sudo apt-get -y install libgraphviz-dev
 
       - name: Run some basic checks with flake8
         run: |
