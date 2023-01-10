@@ -30,8 +30,18 @@ def read_dot_file(topology_file):
     """
     Read a Graphviz dot file and return a graph.
     """
-    graph = nx.Graph(nx.nx_pydot.read_dot(topology_file))
-    # graph = nx.Graph(nx.nx_agraph.read_dot(topology_file))
+    try:
+        # try to read dot file using pygraphviz
+        graph = nx.Graph(nx.nx_agraph.read_dot(topology_file))
+    except ImportError as e:
+        print(f"pygraphviz doesn't seem to be available: {e}")
+        try:
+            # try to use pydot
+            print("Trying to use pydot")
+            graph = nx.Graph(nx.nx_pydot.read_dot(topology_file))
+        except ImportError as e:
+            raise ImportError(f"Neither pygraphviz nor pydot seem to be available")
+        
     num_nodes = graph.number_of_nodes()
     mapping = dict(zip(graph, range(num_nodes)))
     graph = nx.relabel_nodes(graph, mapping)
