@@ -42,7 +42,7 @@ class GraphFunction:
                 - COST_FLAG_HOP (the defaul): hop: weight = 1
         """
         distance_list = []
-        
+
         if cost_flag == Constants.COST_FLAG_BW:
             for (u, v, w) in self.graph.edges(data=True):
                 # w[Constants.WEIGHT] = Constants.Max_L_BW - w[Constants.BANDWIDTH]
