@@ -8,6 +8,9 @@ from sdx.pce.utils.constants import Constants
 
 
 def dot_file(topology_file, te_file=None):
+    """
+    Read a Graphviz dot file and return a graph.
+    """
     graph = nx.Graph(nx.nx_pydot.read_dot(topology_file))
     # graph = nx.Graph(nx.nx_agraph.read_dot(topology_file))
     num_nodes = graph.number_of_nodes()
