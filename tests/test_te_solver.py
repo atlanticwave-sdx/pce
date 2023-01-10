@@ -8,7 +8,7 @@ from sdx.pce.load_balancing.te_solver import TESolver
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
-from sdx.pce.utils.graphviz import dot_file
+from sdx.pce.utils.graphviz import read_dot_file, read_topology_json_file
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
@@ -114,10 +114,11 @@ class TESolverTests(unittest.TestCase):
         self.assertEqual(7.0, result)
 
     def test_mc_solve_geant2012(self):
-        connection_file = os.path.join(TEST_DATA_DIR, "test_connection.json")
         topology_file = os.path.join(TEST_DATA_DIR, "Geant2012.dot")
+        graph = read_dot_file(topology_file)
 
-        graph, tm = dot_file(topology_file, connection_file)
+        connection_file = os.path.join(TEST_DATA_DIR, "test_connection.json")
+        tm = read_topology_json_file(connection_file)
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
         path, result = solver.solve()

@@ -7,7 +7,7 @@ from networkx.algorithms import approximation as approx
 from sdx.pce.utils.constants import Constants
 
 
-def read_dot_file(topology_file, te_file=None):
+def read_dot_file(topology_file):
     """
     Read a Graphviz dot file and return a graph.
     """
@@ -37,6 +37,13 @@ def read_dot_file(topology_file, te_file=None):
     connectivity = approx.node_connectivity(graph)
     print(f"Connectivity: {connectivity}")
 
+    return graph
+
+
+def read_topology_json_file(te_file):
+    """
+    Read topology described in a JSON file.
+    """
     with open(te_file) as f:
         tm = json.load(f)
     o_tm = []
@@ -44,4 +51,4 @@ def read_dot_file(topology_file, te_file=None):
         tr = tuple(t)
         o_tm.append(tr)
 
-    return graph, o_tm
+    return o_tm
