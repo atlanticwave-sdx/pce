@@ -31,20 +31,20 @@ class GraphFunction:
 
         distance_list = []
 
-        if flag == 1:
+        if flag == Constants.COST_FLAG_BW:
             for (u, v, w) in self.graph.edges(data=True):
                 # w[Constants.WEIGHT] = Constants.Max_L_BW - w[Constants.BANDWIDTH]
                 w[Constants.WEIGHT] = Constants.ALPHA * (1.0 / w[Constants.BANDWIDTH])
                 distance_list.append(w[Constants.WEIGHT])
-        elif flag == 2:
+        elif flag == Constants.COST_FLAG_LATENCY:
             for (u, v, w) in self.graph.edges(data=True):
                 w[Constants.WEIGHT] = w[Constants.LATENCY]
                 distance_list.append(w[Constants.WEIGHT])
-        elif flag == 3:
+        elif flag == Constants.COST_FLAG_RANDOM:
             for (u, v, w) in self.graph.edges(data=True):
                 w[Constants.WEIGHT] = random.randint(1, 2**24)
                 distance_list.append(w[Constants.WEIGHT])
-        elif flag == 4:
+        elif flag == Constants.COST_FLAG_STATIC:
             for (u, v, w) in self.graph.edges(data=True):
                 w[Constants.WEIGHT] = cost[u, v]
                 distance_list.append(w[Constants.WEIGHT])
