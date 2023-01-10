@@ -63,9 +63,6 @@ class RandomTopologyGenerator:
     def get_latency_list(self):
         return self.latency_list
 
-    def get_distance_list(self):
-        return self.distance_list
-
     def generate_graph(self, plot=True, g=None):
         # generate a random graph
         if g is None:
@@ -108,40 +105,6 @@ class RandomTopologyGenerator:
             self.latency_list.append(latency)
 
         return self.latency_list
-
-    # set weight (cost) per link, assuming the objective is minizing a function of weight
-    #   flag:
-    #       1: bw: weight = alpha*(1.0/bw)
-    #       2: latency: weight = latency
-    #       2: random: weight = random cost
-    #       3: cost: given from outside (static) definition
-    #       default: hop: weight =1
-    def weight_assign(self, flag=5, cost=None):
-        random.seed(self.seed)
-        distance_list = []
-
-        if flag == 1:
-            for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.WEIGHT] = Constants.ALPHA * (1.0 / w[Constants.bandwidth])
-                distance_list.append(w[Constants.WEIGHT])
-        elif flag == 2:
-            for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.WEIGHT] = w[Constants.LATENCY]
-                distance_list.append(w[Constants.WEIGHT])
-        elif flag == 3:
-            for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.WEIGHT] = random.randint(1, 2**24)
-                distance_list.append(w[Constants.WEIGHT])
-        elif flag == 4:
-            for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.WEIGHT] = cost[u, v]
-                distance_list.append(w[Constants.WEIGHT])
-        else:
-            for (u, v, w) in self.graph.edges(data=True):
-                w[Constants.WEIGHT] = 1.0
-                distance_list.append(w[Constants.WEIGHT])
-        self.distance_list = distance_list
-        return distance_list
 
     # if u and v connected
     def nodes_connected(self, g, u, v):
