@@ -63,9 +63,6 @@ class RandomTopologyGenerator:
     def get_latency_list(self):
         return self.latency_list
 
-    def get_distance_list(self):
-        return self.distance_list
-
     def generate_graph(self, plot=True, g=None):
         # generate a random graph
         if g is None:
