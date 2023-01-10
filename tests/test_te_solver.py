@@ -117,8 +117,12 @@ class TESolverTests(unittest.TestCase):
         topology_file = os.path.join(TEST_DATA_DIR, "Geant2012.dot")
         graph = read_dot_file(topology_file)
 
+        self.assertNotEqual(graph, None, "Could not read dot file")
+
         connection_file = os.path.join(TEST_DATA_DIR, "test_connection.json")
         tm = read_topology_json_file(connection_file)
+
+        self.assertNotEqual(tm, None, "Could not read connection file")
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
         path, result = solver.solve()
