@@ -1,3 +1,22 @@
+"""
+Handlers for topology description in Graphviz dot format.
+
+Topology description in dot format used to be popular.  There exist
+dot files for several well-known networks like Geant, and they were
+used for the algorithm performance study, and of course it extended
+SDX to support one more topology description format potentially from
+OXPs.
+
+This is optional since this needs's networkx's support for dot file
+format is changing -- networkx's dot file support used pydot, but
+pydot is being deprecated in favor of pygraphviz:
+
+https://github.com/networkx/networkx/issues/5723
+
+Pydot is "pure" Python, and pygraphviz is implemented as bindings to
+graphviz C library, so installing the latter is a little more work.
+"""
+
 import re
 import json
 
