@@ -35,7 +35,7 @@ def dot_file(topology_file, te_file=None):
             w[Constants.LATENCY] = latency
 
     connectivity = approx.node_connectivity(graph)
-    print("Connectivity:" + str(connectivity))
+    print(f"Connectivity: {connectivity}")
 
     with open(te_file) as f:
         tm = json.load(f)
