@@ -3,9 +3,10 @@
 Path Computation Element, also called PCE, is a component of
 [Atlanticwave SDX][aw-sdx] project.
 
-Given a network topology and a connection request that must satisfy
-some requirements (bandwidth, latency, number of hops, packet
-loss,...) how do you find the right path between nodes?
+The problem PCE solves is this: given a network topology and a
+connection request that must satisfy some requirements (bandwidth,
+latency, number of hops, packet loss,...) how do you find the right
+path between nodes?
 
 
 ## Input
