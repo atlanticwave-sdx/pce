@@ -1,4 +1,13 @@
-# PCE
+# Path Computation Element
+
+Path Computation Element (PCE) is a component of Atlanticwave SDX
+project.
+
+Given a network topology and a connection request that must satisfy
+some requirements (bandwidth, latency, number of hops, packet
+loss,...) how do you find the right path between nodes?
+
+
 ## Run with python
 
 ### Input
