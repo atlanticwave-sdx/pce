@@ -157,7 +157,7 @@ $ python -m unittest -v tests.LoadBalancing.test_MC_Solver
 Test data is stored in `test/data` as JSON files.  You might want to
 be in the top-level directory when running tests.
 
-<--! URLs -->
+<!-- URLs -->
 
 [aw-sdx]: https://www.atlanticwave-sdx.net/ (Atlanticwave-SDX)
 
