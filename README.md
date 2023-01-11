@@ -28,19 +28,18 @@ the attributes are randomly assigned based on the users setting.
 
 ### Connection
 
-The format of the input connection is `[Source node, Destination node,
-Bandwidth required, Latency required]`.
+The format of the input connection is in the form of [Source node,
+Destination node, Bandwidth required, Latency required].  Here is an
+example of a random connection request:
 
-Here is an example of a random connection.json:
 ```
 [[1,10,8,20],[2,9,10,15],[15,10,6,22]]
 ```
 
-There are three queries in this connection.json, the first one is
-`[1,10,15,20]`.
-
-It means this connection query is to route traffic from Node 1 to Node
-10, requring a bandwith of 8 and maximum latency of 20.
+There are three queries in this connection request.  The first one is
+`[1,10,8,20]`, and it means this connection query is to route traffic
+from Node 1 to Node 10, requring a bandwith of 8 and maximum latency
+of 20.
 
 For testing, a random connection generator is located at
 `Utility/RandomConnectionGen.py`. It can randomly generate one or
