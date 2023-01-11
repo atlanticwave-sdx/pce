@@ -41,9 +41,8 @@ There are three queries in this connection request.  The first one is
 from Node 1 to Node 10, requring a bandwith of 8 and maximum latency
 of 20.
 
-For testing, a random connection generator is located at
-`Utility/RandomConnectionGen.py`. It can randomly generate one or
-multiple queries in one `connection.json`.
+For testing, a random connection generator and a random topology
+generator is available.
 
 
 ## Connection Generation
