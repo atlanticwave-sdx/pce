@@ -1,5 +1,7 @@
 # Path Computation Element
 
+[![pce-ci-badge]][pce-ci]
+
 Path Computation Element, also called PCE, is a component of
 [Atlanticwave SDX][aw-sdx] project.
 
@@ -158,3 +160,6 @@ be in the top-level directory when running tests.
 <--! URLs -->
 
 [aw-sdx]: https://www.atlanticwave-sdx.net/ (Atlanticwave-SDX)
+
+[pce-ci-badge]: https://github.com/atlanticwave-sdx/pce/actions/workflows/test.yml/badge.svg
+[pce-ci]: https://github.com/atlanticwave-sdx/pce/actions/workflows/test.yml
