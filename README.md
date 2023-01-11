@@ -1,7 +1,7 @@
 # Path Computation Element
 
-Path Computation Element (PCE) is a component of Atlanticwave SDX
-project.
+Path Computation Element, also called PCE, is a component of
+[Atlanticwave SDX][aw-sdx] project.
 
 Given a network topology and a connection request that must satisfy
 some requirements (bandwidth, latency, number of hops, packet
@@ -154,3 +154,6 @@ $ python -m unittest -v tests.LoadBalancing.test_MC_Solver
 Test data is stored in `test/data` as JSON files.  You might want to
 be in the top-level directory when running tests.
 
+<--! URLs -->
+
+[aw-sdx]: https://www.atlanticwave-sdx.net/ (Atlanticwave-SDX)
