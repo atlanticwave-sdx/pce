@@ -141,12 +141,10 @@ Or you can use Python's unittest module:
 
 ```console
 $ python -m unittest -v tests.LoadBalancing.test_te_solver
-$ python -m unittest -v tests.LoadBalancing.test_LB_Solver
-$ python -m unittest -v tests.LoadBalancing.test_MC_Solver
 ```
 
-Test data is stored in `test/data` as JSON files.  You might want to
-be in the top-level directory when running tests.
+Test data is stored in `test/data` as JSON files.
+
 
 <!-- URLs -->
 
