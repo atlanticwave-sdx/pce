@@ -28,9 +28,6 @@ the attributes are randomly assigned based on the users setting.
 
 ### Connection
 
-The connection will be a list of list stored in
-`./tests/data/connection.json`.
-
 The format of the input connection is `[Source node, Destination node,
 Bandwidth required, Latency required]`.
 
