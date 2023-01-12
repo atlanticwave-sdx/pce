@@ -92,6 +92,7 @@ class TESolver:
         else:
             print("The problem does not have an optimal solution.")
 
+        # returns: dict(conn request, [path]), cost
         return self.solution_translator(path), solver.Objective().Value()
 
     def solution_translator(self, paths):
