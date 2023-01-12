@@ -92,7 +92,7 @@ class TESolver:
         else:
             print("The problem does not have an optimal solution.")
 
-        return path, solver.Objective().Value()
+        return self.solution_translator(path), solver.Objective().Value()
 
     def solution_translator(self, paths):
         # extract the edge/path

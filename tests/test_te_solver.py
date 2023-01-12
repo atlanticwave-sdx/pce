@@ -42,13 +42,10 @@ class TESolverTests(unittest.TestCase):
         print(f"tm: {tm}")
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
-        path, result = solver.solve()
-        ordered_paths = solver.solution_translator(path)
+        paths, value = solver.solve()
+        print(f"Paths: {paths}, optimal: {value}")
 
-        print(f"Path: {ordered_paths}")
-        print(f"Optimal: {result}")
-
-        self.assertEqual(6.0, result)
+        self.assertEqual(6.0, value)
 
     def test_lb_solve(self):
         graph = self.make_random_graph()
@@ -58,14 +55,11 @@ class TESolverTests(unittest.TestCase):
         solver = TESolver(
             graph, tm, Constants.COST_FLAG_HOP, Constants.OBJECTIVE_LOAD_BALANCING
         )
-        path, result = solver.solve()
-        ordered_paths = solver.solution_translator(path)
-
-        print(f"Path: {ordered_paths}")
-        print(f"Optimal: {result}")
+        paths, value = solver.solve()
+        print(f"Paths: {paths}, optimal: {value}")
 
         # self.assertEqual(self.solution, path)
-        self.assertEqual(1.851, round(result, 3))
+        self.assertEqual(1.851, round(value, 3))
 
     def test_mc_solve_more_connections_than_nodes(self):
         graph = self.make_random_graph(num_nodes=10)
@@ -75,16 +69,13 @@ class TESolverTests(unittest.TestCase):
         print(f"tm: {tm}")
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
-        path, result = solver.solve()
-        ordered_paths = solver.solution_translator(path)
-
-        print(f"Path: {ordered_paths}")
-        print(f"Optimal: {result}")
+        paths, value = solver.solve()
+        print(f"Paths: {paths}, optimal: {value}")
 
         # The above doesn't seem to find a solution, but hey, at least
         # we exercised one more code path without any crashes.
-        self.assertIs(ordered_paths, None)
-        self.assertEqual(result, 0.0)
+        self.assertIs(paths, None)
+        self.assertEqual(value, 0.0)
 
     def test_mc_solve_5(self):
         edge_list_file = os.path.join(TEST_DATA_DIR, "test_five_node_topology.txt")
@@ -104,13 +95,11 @@ class TESolverTests(unittest.TestCase):
             tm = json.load(f)
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
-        path, result = solver.solve()
-        ordered_paths = solver.solution_translator(path)
+        paths, value = solver.solve()
 
-        print(f"Path: {ordered_paths}")
-        print(f"Optimal: {result}")
+        print(f"Paths: {paths}, optimal: {value}")
 
-        self.assertEqual(7.0, result)
+        self.assertEqual(7.0, value)
 
     def test_mc_solve_geant2012(self):
         connection_file = os.path.join(TEST_DATA_DIR, "test_connection.json")
@@ -119,11 +108,9 @@ class TESolverTests(unittest.TestCase):
         graph, tm = dot_file(topology_file, connection_file)
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
-        path, result = solver.solve()
-        ordered_paths = solver.solution_translator(path)
+        paths, value = solver.solve()
 
-        print(f"Path: {ordered_paths}")
-        print(f"Optimal: {result}")
+        print(f"Paths: {paths}, optimal: {value}")
 
 
 if __name__ == "__main__":
