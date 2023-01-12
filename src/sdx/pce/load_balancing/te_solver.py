@@ -94,7 +94,7 @@ class TESolver:
 
         return path, solver.Objective().Value()
 
-    def solution_translator(self, paths, solution):
+    def solution_translator(self, paths):
         # extract the edge/path
         real_paths = []
         if paths is None:

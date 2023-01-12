@@ -43,7 +43,7 @@ class TESolverTests(unittest.TestCase):
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
         path, result = solver.solve()
-        ordered_paths = solver.solution_translator(path, result)
+        ordered_paths = solver.solution_translator(path)
 
         print(f"Path: {ordered_paths}")
         print(f"Optimal: {result}")
@@ -59,7 +59,7 @@ class TESolverTests(unittest.TestCase):
             graph, tm, Constants.COST_FLAG_HOP, Constants.OBJECTIVE_LOAD_BALANCING
         )
         path, result = solver.solve()
-        ordered_paths = solver.solution_translator(path, result)
+        ordered_paths = solver.solution_translator(path)
 
         print(f"Path: {ordered_paths}")
         print(f"Optimal: {result}")
@@ -76,7 +76,7 @@ class TESolverTests(unittest.TestCase):
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
         path, result = solver.solve()
-        ordered_paths = solver.solution_translator(path, result)
+        ordered_paths = solver.solution_translator(path)
 
         print(f"Path: {ordered_paths}")
         print(f"Optimal: {result}")
@@ -105,7 +105,7 @@ class TESolverTests(unittest.TestCase):
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
         path, result = solver.solve()
-        ordered_paths = solver.solution_translator(path, result)
+        ordered_paths = solver.solution_translator(path)
 
         print(f"Path: {ordered_paths}")
         print(f"Optimal: {result}")
@@ -120,7 +120,7 @@ class TESolverTests(unittest.TestCase):
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
         path, result = solver.solve()
-        ordered_paths = solver.solution_translator(path, result)
+        ordered_paths = solver.solution_translator(path)
 
         print(f"Path: {ordered_paths}")
         print(f"Optimal: {result}")
