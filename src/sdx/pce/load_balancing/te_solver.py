@@ -24,7 +24,7 @@ class TESolver:
 
     def __init__(
         self,
-        graph=None,
+        graph: nx.Graph = None,
         tm=None,
         cost_flag=Constants.COST_FLAG_HOP,
         objective=Constants.OBJECTIVE_COST,
