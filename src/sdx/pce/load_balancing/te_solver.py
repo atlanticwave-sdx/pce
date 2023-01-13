@@ -7,7 +7,9 @@ Created on Mon Sep  7 13:42:31 2022
 """
 
 import copy
+from dataclasses import dataclass
 from itertools import chain, cycle
+from typing import Any, List
 
 import networkx as nx
 import numpy as np
@@ -15,6 +17,16 @@ from ortools.linear_solver import pywraplp
 
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.functions import GraphFunction
+
+
+@dataclass
+class DataModel:
+    constraint_coeffs: list[list]
+    bounds: list
+    num_constraints: int
+    obj_coeffs: list
+    num_vars: int
+    num_inequality: int
 
 
 class TESolver:
@@ -48,45 +60,46 @@ class TESolver:
 
     def solve(self):
         data = self.create_data_model()
+        # print(f"datamodel: {data}")
 
-        num_inequality = data["num_inequality"]
+        num_inequality = data.num_inequality
 
         # Create the mip solver with the SCIP backend.
         solver = pywraplp.Solver.CreateSolver("SCIP")
 
         x = {}
-        for j in range(data["num_vars"]):
+        for j in range(data.num_vars):
             x[j] = solver.IntVar(0, 1, "x[%i]" % j)
 
         print(f"Number of variables = {solver.NumVariables()}")
-        print(f"num_constraints: {data['num_constraints']}")
+        print(f"num_constraints: {data.num_constraints}")
         print(f"num_inequality: {num_inequality}")
 
-        for i in range(data["num_constraints"] - num_inequality):
+        for i in range(data.num_constraints - num_inequality):
             constraint_expr = [
-                data["constraint_coeffs"][i][j] * x[j] for j in range(data["num_vars"])
+                data.constraint_coeffs[i][j] * x[j] for j in range(data.num_vars)
             ]
-            solver.Add(sum(constraint_expr) == data["bounds"][i])
+            solver.Add(sum(constraint_expr) == data.bounds[i])
 
-        print(len(data["bounds"]))
-        # print(data['bounds'])
-        print(len(data["constraint_coeffs"]))
-        # print(data['constraint_coeffs'])
+        print(len(data.bounds))
+        # print(data.bounds)
+        print(len(data.constraint_coeffs))
+        # print(data.constraint_coeffs)
         print(num_inequality)
 
         for i in range(
-            data["num_constraints"] - num_inequality, data["num_constraints"]
+            data.num_constraints - num_inequality, data.num_constraints
         ):
             constraint_expr = [
-                data["constraint_coeffs"][i][j] * x[j] for j in range(data["num_vars"])
+                data.constraint_coeffs[i][j] * x[j] for j in range(data.num_vars)
             ]
-            solver.Add(sum(constraint_expr) <= data["bounds"][i])
+            solver.Add(sum(constraint_expr) <= data.bounds[i])
 
         print(f"Number of constraints = {solver.NumConstraints()}")
 
         objective = solver.Objective()
-        for j in range(data["num_vars"]):
-            objective.SetCoefficient(x[j], data["obj_coeffs"][j])
+        for j in range(data.num_vars):
+            objective.SetCoefficient(x[j], data.obj_coeffs[j])
         objective.SetMinimization()
 
         status = solver.Solve()
@@ -94,7 +107,7 @@ class TESolver:
         path = None
         if status == pywraplp.Solver.OPTIMAL:
             print(f"Objective value = {solver.Objective().Value()}")
-            for j in range(data["num_vars"]):
+            for j in range(data.num_vars):
                 # print(x[j].name(), ' = ', x[j].solution_value())
                 solution.append(x[j].solution_value())
 
@@ -202,7 +215,7 @@ class TESolver:
 
         return cost
 
-    def create_data_model(self):
+    def create_data_model(self) -> DataModel:
         latency = True
         g = self.graph
 
@@ -294,16 +307,15 @@ class TESolver:
             row = list(lhs[i])
             coeffs.append(row)
 
-        # form the OR datamodel
-        jsonoutput = {}
-        jsonoutput["constraint_coeffs"] = coeffs
-        jsonoutput["bounds"] = list(bounds)
-        jsonoutput["num_constraints"] = len(bounds)
-        jsonoutput["obj_coeffs"] = list(cost)
-        jsonoutput["num_vars"] = len(cost)
-        jsonoutput["num_inequality"] = 2 * linknum + int(len(self.tm))
-
-        return jsonoutput
+        # Form the OR datamodel
+        return DataModel(
+            constraint_coeffs = coeffs,
+            bounds = bounds,
+            num_constraints = len(bounds),
+            obj_coeffs = list(cost),
+            num_vars = len(cost),
+            num_inequality = 2 * linknum + int(len(self.tm))
+        )
 
     # flowmatrix
     # also set self.links: 2*links
@@ -409,7 +421,7 @@ class TESolver:
         return latdata
 
     def is_connected(self):
-        return nx.is_connected(self.g)
+        return nx.is_connected(self.graph)
 
     def is_bi_connected(self):
         pass
