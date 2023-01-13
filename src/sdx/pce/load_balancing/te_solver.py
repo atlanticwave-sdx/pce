@@ -309,12 +309,12 @@ class TESolver:
 
         # Form the OR datamodel
         return DataModel(
-            constraint_coeffs = coeffs,
-            bounds = list(bounds),
-            num_constraints = len(bounds),
-            obj_coeffs = list(cost),
-            num_vars = len(cost),
-            num_inequality = 2 * linknum + int(len(self.tm))
+            constraint_coeffs=coeffs,
+            bounds=list(bounds),
+            num_constraints=len(bounds),
+            obj_coeffs=list(cost),
+            num_vars=len(cost),
+            num_inequality=2 * linknum + int(len(self.tm)),
         )
 
     # flowmatrix
