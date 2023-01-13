@@ -18,15 +18,31 @@ from sdx.pce.utils.functions import GraphFunction
 
 
 class TESolver:
-    def __init__(self, g=None, tm=None, cost_flag=0, obj=Constants.OBJECTIVE_COST):
-        self.graph = g
+    """
+    Traffic Engineering Solver.
+    """
+
+    def __init__(
+        self,
+        graph=None,
+        tm=None,
+        cost_flag=Constants.COST_FLAG_HOP,
+        objective=Constants.OBJECTIVE_COST,
+    ):
+        """
+        :param graph: A NetworkX graph that represents a network topology.
+        :param tm: Traffic matrix, in the form of a list of connection requests.
+        :param cost_flag: Cost (weight) to assign per link.
+        :param objective: What to solve for: cost or load balancing.
+        """
+        self.graph = graph
+        self.tm = tm
 
         self.graphFunction = GraphFunction()
         self.graphFunction.set_graph(self.graph)
         self.graphFunction.weight_assign(cost_flag)
 
-        self.objective = obj
-        self.tm = tm
+        self.objective = objective
 
         self.links = None  # list of links[src][dest], 2*numEdges
 
