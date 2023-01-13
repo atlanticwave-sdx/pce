@@ -64,8 +64,6 @@ class TESolver:
         """
         data = self.create_data_model()
 
-        num_inequality = data.num_inequality
-
         # Create the mip solver with the SCIP backend.
         solver = pywraplp.Solver.CreateSolver("SCIP")
 
@@ -75,9 +73,9 @@ class TESolver:
 
         print(f"Number of variables = {solver.NumVariables()}")
         print(f"num_constraints: {data.num_constraints}")
-        print(f"num_inequality: {num_inequality}")
+        print(f"num_inequality: {data.num_inequality}")
 
-        for i in range(data.num_constraints - num_inequality):
+        for i in range(data.num_constraints - data.num_inequality):
             constraint_expr = [
                 data.constraint_coeffs[i][j] * x[j] for j in range(data.num_vars)
             ]
@@ -87,10 +85,10 @@ class TESolver:
         # print(data.bounds)
         print(len(data.constraint_coeffs))
         # print(data.constraint_coeffs)
-        print(num_inequality)
+        print(data.num_inequality)
 
         for i in range(
-            data.num_constraints - num_inequality, data.num_constraints
+            data.num_constraints - data.num_inequality, data.num_constraints
         ):
             constraint_expr = [
                 data.constraint_coeffs[i][j] * x[j] for j in range(data.num_vars)
