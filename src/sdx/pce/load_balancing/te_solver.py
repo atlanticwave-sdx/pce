@@ -9,7 +9,7 @@ Created on Mon Sep  7 13:42:31 2022
 import copy
 from dataclasses import dataclass
 from itertools import chain, cycle
-from typing import Any, List
+from typing import List, Tuple
 
 import networkx as nx
 import numpy as np
@@ -21,10 +21,10 @@ from sdx.pce.utils.functions import GraphFunction
 
 @dataclass
 class DataModel:
-    constraint_coeffs: list[list]
-    bounds: list
+    constraint_coeffs: List[List]
+    bounds: List
     num_constraints: int
-    obj_coeffs: list
+    obj_coeffs: List
     num_vars: int
     num_inequality: int
 
@@ -58,9 +58,11 @@ class TESolver:
 
         self.links = None  # list of links[src][dest], 2*numEdges
 
-    def solve(self):
+    def solve(self) -> Tuple[dict, float]:
+        """
+        Return computed path and its cost.
+        """
         data = self.create_data_model()
-        # print(f"datamodel: {data}")
 
         num_inequality = data.num_inequality
 
@@ -310,7 +312,7 @@ class TESolver:
         # Form the OR datamodel
         return DataModel(
             constraint_coeffs = coeffs,
-            bounds = bounds,
+            bounds = list(bounds),
             num_constraints = len(bounds),
             obj_coeffs = list(cost),
             num_vars = len(cost),
