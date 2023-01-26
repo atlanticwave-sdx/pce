@@ -203,7 +203,7 @@ class TESolver:
             cost_list.append(g[link[0]][link[1]][Constants.WEIGHT])
 
         cost = []
-        for i in range(len(self.tm)):
+        for i in range(len(self.tm.connection_requests)):
             cost += cost_list
 
         return cost
@@ -214,8 +214,8 @@ class TESolver:
         for link in links:
             cost_list.append(g[link[0]][link[1]][Constants.BANDWIDTH])
         cost = []
-        for connection in self.tm:
-            bw = connection[2]
+        for connection in self.tm.connection_requests:
+            bw = connection.required_bandwidth
             # cost += cost_list
             cost += [bw / link for link in cost_list]
 
@@ -277,8 +277,8 @@ class TESolver:
             # print(bounds)
 
         # form the constraints: lhs
-        flowconstraints = self.lhsflow(self.tm, inputmatrix)
-        bwconstraints = self.lhsbw(self.tm, inputmatrix)
+        flowconstraints = self.lhsflow(self.tm.connection_requests, inputmatrix)
+        bwconstraints = self.lhsbw(self.tm.connection_requests, inputmatrix)
 
         print(f"\nConstraints Shape:{len(flowconstraints)}:{len(bwconstraints)}")
         # print("\n flow"+str(flowconstraints))
@@ -383,7 +383,7 @@ class TESolver:
             bwconstraints.append(addzeros)
             count = 0
             for request in request_list:
-                bwconstraints[i][i + count * len(inputmatrix[0])] = request[2]
+                bwconstraints[i][i + count * len(inputmatrix[0])] = request.required_bandwidth
                 count += 1
 
         return bwconstraints
@@ -392,7 +392,7 @@ class TESolver:
         lhs = []
         rhs = []
 
-        request_list = self.tm
+        request_list = self.tm.connection_requests
         print(f"request: {len(request_list)}")
         print(f"links: {len(links)}")
 
@@ -414,7 +414,7 @@ class TESolver:
             lhs.append(constraint)
 
         for request in request_list:
-            rhs.append(request[3])
+            rhs.append(request.required_latency)
 
         latdata = {}
         latdata["lhs"] = lhs
