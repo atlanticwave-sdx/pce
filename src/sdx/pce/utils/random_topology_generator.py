@@ -61,7 +61,7 @@ class RandomTopologyGenerator:
     def get_latency_list(self):
         return self.latency_list
 
-    def generate_graph(self, plot=True, g=None):
+    def generate_graph(self, plot=True, g=None) -> nx.Graph:
         # generate a random graph
         if g is None:
             while True:
