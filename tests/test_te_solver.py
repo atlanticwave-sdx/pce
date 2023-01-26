@@ -32,7 +32,7 @@ class TESolverTests(unittest.TestCase):
 
     def make_random_traffic_matrix(self, num_nodes=25, num_connections=3):
         tm_generator = RandomConnectionGenerator(num_nodes=num_nodes)
-        return tm_generator.generate_connection(
+        return tm_generator.generate_connection_requests(
             querynum=num_connections,
             l_bw=5000,
             u_bw=15000,
