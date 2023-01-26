@@ -2,6 +2,8 @@ import json
 
 import numpy as np
 
+from sdx.pce.models import TrafficMatrix
+
 
 class RandomConnectionGenerator:
     def __init__(self, num_nodes):
@@ -11,14 +13,17 @@ class RandomConnectionGenerator:
         self.num_nodes = num_nodes
 
     # Output: list of tuples of request
-    def generate_connection(self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022):
+    def generate_connection_requests(
+        self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022
+    ) -> TrafficMatrix:
         """
         Create a random TM
         :param querynum:  Number of connections.
         :return: A list of connections, each of which is a list [src, des, bw, lat].
         """
         np.random.seed(seed)
-        connection = []
+        traffic_matrix = []
+
         bw = self.lognormal((l_bw + u_bw) / 2.0, 1, querynum)
         if querynum <= self.num_nodes:
             for i in range(querynum):
@@ -30,7 +35,7 @@ class RandomConnectionGenerator:
                 # query.append(np.random.randint(l_bw, u_bw))
                 query.append(bw[i])
                 query.append(np.random.randint(l_lat, u_lat))
-                connection.append(tuple(query))
+                traffic_matrix.append(tuple(query))
         else:
             for i in range(querynum):
                 query = []
@@ -43,13 +48,13 @@ class RandomConnectionGenerator:
                 # query.append(np.random.randint(l_bw, u_bw))
                 query.append(bw[i])
                 query.append(np.random.randint(l_lat, u_lat))
-                connection.append(tuple(query))
+                traffic_matrix.append(tuple(query))
 
         with open("connection.json", "w") as json_file:
-            data = connection
+            data = traffic_matrix
             json.dump(data, json_file, indent=4)
 
-        return connection
+        return traffic_matrix
 
     def lognormal(self, mu, sigma, size):
         normal_std = 0.5
