@@ -6,8 +6,13 @@ import networkx as nx
 
 from sdx.pce.load_balancing.te_solver import TESolver
 from sdx.pce.utils.constants import Constants
+from sdx.pce.utils.graphviz import (
+    can_read_dot_file,
+    read_dot_file,
+    read_topology_json_file,
+)
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
-from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator, dot_file
+from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
@@ -101,11 +106,17 @@ class TESolverTests(unittest.TestCase):
 
         self.assertEqual(7.0, value)
 
+    @unittest.skipIf(not can_read_dot_file(), reason="Can't read dot file")
     def test_mc_solve_geant2012(self):
-        connection_file = os.path.join(TEST_DATA_DIR, "test_connection.json")
         topology_file = os.path.join(TEST_DATA_DIR, "Geant2012.dot")
+        graph = read_dot_file(topology_file)
 
-        graph, tm = dot_file(topology_file, connection_file)
+        self.assertNotEqual(graph, None, "Could not read dot file")
+
+        connection_file = os.path.join(TEST_DATA_DIR, "test_connection.json")
+        tm = read_topology_json_file(connection_file)
+
+        self.assertNotEqual(tm, None, "Could not read connection file")
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
         paths, value = solver.solve()
