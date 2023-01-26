@@ -9,12 +9,13 @@ Created on Mon Sep  7 13:42:31 2022
 import copy
 from dataclasses import dataclass
 from itertools import chain, cycle
-from typing import List, Tuple
+from typing import List, Mapping, Tuple, Union
 
 import networkx as nx
 import numpy as np
 from ortools.linear_solver import pywraplp
 
+from sdx.pce.models import ConnectionRequest, TrafficMatrix, ConnectionSolution
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.functions import GraphFunction
 
@@ -36,8 +37,8 @@ class TESolver:
 
     def __init__(
         self,
-        graph: nx.Graph = None,
-        tm=None,
+        graph: nx.Graph,
+        tm: TrafficMatrix,
         cost_flag=Constants.COST_FLAG_HOP,
         objective=Constants.OBJECTIVE_COST,
     ):
@@ -47,6 +48,9 @@ class TESolver:
         :param cost_flag: Cost (weight) to assign per link.
         :param objective: What to solve for: cost or load balancing.
         """
+        assert graph is not None
+        assert tm is not None
+
         self.graph = graph
         self.tm = tm
 
@@ -56,9 +60,9 @@ class TESolver:
 
         self.objective = objective
 
-        self.links = None  # list of links[src][dest], 2*numEdges
+        self.links = []  # list of links[src][dest], 2*numEdges
 
-    def solve(self) -> Tuple[dict, float]:
+    def solve(self) -> Tuple[Union[ConnectionSolution, None], float]:
         """
         Return computed path and its cost.
         """
@@ -104,15 +108,15 @@ class TESolver:
 
         status = solver.Solve()
         solution = []
-        path = None
+        paths = None
         if status == pywraplp.Solver.OPTIMAL:
             print(f"Objective value = {solver.Objective().Value()}")
             for j in range(data.num_vars):
                 # print(x[j].name(), ' = ', x[j].solution_value())
                 solution.append(x[j].solution_value())
 
-            path = np.array(solution).reshape(len(self.tm), -1)
-            print(path.shape)
+            paths = np.array(solution).reshape(len(self.tm.connection_requests), -1)
+            print(paths.shape)
             # print(path)
 
             # print('Problem solved in %f milliseconds' % solver.wall_time())
@@ -122,14 +126,14 @@ class TESolver:
             print("The problem does not have an optimal solution.")
 
         # returns: dict(conn request, [path]), cost
-        return self.solution_translator(path), solver.Objective().Value()
+        return self.solution_translator(paths), solver.Objective().Value()
 
-    def solution_translator(self, paths):
+    def solution_translator(self, paths) -> Union[ConnectionSolution, None]:
         # extract the edge/path
         real_paths = []
         if paths is None:
-            print("No solution")
-            return
+            print("No solution: empty input")
+            return None
         for path in paths:
             real_path = []
             i = 0
@@ -142,13 +146,15 @@ class TESolver:
         # associate with the TM requests
         id_connection = 0
         ordered_paths = {}
-        for connection in self.tm:
-            src = connection[0]
-            dest = connection[1]
-            bw = connection[2]
+        for request in self.tm.connection_requests:
+            src = request.source
+            dest = request.destination
+            bw = request.required_bandwidth
             # latency = connection[3]  # latency is unused
-            ordered_path = []
-            ordered_paths[(src, dest, bw)] = ordered_path
+
+            # ordered_path: List[Path] = []
+            # ordered_paths: List[(src, dest, bw)] = [] # ordered_path
+            ordered_paths: List = []
             # print("src:"+str(src)+"-dest:"+str(dest))
             path = real_paths[id_connection]
             i = 0
@@ -156,7 +162,7 @@ class TESolver:
                 for edge in path:
                     # print("edge:"+str(edge))
                     if edge[0] == src:
-                        ordered_path.append(edge)
+                        ordered_paths.append(edge)
                         src = edge[1]
                         break
                     # if src==dest:
@@ -240,10 +246,10 @@ class TESolver:
         # form the bound: rhs
         # flows: numnode*len(request)
         bounds = []
-        for request in self.tm:
+        for request in self.tm.connection_requests:
             rhs = np.zeros(nodenum, dtype=int)
-            rhs[request[0]] = -1
-            rhs[request[1]] = 1
+            rhs[request.source] = -1
+            rhs[request.destination] = 1
             bounds += list(rhs)
 
         print(f"bound 1: {len(bounds)}")
@@ -314,7 +320,7 @@ class TESolver:
             num_constraints=len(bounds),
             obj_coeffs=list(cost),
             num_vars=len(cost),
-            num_inequality=2 * linknum + int(len(self.tm)),
+            num_inequality=2 * linknum + int(len(self.tm.connection_requests)),
         )
 
     # flowmatrix
