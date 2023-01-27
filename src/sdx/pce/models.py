@@ -5,7 +5,7 @@ from dataclasses_json import dataclass_json
 
 
 @dataclass_json
-@dataclass
+@dataclass(frozen=True)
 class ConnectionRequest:
     """
     A connection request.
@@ -26,7 +26,7 @@ class ConnectionRequest:
 
 
 @dataclass_json
-@dataclass
+@dataclass(frozen=True)
 class TrafficMatrix:
     """
     A traffic matrix is a list of connection requests.
@@ -38,7 +38,7 @@ class TrafficMatrix:
 
 
 @dataclass_json
-@dataclass
+@dataclass(frozen=True)
 class ConnectionPath:
     """
     A connection between two nodes.
@@ -49,7 +49,7 @@ class ConnectionPath:
 
 
 @dataclass_json
-@dataclass
+@dataclass(frozen=True)
 class ConnectionSolution:
     """
     A map from connection requests to connection paths.
