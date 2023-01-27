@@ -115,7 +115,8 @@ class TESolverTests(unittest.TestCase):
         self.assertNotEqual(graph, None, "Could not read dot file")
 
         connection_file = os.path.join(TEST_DATA_DIR, "test_connection.json")
-        tm = read_topology_json_file(connection_file)
+        with open(connection_file) as fp:
+            tm = TrafficMatrix.from_dict(json.load(fp))
 
         self.assertNotEqual(tm, None, "Could not read connection file")
 
