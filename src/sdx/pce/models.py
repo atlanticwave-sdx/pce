@@ -24,6 +24,7 @@ class ConnectionRequest:
     def __hash__(self):
         return hash(repr(self))
 
+
 @dataclass_json
 @dataclass
 class TrafficMatrix:
@@ -56,4 +57,4 @@ class ConnectionSolution:
     TE Solver's result is represented as a ConnectionSolution.
     """
 
-    solution: Mapping[ConnectionRequest, List[ConnectionPath]]
+    connection_map: Mapping[ConnectionRequest, List[ConnectionPath]]
