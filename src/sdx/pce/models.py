@@ -19,6 +19,10 @@ class ConnectionRequest:
     required_bandwidth: float
     required_latency: float
 
+    # Make ConnectionRequest hashable since it is used as key in
+    # ConnectionSolution
+    def __hash__(self):
+        return hash(repr(self))
 
 @dataclass_json
 @dataclass
