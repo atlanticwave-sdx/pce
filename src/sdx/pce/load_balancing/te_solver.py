@@ -15,7 +15,12 @@ import networkx as nx
 import numpy as np
 from ortools.linear_solver import pywraplp
 
-from sdx.pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
+from sdx.pce.models import (
+    ConnectionPath,
+    ConnectionRequest,
+    ConnectionSolution,
+    TrafficMatrix,
+)
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.functions import GraphFunction
 
@@ -148,15 +153,21 @@ class TESolver:
         # associate with the TM requests
         id_connection = 0
         ordered_paths = {}
+
+        result = ConnectionSolution(connection_map={})
+
         for request in self.tm.connection_requests:
             src = request.source
             dest = request.destination
             bw = request.required_bandwidth
             # latency = connection[3]  # latency is unused
 
+            # Add request as the key to solution map
+            result.connection_map[request] = []
+
             # ordered_path: List[Path] = []
             # ordered_paths: List[(src, dest, bw)] = [] # ordered_path
-            ordered_paths: List = []
+            # ordered_paths: List = []
             # print("src:"+str(src)+"-dest:"+str(dest))
             path = real_paths[id_connection]
             i = 0
@@ -164,7 +175,13 @@ class TESolver:
                 for edge in path:
                     # print("edge:"+str(edge))
                     if edge[0] == src:
-                        ordered_paths.append(edge)
+                        print(f"Adding edge {edge} for request {request}")
+                        # ordered_paths.append(edge)
+
+                        # Make a path and add it to the solution map
+                        cpath = ConnectionPath(source=edge[0], destination=edge[1])
+                        result.connection_map[request].append(cpath)
+
                         src = edge[1]
                         break
                     # if src==dest:
@@ -173,7 +190,10 @@ class TESolver:
                 i = i + 1
             id_connection = id_connection + 1
         # print("ordered paths:"+str(ordered_paths))
-        return ordered_paths
+        # return ordered_paths
+
+        print(f"solution_translator result: {result}")
+        return result
 
     # TODO: unclear what this function does.
     def update_graph(self, graph, paths):
