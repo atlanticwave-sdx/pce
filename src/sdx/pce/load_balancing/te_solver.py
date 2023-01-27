@@ -199,10 +199,9 @@ class TESolver:
 
     # form OR matrix
     def _mc_cost(self, links):
-        g = self.graph
         cost_list = []
         for link in links:
-            cost_list.append(g[link[0]][link[1]][Constants.WEIGHT])
+            cost_list.append(self.graph[link[0]][link[1]][Constants.WEIGHT])
 
         cost = []
         for i in range(len(self.tm.connection_requests)):
@@ -211,10 +210,9 @@ class TESolver:
         return cost
 
     def _lb_cost(self, links):
-        g = self.graph
         cost_list = []
         for link in links:
-            cost_list.append(g[link[0]][link[1]][Constants.BANDWIDTH])
+            cost_list.append(self.graph[link[0]][link[1]][Constants.BANDWIDTH])
         cost = []
         for connection in self.tm.connection_requests:
             bw = connection.required_bandwidth
@@ -225,16 +223,15 @@ class TESolver:
 
     def _create_data_model(self) -> DataModel:
         latency = True
-        g = self.graph
 
-        nodenum = g.number_of_nodes()
-        linknum = g.number_of_edges()
+        nodenum = self.graph.number_of_nodes()
+        linknum = self.graph.number_of_edges()
 
         print(f"\n #Nodes: {nodenum}")
         print(f"\n #Links: {linknum}")
 
         # graph flow matrix
-        inputmatrix, links = self._flow_matrix(g)
+        inputmatrix, links = self._flow_matrix(self.graph)
         self.links = links
         # inputdistancelist:link weight
         # distance_list=self.graph_generator.get_distance_list()
@@ -261,10 +258,10 @@ class TESolver:
         for link in links:
             u = link[0]
             v = link[1]
-            if g.has_edge(u, v):
-                bw = g[u][v][Constants.BANDWIDTH]
-            elif g.has_edge(v, u):
-                bw = g[v][u][Constants.BANDWIDTH]
+            if self.graph.has_edge(u, v):
+                bw = self.graph[u][v][Constants.BANDWIDTH]
+            elif self.graph.has_edge(v, u):
+                bw = self.graph[v][u][Constants.BANDWIDTH]
 
             bwlinklist.append(bw)
 
@@ -400,11 +397,10 @@ class TESolver:
         print(f"request: {len(request_list)}")
         print(f"links: {len(links)}")
 
-        g = self.graph
         zerolist = np.zeros(len(links), dtype=int)
         latency_list = []
         for link in links:
-            latency_list.append(g[link[0]][link[1]][Constants.LATENCY])
+            latency_list.append(self.graph[link[0]][link[1]][Constants.LATENCY])
 
         requestnum = len(request_list)
         for i in range(requestnum):
