@@ -17,9 +17,13 @@ class RandomConnectionGenerator:
         self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022
     ) -> TrafficMatrix:
         """
-        Create a random TM
-        :param querynum:  Number of connections.
-        :return: A list of connections, each of which is a list [src, des, bw, lat].
+        Create a random traffic matrix.
+
+        :param querynum: Number of connections.
+
+        :return: A connection matrix.  A connection matrix is list of
+                 connections, and each item in the list is of the
+                 format (source, destination, bandwidth, latency).
         """
         np.random.seed(seed)
         traffic_matrix = TrafficMatrix(connection_requests=[])
