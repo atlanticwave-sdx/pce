@@ -5,7 +5,7 @@ import unittest
 import networkx as nx
 
 from sdx.pce.load_balancing.te_solver import TESolver
-from sdx.pce.models import TrafficMatrix
+from sdx.pce.models import TrafficMatrix, ConnectionPath, ConnectionSolution
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.graphviz import can_read_dot_file, read_dot_file
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
@@ -44,8 +44,21 @@ class TESolverTests(unittest.TestCase):
         print(f"tm: {tm}")
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
-        paths, value = solver.solve()
-        print(f"Paths: {paths}, optimal: {value}")
+        solution, value = solver.solve()
+        print(f"Paths: {solution}, optimal: {value}")
+
+        # Check that there's a solution for each request.
+        self.assertEqual(len(tm.connection_requests),
+                         len(solution.connection_map))
+        self.assertEqual(tm.connection_requests,
+                         list(solution.connection_map.keys()))
+        
+        # Check that solution is in the expected form.
+        self.assertIsInstance(solution, ConnectionSolution)
+        for request in tm.connection_requests:
+            paths = solution.connection_map.get(request)
+            for path in paths:
+                self.assertIsInstance(path, ConnectionPath)
 
         self.assertEqual(6.0, value)
 
@@ -57,10 +70,22 @@ class TESolverTests(unittest.TestCase):
         solver = TESolver(
             graph, tm, Constants.COST_FLAG_HOP, Constants.OBJECTIVE_LOAD_BALANCING
         )
-        paths, value = solver.solve()
-        print(f"Paths: {paths}, optimal: {value}")
+        solution, value = solver.solve()
+        print(f"Solution: {solution}, optimal: {value}")
 
-        # self.assertEqual(self.solution, path)
+        # Check that there's a solution for each request.
+        self.assertEqual(len(tm.connection_requests),
+                         len(solution.connection_map))
+        self.assertEqual(tm.connection_requests,
+                         list(solution.connection_map.keys()))
+        
+        # Check that solution is in the expected form.
+        self.assertIsInstance(solution, ConnectionSolution)
+        for request in tm.connection_requests:
+            paths = solution.connection_map.get(request)
+            for path in paths:
+                self.assertIsInstance(path, ConnectionPath)
+
         self.assertEqual(1.851, round(value, 3))
 
     def test_mc_solve_more_connections_than_nodes(self):
@@ -71,12 +96,12 @@ class TESolverTests(unittest.TestCase):
         print(f"tm: {tm}")
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
-        paths, value = solver.solve()
-        print(f"Paths: {paths}, optimal: {value}")
+        solution, value = solver.solve()
+        print(f"Solution: {solution}, optimal: {value}")
 
         # The above doesn't seem to find a solution, but hey, at least
         # we exercised one more code path without any crashes.
-        self.assertIs(paths, None)
+        self.assertIs(solution, None)
         self.assertEqual(value, 0.0)
 
     def test_mc_solve_5(self):
@@ -97,9 +122,21 @@ class TESolverTests(unittest.TestCase):
             tm = TrafficMatrix.from_dict(json.load(fp))
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
-        paths, value = solver.solve()
+        solution, value = solver.solve()
+        print(f"Solution: {solution}, optimal: {value}")
 
-        print(f"Paths: {paths}, optimal: {value}")
+        # Check that there's a solution for each request.
+        self.assertEqual(len(tm.connection_requests),
+                         len(solution.connection_map))
+        self.assertEqual(tm.connection_requests,
+                         list(solution.connection_map.keys()))
+        
+        # Check that solution is in the expected form.
+        self.assertIsInstance(solution, ConnectionSolution)
+        for request in tm.connection_requests:
+            paths = solution.connection_map.get(request)
+            for path in paths:
+                self.assertIsInstance(path, ConnectionPath)
 
         self.assertEqual(7.0, value)
 
@@ -117,9 +154,9 @@ class TESolverTests(unittest.TestCase):
         self.assertNotEqual(tm, None, "Could not read connection file")
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
-        paths, value = solver.solve()
+        solution, value = solver.solve()
 
-        print(f"Paths: {paths}, optimal: {value}")
+        print(f"Solution: {solution}, optimal: {value}")
 
 
 if __name__ == "__main__":
