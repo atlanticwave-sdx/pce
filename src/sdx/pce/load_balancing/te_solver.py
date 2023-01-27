@@ -66,7 +66,7 @@ class TESolver:
         """
         Return the computed path and associated cost.
         """
-        data = self.create_data_model()
+        data = self._create_data_model()
 
         # Create the mip solver with the SCIP backend.
         solver = pywraplp.Solver.CreateSolver("SCIP")
@@ -126,9 +126,9 @@ class TESolver:
             print("The problem does not have an optimal solution.")
 
         # returns: dict(conn request, [path]), cost
-        return self.solution_translator(paths), solver.Objective().Value()
+        return self._solution_translator(paths), solver.Objective().Value()
 
-    def solution_translator(self, paths) -> Union[ConnectionSolution, None]:
+    def _solution_translator(self, paths) -> Union[ConnectionSolution, None]:
         # extract the edge/path
         real_paths = []
         if paths is None:
@@ -196,7 +196,7 @@ class TESolver:
         self.objective = obj
 
     # form OR matrix
-    def mc_cost(self, links):
+    def _mc_cost(self, links):
         g = self.graph
         cost_list = []
         for link in links:
@@ -208,7 +208,7 @@ class TESolver:
 
         return cost
 
-    def lb_cost(self, links):
+    def _lb_cost(self, links):
         g = self.graph
         cost_list = []
         for link in links:
@@ -221,7 +221,7 @@ class TESolver:
 
         return cost
 
-    def create_data_model(self) -> DataModel:
+    def _create_data_model(self) -> DataModel:
         latency = True
         g = self.graph
 
@@ -232,7 +232,7 @@ class TESolver:
         print(f"\n #Links: {linknum}")
 
         # graph flow matrix
-        inputmatrix, links = self.flow_matrix(g)
+        inputmatrix, links = self._flow_matrix(g)
         self.links = links
         # inputdistancelist:link weight
         # distance_list=self.graph_generator.get_distance_list()
@@ -241,7 +241,7 @@ class TESolver:
         # print("distance_list:"+str(np.shape(distance_list)))
         # print("latency_list:"+str(np.shape(latency_list)))
 
-        latconstraint = self.latconstraintmaker(links)
+        latconstraint = self._latconstraintmaker(links)
 
         # form the bound: rhs
         # flows: numnode*len(request)
@@ -277,8 +277,8 @@ class TESolver:
             # print(bounds)
 
         # form the constraints: lhs
-        flowconstraints = self.lhsflow(self.tm.connection_requests, inputmatrix)
-        bwconstraints = self.lhsbw(self.tm.connection_requests, inputmatrix)
+        flowconstraints = self._lhsflow(self.tm.connection_requests, inputmatrix)
+        bwconstraints = self._lhsbw(self.tm.connection_requests, inputmatrix)
 
         print(f"\nConstraints Shape:{len(flowconstraints)}:{len(bwconstraints)}")
         # print("\n flow"+str(flowconstraints))
@@ -298,10 +298,10 @@ class TESolver:
         # objective function
         if self.objective == Constants.OBJECTIVE_COST:
             print("Objecive: Cost")
-            cost = self.mc_cost(links)
+            cost = self._mc_cost(links)
         if self.objective == Constants.OBJECTIVE_LOAD_BALANCING:
             print("Objecive: Load Balance")
-            cost = self.lb_cost(links)
+            cost = self._lb_cost(links)
 
         print(f"cost len: {len(cost)}")
         # print(cost)
@@ -325,7 +325,7 @@ class TESolver:
 
     # flowmatrix
     # also set self.links: 2*links
-    def flow_matrix(self, g):
+    def _flow_matrix(self, g):
         nodenum = len(g.nodes)
         linknum = 2 * len(g.edges)
 
@@ -357,7 +357,7 @@ class TESolver:
         return inputmatrix, link_list
 
     # shape: (len(tm)*numnode, len(num)*2*numedge)
-    def lhsflow(self, request_list, inputmatrix):
+    def _lhsflow(self, request_list, inputmatrix):
         r = len(request_list)
         m, n = inputmatrix.shape
         print(f"r={r}:m={m}:n={n}")
@@ -374,7 +374,7 @@ class TESolver:
         return out
 
     #
-    def lhsbw(self, request_list, inputmatrix):
+    def _lhsbw(self, request_list, inputmatrix):
         bwconstraints = []
         # zeros = self.zerolistmaker(len(inputmatrix[0])*len(request_list))
         zeros = np.zeros(len(inputmatrix[0]) * len(request_list), dtype=int)
@@ -390,7 +390,7 @@ class TESolver:
 
         return bwconstraints
 
-    def latconstraintmaker(self, links):
+    def _latconstraintmaker(self, links):
         lhs = []
         rhs = []
 
