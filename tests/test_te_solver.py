@@ -5,7 +5,7 @@ import unittest
 import networkx as nx
 
 from sdx.pce.load_balancing.te_solver import TESolver
-from sdx.pce.models import TrafficMatrix, ConnectionPath, ConnectionSolution
+from sdx.pce.models import ConnectionPath, ConnectionSolution, TrafficMatrix
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.graphviz import can_read_dot_file, read_dot_file
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
@@ -48,11 +48,9 @@ class TESolverTests(unittest.TestCase):
         print(f"Paths: {solution}, optimal: {value}")
 
         # Check that there's a solution for each request.
-        self.assertEqual(len(tm.connection_requests),
-                         len(solution.connection_map))
-        self.assertEqual(tm.connection_requests,
-                         list(solution.connection_map.keys()))
-        
+        self.assertEqual(len(tm.connection_requests), len(solution.connection_map))
+        self.assertEqual(tm.connection_requests, list(solution.connection_map.keys()))
+
         # Check that solution is in the expected form.
         self.assertIsInstance(solution, ConnectionSolution)
         for request in tm.connection_requests:
@@ -74,11 +72,9 @@ class TESolverTests(unittest.TestCase):
         print(f"Solution: {solution}, optimal: {value}")
 
         # Check that there's a solution for each request.
-        self.assertEqual(len(tm.connection_requests),
-                         len(solution.connection_map))
-        self.assertEqual(tm.connection_requests,
-                         list(solution.connection_map.keys()))
-        
+        self.assertEqual(len(tm.connection_requests), len(solution.connection_map))
+        self.assertEqual(tm.connection_requests, list(solution.connection_map.keys()))
+
         # Check that solution is in the expected form.
         self.assertIsInstance(solution, ConnectionSolution)
         for request in tm.connection_requests:
@@ -126,11 +122,9 @@ class TESolverTests(unittest.TestCase):
         print(f"Solution: {solution}, optimal: {value}")
 
         # Check that there's a solution for each request.
-        self.assertEqual(len(tm.connection_requests),
-                         len(solution.connection_map))
-        self.assertEqual(tm.connection_requests,
-                         list(solution.connection_map.keys()))
-        
+        self.assertEqual(len(tm.connection_requests), len(solution.connection_map))
+        self.assertEqual(tm.connection_requests, list(solution.connection_map.keys()))
+
         # Check that solution is in the expected form.
         self.assertIsInstance(solution, ConnectionSolution)
         for request in tm.connection_requests:
