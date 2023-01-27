@@ -68,7 +68,7 @@ def read_dot_file(topology_file):
         w[Constants.ORIGINAL_BANDWIDTH] = float(bandwidth)
         w[Constants.BANDWIDTH] = float(bandwidth)
         w[Constants.WEIGHT] = float(w["cost"])
-        if "latency" not in w.keys():
+        if Constants.LATENCY not in w.keys():
             latency = 10
             w[Constants.LATENCY] = latency
 
