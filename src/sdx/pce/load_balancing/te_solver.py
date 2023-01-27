@@ -15,7 +15,7 @@ import networkx as nx
 import numpy as np
 from ortools.linear_solver import pywraplp
 
-from sdx.pce.models import ConnectionRequest, TrafficMatrix, ConnectionSolution
+from sdx.pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.functions import GraphFunction
 

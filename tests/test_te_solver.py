@@ -4,13 +4,10 @@ import unittest
 
 import networkx as nx
 
-from sdx.pce.models import TrafficMatrix
 from sdx.pce.load_balancing.te_solver import TESolver
+from sdx.pce.models import TrafficMatrix
 from sdx.pce.utils.constants import Constants
-from sdx.pce.utils.graphviz import (
-    can_read_dot_file,
-    read_dot_file,
-)
+from sdx.pce.utils.graphviz import can_read_dot_file, read_dot_file
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
 

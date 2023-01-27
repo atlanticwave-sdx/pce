@@ -2,7 +2,7 @@ import json
 
 import numpy as np
 
-from sdx.pce.models import TrafficMatrix, ConnectionRequest
+from sdx.pce.models import ConnectionRequest, TrafficMatrix
 
 
 class RandomConnectionGenerator:
