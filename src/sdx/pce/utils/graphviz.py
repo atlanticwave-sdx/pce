@@ -62,7 +62,7 @@ def read_dot_file(topology_file: str | Path) -> nx.Graph:
         else:
             capacity = w["capacity"].strip('"')
             bw = re.split(r"(\D+)", capacity)
-            bandwidth = bw[0]
+            bandwidth = float(bw[0])
             if bw[1].startswith("G"):
                 bandwidth = float(bw[0]) * 1000
 
