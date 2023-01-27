@@ -1,20 +1,22 @@
-[
-    [
-        0,
-        3,
-        15,
-        20
-    ],
-    [
-        0,
-        4,
-        5,
-        20
-    ],
-    [
-        1,
-        4,
-        10,
-        30
-    ]
-]
+{
+  "connection_requests": [
+    {
+      "source": 0,
+      "destination": 3,
+      "required_bandwidth": 15,
+      "required_latency": 20
+    },
+    {
+      "source": 0,
+      "destination": 4,
+      "required_bandwidth": 5,
+      "required_latency": 20
+    },
+    {
+      "source": 1,
+      "destination": 4,
+      "required_bandwidth": 10,
+      "required_latency": 30
+    }
+  ]
+}
