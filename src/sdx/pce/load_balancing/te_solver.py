@@ -64,7 +64,7 @@ class TESolver:
 
     def solve(self) -> Tuple[Union[ConnectionSolution, None], float]:
         """
-        Return computed path and its cost.
+        Return the computed path and associated cost.
         """
         data = self.create_data_model()
 
