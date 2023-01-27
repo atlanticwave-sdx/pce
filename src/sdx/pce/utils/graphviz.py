@@ -25,6 +25,8 @@ from networkx.algorithms import approximation as approx
 
 from sdx.pce.utils.constants import Constants
 
+__all__ = ["can_read_dot_file", "read_dot_file"]
+
 
 def can_read_dot_file():
     """
@@ -75,16 +77,3 @@ def read_dot_file(topology_file):
 
     return graph
 
-
-def read_topology_json_file(te_file):
-    """
-    Read topology described in a JSON file.
-    """
-    with open(te_file) as f:
-        tm = json.load(f)
-    o_tm = []
-    for t in tm:
-        tr = tuple(t)
-        o_tm.append(tr)
-
-    return o_tm
