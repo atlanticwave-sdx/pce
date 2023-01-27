@@ -76,4 +76,3 @@ def read_dot_file(topology_file):
     print(f"Connectivity: {connectivity}")
 
     return graph
-

@@ -383,7 +383,9 @@ class TESolver:
             bwconstraints.append(addzeros)
             count = 0
             for request in request_list:
-                bwconstraints[i][i + count * len(inputmatrix[0])] = request.required_bandwidth
+                bwconstraints[i][
+                    i + count * len(inputmatrix[0])
+                ] = request.required_bandwidth
                 count += 1
 
         return bwconstraints

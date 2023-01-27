@@ -28,15 +28,19 @@ class RandomConnectionGenerator:
         if querynum <= self.num_nodes:
             for i in range(querynum):
                 source = np.random.randint(1, (self.num_nodes + 1) / 2.0)
-                destination = np.random.randint((self.num_nodes + 1) / 2.0, self.num_nodes)
+                destination = np.random.randint(
+                    (self.num_nodes + 1) / 2.0, self.num_nodes
+                )
                 required_bandwidth = bw[i]
                 required_latency = np.random.randint(l_lat, u_lat)
 
-                request = ConnectionRequest(source=source,
-                                            destination=destination,
-                                            required_bandwidth=required_bandwidth,
-                                            required_latency=required_latency)
-                
+                request = ConnectionRequest(
+                    source=source,
+                    destination=destination,
+                    required_bandwidth=required_bandwidth,
+                    required_latency=required_latency,
+                )
+
                 traffic_matrix.connection_requests.append(request)
         else:
             for i in range(querynum):
@@ -48,11 +52,13 @@ class RandomConnectionGenerator:
                 required_bandwidth = bw[i]
                 required_latency = np.random.randint(l_lat, u_lat)
 
-                request = ConnectionRequest(source=source,
-                                            destination=destination,
-                                            required_bandwidth=required_bandwidth,
-                                            required_latency=required_latency)
-                
+                request = ConnectionRequest(
+                    source=source,
+                    destination=destination,
+                    required_bandwidth=required_bandwidth,
+                    required_latency=required_latency,
+                )
+
                 traffic_matrix.connection_requests.append(request)
 
         with open("connection.json", "w") as json_file:
