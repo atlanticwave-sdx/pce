@@ -61,10 +61,8 @@ class RandomConnectionGenerator:
 
                 traffic_matrix.connection_requests.append(request)
 
-        with open("connection.json", "w") as json_file:
-            data = traffic_matrix
-            print(data)
-            # json.dump(data, json_file, indent=4)
+        with open("connection.json", "w") as fp:
+            json.dump(traffic_matrix.to_dict(), fp, indent=4)
 
         return traffic_matrix
 
