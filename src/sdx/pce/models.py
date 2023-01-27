@@ -1,7 +1,9 @@
 from dataclasses import dataclass
+from dataclasses_json import dataclass_json
 from typing import List, Mapping
 
 
+@dataclass_json
 @dataclass
 class ConnectionRequest:
     """
@@ -17,6 +19,7 @@ class ConnectionRequest:
     required_latency: float
 
 
+@dataclass_json
 @dataclass
 class TrafficMatrix:
     """
@@ -28,6 +31,7 @@ class TrafficMatrix:
     connection_requests: List[ConnectionRequest]
 
 
+@dataclass_json
 @dataclass
 class ConnectionPath:
     """
@@ -38,6 +42,7 @@ class ConnectionPath:
     destination: int
 
 
+@dataclass_json
 @dataclass
 class ConnectionSolution:
     """
