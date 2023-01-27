@@ -4,6 +4,7 @@ import unittest
 
 import networkx as nx
 
+from sdx.pce.models import TrafficMatrix
 from sdx.pce.load_balancing.te_solver import TESolver
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.graphviz import (
@@ -96,8 +97,8 @@ class TESolverTests(unittest.TestCase):
             ),
         )
 
-        with open(traffic_matrix_file) as f:
-            tm = json.load(f)
+        with open(traffic_matrix_file) as fp:
+            tm = TrafficMatrix.from_dict(json.load(fp))
 
         solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
         paths, value = solver.solve()
