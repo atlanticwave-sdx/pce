@@ -19,6 +19,7 @@ graphviz C library, so installing the latter is a little more work.
 
 import json
 import re
+from pathlib import Path
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
@@ -28,7 +29,7 @@ from sdx.pce.utils.constants import Constants
 __all__ = ["can_read_dot_file", "read_dot_file"]
 
 
-def can_read_dot_file():
+def can_read_dot_file() -> bool:
     """
     See if we have pygraphviz or pydot installed.
     """
@@ -41,7 +42,7 @@ def can_read_dot_file():
         return False
 
 
-def read_dot_file(topology_file):
+def read_dot_file(topology_file: str | Path) -> nx.Graph:
     """
     Read a Graphviz dot file and return a graph.
     """
