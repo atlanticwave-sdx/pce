@@ -175,6 +175,7 @@ class TESolver:
         # print("ordered paths:"+str(ordered_paths))
         return ordered_paths
 
+    # TODO: unclear what this function does.
     def update_graph(self, graph, paths):
         if paths is None:
             return graph
