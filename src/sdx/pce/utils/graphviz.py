@@ -20,6 +20,7 @@ graphviz C library, so installing the latter is a little more work.
 import json
 import re
 from pathlib import Path
+from typing import Union
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
@@ -42,7 +43,7 @@ def can_read_dot_file() -> bool:
         return False
 
 
-def read_dot_file(topology_file: str | Path) -> nx.Graph:
+def read_dot_file(topology_file: Union[str, Path]) -> nx.Graph:
     """
     Read a Graphviz dot file and return a graph.
     """
