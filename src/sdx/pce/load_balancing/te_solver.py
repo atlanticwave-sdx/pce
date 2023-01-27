@@ -43,8 +43,10 @@ class TESolver:
         objective=Constants.OBJECTIVE_COST,
     ):
         """
-        :param graph: A NetworkX graph that represents a network topology.
-        :param tm: Traffic matrix, in the form of a list of connection requests.
+        :param graph: A NetworkX graph that represents a network
+            topology.
+        :param tm: Traffic matrix, in the form of a list of connection
+            requests.
         :param cost_flag: Cost (weight) to assign per link.
         :param objective: What to solve for: cost or load balancing.
         """
