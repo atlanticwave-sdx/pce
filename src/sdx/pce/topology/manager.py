@@ -1,20 +1,13 @@
-import json
 import copy
 
 import networkx as nx
 import datetime
 
 from sdx.datamodel.models.topology import (
-    # Topology,
     SDX_TOPOLOGY_ID_prefix,
     TOPOLOGY_INITIAL_VERSION,
 )
-# from sdx.datamodel.models.link import Link
-# from sdx.datamodel.models.port import Port
-
-
 from sdx.datamodel.parsing.topologyhandler import TopologyHandler
-from sdx.datamodel.parsing.exceptions import DataModelException
 
 from .grenmlconverter import GrenmlConverter
 
