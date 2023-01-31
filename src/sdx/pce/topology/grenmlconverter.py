@@ -1,11 +1,7 @@
 from grenml import GRENMLManager
 from grenml.models.nodes import Node
-from grenml.models.links import Link
 
 from sdx.datamodel.models.topology import Topology
-
-# from models.node import Node
-# from sdx.datamodel.models.location import Location
 
 
 class GrenmlConverter(object):
