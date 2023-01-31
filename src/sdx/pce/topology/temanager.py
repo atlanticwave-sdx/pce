@@ -85,7 +85,7 @@ class TEManager:
     def generate_connection_breakdown(self, connection):
         breakdown = {}
         paths = connection[0]  # p2p for now
-        cost = connection[1]
+        # cost = connection[1]
         i_port = None
         e_port = None
         print("domain breakdown:")
