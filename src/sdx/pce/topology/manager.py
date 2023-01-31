@@ -200,7 +200,7 @@ class TopologyManager:
 
     # adjacent matrix of the graph, in jason?
     def generate_graph(self):
-        G = nx.Graph()
+        graph = nx.Graph()
         links = self.topology.links
         for link in links:
             inter_domain_link = False
@@ -219,8 +219,8 @@ class TopologyManager:
                     end_nodes.append(node)
                     # print("graph node:"+node.id)
             if not inter_domain_link:
-                G.add_edge(end_nodes[0].id, end_nodes[1].id)
-                edge = G.edges[end_nodes[0].id, end_nodes[1].id]
+                graph.add_edge(end_nodes[0].id, end_nodes[1].id)
+                edge = graph.edges[end_nodes[0].id, end_nodes[1].id]
                 edge["id"] = link.id
                 edge["latency"] = link.latency
                 edge["bandwidth"] = link.bandwidth
@@ -229,7 +229,7 @@ class TopologyManager:
                 edge["packet_loss"] = link.packet_loss
                 edge["availability"] = link.availability
 
-        return G
+        return graph
 
     def generate_grenml(self):
         self.converter = GrenmlConverter(self.topology)
