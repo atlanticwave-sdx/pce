@@ -4,7 +4,6 @@ import unittest
 
 from sdx.pce.topology.temanager import TEManager
 
-
 TEST_DATA_DIR = pathlib.Path(__file__).parent.joinpath("data")
 TOPOLOGY_FILE = TEST_DATA_DIR.joinpath("sdx.json")
 CONNECTION_REQ_FILE = TEST_DATA_DIR.joinpath("test_request.json")
