@@ -14,8 +14,14 @@ from .grenmlconverter import GrenmlConverter
 
 class TopologyManager:
 
-    """ "
-    Manager for topology operations: merge multiple topologies, convert to grenml (XML).
+    """
+    Manager for topology operations.
+
+    Operations are:
+
+        - Merge multiple topologies.
+
+        - Convert to grenml (XML).
     """
 
     def __init__(self):
