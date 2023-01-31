@@ -23,8 +23,14 @@ from .manager import TopologyManager
 
 class TEManager:
 
-    """ "
-    TE Manager for connection - topology operations: (1) generate inputs to the PCE solver; (2) converter the solver output.
+    """
+    TE Manager for connection - topology operations.
+
+    Functions of this class are:
+
+        - generate inputs to the PCE solver
+
+        - converter the solver output.
     """
 
     def __init__(self, topology_data, connection_data):
