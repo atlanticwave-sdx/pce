@@ -1,3 +1,4 @@
+import json
 import pathlib
 import unittest
 
@@ -24,15 +25,15 @@ class TestTopologyManager(unittest.TestCase):
         with open(TOPOLOGY_FILE, "r", encoding="utf-8") as fp:
             topology_data = json.load(fp)
 
-        with open(CONNECTION_FILE, "r", encoding="utf-8") as fp:
+        with open(CONNECTION_REQ_FILE, "r", encoding="utf-8") as fp:
             connection_data = json.load(fp)
 
         temanager = TEManager(topology_data, connection_data)
 
-        graph = self.temanager.graph
+        graph = temanager.graph
         print(f"Generated networkx graph of the topology: {graph}")
         print(f"Graph nodes: {graph.nodes[0]}, edges: {graph.edges}")
 
         print("Test Convert Connection To Topology")
-        connection = self.temanager.generate_connection_te()
+        connection = temanager.generate_connection_te()
         print(connection)
