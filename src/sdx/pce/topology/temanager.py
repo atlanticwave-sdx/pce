@@ -1,15 +1,9 @@
-import json
-import copy
-
 import networkx as nx
 from networkx.algorithms import approximation as approx
 
 from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
-from sdx.datamodel.topologymanager.manager import TopologyManager
-from sdx.datamodel.parsing.topologyhandler import TopologyHandler
-from sdx.datamodel.parsing.exceptions import DataModelException
 
-from .manager import TopologyManager
+from sdx.pce.topology.manager import TopologyManager
 
 
 class TEManager:
