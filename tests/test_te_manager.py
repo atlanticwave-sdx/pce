@@ -35,4 +35,6 @@ class TestTopologyManager(unittest.TestCase):
 
         print("Test Convert Connection To Topology")
         connection = temanager.generate_connection_te()
-        print(connection)
+        print(f"connection: {connection}")
+
+        self.assertIsNotNone(connection)
