@@ -59,24 +59,29 @@ class TopologyManager:
 
         if self.topology is None:
             self.topology = copy.deepcopy(topology)
-            ##generate a new topology id
+
+            # Generate a new topology id
             self.generate_id()
+
             # Addding to the port list
             links = topology.get_links()
             for link in links:
                 for port in link.ports:
                     self.port_list[port["id"]] = link
         else:
-            ##check the inter-domain links first.
+            # check the inter-domain links first.
             self.num_interdomain_link += self.inter_domain_check(topology)
             if self.num_interdomain_link == 0:
                 print("Warning: no interdomain links detected!")
-            ##nodes
+
+            # Nodes
             nodes = topology.get_nodes()
             self.topology.add_nodes(nodes)
-            ##links
+
+            # links
             links = topology.get_links()
             self.topology.add_links(links)
+
             # version
             self.update_version(False)
 
@@ -107,11 +112,12 @@ class TopologyManager:
         topology = update_handler.import_topology_data(data)
         self.topology_list[topology.id] = topology
 
-        ##nodes
+        # Nodes.
         nodes = topology.get_nodes()
         for node in nodes:
             self.topology.remove_node(node.id)
-        ##links
+
+        # Links.
         links = topology.get_links()
         for link in links:
             if link.nni != True:
@@ -120,15 +126,16 @@ class TopologyManager:
                 for port in link.ports:
                     self.port_list.pop(port["id"])
 
-        ##check the inter-domain links first.
+        # Check the inter-domain links first.
         num_interdomain_link = self.inter_domain_check(topology)
         if num_interdomain_link == 0:
             print("Warning: no interdomain links detected!")
 
-        ##nodes
+        # Nodes.
         nodes = topology.get_nodes()
         self.topology.add_nodes(nodes)
-        ##links
+
+        # Links.
         links = topology.get_links()
         self.topology.add_links(links)
 
