@@ -71,10 +71,8 @@ jobs:
 
       - name: Run tests
         run: |
-          # Install package so that tests can be run.  Note that
-          # editable mode install is important here -- it helps
-          # coveralls.io to match coverage and sources correctly.
-          pip install --editable .[test,pygraphviz]
+          # Install package so that tests can be run.
+          pip install .[test,pygraphviz]
           # Run tests and collect coverage data.
           python -m pytest
 
