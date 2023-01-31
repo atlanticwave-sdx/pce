@@ -2,7 +2,6 @@ import networkx as nx
 from networkx.algorithms import approximation as approx
 
 from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
-
 from sdx.pce.topology.manager import TopologyManager
 
 
@@ -24,8 +23,8 @@ class TEManager:
         self.manager = TopologyManager()
         self.connection_handler = ConnectionHandler()
 
-        self.manager.topology = (
-            self.manager.get_handler().import_topology_data(topology_data)
+        self.manager.topology = self.manager.get_handler().import_topology_data(
+            topology_data
         )
         self.connection = self.connection_handler.import_connection_data(
             connection_data
@@ -40,14 +39,10 @@ class TEManager:
         egress_node = self.manager.topology.get_node_by_port(egress_port.id)
 
         i_node = [
-            x
-            for x, y in self.graph.nodes(data=True)
-            if y["id"] == ingress_node.id
+            x for x, y in self.graph.nodes(data=True) if y["id"] == ingress_node.id
         ]
         e_node = [
-            x
-            for x, y in self.graph.nodes(data=True)
-            if y["id"] == egress_node.id
+            x for x, y in self.graph.nodes(data=True) if y["id"] == egress_node.id
         ]
 
         bandwidth_required = self.connection.bandwidth

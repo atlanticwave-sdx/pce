@@ -1,11 +1,11 @@
 import copy
-
-import networkx as nx
 import datetime
 
+import networkx as nx
+
 from sdx.datamodel.models.topology import (
-    SDX_TOPOLOGY_ID_prefix,
     TOPOLOGY_INITIAL_VERSION,
+    SDX_TOPOLOGY_ID_prefix,
 )
 from sdx.datamodel.parsing.topologyhandler import TopologyHandler
 
@@ -270,9 +270,7 @@ class TopologyManager:
 
         # 5. signal Reoptimization of TE?
 
-    def update_element_property_json(
-        self, data, element, element_id, property, value
-    ):
+    def update_element_property_json(self, data, element, element_id, property, value):
         elements = data[element]
         for element in elements:
             if element["id"] == element_id:
