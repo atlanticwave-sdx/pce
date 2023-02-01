@@ -28,6 +28,9 @@ class TopologyManagerTests(unittest.TestCase):
     TOPOLOGY_FILE_LIST = [TOPOLOGY_AMLIGHT, TOPOLOGY_ZAOXI, TOPOLOGY_SAX]
     TOPOLOGY_FILE_LIST_UPDATE = [TOPOLOGY_ZAOXI]
 
+    LINK_ID = "urn:ogf:network:sdx:link:amlight:A1-B2"
+    INTER_LINK_ID = "urn:ogf:network:sdx:link:nni:Miami-Sanpaolo"
+
     def setUp(self):
         self.manager = TopologyManager()
 
@@ -100,8 +103,8 @@ class TopologyManagerTests(unittest.TestCase):
         print("Test Topology Link Property Update!")
         try:
             self.testMergeTopology()
-            self.manager.update_link_property(link_id, "latency", 8)
-            self.manager.update_link_property(inter_link_id, "latency", 8)
+            self.manager.update_link_property(self.LINK_ID, "latency", 8)
+            self.manager.update_link_property(self.INTER_LINK_ID, "latency", 8)
             with open(self.TOPOLOGY_OUT, "w") as t_file:
                 json.dump(self.manager.topology.to_dict(), t_file, indent=4)
         except DataModelException as e:
