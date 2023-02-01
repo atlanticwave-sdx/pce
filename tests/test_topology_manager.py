@@ -42,9 +42,8 @@ class TopologyManagerTests(unittest.TestCase):
 
         for topology_file in self.TOPOLOGY_FILE_LIST:
             print(f"Adding Topology file: {topology_file}")
-            with open(topology_file, "r", encoding="utf-8") as data_file:
-                data = json.load(data_file)
-                self.manager.add_topology(data)
+            with open(topology_file, "r", encoding="utf-8") as infile:
+                self.manager.add_topology(json.load(infile))
 
         self.assertIsInstance(self.manager.topology.to_dict(), dict)
 
@@ -59,9 +58,8 @@ class TopologyManagerTests(unittest.TestCase):
 
         for topology_file in self.TOPOLOGY_FILE_LIST_UPDATE:
             print(f"Updating topology: {topology_file}")
-            with open(topology_file, "r", encoding="utf-8") as data_file:
-                data = json.load(data_file)
-                self.manager.update_topology(data)
+            with open(topology_file, "r", encoding="utf-8") as infile:
+                self.manager.update_topology(json.load(infile))
 
         self.assertIsInstance(self.manager.topology.to_dict(), dict)
 
@@ -104,8 +102,8 @@ class TopologyManagerTests(unittest.TestCase):
     def test_link_property_update_json(self):
         print("Test Topology JSON Link Property Update!")
 
-        with open(self.TOPOLOGY_IN, "r", encoding="utf-8") as data_file:
-            data = json.load(data_file)
+        with open(self.TOPOLOGY_IN, "r", encoding="utf-8") as infile:
+            data = json.load(infile)
             self.manager.update_element_property_json(
                 data, "links", self.LINK_ID, "latency", 20
             )
