@@ -16,6 +16,10 @@ from sdx.datamodel.parsing.exceptions import DataModelException
 
 
 class TopologyManagerTests(unittest.TestCase):
+    """
+    Tests for TopologyManager.
+    """
+    
     TEST_DATA_DIR = pathlib.Path(__file__).parent.joinpath("data")
 
     TOPOLOGY_AMLIGHT = TEST_DATA_DIR.joinpath("amlight.json")
