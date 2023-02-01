@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pep8-naming pytest coverage wheel coveralls
+          pip install flake8 pep8-naming tox wheel coveralls
           if [ -f requirements.txt ]; then pip install --prefer-binary -r requirements.txt; fi
 
       # See https://docs.github.com/en/enterprise-cloud@latest/actions/using-github-hosted-runners/customizing-github-hosted-runners
@@ -71,12 +71,7 @@ jobs:
 
       - name: Run tests
         run: |
-          # Install package so that tests can be run.
-          pip install .[test,pygraphviz]
-          # Run tests and collect coverage data.
-          coverage run --rcfile=setup.cfg -m pytest
-          # Print coverage report, in case we want to look at it.
-          coverage report
+          python -m tox
 
       - name: Send coverage data to coveralls.io
         run: |
