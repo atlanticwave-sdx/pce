@@ -1,8 +1,8 @@
 import pathlib
 import unittest
 
-from sdx.pce.topology.manager import TopologyManager
 from sdx.pce.topology.grenmlconverter import GrenmlConverter
+from sdx.pce.topology.manager import TopologyManager
 
 
 class GrenmlConverterTests(unittest.TestCase):
