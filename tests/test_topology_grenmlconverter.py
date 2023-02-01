@@ -39,3 +39,15 @@ class GrenmlConverterTests(unittest.TestCase):
         xml = converter.get_xml_str()
         print(f"XML: {xml}")
         self.assertIsNotNone(xml)
+
+    def test_grenml_converter_bad_input(self):
+        # Ensure that GrenmlConverter fails when no topology input is
+        # given.
+        with self.assertRaises(AttributeError):
+            GrenmlConverter(None)
+
+        with self.assertRaises(AttributeError):
+            GrenmlConverter("")
+
+        with self.assertRaises(AttributeError):
+            GrenmlConverter("{'dummy':'dummy'}")
