@@ -47,7 +47,6 @@ class TopologyManagerTests(unittest.TestCase):
         with open(self.TOPOLOGY_OUT, "w") as outfile:
             json.dump(self.manager.topology.to_dict(), outfile, indent=4)
 
-
     def test_update_topology(self):
         print("Test Topology Update!")
 
@@ -111,6 +110,7 @@ class TopologyManagerTests(unittest.TestCase):
 
             with open(self.TOPOLOGY_OUT, "w") as outfile:
                 json.dump(data, outfile, indent=4)
+
 
 if __name__ == "__main__":
     unittest.main()
