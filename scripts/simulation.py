@@ -9,7 +9,6 @@ from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
 
 
 def random_graph(n, p, m):
-
     graph_generator = RandomTopologyGenerator(n, p)
     graph = graph_generator.generate_graph()
 
@@ -28,7 +27,7 @@ def bw_stat(g):
     total_util = 0.0
     max_util = 0.0
     util_list = []
-    for (u, v, w) in g.edges(data=True):
+    for u, v, w in g.edges(data=True):
         avail_bw = w[Constants.BANDWIDTH]
         bw = w[Constants.ORIGINAL_BANDWIDTH]
         weight = Constants.ALPHA * (1.0 / (avail_bw + 0.1))

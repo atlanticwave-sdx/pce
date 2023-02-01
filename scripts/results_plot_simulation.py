@@ -12,7 +12,6 @@ def last_n_lines(fname, n):
     results = None
     try:
         with open(fname) as file:
-
             # loop to read iterate
             # last n lines and convert to a dict
             results = {}

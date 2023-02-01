@@ -57,7 +57,7 @@ def read_dot_file(topology_file: Union[str, Path]) -> nx.Graph:
     mapping = dict(zip(graph, range(num_nodes)))
     graph = nx.relabel_nodes(graph, mapping)
 
-    for (u, v, w) in graph.edges(data=True):
+    for u, v, w in graph.edges(data=True):
         if "capacity" not in w.keys():
             bandwidth = 1000.0
         else:

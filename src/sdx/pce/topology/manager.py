@@ -53,7 +53,6 @@ class TopologyManager:
         self.port_list = {}
 
     def add_topology(self, data):
-
         topology = self.handler.import_topology_data(data)
         self.topology_list[topology.id] = topology
 

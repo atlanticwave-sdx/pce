@@ -44,24 +44,24 @@ class GraphFunction:
         distance_list = []
 
         if cost_flag == Constants.COST_FLAG_BW:
-            for (u, v, w) in self.graph.edges(data=True):
+            for u, v, w in self.graph.edges(data=True):
                 # w[Constants.WEIGHT] = Constants.Max_L_BW - w[Constants.BANDWIDTH]
                 w[Constants.WEIGHT] = Constants.ALPHA * (1.0 / w[Constants.BANDWIDTH])
                 distance_list.append(w[Constants.WEIGHT])
         elif cost_flag == Constants.COST_FLAG_LATENCY:
-            for (u, v, w) in self.graph.edges(data=True):
+            for u, v, w in self.graph.edges(data=True):
                 w[Constants.WEIGHT] = w[Constants.LATENCY]
                 distance_list.append(w[Constants.WEIGHT])
         elif cost_flag == Constants.COST_FLAG_RANDOM:
-            for (u, v, w) in self.graph.edges(data=True):
+            for u, v, w in self.graph.edges(data=True):
                 w[Constants.WEIGHT] = random.randint(1, 2**24)
                 distance_list.append(w[Constants.WEIGHT])
         elif cost_flag == Constants.COST_FLAG_STATIC:
-            for (u, v, w) in self.graph.edges(data=True):
+            for u, v, w in self.graph.edges(data=True):
                 w[Constants.WEIGHT] = cost[u, v]
                 distance_list.append(w[Constants.WEIGHT])
         else:
-            for (u, v, w) in self.graph.edges(data=True):
+            for u, v, w in self.graph.edges(data=True):
                 w[Constants.WEIGHT] = 1.0
                 distance_list.append(w[Constants.WEIGHT])
         self.distance_list = distance_list
