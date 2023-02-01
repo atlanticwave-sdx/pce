@@ -16,9 +16,8 @@ from sdx.datamodel.parsing.exceptions import DataModelException
 
 
 class TopologyManagerTests(unittest.TestCase):
-
     TEST_DATA_DIR = pathlib.Path(__file__).parent.joinpath("data")
-    
+
     TOPOLOGY_AMLIGHT = TEST_DATA_DIR.joinpath("amlight.json")
     TOPOLOGY_SAX = TEST_DATA_DIR.joinpath("sax.json")
     TOPOLOGY_ZAOXI = TEST_DATA_DIR.joinpath("zaoxi.json")
@@ -31,7 +30,7 @@ class TopologyManagerTests(unittest.TestCase):
     TOPOLOGY_FILE_LIST_UPDATE = [TOPOLOGY_ZAOXI]
 
     def setUp(self):
-        self.manager = TopologyManager() 
+        self.manager = TopologyManager()
 
     def tearDown(self):
         pass
