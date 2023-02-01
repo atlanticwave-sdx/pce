@@ -23,7 +23,7 @@ class TopologyManagerTests(unittest.TestCase):
 
     TOPOLOGY_PNG = TEST_DATA_DIR.joinpath("sdx.png")
     TOPOLOGY_IN = TEST_DATA_DIR.joinpath("sdx.json")
-    TOPOLOGY_OUT = TEST_DATA_DIR.joinpath("sdx-out.json")
+    # TOPOLOGY_OUT = TEST_DATA_DIR.joinpath("sdx-out.json")
 
     TOPOLOGY_FILE_LIST = [TOPOLOGY_AMLIGHT, TOPOLOGY_ZAOXI, TOPOLOGY_SAX]
     TOPOLOGY_FILE_LIST_UPDATE = [TOPOLOGY_ZAOXI]
@@ -41,13 +41,15 @@ class TopologyManagerTests(unittest.TestCase):
         print("Test Topology Merge!")
 
         for topology_file in self.TOPOLOGY_FILE_LIST:
-            print(f"Adding Topology file: {topology_file}")                
+            print(f"Adding Topology file: {topology_file}")
             with open(topology_file, "r", encoding="utf-8") as data_file:
-                data = json.load(data_file)                    
+                data = json.load(data_file)
                 self.manager.add_topology(data)
 
-        with open(self.TOPOLOGY_OUT, "w") as t_file:
-            json.dump(self.manager.topology.to_dict(), t_file, indent=4)
+        # with open(self.TOPOLOGY_OUT, "w") as t_file:
+        #     json.dump(self.manager.topology.to_dict(), outfile, indent=4)
+
+        self.assertIsInstance(self.manager.topology.to_dict(), dict)
 
 
     def test_update_topology(self):
@@ -61,9 +63,11 @@ class TopologyManagerTests(unittest.TestCase):
                 data = json.load(data_file)
                 self.manager.update_topology(data)
 
-        with open(self.TOPOLOGY_OUT, "w") as t_file:
-            json.dump(self.manager.topology.to_dict(), t_file, indent=4)
-            
+        # with open(self.TOPOLOGY_OUT, "w") as outfile:
+        #     json.dump(self.manager.topology.to_dict(), outfile, indent=4)
+
+        self.assertIsInstance(self.manager.topology.to_dict(), dict)
+
         graph = self.manager.generate_graph()
         # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
         nx.draw(graph, with_labels=True)
@@ -80,7 +84,7 @@ class TopologyManagerTests(unittest.TestCase):
         print("Test Topology Graph")
         self.test_merge_topology()
         graph = self.manager.generate_graph()
-        
+
         # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
         nx.draw(graph, with_labels=True)
         plt.savefig(self.TOPOLOGY_PNG)
@@ -91,8 +95,11 @@ class TopologyManagerTests(unittest.TestCase):
         self.test_merge_topology()
         self.manager.update_link_property(self.LINK_ID, "latency", 8)
         self.manager.update_link_property(self.INTER_LINK_ID, "latency", 8)
-        with open(self.TOPOLOGY_OUT, "w") as t_file:
-            json.dump(self.manager.topology.to_dict(), t_file, indent=4)
+
+        # with open(self.TOPOLOGY_OUT, "w") as outfile:
+        #     json.dump(self.manager.topology.to_dict(), outfile, indent=4)
+
+        self.assertIsInstance(self.manager.topology.to_dict(), dict)
 
     def test_link_property_update_json(self):
         print("Test Topology JSON Link Property Update!")
@@ -102,9 +109,11 @@ class TopologyManagerTests(unittest.TestCase):
             self.manager.update_element_property_json(
                 data, "links", self.LINK_ID, "latency", 20
             )
-            with open(self.TOPOLOGY_OUT, "w") as t_file:
-                json.dump(data, t_file, indent=4)
 
+            # with open(self.TOPOLOGY_OUT, "w") as outfile:
+            #     json.dump(data, outfile, indent=4)
+
+            self.assertIsInstance(data, dict)
 
 if __name__ == "__main__":
     unittest.main()
