@@ -1,15 +1,9 @@
 import unittest
 import json
-from networkx import MultiGraph, Graph
+
 import matplotlib.pyplot as plt
 import networkx as nx
 
-from sdx.datamodel import parsing
-from sdx.datamodel import topologymanager
-
-from sdx.datamodel import validation
-from sdx.datamodel.validation.topologyvalidator import TopologyValidator
-from sdx.datamodel.parsing.topologyhandler import TopologyHandler
 from sdx.datamodel.topologymanager.manager import TopologyManager
 from sdx.datamodel.topologymanager.grenmlconverter import GrenmlConverter
 from sdx.datamodel.parsing.exceptions import DataModelException
