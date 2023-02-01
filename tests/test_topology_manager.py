@@ -37,7 +37,7 @@ class TopologyManagerTests(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def testMergeTopology(self):
+    def test_merge_topology(self):
         print("Test Topology Merge!")
         try:
             for topology_file in topology_file_list_3:
@@ -53,10 +53,10 @@ class TopologyManagerTests(unittest.TestCase):
             return False
         return True
 
-    def testUpdateTopology(self):
+    def test_update_topology(self):
         print("Test Topology Update!")
         try:
-            self.testMergeTopology()
+            self.test_merge_topology()
             for topology_file in self.TOPOLOGY_FILE_LIST_UPDATE:
                 with open(topology_file, "r", encoding="utf-8") as data_file:
                     data = json.load(data_file)
@@ -74,10 +74,10 @@ class TopologyManagerTests(unittest.TestCase):
             return False
         return True
 
-    def testGrenmlConverter(self):
+    def test_grenml_converter(self):
         try:
             print("Test Topology GRENML Converter")
-            self.testMergeTopology()
+            self.test_merge_topology()
             converter = GrenmlConverter(self.manager.get_topology())
             converter.read_topology()
             print(converter.get_xml_str())
@@ -86,10 +86,10 @@ class TopologyManagerTests(unittest.TestCase):
             return False
         return True
 
-    def testGenerateGraph(self):
+    def test_generate_graph(self):
         try:
             print("Test Topology Graph")
-            self.testMergeTopology()
+            self.test_merge_topology()
             graph = self.manager.generate_graph()
             # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
             nx.draw(graph, with_labels=True)
@@ -99,10 +99,10 @@ class TopologyManagerTests(unittest.TestCase):
             return False
         return True
 
-    def testLinkPropertyUpdate(self):
+    def test_linkproperty_update(self):
         print("Test Topology Link Property Update!")
         try:
-            self.testMergeTopology()
+            self.test_merge_topology()
             self.manager.update_link_property(self.LINK_ID, "latency", 8)
             self.manager.update_link_property(self.INTER_LINK_ID, "latency", 8)
             with open(self.TOPOLOGY_OUT, "w") as t_file:
@@ -112,7 +112,7 @@ class TopologyManagerTests(unittest.TestCase):
             return False
         return True
 
-    def testLinkPropertyUpdateJson(self):
+    def test_link_property_update_json(self):
         print("Test Topology JSON Link Property Update!")
         try:
             with open(self.TOPOLOGY_IN, "r", encoding="utf-8") as data_file:
