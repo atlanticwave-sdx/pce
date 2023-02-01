@@ -60,7 +60,7 @@ class TopologyManagerTests(unittest.TestCase):
             for topology_file in self.TOPOLOGY_FILE_LIST_UPDATE:
                 with open(topology_file, "r", encoding="utf-8") as data_file:
                     data = json.load(data_file)
-                print("Updating Topology:" + topology_file)
+                print(f"Updating topology: {topology_file}")
                 self.manager.update_topology(data)
 
             with open(self.TOPOLOGY_OUT, "w") as t_file:
