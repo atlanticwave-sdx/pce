@@ -133,7 +133,9 @@ dmypy.json
 /rg.png
 /tests/data/connection.json
 /tests/data/sdx-out.json
+/tests/data/sdx.png
 
 /.coverage
 /coverage.lcov
 /coverage.xml
+
