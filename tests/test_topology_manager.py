@@ -73,7 +73,9 @@ class TopologyManagerTests(unittest.TestCase):
         self.test_merge_topology()
         converter = GrenmlConverter(self.manager.get_topology())
         converter.read_topology()
-        print(converter.get_xml_str())
+        xml = converter.get_xml_str()
+        print(f"xml: {xml}")
+        self.assertIsNotNone(xml)
 
     def test_generate_graph(self):
         print("Test Topology Graph")
