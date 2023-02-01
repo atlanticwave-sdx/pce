@@ -40,7 +40,7 @@ class TopologyManagerTests(unittest.TestCase):
     def test_merge_topology(self):
         print("Test Topology Merge!")
         try:
-            for topology_file in topology_file_list_3:
+            for topology_file in self.TOPOLOGY_FILE_LIST:
                 with open(topology_file, "r", encoding="utf-8") as data_file:
                     data = json.load(data_file)
                 print("Adding Topology:" + topology_file)
@@ -118,7 +118,7 @@ class TopologyManagerTests(unittest.TestCase):
             with open(self.TOPOLOGY_IN, "r", encoding="utf-8") as data_file:
                 data = json.load(data_file)
                 self.manager.update_element_property_json(
-                    data, "links", link_id, "latency", 20
+                    data, "links", self.LINK_ID, "latency", 20
                 )
             with open(self.TOPOLOGY_OUT, "w") as t_file:
                 json.dump(data, t_file, indent=4)
