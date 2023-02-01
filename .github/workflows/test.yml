@@ -74,7 +74,7 @@ jobs:
           # Install package so that tests can be run.
           pip install .[test,pygraphviz]
           # Run tests and collect coverage data.
-          coverage run -m pytest
+          coverage run --rcfile=setup.cfg -m pytest
           # Print coverage report, in case we want to look at it.
           coverage report
 
