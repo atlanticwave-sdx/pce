@@ -132,3 +132,6 @@ dmypy.json
 /connection.json
 /rg.png
 /tests/data/connection.json
+
+/.coveragerc
+/coverage.lcov
