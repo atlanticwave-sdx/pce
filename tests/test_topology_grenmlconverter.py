@@ -1,10 +1,11 @@
+import pathlib
 import unittest
 
 from sdx.pce.topology.manager import TopologyManager
 from sdx.pce.topology.grenmlconverter import GrenmlConverter
 
-
-TOPOLOGY_AMLIGHT = "./tests/data/amlight.json"
+TEST_DATA_DIR = pathlib.Path(__file__).parent.joinpath("data")
+AMLIGHT_TOPOLOGY_FILE = TEST_DATA_DIR.joinpath("amlight.json")
 
 
 class GrenmlConverterTests(unittest.TestCase):
@@ -21,7 +22,7 @@ class GrenmlConverterTests(unittest.TestCase):
         # TODO: this does not raise errors when it should (such as
         # when the input file is not present). Make the necessary
         # change in datamodel's TopologyHandler class.
-        manager.handler.topology_file_name(TOPOLOGY_AMLIGHT)
+        manager.handler.topology_file_name(AMLIGHT_TOPOLOGY_FILE)
         topology = manager.handler.import_topology()
         
         try:
