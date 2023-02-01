@@ -34,9 +34,6 @@ class TopologyManagerTests(unittest.TestCase):
     def setUp(self):
         self.manager = TopologyManager()
 
-    def tearDown(self):
-        pass
-
     def test_merge_topology(self):
         print("Test Topology Merge!")
 
