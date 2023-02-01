@@ -57,11 +57,12 @@ class TopologyManagerTests(unittest.TestCase):
         print("Test Topology Update!")
         try:
             self.test_merge_topology()
+
             for topology_file in self.TOPOLOGY_FILE_LIST_UPDATE:
+                print(f"Updating topology: {topology_file}")
                 with open(topology_file, "r", encoding="utf-8") as data_file:
                     data = json.load(data_file)
-                print(f"Updating topology: {topology_file}")
-                self.manager.update_topology(data)
+                    self.manager.update_topology(data)
 
             with open(self.TOPOLOGY_OUT, "w") as t_file:
                 json.dump(self.manager.topology.to_dict(), t_file, indent=4)
