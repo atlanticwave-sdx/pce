@@ -1,19 +1,20 @@
-import unittest
 import json
+import pathlib
+import unittest
 
 import matplotlib.pyplot as plt
 import networkx as nx
 
-from sdx.datamodel.topologymanager.manager import TopologyManager
-from sdx.datamodel.topologymanager.grenmlconverter import GrenmlConverter
 from sdx.datamodel.parsing.exceptions import DataModelException
+from sdx.datamodel.topologymanager.grenmlconverter import GrenmlConverter
+from sdx.datamodel.topologymanager.manager import TopologyManager
 
 
 class TopologyManagerTests(unittest.TestCase):
     """
     Tests for TopologyManager.
     """
-    
+
     TEST_DATA_DIR = pathlib.Path(__file__).parent.joinpath("data")
 
     TOPOLOGY_AMLIGHT = TEST_DATA_DIR.joinpath("amlight.json")
