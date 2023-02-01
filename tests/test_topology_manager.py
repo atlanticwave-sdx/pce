@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 from sdx.datamodel.parsing.exceptions import DataModelException
-from sdx.datamodel.topologymanager.grenmlconverter import GrenmlConverter
-from sdx.datamodel.topologymanager.manager import TopologyManager
+from sdx.pce.topology.grenmlconverter import GrenmlConverter
+from sdx.pce.topology.manager import TopologyManager
 
 
 class TopologyManagerTests(unittest.TestCase):
