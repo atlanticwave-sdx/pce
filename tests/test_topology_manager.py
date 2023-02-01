@@ -23,7 +23,7 @@ class TopologyManagerTests(unittest.TestCase):
 
     TOPOLOGY_PNG = TEST_DATA_DIR.joinpath("sdx.png")
     TOPOLOGY_IN = TEST_DATA_DIR.joinpath("sdx.json")
-    # TOPOLOGY_OUT = TEST_DATA_DIR.joinpath("sdx-out.json")
+    TOPOLOGY_OUT = TEST_DATA_DIR.joinpath("sdx-out.json")
 
     TOPOLOGY_FILE_LIST = [TOPOLOGY_AMLIGHT, TOPOLOGY_ZAOXI, TOPOLOGY_SAX]
     TOPOLOGY_FILE_LIST_UPDATE = [TOPOLOGY_ZAOXI]
@@ -46,10 +46,10 @@ class TopologyManagerTests(unittest.TestCase):
                 data = json.load(data_file)
                 self.manager.add_topology(data)
 
-        # with open(self.TOPOLOGY_OUT, "w") as t_file:
-        #     json.dump(self.manager.topology.to_dict(), outfile, indent=4)
-
         self.assertIsInstance(self.manager.topology.to_dict(), dict)
+
+        with open(self.TOPOLOGY_OUT, "w") as outfile:
+            json.dump(self.manager.topology.to_dict(), outfile, indent=4)
 
 
     def test_update_topology(self):
@@ -63,10 +63,10 @@ class TopologyManagerTests(unittest.TestCase):
                 data = json.load(data_file)
                 self.manager.update_topology(data)
 
-        # with open(self.TOPOLOGY_OUT, "w") as outfile:
-        #     json.dump(self.manager.topology.to_dict(), outfile, indent=4)
-
         self.assertIsInstance(self.manager.topology.to_dict(), dict)
+
+        with open(self.TOPOLOGY_OUT, "w") as outfile:
+            json.dump(self.manager.topology.to_dict(), outfile, indent=4)
 
         graph = self.manager.generate_graph()
         # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
@@ -96,10 +96,10 @@ class TopologyManagerTests(unittest.TestCase):
         self.manager.update_link_property(self.LINK_ID, "latency", 8)
         self.manager.update_link_property(self.INTER_LINK_ID, "latency", 8)
 
-        # with open(self.TOPOLOGY_OUT, "w") as outfile:
-        #     json.dump(self.manager.topology.to_dict(), outfile, indent=4)
-
         self.assertIsInstance(self.manager.topology.to_dict(), dict)
+
+        with open(self.TOPOLOGY_OUT, "w") as outfile:
+            json.dump(self.manager.topology.to_dict(), outfile, indent=4)
 
     def test_link_property_update_json(self):
         print("Test Topology JSON Link Property Update!")
@@ -110,10 +110,10 @@ class TopologyManagerTests(unittest.TestCase):
                 data, "links", self.LINK_ID, "latency", 20
             )
 
-            # with open(self.TOPOLOGY_OUT, "w") as outfile:
-            #     json.dump(data, outfile, indent=4)
-
             self.assertIsInstance(data, dict)
+
+            with open(self.TOPOLOGY_OUT, "w") as outfile:
+                json.dump(data, outfile, indent=4)
 
 if __name__ == "__main__":
     unittest.main()
