@@ -75,8 +75,6 @@ jobs:
           pip install .[test,pygraphviz]
           # Run tests and collect coverage data.
           python -m pytest
-          # Print coverage report, just in case we want to look at it.
-          python -m coverage report
 
       - name: Send coverage data to coveralls.io
         run: |
