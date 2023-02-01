@@ -15,7 +15,7 @@ from sdx.datamodel.topologymanager.grenmlconverter import GrenmlConverter
 from sdx.datamodel.parsing.exceptions import DataModelException
 
 
-class TestTopologyManager(unittest.TestCase):
+class TopologyManagerTests(unittest.TestCase):
 
     TEST_DATA_DIR = pathlib.Path(__file__).parent.joinpath("data")
     
