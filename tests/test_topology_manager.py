@@ -39,94 +39,71 @@ class TopologyManagerTests(unittest.TestCase):
 
     def test_merge_topology(self):
         print("Test Topology Merge!")
-        try:
-            for topology_file in self.TOPOLOGY_FILE_LIST:
-                print(f"Adding Topology file: {topology_file}")                
-                with open(topology_file, "r", encoding="utf-8") as data_file:
-                    data = json.load(data_file)                    
-                    self.manager.add_topology(data)
-            with open(self.TOPOLOGY_OUT, "w") as t_file:
-                json.dump(self.manager.topology.to_dict(), t_file, indent=4)
 
-        except DataModelException as e:
-            print(e)
-            return False
-        return True
+        for topology_file in self.TOPOLOGY_FILE_LIST:
+            print(f"Adding Topology file: {topology_file}")                
+            with open(topology_file, "r", encoding="utf-8") as data_file:
+                data = json.load(data_file)                    
+                self.manager.add_topology(data)
+
+        with open(self.TOPOLOGY_OUT, "w") as t_file:
+            json.dump(self.manager.topology.to_dict(), t_file, indent=4)
+
 
     def test_update_topology(self):
         print("Test Topology Update!")
-        try:
-            self.test_merge_topology()
 
-            for topology_file in self.TOPOLOGY_FILE_LIST_UPDATE:
-                print(f"Updating topology: {topology_file}")
-                with open(topology_file, "r", encoding="utf-8") as data_file:
-                    data = json.load(data_file)
-                    self.manager.update_topology(data)
+        self.test_merge_topology()
 
-            with open(self.TOPOLOGY_OUT, "w") as t_file:
-                json.dump(self.manager.topology.to_dict(), t_file, indent=4)
-            graph = self.manager.generate_graph()
-            # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
-            nx.draw(graph, with_labels=True)
-            plt.savefig(self.TOPOLOGY_PNG)
-        except DataModelException as e:
-            print(e)
-            return False
-        return True
+        for topology_file in self.TOPOLOGY_FILE_LIST_UPDATE:
+            print(f"Updating topology: {topology_file}")
+            with open(topology_file, "r", encoding="utf-8") as data_file:
+                data = json.load(data_file)
+                self.manager.update_topology(data)
+
+        with open(self.TOPOLOGY_OUT, "w") as t_file:
+            json.dump(self.manager.topology.to_dict(), t_file, indent=4)
+            
+        graph = self.manager.generate_graph()
+        # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
+        nx.draw(graph, with_labels=True)
+        plt.savefig(self.TOPOLOGY_PNG)
 
     def test_grenml_converter(self):
-        try:
-            print("Test Topology GRENML Converter")
-            self.test_merge_topology()
-            converter = GrenmlConverter(self.manager.get_topology())
-            converter.read_topology()
-            print(converter.get_xml_str())
-        except DataModelException as e:
-            print(e)
-            return False
-        return True
+        print("Test Topology GRENML Converter")
+        self.test_merge_topology()
+        converter = GrenmlConverter(self.manager.get_topology())
+        converter.read_topology()
+        print(converter.get_xml_str())
 
     def test_generate_graph(self):
-        try:
-            print("Test Topology Graph")
-            self.test_merge_topology()
-            graph = self.manager.generate_graph()
-            # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
-            nx.draw(graph, with_labels=True)
-            plt.savefig(self.TOPOLOGY_PNG)
-        except DataModelException as e:
-            print(e)
-            return False
-        return True
+        print("Test Topology Graph")
+        self.test_merge_topology()
+        graph = self.manager.generate_graph()
+        
+        # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
+        nx.draw(graph, with_labels=True)
+        plt.savefig(self.TOPOLOGY_PNG)
 
     def test_linkproperty_update(self):
         print("Test Topology Link Property Update!")
-        try:
-            self.test_merge_topology()
-            self.manager.update_link_property(self.LINK_ID, "latency", 8)
-            self.manager.update_link_property(self.INTER_LINK_ID, "latency", 8)
-            with open(self.TOPOLOGY_OUT, "w") as t_file:
-                json.dump(self.manager.topology.to_dict(), t_file, indent=4)
-        except DataModelException as e:
-            print(e)
-            return False
-        return True
+
+        self.test_merge_topology()
+        self.manager.update_link_property(self.LINK_ID, "latency", 8)
+        self.manager.update_link_property(self.INTER_LINK_ID, "latency", 8)
+        with open(self.TOPOLOGY_OUT, "w") as t_file:
+            json.dump(self.manager.topology.to_dict(), t_file, indent=4)
 
     def test_link_property_update_json(self):
         print("Test Topology JSON Link Property Update!")
-        try:
-            with open(self.TOPOLOGY_IN, "r", encoding="utf-8") as data_file:
-                data = json.load(data_file)
-                self.manager.update_element_property_json(
-                    data, "links", self.LINK_ID, "latency", 20
-                )
+
+        with open(self.TOPOLOGY_IN, "r", encoding="utf-8") as data_file:
+            data = json.load(data_file)
+            self.manager.update_element_property_json(
+                data, "links", self.LINK_ID, "latency", 20
+            )
             with open(self.TOPOLOGY_OUT, "w") as t_file:
                 json.dump(data, t_file, indent=4)
-        except DataModelException as e:
-            print(e)
-            return False
-        return True
 
 
 if __name__ == "__main__":
