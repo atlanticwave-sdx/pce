@@ -40,7 +40,7 @@ class TestTEManager(unittest.TestCase):
 
     def test_connection_breakdown_none_input(self):
         # Expect an error to be raised.
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AssertionError):
             self.temanager.generate_connection_breakdown(None)
 
     def test_connection_breakdown_some_input(self):
