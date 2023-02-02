@@ -37,3 +37,8 @@ class TestTEManager(unittest.TestCase):
         print("Test Convert Connection To Topology")
         connection = self._make_connection()
         self.assertIsNotNone(connection)
+
+    def test_connection_breakdown_none_input(self):
+        # Expect an error to be raised.
+        with self.assertRaises(TypeError):
+            self.temanager.generate_connection_breakdown(None)
