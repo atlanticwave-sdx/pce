@@ -7,83 +7,123 @@ Created on Mon Sep  7 13:42:31 2022
 """
 
 import copy
+from dataclasses import dataclass
 from itertools import chain, cycle
+from typing import List, Mapping, Tuple, Union
 
 import networkx as nx
 import numpy as np
 from ortools.linear_solver import pywraplp
 
+from sdx.pce.models import (
+    ConnectionPath,
+    ConnectionRequest,
+    ConnectionSolution,
+    TrafficMatrix,
+)
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.functions import GraphFunction
 
 
+@dataclass
+class DataModel:
+    constraint_coeffs: List[List]
+    bounds: List
+    num_constraints: int
+    obj_coeffs: List
+    num_vars: int
+    num_inequality: int
+
+
 class TESolver:
-    def __init__(self, g=None, tm=None, cost_flag=0, obj=Constants.OBJECTIVE_COST):
-        self.graph = g
+    """
+    Traffic Engineering Solver.
+    """
+
+    def __init__(
+        self,
+        graph: nx.Graph,
+        tm: TrafficMatrix,
+        cost_flag=Constants.COST_FLAG_HOP,
+        objective=Constants.OBJECTIVE_COST,
+    ):
+        """
+        :param graph: A NetworkX graph that represents a network
+            topology.
+        :param tm: Traffic matrix, in the form of a list of connection
+            requests.
+        :param cost_flag: Cost (weight) to assign per link.
+        :param objective: What to solve for: cost or load balancing.
+        """
+        assert graph is not None
+        assert tm is not None
+
+        self.graph = graph
+        self.tm = tm
 
         self.graphFunction = GraphFunction()
         self.graphFunction.set_graph(self.graph)
         self.graphFunction.weight_assign(cost_flag)
 
-        self.objective = obj
-        self.tm = tm
+        self.objective = objective
 
-        self.links = None  # list of links[src][dest], 2*numEdges
+        self.links = []  # list of links[src][dest], 2*numEdges
 
-    def solve(self):
-        data = self.create_data_model()
-
-        num_inequality = data["num_inequality"]
+    def solve(self) -> Tuple[Union[ConnectionSolution, None], float]:
+        """
+        Return the computed path and associated cost.
+        """
+        data = self._create_data_model()
 
         # Create the mip solver with the SCIP backend.
         solver = pywraplp.Solver.CreateSolver("SCIP")
 
         x = {}
-        for j in range(data["num_vars"]):
+        for j in range(data.num_vars):
             x[j] = solver.IntVar(0, 1, "x[%i]" % j)
 
         print(f"Number of variables = {solver.NumVariables()}")
-        print(f"num_constraints: {data['num_constraints']}")
-        print(f"num_inequality: {num_inequality}")
+        print(f"num_constraints: {data.num_constraints}")
+        print(f"num_inequality: {data.num_inequality}")
 
-        for i in range(data["num_constraints"] - num_inequality):
+        for i in range(data.num_constraints - data.num_inequality):
             constraint_expr = [
-                data["constraint_coeffs"][i][j] * x[j] for j in range(data["num_vars"])
+                data.constraint_coeffs[i][j] * x[j] for j in range(data.num_vars)
             ]
-            solver.Add(sum(constraint_expr) == data["bounds"][i])
+            solver.Add(sum(constraint_expr) == data.bounds[i])
 
-        print(len(data["bounds"]))
-        # print(data['bounds'])
-        print(len(data["constraint_coeffs"]))
-        # print(data['constraint_coeffs'])
-        print(num_inequality)
+        print(len(data.bounds))
+        # print(data.bounds)
+        print(len(data.constraint_coeffs))
+        # print(data.constraint_coeffs)
+        print(data.num_inequality)
 
         for i in range(
-            data["num_constraints"] - num_inequality, data["num_constraints"]
+            data.num_constraints - data.num_inequality, data.num_constraints
         ):
             constraint_expr = [
-                data["constraint_coeffs"][i][j] * x[j] for j in range(data["num_vars"])
+                data.constraint_coeffs[i][j] * x[j] for j in range(data.num_vars)
             ]
-            solver.Add(sum(constraint_expr) <= data["bounds"][i])
+            solver.Add(sum(constraint_expr) <= data.bounds[i])
 
         print(f"Number of constraints = {solver.NumConstraints()}")
 
         objective = solver.Objective()
-        for j in range(data["num_vars"]):
-            objective.SetCoefficient(x[j], data["obj_coeffs"][j])
+        for j in range(data.num_vars):
+            objective.SetCoefficient(x[j], data.obj_coeffs[j])
         objective.SetMinimization()
 
         status = solver.Solve()
         solution = []
-        path = None
+        paths = None
         if status == pywraplp.Solver.OPTIMAL:
             print(f"Objective value = {solver.Objective().Value()}")
-            for j in range(data["num_vars"]):
+            for j in range(data.num_vars):
                 # print(x[j].name(), ' = ', x[j].solution_value())
                 solution.append(x[j].solution_value())
 
-            path = np.array(solution).reshape(len(self.tm), -1)
-            print(path.shape)
+            paths = np.array(solution).reshape(len(self.tm.connection_requests), -1)
+            print(paths.shape)
             # print(path)
 
             # print('Problem solved in %f milliseconds' % solver.wall_time())
@@ -92,14 +132,15 @@ class TESolver:
         else:
             print("The problem does not have an optimal solution.")
 
-        return path, solver.Objective().Value()
+        # returns: dict(conn request, [path]), cost
+        return self._solution_translator(paths), solver.Objective().Value()
 
-    def solution_translator(self, paths, solution):
+    def _solution_translator(self, paths) -> Union[ConnectionSolution, None]:
         # extract the edge/path
         real_paths = []
         if paths is None:
-            print("No solution")
-            return
+            print("No solution: empty input")
+            return None
         for path in paths:
             real_path = []
             i = 0
@@ -112,13 +153,21 @@ class TESolver:
         # associate with the TM requests
         id_connection = 0
         ordered_paths = {}
-        for connection in self.tm:
-            src = connection[0]
-            dest = connection[1]
-            bw = connection[2]
+
+        result = ConnectionSolution(connection_map={})
+
+        for request in self.tm.connection_requests:
+            src = request.source
+            dest = request.destination
+            bw = request.required_bandwidth
             # latency = connection[3]  # latency is unused
-            ordered_path = []
-            ordered_paths[(src, dest, bw)] = ordered_path
+
+            # Add request as the key to solution map
+            result.connection_map[request] = []
+
+            # ordered_path: List[Path] = []
+            # ordered_paths: List[(src, dest, bw)] = [] # ordered_path
+            # ordered_paths: List = []
             # print("src:"+str(src)+"-dest:"+str(dest))
             path = real_paths[id_connection]
             i = 0
@@ -126,7 +175,13 @@ class TESolver:
                 for edge in path:
                     # print("edge:"+str(edge))
                     if edge[0] == src:
-                        ordered_path.append(edge)
+                        print(f"Adding edge {edge} for request {request}")
+                        # ordered_paths.append(edge)
+
+                        # Make a path and add it to the solution map
+                        cpath = ConnectionPath(source=edge[0], destination=edge[1])
+                        result.connection_map[request].append(cpath)
+
                         src = edge[1]
                         break
                     # if src==dest:
@@ -135,8 +190,12 @@ class TESolver:
                 i = i + 1
             id_connection = id_connection + 1
         # print("ordered paths:"+str(ordered_paths))
-        return ordered_paths
+        # return ordered_paths
 
+        print(f"solution_translator result: {result}")
+        return result
+
+    # TODO: unclear what this function does.
     def update_graph(self, graph, paths):
         if paths is None:
             return graph
@@ -160,43 +219,40 @@ class TESolver:
         self.objective = obj
 
     # form OR matrix
-    def mc_cost(self, links):
-        g = self.graph
+    def _mc_cost(self, links):
         cost_list = []
         for link in links:
-            cost_list.append(g[link[0]][link[1]][Constants.WEIGHT])
+            cost_list.append(self.graph[link[0]][link[1]][Constants.WEIGHT])
 
         cost = []
-        for i in range(len(self.tm)):
+        for i in range(len(self.tm.connection_requests)):
             cost += cost_list
 
         return cost
 
-    def lb_cost(self, links):
-        g = self.graph
+    def _lb_cost(self, links):
         cost_list = []
         for link in links:
-            cost_list.append(g[link[0]][link[1]][Constants.BANDWIDTH])
+            cost_list.append(self.graph[link[0]][link[1]][Constants.BANDWIDTH])
         cost = []
-        for connection in self.tm:
-            bw = connection[2]
+        for connection in self.tm.connection_requests:
+            bw = connection.required_bandwidth
             # cost += cost_list
             cost += [bw / link for link in cost_list]
 
         return cost
 
-    def create_data_model(self):
+    def _create_data_model(self) -> DataModel:
         latency = True
-        g = self.graph
 
-        nodenum = g.number_of_nodes()
-        linknum = g.number_of_edges()
+        nodenum = self.graph.number_of_nodes()
+        linknum = self.graph.number_of_edges()
 
         print(f"\n #Nodes: {nodenum}")
         print(f"\n #Links: {linknum}")
 
         # graph flow matrix
-        inputmatrix, links = self.flow_matrix(g)
+        inputmatrix, links = self._flow_matrix(self.graph)
         self.links = links
         # inputdistancelist:link weight
         # distance_list=self.graph_generator.get_distance_list()
@@ -205,15 +261,15 @@ class TESolver:
         # print("distance_list:"+str(np.shape(distance_list)))
         # print("latency_list:"+str(np.shape(latency_list)))
 
-        latconstraint = self.latconstraintmaker(links)
+        latconstraint = self._latconstraintmaker(links)
 
         # form the bound: rhs
         # flows: numnode*len(request)
         bounds = []
-        for request in self.tm:
+        for request in self.tm.connection_requests:
             rhs = np.zeros(nodenum, dtype=int)
-            rhs[request[0]] = -1
-            rhs[request[1]] = 1
+            rhs[request.source] = -1
+            rhs[request.destination] = 1
             bounds += list(rhs)
 
         print(f"bound 1: {len(bounds)}")
@@ -223,10 +279,10 @@ class TESolver:
         for link in links:
             u = link[0]
             v = link[1]
-            if g.has_edge(u, v):
-                bw = g[u][v][Constants.BANDWIDTH]
-            elif g.has_edge(v, u):
-                bw = g[v][u][Constants.BANDWIDTH]
+            if self.graph.has_edge(u, v):
+                bw = self.graph[u][v][Constants.BANDWIDTH]
+            elif self.graph.has_edge(v, u):
+                bw = self.graph[v][u][Constants.BANDWIDTH]
 
             bwlinklist.append(bw)
 
@@ -241,8 +297,8 @@ class TESolver:
             # print(bounds)
 
         # form the constraints: lhs
-        flowconstraints = self.lhsflow(self.tm, inputmatrix)
-        bwconstraints = self.lhsbw(self.tm, inputmatrix)
+        flowconstraints = self._lhsflow(self.tm.connection_requests, inputmatrix)
+        bwconstraints = self._lhsbw(self.tm.connection_requests, inputmatrix)
 
         print(f"\nConstraints Shape:{len(flowconstraints)}:{len(bwconstraints)}")
         # print("\n flow"+str(flowconstraints))
@@ -262,10 +318,10 @@ class TESolver:
         # objective function
         if self.objective == Constants.OBJECTIVE_COST:
             print("Objecive: Cost")
-            cost = self.mc_cost(links)
+            cost = self._mc_cost(links)
         if self.objective == Constants.OBJECTIVE_LOAD_BALANCING:
             print("Objecive: Load Balance")
-            cost = self.lb_cost(links)
+            cost = self._lb_cost(links)
 
         print(f"cost len: {len(cost)}")
         # print(cost)
@@ -277,20 +333,19 @@ class TESolver:
             row = list(lhs[i])
             coeffs.append(row)
 
-        # form the OR datamodel
-        jsonoutput = {}
-        jsonoutput["constraint_coeffs"] = coeffs
-        jsonoutput["bounds"] = list(bounds)
-        jsonoutput["num_constraints"] = len(bounds)
-        jsonoutput["obj_coeffs"] = list(cost)
-        jsonoutput["num_vars"] = len(cost)
-        jsonoutput["num_inequality"] = 2 * linknum + int(len(self.tm))
-
-        return jsonoutput
+        # Form the OR datamodel
+        return DataModel(
+            constraint_coeffs=coeffs,
+            bounds=list(bounds),
+            num_constraints=len(bounds),
+            obj_coeffs=list(cost),
+            num_vars=len(cost),
+            num_inequality=2 * linknum + int(len(self.tm.connection_requests)),
+        )
 
     # flowmatrix
     # also set self.links: 2*links
-    def flow_matrix(self, g):
+    def _flow_matrix(self, g):
         nodenum = len(g.nodes)
         linknum = 2 * len(g.edges)
 
@@ -322,7 +377,7 @@ class TESolver:
         return inputmatrix, link_list
 
     # shape: (len(tm)*numnode, len(num)*2*numedge)
-    def lhsflow(self, request_list, inputmatrix):
+    def _lhsflow(self, request_list, inputmatrix):
         r = len(request_list)
         m, n = inputmatrix.shape
         print(f"r={r}:m={m}:n={n}")
@@ -339,7 +394,7 @@ class TESolver:
         return out
 
     #
-    def lhsbw(self, request_list, inputmatrix):
+    def _lhsbw(self, request_list, inputmatrix):
         bwconstraints = []
         # zeros = self.zerolistmaker(len(inputmatrix[0])*len(request_list))
         zeros = np.zeros(len(inputmatrix[0]) * len(request_list), dtype=int)
@@ -348,24 +403,25 @@ class TESolver:
             bwconstraints.append(addzeros)
             count = 0
             for request in request_list:
-                bwconstraints[i][i + count * len(inputmatrix[0])] = request[2]
+                bwconstraints[i][
+                    i + count * len(inputmatrix[0])
+                ] = request.required_bandwidth
                 count += 1
 
         return bwconstraints
 
-    def latconstraintmaker(self, links):
+    def _latconstraintmaker(self, links):
         lhs = []
         rhs = []
 
-        request_list = self.tm
+        request_list = self.tm.connection_requests
         print(f"request: {len(request_list)}")
         print(f"links: {len(links)}")
 
-        g = self.graph
         zerolist = np.zeros(len(links), dtype=int)
         latency_list = []
         for link in links:
-            latency_list.append(g[link[0]][link[1]][Constants.LATENCY])
+            latency_list.append(self.graph[link[0]][link[1]][Constants.LATENCY])
 
         requestnum = len(request_list)
         for i in range(requestnum):
@@ -379,7 +435,7 @@ class TESolver:
             lhs.append(constraint)
 
         for request in request_list:
-            rhs.append(request[3])
+            rhs.append(request.required_latency)
 
         latdata = {}
         latdata["lhs"] = lhs
@@ -392,7 +448,7 @@ class TESolver:
         return latdata
 
     def is_connected(self):
-        return nx.is_connected(self.g)
+        return nx.is_connected(self.graph)
 
     def is_bi_connected(self):
         pass

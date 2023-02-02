@@ -2,6 +2,8 @@ import json
 
 import numpy as np
 
+from sdx.pce.models import ConnectionRequest, TrafficMatrix
+
 
 class RandomConnectionGenerator:
     def __init__(self, num_nodes):
@@ -11,45 +13,59 @@ class RandomConnectionGenerator:
         self.num_nodes = num_nodes
 
     # Output: list of tuples of request
-    def generate_connection(self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022):
+    def generate_connection_requests(
+        self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022
+    ) -> TrafficMatrix:
         """
-        Create a random TM
-        :param querynum:  Number of connections.
-        :return: A list of connections, each of which is a list [src, des, bw, lat].
+        Create a random traffic matrix.
+
+        :param querynum: Number of connections.
+
+        :return: A connection matrix.  A connection matrix is list of
+                 connections, and each item in the list is of the
+                 format (source, destination, bandwidth, latency).
         """
         np.random.seed(seed)
-        connection = []
+        traffic_matrix = TrafficMatrix(connection_requests=[])
+
         bw = self.lognormal((l_bw + u_bw) / 2.0, 1, querynum)
         if querynum <= self.num_nodes:
             for i in range(querynum):
-                query = []
-                query.append(np.random.randint(1, (self.num_nodes + 1) / 2.0))
-                query.append(
-                    np.random.randint((self.num_nodes + 1) / 2.0, self.num_nodes)
+                source = np.random.randint(1, (self.num_nodes + 1) / 2.0)
+                destination = np.random.randint(
+                    (self.num_nodes + 1) / 2.0, self.num_nodes
                 )
-                # query.append(np.random.randint(l_bw, u_bw))
-                query.append(bw[i])
-                query.append(np.random.randint(l_lat, u_lat))
-                connection.append(tuple(query))
+                required_bandwidth = bw[i]
+                required_latency = np.random.randint(l_lat, u_lat)
+
+                request = ConnectionRequest(
+                    source=source,
+                    destination=destination,
+                    required_bandwidth=required_bandwidth,
+                    required_latency=required_latency,
+                )
+
+                traffic_matrix.connection_requests.append(request)
         else:
             for i in range(querynum):
-                query = []
-                src = np.random.randint(0, self.num_nodes)
-                query.append(src)
-                dest = np.random.randint(0, self.num_nodes)
-                while dest == src:
-                    dest = np.random.randint(0, self.num_nodes)
-                query.append(dest)
+                source = np.random.randint(0, self.num_nodes)
+                destination = np.random.randint(0, self.num_nodes)
+                while destination == source:
+                    destination = np.random.randint(0, self.num_nodes)
                 # query.append(np.random.randint(l_bw, u_bw))
-                query.append(bw[i])
-                query.append(np.random.randint(l_lat, u_lat))
-                connection.append(tuple(query))
+                required_bandwidth = bw[i]
+                required_latency = np.random.randint(l_lat, u_lat)
 
-        with open("connection.json", "w") as json_file:
-            data = connection
-            json.dump(data, json_file, indent=4)
+                request = ConnectionRequest(
+                    source=source,
+                    destination=destination,
+                    required_bandwidth=required_bandwidth,
+                    required_latency=required_latency,
+                )
 
-        return connection
+                traffic_matrix.connection_requests.append(request)
+
+        return traffic_matrix
 
     def lognormal(self, mu, sigma, size):
         normal_std = 0.5

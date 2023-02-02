@@ -19,14 +19,18 @@ graphviz C library, so installing the latter is a little more work.
 
 import json
 import re
+from pathlib import Path
+from typing import Union
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
 
 from sdx.pce.utils.constants import Constants
 
+__all__ = ["can_read_dot_file", "read_dot_file"]
 
-def can_read_dot_file():
+
+def can_read_dot_file() -> bool:
     """
     See if we have pygraphviz or pydot installed.
     """
@@ -39,7 +43,7 @@ def can_read_dot_file():
         return False
 
 
-def read_dot_file(topology_file):
+def read_dot_file(topology_file: Union[str, Path]) -> nx.Graph:
     """
     Read a Graphviz dot file and return a graph.
     """
@@ -59,14 +63,14 @@ def read_dot_file(topology_file):
         else:
             capacity = w["capacity"].strip('"')
             bw = re.split(r"(\D+)", capacity)
-            bandwidth = bw[0]
+            bandwidth = float(bw[0])
             if bw[1].startswith("G"):
                 bandwidth = float(bw[0]) * 1000
 
         w[Constants.ORIGINAL_BANDWIDTH] = float(bandwidth)
         w[Constants.BANDWIDTH] = float(bandwidth)
         w[Constants.WEIGHT] = float(w["cost"])
-        if "latency" not in w.keys():
+        if Constants.LATENCY not in w.keys():
             latency = 10
             w[Constants.LATENCY] = latency
 
@@ -74,17 +78,3 @@ def read_dot_file(topology_file):
     print(f"Connectivity: {connectivity}")
 
     return graph
-
-
-def read_topology_json_file(te_file):
-    """
-    Read topology described in a JSON file.
-    """
-    with open(te_file) as f:
-        tm = json.load(f)
-    o_tm = []
-    for t in tm:
-        tr = tuple(t)
-        o_tm.append(tr)
-
-    return o_tm
