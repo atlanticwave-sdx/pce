@@ -5,7 +5,6 @@ import unittest
 import matplotlib.pyplot as plt
 import networkx as nx
 
-from sdx.datamodel.parsing.exceptions import DataModelException
 from sdx.pce.topology.grenmlconverter import GrenmlConverter
 from sdx.pce.topology.manager import TopologyManager
 
