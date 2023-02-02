@@ -42,3 +42,18 @@ class TestTEManager(unittest.TestCase):
         # Expect an error to be raised.
         with self.assertRaises(TypeError):
             self.temanager.generate_connection_breakdown(None)
+
+    def test_connection_breakdown_some_input(self):
+        request = [
+            {
+                "1": [[1, 9], [9, 11]],
+                "2": [[3, 1], [1, 12], [12, 0], [0, 18]],
+                "3": [[2, 12], [12, 16], [16, 9], [9, 13]],
+            },
+            14195698.0,
+        ]
+
+        # TODO: use the the necessary setup so that a connection
+        # breakdown can work correctly and without raising errors.
+        with self.assertRaises(AssertionError):
+            self.temanager.generate_connection_breakdown(request)
