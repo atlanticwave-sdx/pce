@@ -78,9 +78,8 @@ class TEManager:
         return True
 
     def generate_connection_breakdown(self, connection):
-
         assert connection is not None
-        
+
         breakdown = {}
         paths = connection[0]  # p2p for now
         # cost = connection[1]
@@ -99,20 +98,20 @@ class TEManager:
             for count, link in enumerate(j):
                 print(f"count: {count}, link: {link}")
                 assert len(link) == 2
-                
+
                 node_1 = self.graph.nodes.get(link[0])
                 assert node_1 is not None
-                
+
                 node_2 = self.graph.nodes.get(link[1])
                 assert node_2 is not None
 
                 print(f"node_1: {node_1}, node_2: {node_2}")
-                
+
                 domain_1 = self.manager.get_domain_name(node_1["id"])
                 domain_2 = self.manager.get_domain_name(node_2["id"])
 
                 print(f"domain_1: {domain_1}, domain_2: {domain_2}")
-                
+
                 current_link_set.append(link)
                 current_domain = domain_1
                 if domain_1 == domain_2:

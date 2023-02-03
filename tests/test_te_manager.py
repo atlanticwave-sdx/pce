@@ -57,7 +57,7 @@ class TestTEManager(unittest.TestCase):
 
     def test_connection_breakdown_some_input(self):
         self._make_connection()
-        
+
         request = [
             {
                 "1": [[1, 9], [9, 11]],
