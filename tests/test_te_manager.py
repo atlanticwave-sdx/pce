@@ -43,6 +43,18 @@ class TestTEManager(unittest.TestCase):
         with self.assertRaises(AssertionError):
             self.temanager.generate_connection_breakdown(None)
 
+    def test_connection_breakdown_simple(self):
+        request = [
+            {
+                "1": [[1, 2], [3, 4]],
+            },
+            1.0,
+        ]
+
+        breakdown = self.temanager.generate_connection_breakdown(request)
+        print(f"Breakdown: {breakdown}")
+        self.assertIsNotNone(breakdown)
+
     def test_connection_breakdown_some_input(self):
         self._make_connection()
         
