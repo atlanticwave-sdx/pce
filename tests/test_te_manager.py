@@ -72,3 +72,13 @@ class TestTEManager(unittest.TestCase):
         with self.assertRaises(AssertionError):
             breakdown = self.temanager.generate_connection_breakdown(request)
             print(f"Breakdown: {breakdown}")
+
+    def test_generate_graph_and_connection(self):
+        graph = self.temanager.generate_graph_te()
+        tm = self.temanager.generate_connection_te()
+
+        print(f"graph: {graph}")
+        print(f"tm: {tm}")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(tm)
