@@ -91,7 +91,10 @@ class TEManager:
         print(f"Graph nodes: {self.graph.nodes}")
         print(f"Graph edges: {self.graph.edges}")
 
+        print(f"Paths: {paths}")
+
         for i, j in paths.items():
+            print(f"i: {i}, j: {j}")
             current_link_set = []
             for count, link in enumerate(j):
                 print(f"count: {count}, link: {link}")
@@ -102,9 +105,14 @@ class TEManager:
                 
                 node_2 = self.graph.nodes.get(link[1])
                 assert node_2 is not None
+
+                print(f"node_1: {node_1}, node_2: {node_2}")
                 
                 domain_1 = self.manager.get_domain_name(node_1["id"])
                 domain_2 = self.manager.get_domain_name(node_2["id"])
+
+                print(f"domain_1: {domain_1}, domain_2: {domain_2}")
+                
                 current_link_set.append(link)
                 current_domain = domain_1
                 if domain_1 == domain_2:
