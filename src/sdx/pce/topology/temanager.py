@@ -110,6 +110,12 @@ class TEManager:
                 domain_1 = self.manager.get_domain_name(node_1["id"])
                 domain_2 = self.manager.get_domain_name(node_2["id"])
 
+                # # TODO: handle the cases where a domain was not found.
+                # if domain_1 is None:
+                #     domain_1 = f"domain_{i}"
+                # if domain_2 is None:
+                #     domain_2 = f"domain_{i}"
+
                 print(f"domain_1: {domain_1}, domain_2: {domain_2}")
 
                 current_link_set.append(link)
