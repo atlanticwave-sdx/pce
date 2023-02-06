@@ -122,13 +122,16 @@ class TEManager:
                     breakdown[current_domain] = current_link_set.copy()
                     current_domain = None
                     current_link_set = []
-        print(breakdown)
+
+        print(f"[intermediate] breakdown: {breakdown}")
+
         # now starting with the ingress_port
         first = True
         i = 0
         domain_breakdown = {}
 
         for domain, links in breakdown.items():
+            print(f"Creating domain_breakdown: domain: {domain}, links: {links}")
             segment = {}
             if first:
                 first = False
@@ -155,4 +158,5 @@ class TEManager:
             domain_breakdown[domain] = segment.copy()
             i = i + 1
 
+        print(f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}")
         return domain_breakdown
