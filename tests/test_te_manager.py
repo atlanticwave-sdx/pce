@@ -11,11 +11,14 @@ class TestTEManager(unittest.TestCase):
     """
 
     TEST_DATA_DIR = pathlib.Path(__file__).parent.joinpath("data")
-    TOPOLOGY_FILE = TEST_DATA_DIR.joinpath("sdx.json")
+    TOPOLOGY_FILE_SDX = TEST_DATA_DIR.joinpath("sdx.json")
+    TOPOLOGY_FILE_ZAOXI = TEST_DATA_DIR.joinpath("zaoxi.json")
+    TOPOLOGY_FILE_SAX = TEST_DATA_DIR.joinpath("sax.json")
+
     CONNECTION_REQ_FILE = TEST_DATA_DIR.joinpath("test_request.json")
 
     def setUp(self):
-        with open(self.TOPOLOGY_FILE, "r", encoding="utf-8") as fp:
+        with open(self.TOPOLOGY_FILE_SDX, "r", encoding="utf-8") as fp:
             topology_data = json.load(fp)
 
         with open(self.CONNECTION_REQ_FILE, "r", encoding="utf-8") as fp:
@@ -60,6 +63,31 @@ class TestTEManager(unittest.TestCase):
             {
                 "1": [[1, 2], [3, 4]],
                 "2": [[1, 2], [3, 4]],
+            },
+            1.0,
+        ]
+
+        breakdown = self.temanager.generate_connection_breakdown(request)
+        print(f"Breakdown: {breakdown}")
+        self.assertIsNotNone(breakdown)
+        self.assertEqual(len(breakdown), 1)
+
+    def test_connection_breakdown_three_domains(self):
+        # SDX already exists in the known topology from setUp
+        # step. Add SAX topology.
+        with open(self.TOPOLOGY_FILE_SAX, "r", encoding="utf-8") as fp:
+            topology_data = json.load(fp)
+            self.temanager.manager.add_topology(topology_data)
+
+        # Add ZAOXI topology as well.
+        with open(self.TOPOLOGY_FILE_SAX, "r", encoding="utf-8") as fp:
+            topology_data = json.load(fp)
+            self.temanager.manager.add_topology(topology_data)
+
+        request = [
+            {
+                "1": [[1, 2], [3, 4]],
+                "2": [[1, 2], [3, 10]],
             },
             1.0,
         ]
