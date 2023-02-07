@@ -104,7 +104,7 @@ $ tox
 With tox, you can run single tests like so:
 
 ```console
-$ tox -- [-s] ests/test_te_manager.py::TestTEManager::test_generate_solver_input
+$ tox -- [-s] tests/test_te_manager.py::TestTEManager::test_generate_solver_input
 ```
 
 The test that depend on pygraphviz are skipped by default.  If you are
