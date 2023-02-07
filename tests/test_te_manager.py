@@ -67,7 +67,7 @@ class TestTEManager(unittest.TestCase):
         breakdown = self.temanager.generate_connection_breakdown(request)
         print(f"Breakdown: {breakdown}")
         self.assertIsNotNone(breakdown)
-        self.assertEquals(len(breakdown), 1)
+        self.assertEqual(len(breakdown), 1)
 
     def test_connection_breakdown_some_input(self):
         self._make_connection()
