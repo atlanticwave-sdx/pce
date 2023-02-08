@@ -175,7 +175,9 @@ class TopologyManager:
         for link in links:
             link_dict[link.id] = link
             for port in link.ports:
+                print(f"inter_domain_check: port: {port}")
                 interdomain_port_dict[port["id"]] = link
+                print(f"interdomain_port_dict: {len(interdomain_port_dict)}")
 
         # ToDo: raise an warning or exception
         if len(interdomain_port_dict) == 0:
@@ -186,15 +188,19 @@ class TopologyManager:
         for port_id in interdomain_port_dict:
             # print("interdomain_port:")
             # print(port_id)
+            print(f"inter_domain_check: port_id: {port_id}")
             for existing_port, existing_link in self.port_list.items():
                 # print(existing_port)
+                print(f"inter_domain_check: existing_port: {existing_port}")
                 if port_id == existing_port:
                     # print("Interdomain port:" + port_id)
+                    print(f"inter_domain_port: {port_id} == {existing_port}")
                     # remove redundant link between two domains
                     self.topology.remove_link(existing_link.id)
                     num_interdomain_link = +1
             self.port_list[port_id] = interdomain_port_dict[port_id]
 
+        print(f"inter_domain_check: num_interdomain_link: {num_interdomain_link}")
         return num_interdomain_link
 
     # adjacent matrix of the graph, in jason?
