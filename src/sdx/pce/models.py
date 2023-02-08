@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Mapping
+from typing import List, Mapping, Union
 
 from dataclasses_json import dataclass_json
 
@@ -16,8 +16,8 @@ class ConnectionRequest:
 
     source: int
     destination: int
-    required_bandwidth: float
-    required_latency: float
+    required_bandwidth: Union[float, None] = None
+    required_latency: Union[float, None] = None
 
     # Make ConnectionRequest hashable since it is used as key in
     # ConnectionSolution
