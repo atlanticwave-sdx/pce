@@ -20,10 +20,10 @@ class TEManager:
     def __init__(self, topology_data, connection_data):
         super().__init__()
 
-        self.manager = TopologyManager()
+        self.topology_manager = TopologyManager()
         self.connection_handler = ConnectionHandler()
 
-        self.manager.topology = self.manager.get_handler().import_topology_data(
+        self.topology_manager.topology = self.topology_manager.get_handler().import_topology_data(
             topology_data
         )
         self.connection = self.connection_handler.import_connection_data(
@@ -34,9 +34,9 @@ class TEManager:
 
     def generate_connection_te(self):
         ingress_port = self.connection.ingress_port
-        ingress_node = self.manager.topology.get_node_by_port(ingress_port.id)
+        ingress_node = self.topology_manager.topology.get_node_by_port(ingress_port.id)
         egress_port = self.connection.egress_port
-        egress_node = self.manager.topology.get_node_by_port(egress_port.id)
+        egress_node = self.topology_manager.topology.get_node_by_port(egress_port.id)
 
         i_node = [
             x for x, y in self.graph.nodes(data=True) if y["id"] == ingress_node.id
@@ -55,7 +55,7 @@ class TEManager:
         return requests
 
     def generate_graph_te(self):
-        graph = self.manager.generate_graph()
+        graph = self.topology_manager.generate_graph()
         graph = nx.convert_node_labels_to_integers(graph, label_attribute="id")
         self.graph = graph
         # print(list(graph.nodes(data=True)))
@@ -107,8 +107,8 @@ class TEManager:
 
                 print(f"node_1: {node_1}, node_2: {node_2}")
 
-                domain_1 = self.manager.get_domain_name(node_1["id"])
-                domain_2 = self.manager.get_domain_name(node_2["id"])
+                domain_1 = self.topology_manager.get_domain_name(node_1["id"])
+                domain_2 = self.topology_manager.get_domain_name(node_2["id"])
 
                 # # TODO: handle the cases where a domain was not found.
                 # if domain_1 is None:
@@ -144,7 +144,7 @@ class TEManager:
                 last_link = links[-1]
                 n1 = self.graph.nodes[last_link[0]]["id"]
                 n2 = self.graph.nodes[last_link[1]]["id"]
-                n1, p1, n2, p2 = self.manager.topology.get_port_by_link(n1, n2)
+                n1, p1, n2, p2 = self.topology_manager.topology.get_port_by_link(n1, n2)
                 i_port = self.connection.ingress_port.to_dict()
                 e_port = p1
                 next_i = p2
@@ -155,7 +155,7 @@ class TEManager:
                 last_link = links[-1]
                 n1 = self.graph.nodes[last_link[0]]["id"]
                 n2 = self.graph.nodes[last_link[1]]["id"]
-                n1, p1, n2, p2 = self.manager.topology.get_port_by_link(n1, n2)
+                n1, p1, n2, p2 = self.topology_manager.topology.get_port_by_link(n1, n2)
                 i_port = next_i
                 e_port = p1
                 next_i = p2
