@@ -111,6 +111,9 @@ class TEManager:
         return True
 
     def generate_connection_breakdown(self, connection):
+        """
+        Take a connection
+        """
         assert connection is not None
 
         breakdown = {}

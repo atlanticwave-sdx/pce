@@ -133,14 +133,14 @@ class TESolver:
             print("The problem does not have an optimal solution.")
 
         # returns: dict(conn request, [path]), cost
-        return self._solution_translator(paths), solver.Objective().Value()
+        return self._solution_translator(paths, solver.Objective().Value())
 
-    def _solution_translator(self, paths) -> Union[ConnectionSolution, None]:
+    def _solution_translator(self, paths: list, cost: float) -> Union[ConnectionSolution, None]:
         # extract the edge/path
         real_paths = []
         if paths is None:
             print("No solution: empty input")
-            return None
+            return ConnectionSolution(connection_map=None, cost=cost)
         for path in paths:
             real_path = []
             i = 0
@@ -154,7 +154,7 @@ class TESolver:
         id_connection = 0
         ordered_paths = {}
 
-        result = ConnectionSolution(connection_map={})
+        result = ConnectionSolution(connection_map={}, cost=cost)
 
         for request in self.tm.connection_requests:
             src = request.source

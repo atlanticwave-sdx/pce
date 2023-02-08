@@ -43,9 +43,8 @@ class TESolverTests(unittest.TestCase):
         tm = self.make_random_traffic_matrix()
         print(f"tm: {tm}")
 
-        solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
-        solution, value = solver.solve()
-        print(f"Paths: {solution}, optimal: {value}")
+        solution = TESolver(graph, tm, Constants.COST_FLAG_HOP).solve()
+        print(f"Solution: {solution}")
 
         # Check that there's a solution for each request.
         self.assertEqual(len(tm.connection_requests), len(solution.connection_map))
@@ -58,7 +57,7 @@ class TESolverTests(unittest.TestCase):
             for path in paths:
                 self.assertIsInstance(path, ConnectionPath)
 
-        self.assertEqual(6.0, value)
+        self.assertEqual(6.0, solution.cost)
 
     def test_lb_solve(self):
         graph = self.make_random_graph()
@@ -68,8 +67,8 @@ class TESolverTests(unittest.TestCase):
         solver = TESolver(
             graph, tm, Constants.COST_FLAG_HOP, Constants.OBJECTIVE_LOAD_BALANCING
         )
-        solution, value = solver.solve()
-        print(f"Solution: {solution}, optimal: {value}")
+        solution = solver.solve()
+        print(f"Solution: {solution}")
 
         # Check that there's a solution for each request.
         self.assertEqual(len(tm.connection_requests), len(solution.connection_map))
@@ -82,7 +81,7 @@ class TESolverTests(unittest.TestCase):
             for path in paths:
                 self.assertIsInstance(path, ConnectionPath)
 
-        self.assertEqual(1.851, round(value, 3))
+        self.assertEqual(1.851, round(solution.cost, 3))
 
     def test_mc_solve_more_connections_than_nodes(self):
         graph = self.make_random_graph(num_nodes=10)
@@ -91,14 +90,13 @@ class TESolverTests(unittest.TestCase):
         tm = self.make_random_traffic_matrix(num_nodes=10, num_connections=20)
         print(f"tm: {tm}")
 
-        solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
-        solution, value = solver.solve()
-        print(f"Solution: {solution}, optimal: {value}")
+        solution = TESolver(graph, tm, Constants.COST_FLAG_HOP).solve()
+        print(f"Solution: {solution}")
 
         # The above doesn't seem to find a solution, but hey, at least
         # we exercised one more code path without any crashes.
-        self.assertIs(solution, None)
-        self.assertEqual(value, 0.0)
+        self.assertIs(solution.connection_map, None)
+        self.assertEqual(solution.cost, 0.0)
 
     def test_mc_solve_5(self):
         edge_list_file = TEST_DATA_DIR.joinpath("test_five_node_topology.txt")
@@ -117,9 +115,8 @@ class TESolverTests(unittest.TestCase):
         with open(traffic_matrix_file) as fp:
             tm = TrafficMatrix.from_dict(json.load(fp))
 
-        solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
-        solution, value = solver.solve()
-        print(f"Solution: {solution}, optimal: {value}")
+        solution = TESolver(graph, tm, Constants.COST_FLAG_HOP).solve()
+        print(f"Solution: {solution}")
 
         # Check that there's a solution for each request.
         self.assertEqual(len(tm.connection_requests), len(solution.connection_map))
@@ -132,7 +129,7 @@ class TESolverTests(unittest.TestCase):
             for path in paths:
                 self.assertIsInstance(path, ConnectionPath)
 
-        self.assertEqual(7.0, value)
+        self.assertEqual(7.0, solution.cost)
 
     @unittest.skipIf(not can_read_dot_file(), reason="Can't read dot file")
     def test_mc_solve_geant2012(self):
@@ -147,10 +144,8 @@ class TESolverTests(unittest.TestCase):
 
         self.assertNotEqual(tm, None, "Could not read connection file")
 
-        solver = TESolver(graph, tm, Constants.COST_FLAG_HOP)
-        solution, value = solver.solve()
-
-        print(f"Solution: {solution}, optimal: {value}")
+        solution = TESolver(graph, tm, Constants.COST_FLAG_HOP).solve()
+        print(f"Solution: {solution}")
 
 
 if __name__ == "__main__":

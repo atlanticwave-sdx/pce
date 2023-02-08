@@ -58,3 +58,4 @@ class ConnectionSolution:
     """
 
     connection_map: Mapping[ConnectionRequest, List[ConnectionPath]]
+    cost: float
