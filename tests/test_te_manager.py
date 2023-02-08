@@ -2,6 +2,8 @@ import json
 import pathlib
 import unittest
 
+import networkx as nx
+
 from sdx.pce.topology.temanager import TEManager
 from sdx.pce.models import TrafficMatrix
 
@@ -123,6 +125,7 @@ class TestTEManager(unittest.TestCase):
         print(f"tm: {tm}")
 
         self.assertIsNotNone(graph)
+        self.assertIsInstance(graph, nx.Graph)
 
         self.assertIsNotNone(tm)
         self.assertIsInstance(tm, TrafficMatrix)

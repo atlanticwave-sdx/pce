@@ -76,11 +76,17 @@ class TEManager:
         
         return TrafficMatrix(connection_requests=[request])
 
-    def generate_graph_te(self):
+    def generate_graph_te(self) -> nx.Graph:
+        """
+        Return the topology graph that we have.
+        """
         graph = self.topology_manager.generate_graph()
         graph = nx.convert_node_labels_to_integers(graph, label_attribute="id")
+
+        # TODO: why is this needed?
         self.graph = graph
         # print(list(graph.nodes(data=True)))
+
         return graph
 
     def graph_node_connectivity(self, source=None, dest=None):
