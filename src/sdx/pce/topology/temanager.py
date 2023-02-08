@@ -90,19 +90,24 @@ class TEManager:
         return graph
 
     def graph_node_connectivity(self, source=None, dest=None):
-        conn = approx.node_connectivity(self.graph, source, dest)
-        return conn
+        """
+        Check that a source and destination node have connectivity.
+        """
+        # TODO: is this method really needed?
+        return approx.node_connectivity(self.graph, source, dest)
 
-    def requests_connectivity(self, requests):
-        for request in requests:
-            conn = self.graph_node_connectivity(request[0], request[1])
-            print(
-                "Request Connectivity: {}, {} = {}".format(
-                    request[0],
-                    request[1],
-                    conn,
-                )
-            )
+    def requests_connectivity(self, tm: TrafficMatrix) -> bool:
+        """
+        Check that connectivity is possible.
+        """
+        # TODO: consider using filter() and reduce(), maybe?
+        # TODO: write some tests for this method.
+        for request in tm.connection_requests:
+            # conn = self.graph_node_connectivity(request.source, request.destination)
+            print(f"Request connectivity: source {request.source}, destination: {request.destination} = {conn}" )
+            if conn is False:
+                return False
+
         return True
 
     def generate_connection_breakdown(self, connection):
