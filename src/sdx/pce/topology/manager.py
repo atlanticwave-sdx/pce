@@ -27,7 +27,7 @@ class TopologyManager:
     def __init__(self):
         super().__init__()
 
-        self.handler = TopologyHandler()
+        self.topology_handler = TopologyHandler()
 
         self.topology = None
         self.topology_list = {}
@@ -36,7 +36,7 @@ class TopologyManager:
         self.num_interdomain_link = 0
 
     def get_handler(self):
-        return self.handler
+        return self.topology_handler
 
     def topology_id(self, id):
         self.topology._id(id)
@@ -53,7 +53,7 @@ class TopologyManager:
         self.port_list = {}
 
     def add_topology(self, data):
-        topology = self.handler.import_topology_data(data)
+        topology = self.topology_handler.import_topology_data(data)
         self.topology_list[topology.id] = topology
 
         if self.topology is None:
