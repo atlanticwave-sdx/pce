@@ -200,7 +200,6 @@ class TESolver:
         if paths is None:
             return graph
         for connection, path in paths.items():
-
             # src = connection[0]   # src is unused
             # dest = connection[1]  # dest is unused
             bw = connection[2]

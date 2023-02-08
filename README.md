@@ -76,31 +76,48 @@ $ git clone https://github.com/atlanticwave-sdx/pce.git
 $ cd pce
 $ python3 -m venv venv
 $ source venv/bin/activate
-$ pip install --editable .[test]
+$ pip install .[test]
 ```
+
+Please note that editable installs does not work currently, due to the
+shared top-level `sdx` module in datamodel.
+
+PCE can read topology data from Graphviz dot files, if the optional
+pygraphviz dependency is installed with:
+
+```console
+$ pip install .[pygraphviz]
+```
+
+In order to be able to install pygraphviz, you will also need a C
+compiler and development libraries and headers of graphviz installed.
+
 
 ### Running tests
 
-To run tests, you can use pytest:
+To run tests, using [tox] is recommended:
 
 ```console
-$ pytest
+$ tox
 ```
 
-Or you can use Python's unittest module:
+With tox, you can run single tests like so:
 
 ```console
-$ python -m unittest -v tests.LoadBalancing.test_te_solver
+$ tox -- [-s] tests/test_te_manager.py::TestTEManager::test_generate_solver_input
 ```
 
-One of the tests attempt to read a Graphviz dot file.  For this test
-to work, you will need pygraphviz, which can be installed as an
-optional dependency:
+The test that depend on pygraphviz are skipped by default.  If you are
+able to install pygraphviz in your setup, you can run that test too
+with:
 
-```
-$ pip install --editable .[test,pygraphviz]
+```console
+$ tox -e extras
 ```
 
 Test data is stored in `test/data` as JSON files.  You might want to
 be in the top-level directory when running tests.
 
+<!-- URLS -->
+
+[tox]: https://tox.wiki/en/latest/index.html
