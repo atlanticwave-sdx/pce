@@ -3,6 +3,7 @@ from networkx.algorithms import approximation as approx
 
 from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
 from sdx.pce.topology.manager import TopologyManager
+from sdx.pce.models import ConnectionRequest, TrafficMatrix
 
 
 class TEManager:
@@ -40,27 +41,40 @@ class TEManager:
         """
         self.topology_manager.add_topology(topology_data)
 
-    def generate_connection_te(self):
+    def generate_connection_te(self) -> TrafficMatrix:
+        """
+        Generate a Traffic Matrix from the connection request we have.
+        """
         ingress_port = self.connection.ingress_port
         ingress_node = self.topology_manager.topology.get_node_by_port(ingress_port.id)
         egress_port = self.connection.egress_port
         egress_node = self.topology_manager.topology.get_node_by_port(egress_port.id)
 
-        i_node = [
+        ingress_nodes = [
             x for x, y in self.graph.nodes(data=True) if y["id"] == ingress_node.id
         ]
-        e_node = [
+        
+        egress_nodes = [
             x for x, y in self.graph.nodes(data=True) if y["id"] == egress_node.id
         ]
 
-        bandwidth_required = self.connection.bandwidth
-        latency_required = self.connection.latency
+        if len(ingress_nodes) <= 0:
+            raise Exception("No ingress nodes found in the graph")
 
-        requests = []
-        request = [i_node[0], e_node[0], bandwidth_required, latency_required]
-        requests.append(request)
+        if len(egress_nodes) <= 0:
+            raise Exception("No egress nodes found in the graph")
 
-        return requests
+        required_bandwidth = self.connection.bandwidth
+        required_latency = self.connection.latency
+
+        request = ConnectionRequest(
+            source = ingress_nodes[0],
+            destination = egress_nodes[0],
+            required_bandwidth = required_bandwidth,
+            required_latency = required_latency
+        )
+        
+        return TrafficMatrix(connection_requests=[request])
 
     def generate_graph_te(self):
         graph = self.topology_manager.generate_graph()
