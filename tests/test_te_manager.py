@@ -87,7 +87,7 @@ class TestTEManager(unittest.TestCase):
         request = [
             {
                 "1": [[1, 2], [3, 4]],
-                "2": [[1, 2], [3, 10]],
+                "2": [[1, 2], [3, 5]],
             },
             1.0,
         ]
