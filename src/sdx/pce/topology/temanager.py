@@ -23,14 +23,22 @@ class TEManager:
         self.topology_manager = TopologyManager()
         self.connection_handler = ConnectionHandler()
 
-        self.topology_manager.topology = self.topology_manager.get_handler().import_topology_data(
-            topology_data
+        self.topology_manager.topology = (
+            self.topology_manager.get_handler().import_topology_data(topology_data)
         )
         self.connection = self.connection_handler.import_connection_data(
             connection_data
         )
 
         self.graph = self.generate_graph_te()
+
+    def add_topology(self, topology_data: dict):
+        """
+        Add a new topology to TEManager.
+
+        :param topology_data: a dictionary that represents a topology.
+        """
+        self.topology_manager.add_topology(topology_data)
 
     def generate_connection_te(self):
         ingress_port = self.connection.ingress_port
