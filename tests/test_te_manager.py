@@ -5,7 +5,59 @@ import unittest
 import networkx as nx
 
 from sdx.pce.topology.temanager import TEManager
-from sdx.pce.models import TrafficMatrix
+from sdx.pce.models import ConnectionRequest, TrafficMatrix
+
+
+def make_traffic_matrix(old_style_request: list) -> TrafficMatrix:
+    """
+    Make a traffic matrix from the old-style list.
+
+    The list contains a map of requests and cost.  The map contains a
+    string key (TODO: what is this key?) and a list of lists as
+    value, like so::
+
+        [
+            {
+                "1": [[1, 2], [3, 4]],
+                "2": [[1, 2], [3, 4]],
+            },
+            1.0,
+        ]
+
+    """
+    assert isinstance(old_style_request, list)
+    assert len(old_style_request) == 2
+
+    requests_map = old_style_request[0]
+
+    # TODO: what to do with this? Is it even a cost?
+    cost = old_style_request[1]
+    print(f"cost: {cost}")
+
+    new_requests: list(ConnectionRequest) = []
+
+    print(f"type of request: {type(requests_map)}")
+    assert isinstance(requests_map, dict)
+
+    for key, requests in requests_map.items():
+
+        assert isinstance(key, str)
+        assert isinstance(requests, list)
+        assert len(requests) > 0
+
+        print(f"key: {key}, request: {requests}")
+
+        for request in requests:
+            assert len(request) == 2
+            new_requests.append(
+                ConnectionRequest(
+                    source=request[0],
+                    destination=request[1],
+                )
+            )
+
+    return TrafficMatrix(connection_requests=new_requests)
+
 
 class TestTEManager(unittest.TestCase):
     """
@@ -59,6 +111,23 @@ class TestTEManager(unittest.TestCase):
         breakdown = self.temanager.generate_connection_breakdown(request)
         print(f"Breakdown: {breakdown}")
         self.assertIsNotNone(breakdown)
+
+    def test_connection_breakdown_tm(self):
+        # Breaking down a traffic matrix.
+        request = [
+            {
+                "1": [[1, 2], [3, 4]],
+            },
+            1.0,
+        ]
+
+        tm = make_traffic_matrix(request)
+
+        # Expect an error, for now.
+        with self.assertRaises(Exception):
+            breakdown = self.temanager.generate_connection_breakdown(tm)
+            print(f"Breakdown: {breakdown}")
+            self.assertIsNotNone(breakdown)
 
     def test_connection_breakdown_two_similar_requests(self):
         request = [
