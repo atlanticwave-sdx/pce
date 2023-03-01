@@ -103,7 +103,7 @@ class TEManager:
         # TODO: consider using filter() and reduce(), maybe?
         # TODO: write some tests for this method.
         for request in tm.connection_requests:
-            # conn = self.graph_node_connectivity(request.source, request.destination)
+            conn = self.graph_node_connectivity(request.source, request.destination)
             print(f"Request connectivity: source {request.source}, destination: {request.destination} = {conn}" )
             if conn is False:
                 return False
