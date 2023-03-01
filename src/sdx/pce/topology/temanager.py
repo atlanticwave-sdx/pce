@@ -2,8 +2,8 @@ import networkx as nx
 from networkx.algorithms import approximation as approx
 
 from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
-from sdx.pce.topology.manager import TopologyManager
 from sdx.pce.models import ConnectionRequest, TrafficMatrix
+from sdx.pce.topology.manager import TopologyManager
 
 
 class TEManager:

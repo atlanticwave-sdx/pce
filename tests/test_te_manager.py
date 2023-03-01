@@ -4,8 +4,8 @@ import unittest
 
 import networkx as nx
 
-from sdx.pce.topology.temanager import TEManager
 from sdx.pce.models import ConnectionRequest, TrafficMatrix
+from sdx.pce.topology.temanager import TEManager
 
 
 def make_traffic_matrix(old_style_request: list) -> TrafficMatrix:
