@@ -135,7 +135,9 @@ class TESolver:
         # returns: dict(conn request, [path]), cost
         return self._solution_translator(paths, solver.Objective().Value())
 
-    def _solution_translator(self, paths: list, cost: float) -> Union[ConnectionSolution, None]:
+    def _solution_translator(
+        self, paths: list, cost: float
+    ) -> Union[ConnectionSolution, None]:
         # extract the edge/path
         real_paths = []
         if paths is None:

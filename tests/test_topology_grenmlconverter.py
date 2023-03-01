@@ -29,7 +29,9 @@ class GrenmlConverterTests(unittest.TestCase):
         manager.topology_handler.import_topology()
 
         print(f"Topology: {manager.topology_handler.topology}")
-        self.assertIsNotNone(manager.topology_handler.topology, "No topology could be read")
+        self.assertIsNotNone(
+            manager.topology_handler.topology, "No topology could be read"
+        )
 
         converter = GrenmlConverter(manager.topology_handler.topology)
         print(f"GrenmlConverter: {converter}")

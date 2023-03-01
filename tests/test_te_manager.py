@@ -40,7 +40,6 @@ def make_traffic_matrix(old_style_request: list) -> TrafficMatrix:
     assert isinstance(requests_map, dict)
 
     for key, requests in requests_map.items():
-
         assert isinstance(key, str)
         assert isinstance(requests, list)
         assert len(requests) > 0

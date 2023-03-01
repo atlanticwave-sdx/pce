@@ -53,7 +53,7 @@ class TEManager:
         ingress_nodes = [
             x for x, y in self.graph.nodes(data=True) if y["id"] == ingress_node.id
         ]
-        
+
         egress_nodes = [
             x for x, y in self.graph.nodes(data=True) if y["id"] == egress_node.id
         ]
@@ -68,12 +68,12 @@ class TEManager:
         required_latency = self.connection.latency
 
         request = ConnectionRequest(
-            source = ingress_nodes[0],
-            destination = egress_nodes[0],
-            required_bandwidth = required_bandwidth,
-            required_latency = required_latency
+            source=ingress_nodes[0],
+            destination=egress_nodes[0],
+            required_bandwidth=required_bandwidth,
+            required_latency=required_latency,
         )
-        
+
         return TrafficMatrix(connection_requests=[request])
 
     def generate_graph_te(self) -> nx.Graph:
@@ -104,7 +104,9 @@ class TEManager:
         # TODO: write some tests for this method.
         for request in tm.connection_requests:
             conn = self.graph_node_connectivity(request.source, request.destination)
-            print(f"Request connectivity: source {request.source}, destination: {request.destination} = {conn}" )
+            print(
+                f"Request connectivity: source {request.source}, destination: {request.destination} = {conn}"
+            )
             if conn is False:
                 return False
 
