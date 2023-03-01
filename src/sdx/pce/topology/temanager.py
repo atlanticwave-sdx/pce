@@ -2,7 +2,7 @@ import networkx as nx
 from networkx.algorithms import approximation as approx
 
 from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
-from sdx.pce.models import ConnectionRequest, TrafficMatrix
+from sdx.pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
 from sdx.pce.topology.manager import TopologyManager
 
 
@@ -112,9 +112,21 @@ class TEManager:
 
         return True
 
+    def generate_connection_breakdown_tm(self, connection: ConnectionSolution):
+        assert connection is not None
+
+        breakdown = {}
+        paths = connection.connection_map  # p2p for now
+
+        # i_port = None
+        # e_port = None
+
+        for domain, links in paths.items():
+            print(f"domain: {domain}, links: {links}")
+
     def generate_connection_breakdown(self, connection):
         """
-        Take a connection
+        Take a connection and generate a breakdown.
         """
         assert connection is not None
 

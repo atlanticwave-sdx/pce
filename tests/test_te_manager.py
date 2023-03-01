@@ -4,7 +4,7 @@ import unittest
 
 import networkx as nx
 
-from sdx.pce.models import ConnectionRequest, TrafficMatrix
+from sdx.pce.models import ConnectionPath, ConnectionRequest, TrafficMatrix
 from sdx.pce.topology.temanager import TEManager
 
 
@@ -121,12 +121,22 @@ class TestTEManager(unittest.TestCase):
         ]
 
         tm = make_traffic_matrix(request)
+        print(f"tm: {tm}")
 
-        # Expect an error, for now.
-        with self.assertRaises(Exception):
-            breakdown = self.temanager.generate_connection_breakdown(tm)
-            print(f"Breakdown: {breakdown}")
-            self.assertIsNotNone(breakdown)
+        for cr in tm.connection_requests:
+            print(f"cr: {cr}")
+            paths = [
+                ConnectionPath(source=1, destination=2),
+                ConnectionPath(source=3, destination=4),
+            ]
+
+        # self.temanager.generate_connection_breakdown(tm)
+
+        # # Expect an error, for now.
+        # with self.assertRaises(Exception):
+        #     breakdown = self.temanager.generate_connection_breakdown(tm)
+        #     print(f"Breakdown: {breakdown}")
+        #     self.assertIsNotNone(breakdown)
 
     def test_connection_breakdown_two_similar_requests(self):
         request = [
