@@ -396,6 +396,16 @@ class TESolver:
 
     #
     def _lhsbw(self, request_list, inputmatrix):
+        """
+        Form bandwidth constraints.
+
+        To learn what this means, see the formulation diagram at
+        https://github.com/atlanticwave-sdx/pce/tree/main/Documentation.
+
+        The yellow portion of the diagram is the "inputmatrix" input
+        to this function.  The return value should represent the green
+        portion, which is the bandwidth constraints computed here.
+        """
         print(f"request_list: {request_list}, inputmatrix:")
         import pprint
         pprint.pp(inputmatrix)
