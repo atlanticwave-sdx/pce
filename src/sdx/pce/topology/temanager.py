@@ -113,6 +113,12 @@ class TEManager:
         return True
 
     def generate_connection_breakdown_tm(self, connection: ConnectionSolution):
+        """
+        Take a connection and generate a breakdown.
+
+        TODO: This is work in progress, and this is an alternative to
+        generate_connection_breakdown() below.
+        """
         assert connection is not None
 
         breakdown = {}
