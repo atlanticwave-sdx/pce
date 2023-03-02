@@ -4,6 +4,7 @@ import unittest
 
 import networkx as nx
 
+from sdx.pce.load_balancing.te_solver import TESolver
 from sdx.pce.models import ConnectionPath, ConnectionRequest, TrafficMatrix
 from sdx.pce.topology.temanager import TEManager
 
@@ -120,17 +121,25 @@ class TestTEManager(unittest.TestCase):
             1.0,
         ]
 
+        # Make a connection request.
         tm = make_traffic_matrix(request)
         print(f"tm: {tm}")
 
-        for cr in tm.connection_requests:
-            print(f"cr: {cr}")
-            paths = [
-                ConnectionPath(source=1, destination=2),
-                ConnectionPath(source=3, destination=4),
-            ]
+        # for cr in tm.connection_requests:
+        #     print(f"cr: {cr}")
+        #     paths = [
+        #         ConnectionPath(source=1, destination=2),
+        #         ConnectionPath(source=3, destination=4),
+        #     ]
+                        
+        # Find a connection solution.
+        solver = TESolver(self.temanager.graph, tm)
+        print(f"solver: {solver}")
 
-        # self.temanager.generate_connection_breakdown(tm)
+        solution = solver.solve()
+        print(f"solution: {solution}")
+
+        self.temanager.generate_connection_breakdown_tm(solution)
 
         # # Expect an error, for now.
         # with self.assertRaises(Exception):
