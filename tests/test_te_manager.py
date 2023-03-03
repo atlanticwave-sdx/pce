@@ -47,14 +47,28 @@ def make_traffic_matrix(old_style_request: list) -> TrafficMatrix:
 
         print(f"key: {key}, request: {requests}")
 
+        source = requests[0]
+        destination = requests[1]
+
+        if len(requests) >= 3:
+            required_bandwidth=requests[2]
+        else:
+            required_bandwidth=1
+
+        if len(requests) >= 4:
+            required_latency=requests[3]
+        else:
+            required_latency=100
+        
+
         for request in requests:
             assert len(request) == 2
             new_requests.append(
                 ConnectionRequest(
-                    source=request[0],
-                    destination=request[1],
-                    required_bandwidth=0,
-                    required_latency=0,
+                    source=source,
+                    destination=destination,
+                    required_bandwidth=required_bandwidth,
+                    required_latency=required_latency,
                 )
             )
 
@@ -133,6 +147,10 @@ class TestTEManager(unittest.TestCase):
         #         ConnectionPath(source=1, destination=2),
         #         ConnectionPath(source=3, destination=4),
         #     ]
+
+        print(f"graph: {self.temanager.graph}")
+        import pprint
+        pprint.pp(nx.to_dict_of_dicts(self.temanager.graph))
                         
         # Find a connection solution.
         solver = TESolver(self.temanager.graph, tm)
@@ -141,7 +159,8 @@ class TestTEManager(unittest.TestCase):
         solution = solver.solve()
         print(f"solution: {solution}")
 
-        self.temanager.generate_connection_breakdown_tm(solution)
+        if solution.connection_map is not None:
+            self.temanager.generate_connection_breakdown_tm(solution)
 
         # # Expect an error, for now.
         # with self.assertRaises(Exception):
