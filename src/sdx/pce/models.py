@@ -17,7 +17,7 @@ class ConnectionRequest:
     source: int
     destination: int
     required_bandwidth: float
-    required_latency: Union[float, None] = None
+    required_latency: float
 
     # Make ConnectionRequest hashable since it is used as key in
     # ConnectionSolution

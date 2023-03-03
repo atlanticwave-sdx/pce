@@ -54,6 +54,7 @@ def make_traffic_matrix(old_style_request: list) -> TrafficMatrix:
                     source=request[0],
                     destination=request[1],
                     required_bandwidth=0,
+                    required_latency=0,
                 )
             )
 
