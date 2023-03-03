@@ -159,8 +159,11 @@ class TestTEManager(unittest.TestCase):
         solution = solver.solve()
         print(f"solution: {solution}")
 
-        if solution.connection_map is not None:
-            self.temanager.generate_connection_breakdown_tm(solution)
+        # We must have found a solution.
+        self.assertIsNotNone(solution.connection_map)
+        self.assertNotEqual(solution.cost, 0)
+
+        self.temanager.generate_connection_breakdown_tm(solution)
 
         # # Expect an error, for now.
         # with self.assertRaises(Exception):
