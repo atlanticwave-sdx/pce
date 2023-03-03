@@ -53,6 +53,7 @@ def make_traffic_matrix(old_style_request: list) -> TrafficMatrix:
                 ConnectionRequest(
                     source=request[0],
                     destination=request[1],
+                    required_bandwidth=0,
                 )
             )
 
