@@ -75,7 +75,7 @@ def make_traffic_matrix(old_style_request: list) -> TrafficMatrix:
     return TrafficMatrix(connection_requests=new_requests)
 
 
-class TestTEManager(unittest.TestCase):
+class TEManagerTests(unittest.TestCase):
     """
     Tests for topology related functions.
     """
