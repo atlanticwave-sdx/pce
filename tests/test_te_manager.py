@@ -47,21 +47,22 @@ def make_traffic_matrix(old_style_request: list) -> TrafficMatrix:
 
         print(f"key: {key}, request: {requests}")
 
-        source = requests[0]
-        destination = requests[1]
-
-        if len(requests) >= 3:
-            required_bandwidth=requests[2]
-        else:
-            required_bandwidth=1
-
-        if len(requests) >= 4:
-            required_latency=requests[3]
-        else:
-            required_latency=100
-        
-
         for request in requests:
+            source = request[0]
+            destination = request[1]
+
+            if len(requests) >= 3:
+                required_bandwidth = request[2]
+            else:
+                # Use a very low default bandwith value in tests.
+                required_bandwidth = 1
+
+            if len(requests) >= 4:
+                required_latency = request[3]
+            else:
+                # Use a very high latency default latency value in tests.
+                required_latency = 100
+
             assert len(request) == 2
             new_requests.append(
                 ConnectionRequest(
@@ -150,8 +151,9 @@ class TEManagerTests(unittest.TestCase):
 
         print(f"graph: {self.temanager.graph}")
         import pprint
+
         pprint.pp(nx.to_dict_of_dicts(self.temanager.graph))
-                        
+
         # Find a connection solution.
         solver = TESolver(self.temanager.graph, tm)
         print(f"solver: {solver}")
