@@ -165,6 +165,42 @@ class TEManager:
 
         print(f"[intermediate] breakdown: {breakdown}")
 
+        # now starting with the ingress_port
+        first = True
+        i = 0
+        domain_breakdown = {}
+       
+        for domain, links in breakdown.items():
+            print(f"Creating domain_breakdown: domain: {domain}, links: {links}")
+            segment = {}
+            if first:
+                first = False
+                last_link = links[-1]
+                n1 = self.graph.nodes[last_link.source]["id"]
+                n2 = self.graph.nodes[last_link.destination]["id"]
+                n1, p1, n2, p2 = self.topology_manager.topology.get_port_by_link(n1, n2)
+                i_port = self.connection.ingress_port.to_dict()
+                e_port = p1
+                next_i = p2
+            elif i == len(breakdown) - 1:
+                i_port = next_i
+                e_port = self.connection.egress_port.to_dict()
+            else:
+                last_link = links[-1]
+                n1 = self.graph.nodes[last_link.source]["id"]
+                n2 = self.graph.nodes[last_link.destination]["id"]
+                n1, p1, n2, p2 = self.topology_manager.topology.get_port_by_link(n1, n2)
+                i_port = next_i
+                e_port = p1
+                next_i = p2
+            segment["ingress_port"] = i_port
+            segment["egress_port"] = e_port
+            domain_breakdown[domain] = segment.copy()
+            i = i + 1
+
+        print(f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}")
+        return domain_breakdown
+
 
     def generate_connection_breakdown(self, connection):
         """
