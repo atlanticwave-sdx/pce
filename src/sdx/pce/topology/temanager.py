@@ -152,6 +152,19 @@ class TEManager:
                 # determined? Can a domain be `None`?
                 print(f"source domain: {src_domain}, destination domain: {dst_domain}")
                 
+                current_link_set.append(link)
+                current_domain = src_domain
+                if src_domain == dst_domain:
+                    # current_domain = domain_1
+                    if count == len(links) - 1:
+                        breakdown[current_domain] = current_link_set.copy()
+                else:
+                    breakdown[current_domain] = current_link_set.copy()
+                    current_domain = None
+                    current_link_set = []
+
+        print(f"[intermediate] breakdown: {breakdown}")
+
 
     def generate_connection_breakdown(self, connection):
         """
