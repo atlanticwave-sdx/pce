@@ -2,7 +2,7 @@ import networkx as nx
 from networkx.algorithms import approximation as approx
 
 from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
-from sdx.pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
+from sdx.pce.models import ConnectionPath, ConnectionRequest, ConnectionSolution, TrafficMatrix
 from sdx.pce.topology.manager import TopologyManager
 
 
@@ -129,6 +129,29 @@ class TEManager:
 
         for domain, links in paths.items():
             print(f"domain: {domain}, links: {links}")
+
+            current_link_set = []
+
+            for count, link in enumerate(links):
+                print(f"count: {count}, link: {link}")
+
+                assert isinstance(link, ConnectionPath)
+
+                src_node = self.graph.nodes.get(link.source)
+                assert src_node is not None
+
+                dst_node = self.graph.nodes.get(link.destination)
+                assert dst_node is not None
+
+                print(f"source node: {src_node}, destination node: {dst_node}")
+                
+                src_domain = self.topology_manager.get_domain_name(src_node.get("id"))
+                dst_domain = self.topology_manager.get_domain_name(dst_node.get("id"))
+
+                # TODO: what do we do when a domain can't be
+                # determined? Can a domain be `None`?
+                print(f"source domain: {src_domain}, destination domain: {dst_domain}")
+                
 
     def generate_connection_breakdown(self, connection):
         """
