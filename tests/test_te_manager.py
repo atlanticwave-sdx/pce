@@ -214,10 +214,29 @@ class TEManagerTests(unittest.TestCase):
             1.0,
         ]
 
-        breakdown = self.temanager.generate_connection_breakdown(request)
+        print(f"graph: {self.temanager.graph}")
+        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
+
+        # Make a connection request.
+        tm = make_traffic_matrix(request)
+        print(f"tm: {tm}")
+
+        print(f"graph: {self.temanager.graph}")
+        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
+
+        # Find a connection solution.
+        solver = TESolver(self.temanager.graph, tm)
+        print(f"solver: {solver}")
+
+        solution = solver.solve()
+        print(f"solution: {solution}")
+
+        breakdown = self.temanager.generate_connection_breakdown_tm(solution)
         print(f"Breakdown: {breakdown}")
+
         self.assertIsNotNone(breakdown)
-        self.assertEqual(len(breakdown), 1)
+        self.assertIsInstance(breakdown, dict)
+        self.assertEqual(len(breakdown), 2)
 
     def test_connection_breakdown_some_input(self):
         self._make_connection()
