@@ -162,6 +162,7 @@ class TEManagerTests(unittest.TestCase):
         self.temanager.generate_connection_breakdown_tm(solution)
 
     def test_connection_breakdown_two_similar_requests(self):
+        # Solving and breaking down two similar connection requests.
         request = [
             {
                 "1": [[1, 2], [3, 4]],
@@ -170,9 +171,27 @@ class TEManagerTests(unittest.TestCase):
             1.0,
         ]
 
-        breakdown = self.temanager.generate_connection_breakdown(request)
+        print(f"graph: {self.temanager.graph}")
+        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
+
+        # Make a connection request.
+        tm = make_traffic_matrix(request)
+        print(f"tm: {tm}")
+
+        print(f"graph: {self.temanager.graph}")
+        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
+
+        # Find a connection solution.
+        solver = TESolver(self.temanager.graph, tm)
+        print(f"solver: {solver}")
+
+        solution = solver.solve()
+        print(f"solution: {solution}")
+
+        breakdown = self.temanager.generate_connection_breakdown_tm(solution)
         print(f"Breakdown: {breakdown}")
         self.assertIsNotNone(breakdown)
+        self.assertIsInstance(breakdown, dict)
         self.assertEqual(len(breakdown), 1)
 
     def test_connection_breakdown_three_domains(self):
