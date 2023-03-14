@@ -71,7 +71,7 @@ class TopologyManager:
             # check the inter-domain links first.
             self.num_interdomain_link += self.inter_domain_check(topology)
             if self.num_interdomain_link == 0:
-                print("Warning: no interdomain links detected!")
+                print(f"Warning: no interdomain links detected in {topology.id}!")
 
             # Nodes
             nodes = topology.get_nodes()
