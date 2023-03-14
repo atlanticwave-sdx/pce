@@ -1,5 +1,6 @@
 import json
 import pathlib
+import pprint
 import unittest
 
 import networkx as nx
@@ -150,9 +151,7 @@ class TEManagerTests(unittest.TestCase):
         #     ]
 
         print(f"graph: {self.temanager.graph}")
-        import pprint
-
-        pprint.pp(nx.to_dict_of_dicts(self.temanager.graph))
+        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
 
         # Find a connection solution.
         solver = TESolver(self.temanager.graph, tm)
