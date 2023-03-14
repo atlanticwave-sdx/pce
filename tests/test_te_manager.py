@@ -159,7 +159,11 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        self.temanager.generate_connection_breakdown_tm(solution)
+        breakdown = self.temanager.generate_connection_breakdown_tm(solution)
+        print(f"Breakdown: {breakdown}")
+        self.assertIsNotNone(breakdown)
+        self.assertIsInstance(breakdown, dict)
+        self.assertEqual(len(breakdown), 1)
 
     def test_connection_breakdown_two_similar_requests(self):
         # Solving and breaking down two similar connection requests.
