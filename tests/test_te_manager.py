@@ -143,13 +143,6 @@ class TEManagerTests(unittest.TestCase):
         tm = make_traffic_matrix(request)
         print(f"tm: {tm}")
 
-        # for cr in tm.connection_requests:
-        #     print(f"cr: {cr}")
-        #     paths = [
-        #         ConnectionPath(source=1, destination=2),
-        #         ConnectionPath(source=3, destination=4),
-        #     ]
-
         print(f"graph: {self.temanager.graph}")
         print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
 
@@ -165,12 +158,6 @@ class TEManagerTests(unittest.TestCase):
         self.assertNotEqual(solution.cost, 0)
 
         self.temanager.generate_connection_breakdown_tm(solution)
-
-        # # Expect an error, for now.
-        # with self.assertRaises(Exception):
-        #     breakdown = self.temanager.generate_connection_breakdown(tm)
-        #     print(f"Breakdown: {breakdown}")
-        #     self.assertIsNotNone(breakdown)
 
     def test_connection_breakdown_two_similar_requests(self):
         request = [
