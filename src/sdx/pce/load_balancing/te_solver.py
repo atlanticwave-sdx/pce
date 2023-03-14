@@ -249,8 +249,7 @@ class TESolver:
         nodenum = self.graph.number_of_nodes()
         linknum = self.graph.number_of_edges()
 
-        print(f"\n #Nodes: {nodenum}")
-        print(f"\n #Links: {linknum}")
+        print(f"Creating data model: #nodes: {nodenum}, #links: {linknum}")
 
         # graph flow matrix
         inputmatrix, links = self._flow_matrix(self.graph)
