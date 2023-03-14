@@ -119,6 +119,8 @@ class TEManagerTests(unittest.TestCase):
             self.temanager.generate_connection_breakdown(None)
 
     def test_connection_breakdown_simple(self):
+        # Test that the old way, which had plain old dicts and arrays
+        # representing connection requests, still works.
         request = [
             {
                 "1": [[1, 2], [3, 4]],
