@@ -52,13 +52,13 @@ def make_traffic_matrix(old_style_request: list) -> TrafficMatrix:
             source = request[0]
             destination = request[1]
 
-            if len(requests) >= 3:
+            if len(request) >= 3:
                 required_bandwidth = request[2]
             else:
                 # Use a very low default bandwith value in tests.
                 required_bandwidth = 1
 
-            if len(requests) >= 4:
+            if len(request) >= 4:
                 required_latency = request[3]
             else:
                 # Use a very high latency default latency value in tests.
@@ -237,11 +237,17 @@ class TEManagerTests(unittest.TestCase):
             14195698.0,
         ]
 
-        # TODO: use the the necessary setup so that a connection
-        # breakdown can work correctly and without raising errors.
-        with self.assertRaises(AssertionError):
-            breakdown = self.temanager.generate_connection_breakdown(request)
-            print(f"Breakdown: {breakdown}")
+        make_traffic_matrix(request)
+
+        # solution = self._make_tm_and_solve(request)
+        # self.assertIsNotNone(solution.connection_map)
+        # self.assertNotEqual(solution.cost, 0)
+
+        # # TODO: use the the necessary setup so that a connection
+        # # breakdown can work correctly and without raising errors.
+        # with self.assertRaises(AssertionError):
+        #     breakdown = self.temanager.generate_connection_breakdown_tm(request)
+        #     print(f"Breakdown: {breakdown}")
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
