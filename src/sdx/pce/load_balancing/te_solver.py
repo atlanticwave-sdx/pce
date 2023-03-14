@@ -74,6 +74,9 @@ class TESolver:
         Return the computed path and associated cost.
         """
         data = self._create_data_model()
+        if data is None:
+            print(f"Could not create a data model")
+            return ConnectionSolution(connection_map=None, cost=0)
 
         # Create the mip solver with the SCIP backend.
         solver = pywraplp.Solver.CreateSolver("SCIP")
@@ -268,6 +271,17 @@ class TESolver:
         bounds = []
         for request in self.tm.connection_requests:
             rhs = np.zeros(nodenum, dtype=int)
+
+            # Avoid going past array bounds.
+            if request.source > nodenum or request.destination > nodenum:
+                print(
+                    f"Cannot create data model: "
+                    f"request.source ({request.source}) or "
+                    f"request.destination ({request.destination}) "
+                    f" > num nodes ({nodenum})"
+                )
+                return None
+
             rhs[request.source] = -1
             rhs[request.destination] = 1
             bounds += list(rhs)
