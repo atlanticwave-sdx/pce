@@ -108,6 +108,26 @@ class TEManagerTests(unittest.TestCase):
 
         return connection
 
+    def _make_tm_and_solve(self, request):
+        # Make a traffic matrix from plain old style requests (used in
+        # the test methods below), and solve it.
+        
+        # Make a connection request.
+        tm = make_traffic_matrix(request)
+        print(f"tm: {tm}")
+
+        print(f"graph: {self.temanager.graph}")
+        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
+
+        # Find a connection solution.
+        solver = TESolver(self.temanager.graph, tm)
+        print(f"solver: {solver}")
+
+        solution = solver.solve()
+        print(f"solution: {solution}")
+
+        return solution
+
     def test_generate_solver_input(self):
         print("Test Convert Connection To Topology")
         connection = self._make_connection()
@@ -141,19 +161,7 @@ class TEManagerTests(unittest.TestCase):
             1.0,
         ]
 
-        # Make a connection request.
-        tm = make_traffic_matrix(request)
-        print(f"tm: {tm}")
-
-        print(f"graph: {self.temanager.graph}")
-        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
-
-        # Find a connection solution.
-        solver = TESolver(self.temanager.graph, tm)
-        print(f"solver: {solver}")
-
-        solution = solver.solve()
-        print(f"solution: {solution}")
+        solution = self._make_tm_and_solve(request)
 
         # We must have found a solution.
         self.assertIsNotNone(solution.connection_map)
@@ -175,25 +183,13 @@ class TEManagerTests(unittest.TestCase):
             1.0,
         ]
 
-        print(f"graph: {self.temanager.graph}")
-        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
-
-        # Make a connection request.
-        tm = make_traffic_matrix(request)
-        print(f"tm: {tm}")
-
-        print(f"graph: {self.temanager.graph}")
-        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
-
-        # Find a connection solution.
-        solver = TESolver(self.temanager.graph, tm)
-        print(f"solver: {solver}")
-
-        solution = solver.solve()
-        print(f"solution: {solution}")
+        solution = self._make_tm_and_solve(request)
+        self.assertIsNotNone(solution.connection_map)
+        self.assertNotEqual(solution.cost, 0)
 
         breakdown = self.temanager.generate_connection_breakdown_tm(solution)
         print(f"Breakdown: {breakdown}")
+
         self.assertIsNotNone(breakdown)
         self.assertIsInstance(breakdown, dict)
         self.assertEqual(len(breakdown), 1)
@@ -218,22 +214,9 @@ class TEManagerTests(unittest.TestCase):
             1.0,
         ]
 
-        print(f"graph: {self.temanager.graph}")
-        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
-
-        # Make a connection request.
-        tm = make_traffic_matrix(request)
-        print(f"tm: {tm}")
-
-        print(f"graph: {self.temanager.graph}")
-        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
-
-        # Find a connection solution.
-        solver = TESolver(self.temanager.graph, tm)
-        print(f"solver: {solver}")
-
-        solution = solver.solve()
-        print(f"solution: {solution}")
+        solution = self._make_tm_and_solve(request)
+        self.assertIsNotNone(solution.connection_map)
+        self.assertNotEqual(solution.cost, 0)
 
         breakdown = self.temanager.generate_connection_breakdown_tm(solution)
         print(f"Breakdown: {breakdown}")
