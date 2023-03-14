@@ -242,11 +242,9 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNone(solution.connection_map)
         self.assertEqual(solution.cost, 0)
 
-        # TODO: use the the necessary setup so that a connection
-        # breakdown can work correctly and without raising errors.
-        with self.assertRaises(AssertionError):
-            breakdown = self.temanager.generate_connection_breakdown_tm(solution)
-            print(f"Breakdown: {breakdown}")
+        # If there's no solution, there should be no breakdown either.
+        breakdown = self.temanager.generate_connection_breakdown_tm(solution)
+        self.assertIsNone(breakdown)
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()

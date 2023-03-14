@@ -119,7 +119,9 @@ class TEManager:
         TODO: This is work in progress, and this is an alternative to
         generate_connection_breakdown() below.
         """
-        assert connection is not None
+        if connection is None or connection.connection_map is None:
+            print(f"Can't find a breakdown for {connection}")
+            return None
 
         breakdown = {}
         paths = connection.connection_map  # p2p for now
