@@ -226,8 +226,9 @@ class TEManagerTests(unittest.TestCase):
         self.assertEqual(len(breakdown), 2)
 
     def test_connection_breakdown_some_input(self):
-        self._make_connection()
-
+        # The set of requests below should fail to find a solution,
+        # because our graph at this point do not have enough nodes as
+        # assumed by the request.
         request = [
             {
                 "1": [[1, 9], [9, 11]],
@@ -237,17 +238,15 @@ class TEManagerTests(unittest.TestCase):
             14195698.0,
         ]
 
-        make_traffic_matrix(request)
+        solution = self._make_tm_and_solve(request)
+        self.assertIsNone(solution.connection_map)
+        self.assertEqual(solution.cost, 0)
 
-        # solution = self._make_tm_and_solve(request)
-        # self.assertIsNotNone(solution.connection_map)
-        # self.assertNotEqual(solution.cost, 0)
-
-        # # TODO: use the the necessary setup so that a connection
-        # # breakdown can work correctly and without raising errors.
-        # with self.assertRaises(AssertionError):
-        #     breakdown = self.temanager.generate_connection_breakdown_tm(request)
-        #     print(f"Breakdown: {breakdown}")
+        # TODO: use the the necessary setup so that a connection
+        # breakdown can work correctly and without raising errors.
+        with self.assertRaises(AssertionError):
+            breakdown = self.temanager.generate_connection_breakdown_tm(solution)
+            print(f"Breakdown: {breakdown}")
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
