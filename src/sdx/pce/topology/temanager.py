@@ -2,7 +2,12 @@ import networkx as nx
 from networkx.algorithms import approximation as approx
 
 from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
-from sdx.pce.models import ConnectionPath, ConnectionRequest, ConnectionSolution, TrafficMatrix
+from sdx.pce.models import (
+    ConnectionPath,
+    ConnectionRequest,
+    ConnectionSolution,
+    TrafficMatrix,
+)
 from sdx.pce.topology.manager import TopologyManager
 
 
@@ -146,14 +151,14 @@ class TEManager:
                 assert dst_node is not None
 
                 print(f"source node: {src_node}, destination node: {dst_node}")
-                
+
                 src_domain = self.topology_manager.get_domain_name(src_node.get("id"))
                 dst_domain = self.topology_manager.get_domain_name(dst_node.get("id"))
 
                 # TODO: what do we do when a domain can't be
                 # determined? Can a domain be `None`?
                 print(f"source domain: {src_domain}, destination domain: {dst_domain}")
-                
+
                 current_link_set.append(link)
                 current_domain = src_domain
                 if src_domain == dst_domain:
@@ -171,7 +176,7 @@ class TEManager:
         first = True
         i = 0
         domain_breakdown = {}
-       
+
         for domain, links in breakdown.items():
             print(f"Creating domain_breakdown: domain: {domain}, links: {links}")
             segment = {}
@@ -202,7 +207,6 @@ class TEManager:
 
         print(f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}")
         return domain_breakdown
-
 
     def generate_connection_breakdown(self, connection):
         """
