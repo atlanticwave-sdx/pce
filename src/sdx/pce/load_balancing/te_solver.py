@@ -480,10 +480,6 @@ class TESolver:
         latdata["lhs"] = lhs
         latdata["rhs"] = rhs
 
-        # with open('./tests/data/latconstraint.json', 'w') as json_file:
-        #    data = latdata
-        #    json.dump(data, json_file, indent=4)
-
         return latdata
 
     def is_connected(self):
