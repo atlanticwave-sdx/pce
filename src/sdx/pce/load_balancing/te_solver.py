@@ -407,7 +407,6 @@ class TESolver:
         print(f"out: {out.shape}")
         return out
 
-    #
     def _lhsbw(self, request_list, inputmatrix):
         """
         Form bandwidth constraints.
@@ -419,9 +418,6 @@ class TESolver:
         to this function.  The return value should represent the green
         portion, which is the bandwidth constraints computed here.
         """
-        print(f"request_list: {request_list}, inputmatrix:")
-        import pprint
-        pprint.pp(inputmatrix)
         bwconstraints = []
         # zeros = self.zerolistmaker(len(inputmatrix[0])*len(request_list))
         zeros = np.zeros(len(inputmatrix[0]) * len(request_list), dtype=int)
@@ -430,18 +426,7 @@ class TESolver:
             bwconstraints.append(addzeros)
             count = 0
 
-            print(f"bwconstraints: {bwconstraints}, i: {i}, inputmatrix: {inputmatrix}")
-            print(f"bwconstraints[i]: {bwconstraints[i]}")
-            print(f"bwconstraints[i][i + count * len(inputmatrix[0])] = {bwconstraints[i][i + count * len(inputmatrix[0])]}")
-
-            print(f"len inputmatrix[0] = {len(inputmatrix[0])}")
-
             for request in request_list:
-                print(f"i: {i}")
-                print(f"inputmatrix[0]: {inputmatrix[0]}")
-                print(f"i + count * len(inputmatrix[0]) = {i + count * len(inputmatrix[0])}")
-                print(f"bwconstraints[i][i + count * len(inputmatrix[0])] = {bwconstraints[i][i + count * len(inputmatrix[0])]}")
-                print(f"bwconstraints[i]: {bwconstraints[i]}")
                 bwconstraints[i][
                     i + count * len(inputmatrix[0])
                 ] = request.required_bandwidth
