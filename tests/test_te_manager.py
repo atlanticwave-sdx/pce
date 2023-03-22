@@ -31,36 +31,6 @@ class TEManagerTests(unittest.TestCase):
 
         self.temanager = TEManager(topology_data, connection_data)
 
-    def _make_connection(self):
-        graph = self.temanager.graph
-        print(f"Generated networkx graph of the topology: {graph}")
-        print(f"Graph nodes: {graph.nodes[0]}, edges: {graph.edges}")
-
-        connection = self.temanager.generate_connection_te()
-        print(f"connection: {connection}")
-
-        return connection
-
-    def _make_tm_and_solve(self, request):
-        # Make a traffic matrix from plain old style requests (used in
-        # the test methods below), and solve it.
-
-        # Make a connection request.
-        tm = self._make_traffic_matrix(request)
-        print(f"tm: {tm}")
-
-        print(f"graph: {self.temanager.graph}")
-        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
-
-        # Find a connection solution.
-        solver = TESolver(self.temanager.graph, tm)
-        print(f"solver: {solver}")
-
-        solution = solver.solve()
-        print(f"solution: {solution}")
-
-        return solution
-
     def test_generate_solver_input(self):
         print("Test Convert Connection To Topology")
         connection = self._make_connection()
@@ -192,14 +162,44 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(tm)
         self.assertIsInstance(tm, TrafficMatrix)
 
+    def _make_connection(self):
+        graph = self.temanager.graph
+        print(f"Generated networkx graph of the topology: {graph}")
+        print(f"Graph nodes: {graph.nodes[0]}, edges: {graph.edges}")
+
+        connection = self.temanager.generate_connection_te()
+        print(f"connection: {connection}")
+
+        return connection
+
+    def _make_tm_and_solve(self, request):
+        # Make a traffic matrix from plain old style requests (used in
+        # the test methods below), and solve it.
+
+        # Make a connection request.
+        tm = self._make_traffic_matrix(request)
+        print(f"tm: {tm}")
+
+        print(f"graph: {self.temanager.graph}")
+        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
+
+        # Find a connection solution.
+        solver = TESolver(self.temanager.graph, tm)
+        print(f"solver: {solver}")
+
+        solution = solver.solve()
+        print(f"solution: {solution}")
+
+        return solution
+
     def _make_traffic_matrix(self, old_style_request: list) -> TrafficMatrix:
         """
         Make a traffic matrix from the old-style list.
-    
+
         The list contains a map of requests and cost.  The map contains a
         string key (TODO: what is this key?) and a list of lists as
         value, like so::
-    
+
             [
                 {
                     "1": [[1, 2], [3, 4]],
@@ -207,45 +207,45 @@ class TEManagerTests(unittest.TestCase):
                 },
                 1.0,
             ]
-    
+
         """
         assert isinstance(old_style_request, list)
         assert len(old_style_request) == 2
-    
+
         requests_map = old_style_request[0]
-    
+
         # TODO: what to do with this? Is it even a cost?
         cost = old_style_request[1]
         print(f"cost: {cost}")
-    
+
         new_requests: list(ConnectionRequest) = []
-    
+
         print(f"type of request: {type(requests_map)}")
         assert isinstance(requests_map, dict)
-    
+
         for key, requests in requests_map.items():
             assert isinstance(key, str)
             assert isinstance(requests, list)
             assert len(requests) > 0
-    
+
             print(f"key: {key}, request: {requests}")
-    
+
             for request in requests:
                 source = request[0]
                 destination = request[1]
-    
+
                 if len(request) >= 3:
                     required_bandwidth = request[2]
                 else:
                     # Use a very low default bandwith value in tests.
                     required_bandwidth = 1
-    
+
                 if len(request) >= 4:
                     required_latency = request[3]
                 else:
                     # Use a very high latency default latency value in tests.
                     required_latency = 100
-    
+
                 assert len(request) == 2
                 new_requests.append(
                     ConnectionRequest(
@@ -255,5 +255,5 @@ class TEManagerTests(unittest.TestCase):
                         required_latency=required_latency,
                     )
                 )
-    
+
         return TrafficMatrix(connection_requests=new_requests)
