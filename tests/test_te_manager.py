@@ -6,7 +6,12 @@ import unittest
 import networkx as nx
 
 from sdx.pce.load_balancing.te_solver import TESolver
-from sdx.pce.models import ConnectionPath, ConnectionRequest, TrafficMatrix
+from sdx.pce.models import (
+    ConnectionPath,
+    ConnectionRequest,
+    ConnectionSolution,
+    TrafficMatrix,
+)
 from sdx.pce.topology.temanager import TEManager
 
 
@@ -172,9 +177,11 @@ class TEManagerTests(unittest.TestCase):
 
         return connection
 
-    def _make_tm_and_solve(self, request):
-        # Make a traffic matrix from plain old style requests (used in
-        # the test methods below), and solve it.
+    def _make_tm_and_solve(self, request) -> ConnectionSolution:
+        """
+        Make a traffic matrix from plain old style requests (used in
+        the test methods below), and solve it.
+        """
 
         # Make a connection request.
         tm = self._make_traffic_matrix(request)
