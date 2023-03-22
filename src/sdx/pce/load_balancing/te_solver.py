@@ -55,8 +55,8 @@ class TESolver:
         :param cost_flag: Cost (weight) to assign per link.
         :param objective: What to solve for: cost or load balancing.
         """
-        assert graph is not None
-        assert tm is not None
+        assert isinstance(graph, nx.Graph)
+        assert isinstance(tm, TrafficMatrix)
 
         self.graph = graph
         self.tm = tm
