@@ -1,3 +1,4 @@
+import pathlib
 import unittest
 
 import matplotlib.pyplot as plt
@@ -10,30 +11,38 @@ from sdx.datamodel.validation.topologyvalidator import TopologyValidator
 from sdx.pce.topology.grenmlconverter import GrenmlConverter
 from sdx.pce.topology.manager import TopologyManager
 
-TOPOLOGY_AMLIGHT = "./tests/data/amlight.json"
-TOPOLOGY_SAX = "./tests/data/sax.json"
-TOPOLOGY_ZAOXI = "./tests/data/zaoxi.json"
 
+class TopologyGrpahTests(unittest.TestCase):
+    """
+    Test graph generation.
+    """
 
-class TestTopologyGrpah(unittest.TestCase):
+    TEST_DATA_DIR = pathlib.Path(__file__).parent.joinpath("data")
+    TOPOLOGY_FILE_AMLIGHT = TEST_DATA_DIR.joinpath("amlight.json")
+    TOPOLOGY_FILE_AMLIGHT_IMG = TEST_DATA_DIR.joinpath("amlight.png")
+    
     def setUp(self):
-        self.manager = TopologyManager()  # noqa: E501
-        self.handler = self.manager.topology_handler
-        self.handler.topology_file_name(TOPOLOGY_AMLIGHT)
-        self.handler.import_topology()
-        self.manager.set_topology(self.handler.get_topology())
+        pass
 
     def tearDown(self):
         pass
 
-    def testGenerateGraph(self):
-        try:
-            print("Test Topology Graph")
-            graph = self.manager.generate_graph()
-            # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
-            nx.draw(graph)
-            plt.savefig("./tests/data/amlight.png")
-        except DataModelException as e:
-            print(e)
-            return False
-        return True
+    def test_generate_graph(self):
+        print("Test Topology Graph")
+        
+        topology_manager = TopologyManager()
+        topology_handler = topology_manager.topology_handler
+
+        topology_handler.topology_file_name(self.TOPOLOGY_FILE_AMLIGHT)
+        topology_handler.import_topology()
+        topology_manager.set_topology(topology_handler.get_topology())
+        
+        graph = topology_manager.generate_graph()
+
+        self.assertIsInstance(graph, nx.Graph)
+
+        # Seed for reproducible layout
+        # pos = nx.spring_layout(graph, seed=225)
+        
+        nx.draw(graph)
+        plt.savefig(self.TOPOLOGY_FILE_AMLIGHT_IMG)
