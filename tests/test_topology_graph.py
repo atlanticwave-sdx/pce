@@ -1,15 +1,14 @@
 import unittest
 
-from networkx import MultiGraph, Graph
 import matplotlib.pyplot as plt
 import networkx as nx
+from networkx import Graph, MultiGraph
 
-from sdx.datamodel.validation.topologyvalidator import TopologyValidator
-from sdx.datamodel.parsing.topologyhandler import TopologyHandler
-from sdx.pce.topology.manager import TopologyManager
-from sdx.pce.topology.grenmlconverter import GrenmlConverter
 from sdx.datamodel.parsing.exceptions import DataModelException
-
+from sdx.datamodel.parsing.topologyhandler import TopologyHandler
+from sdx.datamodel.validation.topologyvalidator import TopologyValidator
+from sdx.pce.topology.grenmlconverter import GrenmlConverter
+from sdx.pce.topology.manager import TopologyManager
 
 TOPOLOGY_AMLIGHT = "./tests/data/amlight.json"
 TOPOLOGY_SAX = "./tests/data/sax.json"
