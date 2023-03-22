@@ -264,7 +264,7 @@ class TESolver:
         # print("distance_list:"+str(np.shape(distance_list)))
         # print("latency_list:"+str(np.shape(latency_list)))
 
-        latconstraint = self._latconstraintmaker(links)
+        latconstraint = self._make_latency_constaints(links)
 
         # form the bound: rhs
         # flows: numnode*len(request)
@@ -434,7 +434,7 @@ class TESolver:
 
         return bwconstraints
 
-    def _latconstraintmaker(self, links):
+    def _make_latency_constaints(self, links):
         lhs = []
         rhs = []
 
