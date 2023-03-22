@@ -16,12 +16,6 @@ class TopologyGrpahTests(unittest.TestCase):
     TOPOLOGY_FILE_AMLIGHT = TEST_DATA_DIR.joinpath("amlight.json")
     TOPOLOGY_FILE_AMLIGHT_IMG = TEST_DATA_DIR.joinpath("amlight.png")
 
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     def test_generate_graph(self):
         print("Test Topology Graph")
 
