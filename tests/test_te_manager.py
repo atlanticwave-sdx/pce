@@ -111,7 +111,7 @@ class TEManagerTests(unittest.TestCase):
     def _make_tm_and_solve(self, request):
         # Make a traffic matrix from plain old style requests (used in
         # the test methods below), and solve it.
-        
+
         # Make a connection request.
         tm = make_traffic_matrix(request)
         print(f"tm: {tm}")
