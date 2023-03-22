@@ -10,73 +10,6 @@ from sdx.pce.models import ConnectionPath, ConnectionRequest, TrafficMatrix
 from sdx.pce.topology.temanager import TEManager
 
 
-def make_traffic_matrix(old_style_request: list) -> TrafficMatrix:
-    """
-    Make a traffic matrix from the old-style list.
-
-    The list contains a map of requests and cost.  The map contains a
-    string key (TODO: what is this key?) and a list of lists as
-    value, like so::
-
-        [
-            {
-                "1": [[1, 2], [3, 4]],
-                "2": [[1, 2], [3, 4]],
-            },
-            1.0,
-        ]
-
-    """
-    assert isinstance(old_style_request, list)
-    assert len(old_style_request) == 2
-
-    requests_map = old_style_request[0]
-
-    # TODO: what to do with this? Is it even a cost?
-    cost = old_style_request[1]
-    print(f"cost: {cost}")
-
-    new_requests: list(ConnectionRequest) = []
-
-    print(f"type of request: {type(requests_map)}")
-    assert isinstance(requests_map, dict)
-
-    for key, requests in requests_map.items():
-        assert isinstance(key, str)
-        assert isinstance(requests, list)
-        assert len(requests) > 0
-
-        print(f"key: {key}, request: {requests}")
-
-        for request in requests:
-            source = request[0]
-            destination = request[1]
-
-            if len(request) >= 3:
-                required_bandwidth = request[2]
-            else:
-                # Use a very low default bandwith value in tests.
-                required_bandwidth = 1
-
-            if len(request) >= 4:
-                required_latency = request[3]
-            else:
-                # Use a very high latency default latency value in tests.
-                required_latency = 100
-
-            assert len(request) == 2
-            new_requests.append(
-                ConnectionRequest(
-                    source=source,
-                    destination=destination,
-                    required_bandwidth=required_bandwidth,
-                    required_latency=required_latency,
-                )
-            )
-
-    return TrafficMatrix(connection_requests=new_requests)
-
-
 class TEManagerTests(unittest.TestCase):
     """
     Tests for topology related functions.
@@ -113,7 +46,7 @@ class TEManagerTests(unittest.TestCase):
         # the test methods below), and solve it.
 
         # Make a connection request.
-        tm = make_traffic_matrix(request)
+        tm = self._make_traffic_matrix(request)
         print(f"tm: {tm}")
 
         print(f"graph: {self.temanager.graph}")
@@ -258,3 +191,69 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(tm)
         self.assertIsInstance(tm, TrafficMatrix)
+
+    def _make_traffic_matrix(self, old_style_request: list) -> TrafficMatrix:
+        """
+        Make a traffic matrix from the old-style list.
+    
+        The list contains a map of requests and cost.  The map contains a
+        string key (TODO: what is this key?) and a list of lists as
+        value, like so::
+    
+            [
+                {
+                    "1": [[1, 2], [3, 4]],
+                    "2": [[1, 2], [3, 4]],
+                },
+                1.0,
+            ]
+    
+        """
+        assert isinstance(old_style_request, list)
+        assert len(old_style_request) == 2
+    
+        requests_map = old_style_request[0]
+    
+        # TODO: what to do with this? Is it even a cost?
+        cost = old_style_request[1]
+        print(f"cost: {cost}")
+    
+        new_requests: list(ConnectionRequest) = []
+    
+        print(f"type of request: {type(requests_map)}")
+        assert isinstance(requests_map, dict)
+    
+        for key, requests in requests_map.items():
+            assert isinstance(key, str)
+            assert isinstance(requests, list)
+            assert len(requests) > 0
+    
+            print(f"key: {key}, request: {requests}")
+    
+            for request in requests:
+                source = request[0]
+                destination = request[1]
+    
+                if len(request) >= 3:
+                    required_bandwidth = request[2]
+                else:
+                    # Use a very low default bandwith value in tests.
+                    required_bandwidth = 1
+    
+                if len(request) >= 4:
+                    required_latency = request[3]
+                else:
+                    # Use a very high latency default latency value in tests.
+                    required_latency = 100
+    
+                assert len(request) == 2
+                new_requests.append(
+                    ConnectionRequest(
+                        source=source,
+                        destination=destination,
+                        required_bandwidth=required_bandwidth,
+                        required_latency=required_latency,
+                    )
+                )
+    
+        return TrafficMatrix(connection_requests=new_requests)
