@@ -6,8 +6,8 @@ import networkx as nx
 
 from sdx.datamodel.validation.topologyvalidator import TopologyValidator
 from sdx.datamodel.parsing.topologyhandler import TopologyHandler
-from sdx.datamodel.topologymanager.manager import TopologyManager
-from sdx.datamodel.topologymanager.grenmlconverter import GrenmlConverter
+from sdx.pce.topology.manager import TopologyManager
+from sdx.pce.topology.grenmlconverter import GrenmlConverter
 from sdx.datamodel.parsing.exceptions import DataModelException
 
 
@@ -19,7 +19,7 @@ TOPOLOGY_ZAOXI = "./tests/data/zaoxi.json"
 class TestTopologyGrpah(unittest.TestCase):
     def setUp(self):
         self.manager = TopologyManager()  # noqa: E501
-        self.handler = self.manager.handler
+        self.handler = self.manager.topology_handler
         self.handler.topology_file_name(TOPOLOGY_AMLIGHT)
         self.handler.import_topology()
         self.manager.set_topology(self.handler.get_topology())
