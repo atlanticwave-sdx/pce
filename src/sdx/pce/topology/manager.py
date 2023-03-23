@@ -179,6 +179,7 @@ class TopologyManager:
 
         # ToDo: raise an warning or exception
         if len(interdomain_port_dict) == 0:
+            print("interdomain_port_dict==0")
             return False
 
         # match any ports in the existing topology
