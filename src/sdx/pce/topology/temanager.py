@@ -117,12 +117,12 @@ class TEManager:
 
         return True
 
-    def generate_connection_breakdown_tm(self, connection: ConnectionSolution):
+    def generate_connection_breakdown_tm(self, connection: ConnectionSolution) -> dict:
         """
         Take a connection and generate a breakdown.
 
-        TODO: This is work in progress, and this is an alternative to
-        generate_connection_breakdown() below.
+        This is an alternative to generate_connection_breakdown()
+        below which uses the newly defined types from sdx.pce.models.
         """
         if connection is None or connection.connection_map is None:
             print(f"Can't find a breakdown for {connection}")
