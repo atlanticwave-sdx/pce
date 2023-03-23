@@ -25,13 +25,15 @@ class GrenmlConverterTests(unittest.TestCase):
         # TODO: this does not raise errors when it should (such as
         # when the input file is not present). Make the necessary
         # change in datamodel's TopologyHandler class.
-        manager.handler.topology_file_name(self.AMLIGHT_TOPOLOGY_FILE)
-        manager.handler.import_topology()
+        manager.topology_handler.topology_file_name(self.AMLIGHT_TOPOLOGY_FILE)
+        manager.topology_handler.import_topology()
 
-        print(f"Topology: {manager.handler.topology}")
-        self.assertIsNotNone(manager.handler.topology, "No topology could be read")
+        print(f"Topology: {manager.topology_handler.topology}")
+        self.assertIsNotNone(
+            manager.topology_handler.topology, "No topology could be read"
+        )
 
-        converter = GrenmlConverter(manager.handler.topology)
+        converter = GrenmlConverter(manager.topology_handler.topology)
         print(f"GrenmlConverter: {converter}")
         self.assertIsNotNone(converter, "Could not create GRENML converter")
 

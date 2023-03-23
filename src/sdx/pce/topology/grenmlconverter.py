@@ -30,7 +30,7 @@ class GrenmlConverter(object):
     def add_nodes(self, nodes):
         for node in nodes:
             location = node.get_location()
-            print("adding node:" + node.id)
+            print(f"adding node: {node.id}")
             self.grenml_manager.add_node(
                 node.id,
                 node.name,
@@ -60,8 +60,8 @@ class GrenmlConverter(object):
                     end_nodes.append(grenml_node)
                 else:
                     print(
-                        "This port doesn't belong to any node in the topology, likely an Interdomain port!"
-                        + port["id"]
+                        f"This port ({port['id']}) doesn't belong to any "
+                        f"node in the topology, likely an Interdomain port?"
                     )
                     inter_domain_link = True
             if not inter_domain_link:

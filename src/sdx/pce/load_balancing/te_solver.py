@@ -55,8 +55,8 @@ class TESolver:
         :param cost_flag: Cost (weight) to assign per link.
         :param objective: What to solve for: cost or load balancing.
         """
-        assert graph is not None
-        assert tm is not None
+        assert isinstance(graph, nx.Graph)
+        assert isinstance(tm, TrafficMatrix)
 
         self.graph = graph
         self.tm = tm
@@ -74,6 +74,9 @@ class TESolver:
         Return the computed path and associated cost.
         """
         data = self._create_data_model()
+        if data is None:
+            print(f"Could not create a data model")
+            return ConnectionSolution(connection_map=None, cost=0)
 
         # Create the mip solver with the SCIP backend.
         solver = pywraplp.Solver.CreateSolver("SCIP")
@@ -133,14 +136,16 @@ class TESolver:
             print("The problem does not have an optimal solution.")
 
         # returns: dict(conn request, [path]), cost
-        return self._solution_translator(paths), solver.Objective().Value()
+        return self._solution_translator(paths, solver.Objective().Value())
 
-    def _solution_translator(self, paths) -> Union[ConnectionSolution, None]:
+    def _solution_translator(
+        self, paths: list, cost: float
+    ) -> Union[ConnectionSolution, None]:
         # extract the edge/path
         real_paths = []
         if paths is None:
             print("No solution: empty input")
-            return None
+            return ConnectionSolution(connection_map=None, cost=cost)
         for path in paths:
             real_path = []
             i = 0
@@ -154,7 +159,7 @@ class TESolver:
         id_connection = 0
         ordered_paths = {}
 
-        result = ConnectionSolution(connection_map={})
+        result = ConnectionSolution(connection_map={}, cost=cost)
 
         for request in self.tm.connection_requests:
             src = request.source
@@ -247,8 +252,7 @@ class TESolver:
         nodenum = self.graph.number_of_nodes()
         linknum = self.graph.number_of_edges()
 
-        print(f"\n #Nodes: {nodenum}")
-        print(f"\n #Links: {linknum}")
+        print(f"Creating data model: #nodes: {nodenum}, #links: {linknum}")
 
         # graph flow matrix
         inputmatrix, links = self._flow_matrix(self.graph)
@@ -260,13 +264,24 @@ class TESolver:
         # print("distance_list:"+str(np.shape(distance_list)))
         # print("latency_list:"+str(np.shape(latency_list)))
 
-        latconstraint = self._latconstraintmaker(links)
+        latconstraint = self._make_latency_constaints(links)
 
         # form the bound: rhs
         # flows: numnode*len(request)
         bounds = []
         for request in self.tm.connection_requests:
             rhs = np.zeros(nodenum, dtype=int)
+
+            # Avoid going past array bounds.
+            if request.source > nodenum or request.destination > nodenum:
+                print(
+                    f"Cannot create data model: "
+                    f"request.source ({request.source}) or "
+                    f"request.destination ({request.destination}) "
+                    f" > num nodes ({nodenum})"
+                )
+                return None
+
             rhs[request.source] = -1
             rhs[request.destination] = 1
             bounds += list(rhs)
@@ -392,8 +407,17 @@ class TESolver:
         print(f"out: {out.shape}")
         return out
 
-    #
     def _lhsbw(self, request_list, inputmatrix):
+        """
+        Form bandwidth constraints.
+
+        To learn what this means, see the formulation diagram at
+        https://github.com/atlanticwave-sdx/pce/tree/main/Documentation.
+
+        The yellow portion of the diagram is the "inputmatrix" input
+        to this function.  The return value should represent the green
+        portion, which is the bandwidth constraints computed here.
+        """
         bwconstraints = []
         # zeros = self.zerolistmaker(len(inputmatrix[0])*len(request_list))
         zeros = np.zeros(len(inputmatrix[0]) * len(request_list), dtype=int)
@@ -401,6 +425,7 @@ class TESolver:
             addzeros = copy.deepcopy(zeros)
             bwconstraints.append(addzeros)
             count = 0
+
             for request in request_list:
                 bwconstraints[i][
                     i + count * len(inputmatrix[0])
@@ -409,7 +434,7 @@ class TESolver:
 
         return bwconstraints
 
-    def _latconstraintmaker(self, links):
+    def _make_latency_constaints(self, links):
         lhs = []
         rhs = []
 
@@ -439,10 +464,6 @@ class TESolver:
         latdata = {}
         latdata["lhs"] = lhs
         latdata["rhs"] = rhs
-
-        # with open('./tests/data/latconstraint.json', 'w') as json_file:
-        #    data = latdata
-        #    json.dump(data, json_file, indent=4)
 
         return latdata
 
