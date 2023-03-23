@@ -308,3 +308,77 @@ class TEManager:
 
         print(f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}")
         return domain_breakdown
+
+
+    """
+    functions for vlan reservation.
+
+    Operations are:
+
+        - obtain the available vlan lists
+
+        - find the vlan continuity on a path if possible.
+
+        - find the vlan translation on the multi-domain path if continuity not possible
+
+        - reserve the vlan on all the ports on the path
+
+        - unreserve the vlan when the path is removed
+    """
+    """
+    This is the top-level function, to be called after _generate_connection_breakdown_tm()
+    input: domain_breakdown
+        per port available vlan range is pased in datamodel._parse_available_vlans(self, vlan_str):
+    output: updated domain_breakdown with the vlan assigned to each port along a path 
+    
+    """
+    def reserve_vlan_breakdown(self,domain_breakdown):
+        #check if there exist a path of vlan continuity
+        selected_vlan=self.find_vlan_on_path(self, domain_breakdown)
+        if selected_vlan is None: 
+            self.reserve_vlan_on_path(self, domain_breakdown, selected_vlan)
+            return True
+        
+        #if not, assuming vlan translation on the domain border port
+        upstream_o_vlan=""
+        for domain, segment in domain_breakdown:
+            print(domain)
+            i_port=segment["ingress_port"]
+            e_port=segment["egress_port"]
+
+
+            # find an available vlan for each port out of its available vlan range.
+            #ToDO
+            i_vlan=self.reserver_vlan(i_port)
+            o_vlan=self.reserver_vlan(e_port)
+            #if one has empty vlan range, first resume reserved vlans in the previous domain, then return false,
+            #vlan translation from upstream_o_vlan to i_vlan
+            segment["ingress_upstream_vlan"] = upstream_o_vlan 
+            segment["ingress_vlan"] = i_vlan
+            segment["egress_vlan"] = o_vlan
+            upstream_o_vlan=o_vlan
+
+        return True    
+    
+
+    def find_vlan_on_path(self, path):
+        ''' Finds a VLAN that's not being used at the moment on a provided path.
+            Returns an available VLAN if possible, None if none are available on
+            the submitted path.
+
+        output: vlan_tag string or None
+        '''
+        pass
+
+    def reserve_vlan(self,port):
+        with self.topolock:
+            pass
+    
+    #to be called by delete_connection()
+    def unreserve_vlan_breakdown(self,break_down):
+        with self.topolock:
+            pass  
+
+    def unreserve_vlan(self,port):
+        with self.topolock:
+            pass        
