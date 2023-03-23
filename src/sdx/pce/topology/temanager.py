@@ -117,7 +117,15 @@ class TEManager:
 
         return True
 
-    def generate_connection_breakdown_tm(self, connection: ConnectionSolution) -> dict:
+    def generate_connection_breakdown(self, connection) -> dict:
+        """
+        A "router" method for backward compatibility.
+        """
+        if isinstance(connection, ConnectionSolution):
+            return self._generate_connection_breakdown_tm(connection)
+        return self._generate_connection_breakdown_old(connection)
+
+    def _generate_connection_breakdown_tm(self, connection: ConnectionSolution) -> dict:
         """
         Take a connection and generate a breakdown.
 
@@ -208,7 +216,7 @@ class TEManager:
         print(f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}")
         return domain_breakdown
 
-    def generate_connection_breakdown(self, connection):
+    def _generate_connection_breakdown_old(self, connection):
         """
         Take a connection and generate a breakdown.
         """

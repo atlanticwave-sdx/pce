@@ -75,7 +75,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = self.temanager.generate_connection_breakdown_tm(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution)
         print(f"Breakdown: {breakdown}")
         self.assertIsNotNone(breakdown)
         self.assertIsInstance(breakdown, dict)
@@ -95,7 +95,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = self.temanager.generate_connection_breakdown_tm(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution)
         print(f"Breakdown: {breakdown}")
 
         self.assertIsNotNone(breakdown)
@@ -126,7 +126,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = self.temanager.generate_connection_breakdown_tm(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution)
         print(f"Breakdown: {breakdown}")
 
         self.assertIsNotNone(breakdown)
@@ -151,7 +151,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertEqual(solution.cost, 0)
 
         # If there's no solution, there should be no breakdown either.
-        breakdown = self.temanager.generate_connection_breakdown_tm(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution)
         self.assertIsNone(breakdown)
 
     def test_generate_graph_and_connection(self):
