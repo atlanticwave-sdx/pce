@@ -171,13 +171,13 @@ class TEManagerTests(unittest.TestCase):
             connection_data = json.load(fp)
         
         temanager = TEManager(topology_data, connection_data)
-        self.assertIsNone(temanager)
+        self.assertIsNotNone(temanager)
         
         graph = temanager.generate_graph_te()
-        self.assertIsNone(graph)
+        self.assertIsNotNone(graph)
         
         connection = temanager.generate_connection_te()
-        self.assertIsNone(connection)
+        self.assertIsNotNone(connection)
     
 
     def test_generate_graph_and_connection(self):
