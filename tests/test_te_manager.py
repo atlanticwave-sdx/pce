@@ -27,6 +27,9 @@ class TEManagerTests(unittest.TestCase):
 
     CONNECTION_REQ_FILE = TEST_DATA_DIR.joinpath("test_request.json")
 
+    TOPOLOGY_FILE_SAX_2 = TEST_DATA_DIR / "sax-2.json"
+    CONNECTION_REQ_FILE_SAX_2 = TEST_DATA_DIR / "sax-2-request.json"
+
     def setUp(self):
         with open(self.TOPOLOGY_FILE_SDX, "r", encoding="utf-8") as fp:
             topology_data = json.load(fp)
@@ -153,6 +156,29 @@ class TEManagerTests(unittest.TestCase):
         # If there's no solution, there should be no breakdown either.
         breakdown = self.temanager.generate_connection_breakdown(solution)
         self.assertIsNone(breakdown)
+
+    def test_generate_graph_and_connection_with_sax_2(self):
+        """
+        This is a test added to investigate
+        https://github.com/atlanticwave-sdx/pce/issues/107
+    
+        TODO: Use a better name for this method.
+        """
+        with open(self.TOPOLOGY_FILE_SAX_2, "r", encoding="utf-8") as fp:
+            topology_data = json.load(fp)
+
+        with open(self.CONNECTION_REQ_FILE_SAX_2, "r", encoding="utf-8") as fp:
+            connection_data = json.load(fp)
+        
+        temanager = TEManager(topology_data, connection_data)
+        self.assertIsNone(temanager)
+        
+        graph = temanager.generate_graph_te()
+        self.assertIsNone(graph)
+        
+        connection = temanager.generate_connection_te()
+        self.assertIsNone(connection)
+    
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
