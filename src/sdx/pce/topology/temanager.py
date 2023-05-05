@@ -54,7 +54,7 @@ class TEManager:
         egress_port = self.connection.egress_port
 
         print(
-            f"generate_connection_te() called with inputs: "
+            f"generate_connection_te(), ports: "
             f"ingress_port.id: {ingress_port.id}, "
             f"egress_port.id: {egress_port.id}"
         )
@@ -63,10 +63,12 @@ class TEManager:
         egress_node = self.topology_manager.topology.get_node_by_port(egress_port.id)
 
         if ingress_node is None:
-            raise Exception(f"No ingress node was found for {ingress_port.id}")
+            print(f"No ingress node was found for ingress port ID '{ingress_port.id}'")
+            return None
 
         if egress_node is None:
-            raise Exception(f"No egress node is found for {egress_port.id}")
+            print(f"No egress node is found for egress port ID '{egress_port.id}'")
+            return None
 
         ingress_nodes = [
             x for x, y in self.graph.nodes(data=True) if y["id"] == ingress_node.id
@@ -77,10 +79,12 @@ class TEManager:
         ]
 
         if len(ingress_nodes) <= 0:
-            raise Exception("No ingress nodes found in the graph")
+            print(f"No ingress node '{ingress_node.id}' found in the graph")
+            return None
 
         if len(egress_nodes) <= 0:
-            raise Exception("No egress nodes found in the graph")
+            print(f"No egress node '{egress_node.id}' found in the graph")
+            return None
 
         required_bandwidth = self.connection.bandwidth
         required_latency = self.connection.latency
