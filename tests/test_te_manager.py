@@ -20,12 +20,12 @@ class TEManagerTests(unittest.TestCase):
     Tests for topology related functions.
     """
 
-    TEST_DATA_DIR = pathlib.Path(__file__).parent.joinpath("data")
-    TOPOLOGY_FILE_SDX = TEST_DATA_DIR.joinpath("sdx.json")
-    TOPOLOGY_FILE_ZAOXI = TEST_DATA_DIR.joinpath("zaoxi.json")
-    TOPOLOGY_FILE_SAX = TEST_DATA_DIR.joinpath("sax.json")
+    TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
+    TOPOLOGY_FILE_SDX = TEST_DATA_DIR / "sdx.json"
+    TOPOLOGY_FILE_ZAOXI = TEST_DATA_DIR / "zaoxi.json"
+    TOPOLOGY_FILE_SAX = TEST_DATA_DIR / "sax.json"
 
-    CONNECTION_REQ_FILE = TEST_DATA_DIR.joinpath("test_request.json")
+    CONNECTION_REQ_FILE = TEST_DATA_DIR / "test_request.json"
 
     TOPOLOGY_FILE_SAX_2 = TEST_DATA_DIR / "sax-2.json"
     CONNECTION_REQ_FILE_SAX_2_INVALID = TEST_DATA_DIR / "sax-2-request-invalid.json"
