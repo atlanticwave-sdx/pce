@@ -49,7 +49,7 @@ class TEManager:
     def update_topology(self, topology_data: dict):
         """
         Update an existing topology in TEManager.
-        
+
         :param topology_data: a dictionary that represents a topology.
         """
         self.topology_manager.update_topology(topology_data)
