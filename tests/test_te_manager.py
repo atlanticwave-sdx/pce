@@ -176,13 +176,13 @@ class TEManagerTests(unittest.TestCase):
 
         graph = temanager.generate_graph_te()
         self.assertIsNotNone(graph)
+        self.assertIsInstance(graph, nx.Graph)
 
-        # Expect an exception because the connection_data contains
+        # Expect None because the connection_data contains
         # unresolvable port IDs, which are not present in the given
         # topology.
-        self.assertRaises(
-            Exception, temanager.generate_connection_te, "No ingress node was found"
-        )
+        connection = temanager.generate_connection_te()
+        self.assertIsNone(connection)
 
     def test_generate_graph_and_connection_with_sax_2_valid(self):
         """
@@ -201,12 +201,15 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(temanager)
 
         graph = temanager.generate_graph_te()
+
         print(f"graph: {graph}")
         self.assertIsNotNone(graph)
+        self.assertIsInstance(graph, nx.Graph)
 
         connection = temanager.generate_connection_te()
         print(f"connection request: {connection}")
         self.assertIsNotNone(connection)
+        self.assertIsInstance(connection, TrafficMatrix)
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
