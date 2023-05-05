@@ -46,6 +46,14 @@ class TEManager:
         """
         self.topology_manager.add_topology(topology_data)
 
+    def update_topology(self, topology_data: dict):
+        """
+        Update an existing topology in TEManager.
+        
+        :param topology_data: a dictionary that represents a topology.
+        """
+        self.topology_manager.update_topology(topology_data)
+
     def generate_connection_te(self) -> TrafficMatrix:
         """
         Generate a Traffic Matrix from the connection request we have.
