@@ -51,9 +51,22 @@ class TEManager:
         Generate a Traffic Matrix from the connection request we have.
         """
         ingress_port = self.connection.ingress_port
-        ingress_node = self.topology_manager.topology.get_node_by_port(ingress_port.id)
         egress_port = self.connection.egress_port
+
+        print(
+            f"generate_connection_te() called with inputs: "
+            f"ingress_port.id: {ingress_port.id}, "
+            f"egress_port.id: {egress_port.id}"
+        )
+
+        ingress_node = self.topology_manager.topology.get_node_by_port(ingress_port.id)
         egress_node = self.topology_manager.topology.get_node_by_port(egress_port.id)
+
+        if ingress_node is None:
+            raise Exception(f"No ingress node was found for {ingress_port.id}")
+
+        if egress_node is None:
+            raise Exception(f"No egress node is found for {egress_port.id}")
 
         ingress_nodes = [
             x for x, y in self.graph.nodes(data=True) if y["id"] == ingress_node.id
