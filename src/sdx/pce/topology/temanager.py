@@ -99,8 +99,8 @@ class TEManager:
             print(f"No egress node '{egress_node.id}' found in the graph")
             return None
 
-        required_bandwidth = self.connection.bandwidth
-        required_latency = self.connection.latency
+        required_bandwidth = self.connection.bandwidth or 0
+        required_latency = self.connection.latency or 0
 
         print(
             f"Setting required_latency: {required_latency}, "
