@@ -32,9 +32,14 @@ class TEManager:
         self.topology_manager.topology = (
             self.topology_manager.get_handler().import_topology_data(topology_data)
         )
+
+        print(f"TEManager: connection_data: {connection_data}")
+
         self.connection = self.connection_handler.import_connection_data(
             connection_data
         )
+
+        print(f"TEManager: self.connection: {self.connection}")
 
         self.graph = self.generate_graph_te()
 
