@@ -97,6 +97,9 @@ class TEManager:
         required_bandwidth = self.connection.bandwidth
         required_latency = self.connection.latency
 
+        print(f"Setting required_latency: {required_latency}, "
+              f"required_bandwidth: {required_bandwidth}")
+
         request = ConnectionRequest(
             source=ingress_nodes[0],
             destination=egress_nodes[0],
