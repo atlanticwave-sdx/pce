@@ -22,9 +22,8 @@ class TopologyGrpahTests(unittest.TestCase):
         topology_manager = TopologyManager()
         topology_handler = topology_manager.topology_handler
 
-        topology_handler.topology_file_name(self.TOPOLOGY_FILE_AMLIGHT)
-        topology_handler.import_topology()
-        topology_manager.set_topology(topology_handler.get_topology())
+        topology = topology_handler.import_topology(self.TOPOLOGY_FILE_AMLIGHT)
+        topology_manager.set_topology(topology)
 
         graph = topology_manager.generate_graph()
 
