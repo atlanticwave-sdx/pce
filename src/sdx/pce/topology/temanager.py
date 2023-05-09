@@ -32,9 +32,14 @@ class TEManager:
         self.topology_manager.topology = (
             self.topology_manager.get_handler().import_topology_data(topology_data)
         )
+
+        print(f"TEManager: connection_data: {connection_data}")
+
         self.connection = self.connection_handler.import_connection_data(
             connection_data
         )
+
+        print(f"TEManager: self.connection: {self.connection}")
 
         self.graph = self.generate_graph_te()
 
@@ -46,14 +51,37 @@ class TEManager:
         """
         self.topology_manager.add_topology(topology_data)
 
+    def update_topology(self, topology_data: dict):
+        """
+        Update an existing topology in TEManager.
+
+        :param topology_data: a dictionary that represents a topology.
+        """
+        self.topology_manager.update_topology(topology_data)
+
     def generate_connection_te(self) -> TrafficMatrix:
         """
         Generate a Traffic Matrix from the connection request we have.
         """
         ingress_port = self.connection.ingress_port
-        ingress_node = self.topology_manager.topology.get_node_by_port(ingress_port.id)
         egress_port = self.connection.egress_port
+
+        print(
+            f"generate_connection_te(), ports: "
+            f"ingress_port.id: {ingress_port.id}, "
+            f"egress_port.id: {egress_port.id}"
+        )
+
+        ingress_node = self.topology_manager.topology.get_node_by_port(ingress_port.id)
         egress_node = self.topology_manager.topology.get_node_by_port(egress_port.id)
+
+        if ingress_node is None:
+            print(f"No ingress node was found for ingress port ID '{ingress_port.id}'")
+            return None
+
+        if egress_node is None:
+            print(f"No egress node is found for egress port ID '{egress_port.id}'")
+            return None
 
         ingress_nodes = [
             x for x, y in self.graph.nodes(data=True) if y["id"] == ingress_node.id
@@ -64,13 +92,20 @@ class TEManager:
         ]
 
         if len(ingress_nodes) <= 0:
-            raise Exception("No ingress nodes found in the graph")
+            print(f"No ingress node '{ingress_node.id}' found in the graph")
+            return None
 
         if len(egress_nodes) <= 0:
-            raise Exception("No egress nodes found in the graph")
+            print(f"No egress node '{egress_node.id}' found in the graph")
+            return None
 
-        required_bandwidth = self.connection.bandwidth
-        required_latency = self.connection.latency
+        required_bandwidth = self.connection.bandwidth or 0
+        required_latency = self.connection.latency or 0
+
+        print(
+            f"Setting required_latency: {required_latency}, "
+            f"required_bandwidth: {required_bandwidth}"
+        )
 
         request = ConnectionRequest(
             source=ingress_nodes[0],
