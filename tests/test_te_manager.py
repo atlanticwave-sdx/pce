@@ -206,10 +206,26 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(graph)
         self.assertIsInstance(graph, nx.Graph)
 
-        connection = temanager.generate_connection_te()
-        print(f"connection request: {connection}")
-        self.assertIsNotNone(connection)
-        self.assertIsInstance(connection, TrafficMatrix)
+        tm = temanager.generate_connection_te()
+        print(f"traffic matrix: {tm}")
+        self.assertIsInstance(tm, TrafficMatrix)
+
+        self.assertIsInstance(tm.connection_requests, list)
+
+        for request in tm.connection_requests:
+            self.assertEqual(request.source, 1)
+            self.assertEqual(request.destination, 0)
+            self.assertEqual(request.required_bandwidth, 0)
+            self.assertEqual(request.required_latency, 0)
+
+        solver = TESolver(graph, tm)
+        self.assertIsNotNone(solver)
+
+        # Solver will fail to find a solution here.
+        solution = solver.solve()
+        print(f"Solution to tm {tm}: {solution}")
+        self.assertIsNone(solution.connection_map, None)
+        self.assertEqual(solution.cost, 0.0)
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
