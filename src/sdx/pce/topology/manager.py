@@ -88,11 +88,12 @@ class TopologyManager:
 
     def get_domain_name(self, node_id):
         domain_id = None
-        # print("len of topology_list:"+str(len(self.topology_list)))
-        for id, topology in self.topology_list.items():
+        # print(f"len of topology_list: {len(self.topology_list)}")
+        for topology_id, topology in self.topology_list.items():
             if topology.has_node_by_id(node_id):
-                domain_id = id
+                domain_id = topology_id
                 break
+
         return domain_id
 
     def generate_id(self):
