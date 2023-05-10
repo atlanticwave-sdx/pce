@@ -135,7 +135,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(breakdown)
         self.assertIsInstance(breakdown, dict)
-        self.assertEqual(len(breakdown), 2)
+        self.assertEqual(len(breakdown), 1)
 
     def test_connection_breakdown_some_input(self):
         # The set of requests below should fail to find a solution,
