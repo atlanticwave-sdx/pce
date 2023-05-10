@@ -85,6 +85,12 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(breakdown, dict)
         self.assertEqual(len(breakdown), 1)
 
+        # Make sure that breakdown contains domains as keys, and dicts
+        # as values.  The domain name is a little goofy, because the
+        # topology we have is goofy.
+        link = breakdown.get("urn:ogf:network:sdx")
+        self.assertIsInstance(link, dict)
+
     def test_connection_breakdown_two_similar_requests(self):
         # Solving and breaking down two similar connection requests.
         request = [
