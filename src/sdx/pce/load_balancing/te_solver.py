@@ -437,9 +437,8 @@ class TESolver:
                 #     f"i + count * len(inputmatrix[0]: {i + count * len(inputmatrix[0])}"
                 # )
 
-                bwconstraints[i][
-                    i + count * len(inputmatrix[0])
-                ] = request.required_bandwidth
+                k = i + count * len(inputmatrix[0])
+                bwconstraints[i][k] = request.required_bandwidth
                 count += 1
 
         return bwconstraints
