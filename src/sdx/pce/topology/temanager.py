@@ -29,9 +29,7 @@ class TEManager:
         self.topology_manager = TopologyManager()
         self.connection_handler = ConnectionHandler()
 
-        self.topology_manager.topology = (
-            self.topology_manager.get_handler().import_topology_data(topology_data)
-        )
+        self.topology_manager.add_topology(topology_data)
 
         print(f"TEManager: connection_data: {connection_data}")
 
