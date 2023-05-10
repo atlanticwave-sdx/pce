@@ -87,6 +87,15 @@ class TopologyManager:
         self.update_timestamp()
 
     def get_domain_name(self, node_id):
+        """
+        Find the topology ID associated with the given node ID.
+
+        A topology ID is expected to be of the format
+        "urn:ogf:network:sdx:topology:amlight.net", and from this, we
+        can find the domain name associated with the topology.
+
+        TODO: This function name may be a misnomer?
+        """
         domain_id = None
         # print(f"len of topology_list: {len(self.topology_list)}")
         for topology_id, topology in self.topology_list.items():
