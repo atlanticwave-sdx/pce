@@ -427,15 +427,15 @@ class TESolver:
             count = 0
 
             for request in request_list:
-                print(
-                    f"bwconstraints: {bwconstraints}, request: {request}, request_list: {request_list}"
-                )
-                print(
-                    f"i: {i}, count: {count} len(inputmatrix[0]): {len(inputmatrix[0])}, inputmatrix: {inputmatrix}"
-                )
-                print(
-                    f"i + count * len(inputmatrix[0]: {i + count * len(inputmatrix[0])}"
-                )
+                # print(
+                #     f"bwconstraints: {bwconstraints}, request: {request}, request_list: {request_list}"
+                # )
+                # print(
+                #     f"i: {i}, count: {count} len(inputmatrix[0]): {len(inputmatrix[0])}, inputmatrix: {inputmatrix}"
+                # )
+                # print(
+                #     f"i + count * len(inputmatrix[0]: {i + count * len(inputmatrix[0])}"
+                # )
 
                 bwconstraints[i][
                     i + count * len(inputmatrix[0])
