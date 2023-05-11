@@ -10,8 +10,8 @@ class GrenmlConverterTests(unittest.TestCase):
     Tests for GrenmlConverter.
     """
 
-    TEST_DATA_DIR = pathlib.Path(__file__).parent.joinpath("data")
-    AMLIGHT_TOPOLOGY_FILE = TEST_DATA_DIR.joinpath("amlight.json")
+    TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
+    AMLIGHT_TOPOLOGY_FILE = TEST_DATA_DIR / "topologies" / "amlight.json"
 
     def setUp(self):
         pass

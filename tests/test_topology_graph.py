@@ -12,9 +12,9 @@ class TopologyGrpahTests(unittest.TestCase):
     Test graph generation.
     """
 
-    TEST_DATA_DIR = pathlib.Path(__file__).parent.joinpath("data")
-    TOPOLOGY_FILE_AMLIGHT = TEST_DATA_DIR.joinpath("amlight.json")
-    TOPOLOGY_FILE_AMLIGHT_IMG = TEST_DATA_DIR.joinpath("amlight.png")
+    TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
+    TOPOLOGY_FILE_AMLIGHT = TEST_DATA_DIR / "topologies" / "amlight.json"
+    TOPOLOGY_FILE_AMLIGHT_IMG = TEST_DATA_DIR / "topologies" / "amlight.png"
 
     def test_generate_graph(self):
         print("Test Topology Graph")

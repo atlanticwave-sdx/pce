@@ -22,8 +22,8 @@ class TEManagerTests(unittest.TestCase):
 
     TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
     TOPOLOGY_FILE_SDX = TEST_DATA_DIR / "sdx.json"
-    TOPOLOGY_FILE_ZAOXI = TEST_DATA_DIR / "zaoxi.json"
-    TOPOLOGY_FILE_SAX = TEST_DATA_DIR / "sax.json"
+    TOPOLOGY_FILE_ZAOXI = TEST_DATA_DIR / "topologies" / "zaoxi.json"
+    TOPOLOGY_FILE_SAX = TEST_DATA_DIR / "topologies" / "sax.json"
 
     CONNECTION_REQ_FILE = TEST_DATA_DIR / "test_request.json"
 
