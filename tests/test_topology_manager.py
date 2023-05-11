@@ -138,19 +138,19 @@ class TopologyManagerTests(unittest.TestCase):
                 )
 
             if node.id in (
-                "urn:ogf:network:sdx:node:zaoxi:B1",
-                "urn:ogf:network:sdx:node:zaoxi:B2",
-                "urn:ogf:network:sdx:node:zaoxi:A1",
-            ):
-                self.assertEqual(topology_id, "urn:ogf:network:sdx:topology:zaoxi.net")
-
-            if node.id in (
+                "urn:ogf:network:sdx:node:sax:A1",
                 "urn:ogf:network:sdx:node:sax:B1",
                 "urn:ogf:network:sdx:node:sax:B2",
                 "urn:ogf:network:sdx:node:sax:B3",
-                "urn:ogf:network:sdx:node:sax:A1",
             ):
                 self.assertEqual(topology_id, "urn:ogf:network:sdx:topology:sax.net")
+
+            if node.id in (
+                "urn:ogf:network:sdx:node:zaoxi:A1",
+                "urn:ogf:network:sdx:node:zaoxi:B1",
+                "urn:ogf:network:sdx:node:zaoxi:B2",
+            ):
+                self.assertEqual(topology_id, "urn:ogf:network:sdx:topology:zaoxi.net")
 
 
 if __name__ == "__main__":
