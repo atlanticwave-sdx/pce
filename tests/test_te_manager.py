@@ -23,7 +23,7 @@ class TEManagerTests(unittest.TestCase):
     """
 
     def setUp(self):
-        with open(TestData.TOPOLOGY_FILE_SDX, "r", encoding="utf-8") as fp:
+        with open(TestData.TOPOLOGY_FILE_AMLIGHT, "r", encoding="utf-8") as fp:
             topology_data = json.load(fp)
 
         with open(TestData.CONNECTION_REQ_FILE, "r", encoding="utf-8") as fp:
@@ -46,7 +46,7 @@ class TEManagerTests(unittest.TestCase):
         # representing connection requests, still works.
         request = [
             {
-                "1": [[1, 2], [3, 4]],
+                "1": [[0, 1], [1, 2]],
             },
             1.0,
         ]
@@ -59,7 +59,7 @@ class TEManagerTests(unittest.TestCase):
         # Breaking down a traffic matrix.
         request = [
             {
-                "1": [[1, 2], [3, 4]],
+                "1": [[0, 1], [1, 2]],
             },
             1.0,
         ]
@@ -79,15 +79,15 @@ class TEManagerTests(unittest.TestCase):
         # Make sure that breakdown contains domains as keys, and dicts
         # as values.  The domain name is a little goofy, because the
         # topology we have is goofy.
-        link = breakdown.get("urn:ogf:network:sdx")
+        link = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
         self.assertIsInstance(link, dict)
 
     def test_connection_breakdown_two_similar_requests(self):
         # Solving and breaking down two similar connection requests.
         request = [
             {
-                "1": [[1, 2], [3, 4]],
-                "2": [[1, 2], [3, 4]],
+                "1": [[0, 1], [1, 2]],
+                "2": [[0, 1], [1, 2]],
             },
             1.0,
         ]
@@ -102,6 +102,9 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(breakdown)
         self.assertIsInstance(breakdown, dict)
         self.assertEqual(len(breakdown), 1)
+
+        link = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
+        self.assertIsInstance(link, dict)
 
     def test_connection_breakdown_three_domains(self):
         # SDX already exists in the known topology from setUp
@@ -132,7 +135,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(breakdown)
         self.assertIsInstance(breakdown, dict)
-        self.assertEqual(len(breakdown), 1)
+        self.assertEqual(len(breakdown), 2)
 
     def test_connection_breakdown_some_input(self):
         # The set of requests below should fail to find a solution,
