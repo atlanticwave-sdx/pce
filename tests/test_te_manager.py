@@ -14,28 +14,19 @@ from sdx.pce.models import (
 )
 from sdx.pce.topology.temanager import TEManager
 
+from . import TestData
+
 
 class TEManagerTests(unittest.TestCase):
     """
     Tests for topology related functions.
     """
 
-    TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
-    TOPOLOGY_FILE_SDX = TEST_DATA_DIR / "sdx.json"
-    TOPOLOGY_FILE_ZAOXI = TEST_DATA_DIR / "topologies" / "zaoxi.json"
-    TOPOLOGY_FILE_SAX = TEST_DATA_DIR / "topologies" / "sax.json"
-
-    CONNECTION_REQ_FILE = TEST_DATA_DIR / "test_request.json"
-
-    TOPOLOGY_FILE_SAX_2 = TEST_DATA_DIR / "sax-2.json"
-    CONNECTION_REQ_FILE_SAX_2_INVALID = TEST_DATA_DIR / "sax-2-request-invalid.json"
-    CONNECTION_REQ_FILE_SAX_2_VALID = TEST_DATA_DIR / "sax-2-request-valid.json"
-
     def setUp(self):
-        with open(self.TOPOLOGY_FILE_SDX, "r", encoding="utf-8") as fp:
+        with open(TestData.TOPOLOGY_FILE_SDX, "r", encoding="utf-8") as fp:
             topology_data = json.load(fp)
 
-        with open(self.CONNECTION_REQ_FILE, "r", encoding="utf-8") as fp:
+        with open(TestData.CONNECTION_REQ_FILE, "r", encoding="utf-8") as fp:
             connection_data = json.load(fp)
 
         self.temanager = TEManager(topology_data, connection_data)
@@ -115,12 +106,12 @@ class TEManagerTests(unittest.TestCase):
     def test_connection_breakdown_three_domains(self):
         # SDX already exists in the known topology from setUp
         # step. Add SAX topology.
-        with open(self.TOPOLOGY_FILE_SAX, "r", encoding="utf-8") as fp:
+        with open(TestData.TOPOLOGY_FILE_SAX, "r", encoding="utf-8") as fp:
             topology_data = json.load(fp)
             self.temanager.add_topology(topology_data)
 
         # Add ZAOXI topology as well.
-        with open(self.TOPOLOGY_FILE_SAX, "r", encoding="utf-8") as fp:
+        with open(TestData.TOPOLOGY_FILE_SAX, "r", encoding="utf-8") as fp:
             topology_data = json.load(fp)
             self.temanager.add_topology(topology_data)
 
@@ -171,10 +162,10 @@ class TEManagerTests(unittest.TestCase):
 
         TODO: Use a better name for this method.
         """
-        with open(self.TOPOLOGY_FILE_SAX_2, "r", encoding="utf-8") as fp:
+        with open(TestData.TOPOLOGY_FILE_SAX_2, "r", encoding="utf-8") as fp:
             topology_data = json.load(fp)
 
-        with open(self.CONNECTION_REQ_FILE_SAX_2_INVALID, "r", encoding="utf-8") as fp:
+        with open(TestData.CONNECTION_REQ_FILE_SAX_2_INVALID, "r", encoding="utf-8") as fp:
             connection_data = json.load(fp)
 
         temanager = TEManager(topology_data, connection_data)
@@ -197,10 +188,10 @@ class TEManagerTests(unittest.TestCase):
 
         TODO: Use a better name for this method.
         """
-        with open(self.TOPOLOGY_FILE_SAX_2, "r", encoding="utf-8") as fp:
+        with open(TestData.TOPOLOGY_FILE_SAX_2, "r", encoding="utf-8") as fp:
             topology_data = json.load(fp)
 
-        with open(self.CONNECTION_REQ_FILE_SAX_2_VALID, "r", encoding="utf-8") as fp:
+        with open(TestData.CONNECTION_REQ_FILE_SAX_2_VALID, "r", encoding="utf-8") as fp:
             connection_data = json.load(fp)
 
         temanager = TEManager(topology_data, connection_data)
