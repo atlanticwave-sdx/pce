@@ -264,11 +264,12 @@ class TEManagerTests(unittest.TestCase):
         tm = self._make_traffic_matrix(request)
         print(f"tm: {tm}")
 
-        print(f"graph: {self.temanager.graph}")
-        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(self.temanager.graph))}")
+        graph = self.temanager.generate_graph_te()
+        print(f"graph: {graph}")
+        print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(graph))}")
 
         # Find a connection solution.
-        solver = TESolver(self.temanager.graph, tm)
+        solver = TESolver(graph, tm)
         print(f"solver: {solver}")
 
         solution = solver.solve()
