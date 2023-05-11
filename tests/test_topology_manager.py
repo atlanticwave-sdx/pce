@@ -43,6 +43,7 @@ class TopologyManagerTests(unittest.TestCase):
 
         self.assertIsInstance(self.topology_manager.topology.to_dict(), dict)
 
+        print(f"Writing result to {self.TOPOLOGY_OUT}")
         with open(self.TOPOLOGY_OUT, "w") as outfile:
             json.dump(self.topology_manager.topology.to_dict(), outfile, indent=4)
 
