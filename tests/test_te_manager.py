@@ -125,6 +125,7 @@ class TEManagerTests(unittest.TestCase):
             {
                 "1": [[1, 2], [3, 4]],
                 "2": [[1, 2], [3, 5]],
+                "3": [[7, 8], [8, 9]],
             },
             1.0,
         ]
@@ -138,7 +139,25 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(breakdown)
         self.assertIsInstance(breakdown, dict)
-        self.assertEqual(len(breakdown), 2)
+        self.assertEqual(len(breakdown), 3)
+
+        amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
+        print(f"amlight: {amlight}")
+        self.assertIsInstance(amlight, dict)
+        self.assertIsInstance(amlight.get("ingress_port"), dict)
+        self.assertIsInstance(amlight.get("egress_port"), dict)
+
+        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
+        print(f"sax: {sax}")
+        self.assertIsInstance(sax, dict)
+        self.assertIsInstance(sax.get("ingress_port"), dict)
+        self.assertIsInstance(sax.get("egress_port"), dict)
+
+        zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
+        print(f"zaoxi: {zaoxi}")
+        self.assertIsInstance(zaoxi, dict)
+        self.assertIsInstance(zaoxi.get("ingress_port"), dict)
+        self.assertIsInstance(zaoxi.get("egress_port"), dict)
 
     def test_connection_breakdown_some_input(self):
         # The set of requests below should fail to find a solution,
