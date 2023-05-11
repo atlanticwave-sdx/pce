@@ -111,7 +111,7 @@ class TEManagerTests(unittest.TestCase):
             self.temanager.add_topology(topology_data)
 
         # Add ZAOXI topology as well.
-        with open(TestData.TOPOLOGY_FILE_SAX, "r", encoding="utf-8") as fp:
+        with open(TestData.TOPOLOGY_FILE_ZAOXI, "r", encoding="utf-8") as fp:
             topology_data = json.load(fp)
             self.temanager.add_topology(topology_data)
 
