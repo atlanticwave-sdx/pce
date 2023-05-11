@@ -4,14 +4,16 @@ import unittest
 from sdx.pce.topology.grenmlconverter import GrenmlConverter
 from sdx.pce.topology.manager import TopologyManager
 
+from . import TestData
+
 
 class GrenmlConverterTests(unittest.TestCase):
     """
     Tests for GrenmlConverter.
     """
 
-    TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
-    AMLIGHT_TOPOLOGY_FILE = TEST_DATA_DIR / "topologies" / "amlight.json"
+    # TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
+    # AMLIGHT_TOPOLOGY_FILE = TEST_DATA_DIR / "topologies" / "amlight.json"
 
     def setUp(self):
         pass
@@ -25,7 +27,7 @@ class GrenmlConverterTests(unittest.TestCase):
         # TODO: this does not raise errors when it should (such as
         # when the input file is not present). Make the necessary
         # change in datamodel's TopologyHandler class.
-        topology = manager.topology_handler.import_topology(self.AMLIGHT_TOPOLOGY_FILE)
+        topology = manager.topology_handler.import_topology(TestData.TOPOLOGY_FILE_AMLIGHT)
 
         print(f"Topology: {topology}")
         self.assertIsNotNone(topology, "No topology could be read")

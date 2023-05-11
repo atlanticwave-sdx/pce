@@ -8,24 +8,20 @@ import networkx as nx
 from sdx.pce.topology.grenmlconverter import GrenmlConverter
 from sdx.pce.topology.manager import TopologyManager
 
+from . import TestData
+
 
 class TopologyManagerTests(unittest.TestCase):
     """
     Tests for TopologyManager.
     """
 
-    TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
+    TOPOLOGY_PNG = TestData.TEST_DATA_DIR / "sdx.png"
+    TOPOLOGY_IN = TestData.TEST_DATA_DIR / "sdx.json"
+    TOPOLOGY_OUT = TestData.TEST_DATA_DIR / "sdx-out.json"
 
-    TOPOLOGY_AMLIGHT = TEST_DATA_DIR / "topologies" / "amlight.json"
-    TOPOLOGY_SAX = TEST_DATA_DIR / "topologies" / "sax.json"
-    TOPOLOGY_ZAOXI = TEST_DATA_DIR / "topologies" / "zaoxi.json"
-
-    TOPOLOGY_PNG = TEST_DATA_DIR / "sdx.png"
-    TOPOLOGY_IN = TEST_DATA_DIR / "sdx.json"
-    TOPOLOGY_OUT = TEST_DATA_DIR / "sdx-out.json"
-
-    TOPOLOGY_FILE_LIST = [TOPOLOGY_AMLIGHT, TOPOLOGY_ZAOXI, TOPOLOGY_SAX]
-    TOPOLOGY_FILE_LIST_UPDATE = [TOPOLOGY_ZAOXI]
+    TOPOLOGY_FILE_LIST = [TestData.TOPOLOGY_FILE_AMLIGHT, TestData.TOPOLOGY_FILE_ZAOXI, TestData.TOPOLOGY_FILE_SAX]
+    TOPOLOGY_FILE_LIST_UPDATE = [TestData.TOPOLOGY_FILE_ZAOXI]
 
     LINK_ID = "urn:ogf:network:sdx:link:amlight:A1-B2"
     INTER_LINK_ID = "urn:ogf:network:sdx:link:nni:Miami-Sanpaolo"
