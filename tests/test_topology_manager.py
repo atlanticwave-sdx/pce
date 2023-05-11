@@ -31,7 +31,7 @@ class TopologyManagerTests(unittest.TestCase):
     INTER_LINK_ID = "urn:ogf:network:sdx:link:nni:Miami-Sanpaolo"
 
     def setUp(self):
-        self.manager = TopologyManager()
+        self.topology_manager = TopologyManager()
 
     def test_merge_topology(self):
         print("Test Topology Merge!")
@@ -39,12 +39,12 @@ class TopologyManagerTests(unittest.TestCase):
         for topology_file in self.TOPOLOGY_FILE_LIST:
             print(f"Adding Topology file: {topology_file}")
             with open(topology_file, "r", encoding="utf-8") as infile:
-                self.manager.add_topology(json.load(infile))
+                self.topology_manager.add_topology(json.load(infile))
 
-        self.assertIsInstance(self.manager.topology.to_dict(), dict)
+        self.assertIsInstance(self.topology_manager.topology.to_dict(), dict)
 
         with open(self.TOPOLOGY_OUT, "w") as outfile:
-            json.dump(self.manager.topology.to_dict(), outfile, indent=4)
+            json.dump(self.topology_manager.topology.to_dict(), outfile, indent=4)
 
     def test_update_topology(self):
         print("Test Topology Update!")
@@ -54,14 +54,14 @@ class TopologyManagerTests(unittest.TestCase):
         for topology_file in self.TOPOLOGY_FILE_LIST_UPDATE:
             print(f"Updating topology: {topology_file}")
             with open(topology_file, "r", encoding="utf-8") as infile:
-                self.manager.update_topology(json.load(infile))
+                self.topology_manager.update_topology(json.load(infile))
 
-        self.assertIsInstance(self.manager.topology.to_dict(), dict)
+        self.assertIsInstance(self.topology_manager.topology.to_dict(), dict)
 
         with open(self.TOPOLOGY_OUT, "w") as outfile:
-            json.dump(self.manager.topology.to_dict(), outfile, indent=4)
+            json.dump(self.topology_manager.topology.to_dict(), outfile, indent=4)
 
-        graph = self.manager.generate_graph()
+        graph = self.topology_manager.generate_graph()
         # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
         nx.draw(graph, with_labels=True)
         plt.savefig(self.TOPOLOGY_PNG)
@@ -69,7 +69,7 @@ class TopologyManagerTests(unittest.TestCase):
     def test_grenml_converter(self):
         print("Test Topology GRENML Converter")
         self.test_merge_topology()
-        converter = GrenmlConverter(self.manager.get_topology())
+        converter = GrenmlConverter(self.topology_manager.get_topology())
         converter.read_topology()
         xml = converter.get_xml_str()
         print(f"xml: {xml}")
@@ -78,7 +78,7 @@ class TopologyManagerTests(unittest.TestCase):
     def test_generate_graph(self):
         print("Test Topology Graph")
         self.test_merge_topology()
-        graph = self.manager.generate_graph()
+        graph = self.topology_manager.generate_graph()
 
         # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
         nx.draw(graph, with_labels=True)
@@ -88,20 +88,20 @@ class TopologyManagerTests(unittest.TestCase):
         print("Test Topology Link Property Update!")
 
         self.test_merge_topology()
-        self.manager.update_link_property(self.LINK_ID, "latency", 8)
-        self.manager.update_link_property(self.INTER_LINK_ID, "latency", 8)
+        self.topology_manager.update_link_property(self.LINK_ID, "latency", 8)
+        self.topology_manager.update_link_property(self.INTER_LINK_ID, "latency", 8)
 
-        self.assertIsInstance(self.manager.topology.to_dict(), dict)
+        self.assertIsInstance(self.topology_manager.topology.to_dict(), dict)
 
         with open(self.TOPOLOGY_OUT, "w") as outfile:
-            json.dump(self.manager.topology.to_dict(), outfile, indent=4)
+            json.dump(self.topology_manager.topology.to_dict(), outfile, indent=4)
 
     def test_link_property_update_json(self):
         print("Test Topology JSON Link Property Update!")
 
         with open(self.TOPOLOGY_IN, "r", encoding="utf-8") as infile:
             data = json.load(infile)
-            self.manager.update_element_property_json(
+            self.topology_manager.update_element_property_json(
                 data, "links", self.LINK_ID, "latency", 20
             )
 
