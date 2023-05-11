@@ -20,7 +20,11 @@ class TopologyManagerTests(unittest.TestCase):
     TOPOLOGY_IN = TestData.TEST_DATA_DIR / "sdx.json"
     TOPOLOGY_OUT = TestData.TEST_DATA_DIR / "sdx-out.json"
 
-    TOPOLOGY_FILE_LIST = [TestData.TOPOLOGY_FILE_AMLIGHT, TestData.TOPOLOGY_FILE_ZAOXI, TestData.TOPOLOGY_FILE_SAX]
+    TOPOLOGY_FILE_LIST = [
+        TestData.TOPOLOGY_FILE_AMLIGHT,
+        TestData.TOPOLOGY_FILE_ZAOXI,
+        TestData.TOPOLOGY_FILE_SAX,
+    ]
     TOPOLOGY_FILE_LIST_UPDATE = [TestData.TOPOLOGY_FILE_ZAOXI]
 
     LINK_ID = "urn:ogf:network:sdx:link:amlight:A1-B2"

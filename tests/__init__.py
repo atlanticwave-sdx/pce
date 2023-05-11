@@ -7,7 +7,7 @@ class TestData:
     TOPOLOGY_DATA_DIR = TEST_DATA_DIR / "topologies"
 
     TOPOLOGY_FILE_SDX = TEST_DATA_DIR / "sdx.json"
-    
+
     TOPOLOGY_FILE_ZAOXI = TOPOLOGY_DATA_DIR / "zaoxi.json"
     TOPOLOGY_FILE_SAX = TOPOLOGY_DATA_DIR / "sax.json"
     TOPOLOGY_FILE_AMLIGHT = TOPOLOGY_DATA_DIR / "amlight.json"

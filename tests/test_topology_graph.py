@@ -8,6 +8,7 @@ from sdx.pce.topology.manager import TopologyManager
 
 from . import TestData
 
+
 class TopologyGrpahTests(unittest.TestCase):
     """
     Test graph generation.
