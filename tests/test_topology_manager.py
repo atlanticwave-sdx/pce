@@ -114,6 +114,44 @@ class TopologyManagerTests(unittest.TestCase):
             with open(self.TOPOLOGY_OUT, "w") as outfile:
                 json.dump(data, outfile, indent=4)
 
+    def test_get_domain_name(self):
+        """
+        Test that TopologyManager.get_domain_name() works as expected.
+        """
+        for topology_file in self.TOPOLOGY_FILE_LIST:
+            print(f"Adding Topology file: {topology_file}")
+            with open(topology_file, "r", encoding="utf-8") as infile:
+                self.topology_manager.add_topology(json.load(infile))
+
+        topology = self.topology_manager.get_topology()
+
+        for node in topology.get_nodes():
+            topology_id = self.topology_manager.get_domain_name(node.id)
+
+            if node.id in (
+                "urn:sdx:node:amlight.net:A1",
+                "urn:sdx:node:amlight.net:B1",
+                "urn:sdx:node:amlight.net:B2",
+            ):
+                self.assertEqual(
+                    topology_id, "urn:ogf:network:sdx:topology:amlight.net"
+                )
+
+            if node.id in (
+                "urn:ogf:network:sdx:node:zaoxi:B1",
+                "urn:ogf:network:sdx:node:zaoxi:B2",
+                "urn:ogf:network:sdx:node:zaoxi:A1",
+            ):
+                self.assertEqual(topology_id, "urn:ogf:network:sdx:topology:zaoxi.net")
+
+            if node.id in (
+                "urn:ogf:network:sdx:node:sax:B1",
+                "urn:ogf:network:sdx:node:sax:B2",
+                "urn:ogf:network:sdx:node:sax:B3",
+                "urn:ogf:network:sdx:node:sax:A1",
+            ):
+                self.assertEqual(topology_id, "urn:ogf:network:sdx:topology:sax.net")
+
 
 if __name__ == "__main__":
     unittest.main()
