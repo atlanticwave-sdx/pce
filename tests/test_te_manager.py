@@ -31,6 +31,9 @@ class TEManagerTests(unittest.TestCase):
 
         self.temanager = TEManager(topology_data, connection_data)
 
+    def tearDown(self):
+        self.temanager = None
+
     def test_generate_solver_input(self):
         print("Test Convert Connection To Topology")
         connection = self._make_connection()
