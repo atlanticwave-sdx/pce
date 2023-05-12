@@ -159,6 +159,44 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(zaoxi.get("ingress_port"), dict)
         self.assertIsInstance(zaoxi.get("egress_port"), dict)
 
+    def test_connection_breakdown_three_domains_sax_connection(self):
+        """
+        Test case added to investigate
+        https://github.com/atlanticwave-sdx/sdx-controller/issues/146
+        """
+        with open(TestData.TOPOLOGY_FILE_SAX, "r", encoding="utf-8") as fp:
+            topology_data = json.load(fp)
+            self.temanager.add_topology(topology_data)
+
+        # Add ZAOXI topology as well.
+        with open(TestData.TOPOLOGY_FILE_ZAOXI, "r", encoding="utf-8") as fp:
+            topology_data = json.load(fp)
+            self.temanager.add_topology(topology_data)
+
+        request = [
+            {
+                "1": [[6, 9]],
+            },
+            1.0,
+        ]
+
+        solution = self._make_tm_and_solve(request)
+
+        print(f"topology: {self.temanager.topology_manager.topology}")
+        print(f"topology_list: {self.temanager.topology_manager.topology_list}")
+
+        self.assertIsNotNone(solution.connection_map)
+        self.assertNotEqual(solution.cost, 0)
+
+        breakdown = self.temanager.generate_connection_breakdown(solution)
+        print(f"Breakdown: {breakdown}")
+
+        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
+        print(f"Breakdown, SAX: {sax}")
+
+        zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
+        print(f"Breakdown, ZAOXI: {zaoxi}")
+
     def test_connection_breakdown_some_input(self):
         # The set of requests below should fail to find a solution,
         # because our graph at this point do not have enough nodes as
