@@ -29,6 +29,9 @@ class TEManager:
         self.topology_manager = TopologyManager()
         self.connection_handler = ConnectionHandler()
 
+        # Making topology_data optional while investigating
+        # https://github.com/atlanticwave-sdx/sdx-controller/issues/145.
+        # TODO: a nicer thing to do would be to keep less state around.
         if topology_data:
             self.topology_manager.add_topology(topology_data)
             self.graph = self.generate_graph_te()
