@@ -29,7 +29,11 @@ class TEManager:
         self.topology_manager = TopologyManager()
         self.connection_handler = ConnectionHandler()
 
-        # self.topology_manager.add_topology(topology_data)
+        if topology_data:
+            self.topology_manager.add_topology(topology_data)
+            self.graph = self.generate_graph_te()
+        else:
+            self.graph = None
 
         print(f"TEManager: connection_data: {connection_data}")
 
@@ -38,9 +42,6 @@ class TEManager:
         )
 
         print(f"TEManager: self.connection: {self.connection}")
-
-        # self.graph = self.generate_graph_te()
-        self.graph = None
 
     def add_topology(self, topology_data: dict):
         """
