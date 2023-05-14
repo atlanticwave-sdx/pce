@@ -39,7 +39,8 @@ class TEManager:
 
         print(f"TEManager: self.connection: {self.connection}")
 
-        self.graph = self.generate_graph_te()
+        # self.graph = self.generate_graph_te()
+        self.graph = None
 
     def add_topology(self, topology_data: dict):
         """
