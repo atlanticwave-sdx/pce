@@ -99,7 +99,6 @@ class TopologyManager:
         domain_id = None
         # print(f"len of topology_list: {len(self.topology_list)}")
         for topology_id, topology in self.topology_list.items():
-            print(f"get_domain_name: node_id: {node_id} topology_id: {topology_id}")
             if topology.has_node_by_id(node_id):
                 domain_id = topology_id
                 break
