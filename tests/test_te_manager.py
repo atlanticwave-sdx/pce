@@ -291,6 +291,40 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNone(solution.connection_map, None)
         self.assertEqual(solution.cost, 0.0)
 
+    def test_connection_amlight_to_zaoxi(self):
+        """
+        Exercise a connection request between Amlight and Zaoxi.
+
+        TODO: doesn't work as expected yet; see note at the bottom.
+        """
+        connection_request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_SAX.read_text())
+        print(f"connection_request: {connection_request}")
+
+        temanager = TEManager(topology_data=None, connection_data=connection_request)
+
+        for path in (
+            TestData.TOPOLOGY_FILE_AMLIGHT,
+            TestData.TOPOLOGY_FILE_SAX,
+            TestData.TOPOLOGY_FILE_ZAOXI,
+        ):
+            topology = json.loads(path.read_text())
+            temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+        traffic_matrix = temanager.generate_connection_te()
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        # TODO: why can't we find a solution for this now?  This test
+        # request used to work prior to PCE refactoring.
+        self.assertIsNotNone(solution.connection_map)
+
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
         tm = self.temanager.generate_connection_te()
