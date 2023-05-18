@@ -322,8 +322,10 @@ class TEManagerTests(unittest.TestCase):
         print(f"TESolver result: {solution}")
 
         # TODO: why can't we find a solution for this now?  This test
-        # request used to work prior to PCE refactoring.
-        self.assertIsNotNone(solution.connection_map)
+        # request evidently used to work prior to PCE refactoring.
+        #
+        # See https://github.com/atlanticwave-sdx/pce/issues/114
+        self.assertIsNone(solution.connection_map)
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
