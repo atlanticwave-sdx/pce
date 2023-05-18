@@ -135,6 +135,7 @@ dmypy.json
 /tests/data/sdx-out.json
 /tests/data/sdx.png
 /tests/data/amlight.png
+tests/data/topologies/amlight.png
 
 /.coverage
 /coverage.lcov
