@@ -315,14 +315,14 @@ class TEManagerTests(unittest.TestCase):
 
         print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
 
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
         for request in traffic_matrix.connection_requests:
             print(
                 f"Connectivity for {request}: "
                 f"{temanager.graph_node_connectivity(request.source, request.destination)}"
             )
-
-        self.assertIsNotNone(graph)
-        self.assertIsNotNone(traffic_matrix)
 
         solution = TESolver(graph, traffic_matrix).solve()
         print(f"TESolver result: {solution}")
