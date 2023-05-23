@@ -368,6 +368,9 @@ class TEManagerTests(unittest.TestCase):
         # This hopefully should find a solution.
         self.assertIsNotNone(solution.connection_map)
 
+        breakdown = temanager.generate_connection_breakdown(solution)
+        print(f"breakdown: {json.dumps(breakdown)}")
+
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
         tm = self.temanager.generate_connection_te()
