@@ -331,7 +331,10 @@ class TEManagerTests(unittest.TestCase):
         # request evidently used to work prior to PCE refactoring.
         #
         # See https://github.com/atlanticwave-sdx/pce/issues/114
-        self.assertIsNone(solution.connection_map)
+        self.assertIsNotNone(solution.connection_map)
+
+        breakdown = temanager.generate_connection_breakdown(solution)
+        print(f"breakdown: {json.dumps(breakdown)}")
 
     def test_connection_amlight_to_zaoxi_with_merged_topology(self):
         """
