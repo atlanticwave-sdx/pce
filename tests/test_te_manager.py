@@ -26,7 +26,7 @@ class TEManagerTests(unittest.TestCase):
         with open(TestData.TOPOLOGY_FILE_AMLIGHT, "r", encoding="utf-8") as fp:
             topology_data = json.load(fp)
 
-        with open(TestData.CONNECTION_REQ_FILE, "r", encoding="utf-8") as fp:
+        with open(TestData.CONNECTION_REQ_AMLIGHT, "r", encoding="utf-8") as fp:
             connection_data = json.load(fp)
 
         self.temanager = TEManager(topology_data, connection_data)
@@ -297,7 +297,7 @@ class TEManagerTests(unittest.TestCase):
 
         TODO: doesn't work as expected yet; see note at the bottom.
         """
-        connection_request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_SAX.read_text())
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
         print(f"connection_request: {connection_request}")
 
         temanager = TEManager(topology_data=None, connection_data=connection_request)
@@ -341,7 +341,7 @@ class TEManagerTests(unittest.TestCase):
         Solve with the "merged" topology of amlight, sax, and zaoxi.
         """
 
-        connection_request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_SAX.read_text())
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
         print(f"connection_request: {connection_request}")
 
         topology_data = json.loads(TestData.TOPOLOGY_FILE_SDX.read_text())
