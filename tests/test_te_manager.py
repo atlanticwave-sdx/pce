@@ -333,6 +333,41 @@ class TEManagerTests(unittest.TestCase):
         # See https://github.com/atlanticwave-sdx/pce/issues/114
         self.assertIsNone(solution.connection_map)
 
+    def test_connection_amlight_to_zaoxi_with_merged_topology(self):
+        """
+        Solve with the "merged" topology of amlight, sax, and zaoxi.
+        """
+
+        connection_request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_SAX.read_text())
+        print(f"connection_request: {connection_request}")
+
+        topology_data = json.loads(TestData.TOPOLOGY_FILE_SDX.read_text())
+        print(f"topology_data: {topology_data}")
+
+        temanager = TEManager(
+            topology_data=topology_data, connection_data=connection_request
+        )
+
+        graph = temanager.generate_graph_te()
+        traffic_matrix = temanager.generate_connection_te()
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        for request in traffic_matrix.connection_requests:
+            print(
+                f"Connectivity for {request}: "
+                f"{temanager.graph_node_connectivity(request.source, request.destination)}"
+            )
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        # This hopefully should find a solution.
+        self.assertIsNotNone(solution.connection_map)
+
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
         tm = self.temanager.generate_connection_te()
