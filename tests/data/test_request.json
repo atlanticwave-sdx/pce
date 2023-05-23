@@ -3,8 +3,8 @@
     "name": "AMLight",
     "start_time": "2000-01-23T04:56:07.000Z",
     "end_time": "2000-01-23T04:56:07.000Z",
-    "bandwidth_required": 100,
-    "latency_required": 20,
+    "bandwidth_required": 50,
+    "latency_required": 100,
     "egress_port":
     {
         "id": "urn:sdx:port:amlight.net:A1:1",
