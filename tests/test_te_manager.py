@@ -336,6 +336,12 @@ class TEManagerTests(unittest.TestCase):
         breakdown = temanager.generate_connection_breakdown(solution)
         print(f"breakdown: {json.dumps(breakdown)}")
 
+        # Note that the "domain" key is correct in the breakdown
+        # result when we initialize TEManager with None for topology,
+        # and later add individual topologies with add_topology().
+        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net"))
+        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:sax.net"))
+        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:amlight.net"))
 
     def test_connection_amlight_to_zaoxi_with_merged_topology(self):
         """
