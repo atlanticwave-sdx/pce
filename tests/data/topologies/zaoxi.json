@@ -2,7 +2,7 @@
   "id": "urn:ogf:network:sdx:topology:zaoxi.net",
   "name": "ZAOXI-OXP",
   "time_stamp": "2000-01-23T04:56:07+00:00",
-  "version": 1.0,
+  "version": 1,
   "model_version":"1.0.0",
   "links": [
     {
