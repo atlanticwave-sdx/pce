@@ -337,6 +337,10 @@ class TEManagerTests(unittest.TestCase):
     def test_connection_amlight_to_zaoxi_with_merged_topology(self):
         """
         Solve with the "merged" topology of amlight, sax, and zaoxi.
+
+        Note that this does not work as it probably should -- when we
+        have a merged topology, nodes do not resolve to correct
+        domains.
         """
 
         connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
