@@ -324,10 +324,6 @@ class TEManagerTests(unittest.TestCase):
         solution = TESolver(graph, traffic_matrix).solve()
         print(f"TESolver result: {solution}")
 
-        # TODO: why can't we find a solution for this now?  This test
-        # request evidently used to work prior to PCE refactoring.
-        #
-        # See https://github.com/atlanticwave-sdx/pce/issues/114
         self.assertIsNotNone(solution.connection_map)
 
         breakdown = temanager.generate_connection_breakdown(solution)
