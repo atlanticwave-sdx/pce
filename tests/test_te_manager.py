@@ -294,8 +294,6 @@ class TEManagerTests(unittest.TestCase):
     def test_connection_amlight_to_zaoxi(self):
         """
         Exercise a connection request between Amlight and Zaoxi.
-
-        TODO: doesn't work as expected yet; see note at the bottom.
         """
         connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
         print(f"connection_request: {connection_request}")
