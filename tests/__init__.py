@@ -14,8 +14,8 @@ class TestData:
 
     TOPOLOGY_FILE_AMLIGHT_IMG = TOPOLOGY_DATA_DIR / "amlight.png"
 
-    CONNECTION_REQ_AMLIGHT_SAX = TEST_DATA_DIR / "test_request.json"
-    CONNECTION_REQ_FILE = TEST_DATA_DIR / "test_request_amlight.json"
+    CONNECTION_REQ = TEST_DATA_DIR / "test_request.json"
+    CONNECTION_REQ_AMLIGHT = TEST_DATA_DIR / "test_request_amlight.json"
 
     TOPOLOGY_FILE_SAX_2 = TEST_DATA_DIR / "sax-2.json"
     CONNECTION_REQ_FILE_SAX_2_INVALID = TEST_DATA_DIR / "sax-2-request-invalid.json"

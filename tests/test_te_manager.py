@@ -26,7 +26,7 @@ class TEManagerTests(unittest.TestCase):
         with open(TestData.TOPOLOGY_FILE_AMLIGHT, "r", encoding="utf-8") as fp:
             topology_data = json.load(fp)
 
-        with open(TestData.CONNECTION_REQ_FILE, "r", encoding="utf-8") as fp:
+        with open(TestData.CONNECTION_REQ_AMLIGHT, "r", encoding="utf-8") as fp:
             connection_data = json.load(fp)
 
         self.temanager = TEManager(topology_data, connection_data)
@@ -294,10 +294,8 @@ class TEManagerTests(unittest.TestCase):
     def test_connection_amlight_to_zaoxi(self):
         """
         Exercise a connection request between Amlight and Zaoxi.
-
-        TODO: doesn't work as expected yet; see note at the bottom.
         """
-        connection_request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_SAX.read_text())
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
         print(f"connection_request: {connection_request}")
 
         temanager = TEManager(topology_data=None, connection_data=connection_request)
@@ -318,14 +316,66 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(graph)
         self.assertIsNotNone(traffic_matrix)
 
+        conn = temanager.requests_connectivity(traffic_matrix)
+        print(f"Graph connectivity: {conn}")
+
         solution = TESolver(graph, traffic_matrix).solve()
         print(f"TESolver result: {solution}")
 
-        # TODO: why can't we find a solution for this now?  This test
-        # request evidently used to work prior to PCE refactoring.
-        #
-        # See https://github.com/atlanticwave-sdx/pce/issues/114
-        self.assertIsNone(solution.connection_map)
+        self.assertIsNotNone(solution.connection_map)
+
+        breakdown = temanager.generate_connection_breakdown(solution)
+        print(f"breakdown: {json.dumps(breakdown)}")
+
+        # Note that the "domain" key is correct in the breakdown
+        # result when we initialize TEManager with None for topology,
+        # and later add individual topologies with add_topology().
+        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net"))
+        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:sax.net"))
+        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:amlight.net"))
+
+    def test_connection_amlight_to_zaoxi_with_merged_topology(self):
+        """
+        Solve with the "merged" topology of amlight, sax, and zaoxi.
+
+        Note that this does not work as it probably should -- when we
+        have a merged topology, nodes do not resolve to correct
+        domains.
+        """
+
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        print(f"connection_request: {connection_request}")
+
+        topology_data = json.loads(TestData.TOPOLOGY_FILE_SDX.read_text())
+        print(f"topology_data: {topology_data}")
+
+        temanager = TEManager(
+            topology_data=topology_data, connection_data=connection_request
+        )
+
+        graph = temanager.generate_graph_te()
+        traffic_matrix = temanager.generate_connection_te()
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        conn = temanager.requests_connectivity(traffic_matrix)
+        print(f"Graph connectivity: {conn}")
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        # This hopefully should find a solution.
+        self.assertIsNotNone(solution.connection_map)
+
+        breakdown = temanager.generate_connection_breakdown(solution)
+        print(f"breakdown: {json.dumps(breakdown)}")
+
+        # Note that the "domain" key is wrong in the results when we
+        # initialize TEManager with a merged topology.
+        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx"))
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
