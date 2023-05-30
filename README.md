@@ -114,7 +114,7 @@ with:
 $ tox -e extras
 ```
 
-Test data is stored in [tests/data](file:./tests/data) as JSON files.
+Test data is stored in [tests/data](./tests/data) as JSON files.
 
 
 <!-- URLs -->
