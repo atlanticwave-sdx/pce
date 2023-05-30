@@ -43,76 +43,8 @@ There are three queries in this connection request.  The first one is
 from Node 1 to Node 10, requring a bandwith of 8 and maximum latency
 of 20.
 
-For testing, a random connection generator and a random topology
-generator is available.
-
-
-## Connection Generation
-
-Random connection generator is located at
-Utility/RandomConnectionGen.py.
-
-```
-RandomConnectionGenerator(nodes, querynum, bw, latencylimit)
-```
-
-This will randomly generate one or multiple queries in one
-connection.json stored in `tests/data/connection.json`.
-
-## Where to Input
-
-Connection is called at the beginning of lbnxgraphgenerator() using
-GetConnection() in `/LoadBalancing/RandomTopologyGenerator`
-
-g will be the input NetworkX format topology. The current random
-topology is get from GetNetworkToplogy() .
-
-
-## Output
-
-To get the optimal path and related objective value:
-
-### MC_Solver
-
-For Minimizing the total path cost, do `from LoadBalancing.MC_Solver
-import runMC_Solver`:
-
-```
-runMC_Solver()
-```
-
-This will output a tuple of 2 elements: (Path List Dict, Total Cost).
-For example, using the previous connection.json, the output will be:
-
-```
-({1: [[1, 13], [13, 19], [19, 8], [8, 2], [2, 10]], 2: [[2, 10], [10, 9]], 3: [[15, 10]]}, 27401516.0)
-```
-
-The first element is a dict which has the connection# as key and path
-list as value, for the first connection, the traffic will be routed
-from Node 1 to Node 10, the path will be 1->13->19->8->2->10, and the
-total cost for applying all the three connections will be 27401516 in
-total.
-
-
-### LB_Solver
-
-For Minimizing the total path utilization, do `from
-LoadBalancing.LB_Utilization_Solver import runLB_UT_Solver`:
-
-```
-runLB_UT_Solver()
-```
-
-This will output a tuple of 2 elements: (Path List Dict, Total Utilization).
-Still using the previous connection.json, this time output will be:
-
-```
-({1: [[1, 14], [14, 10]], 2: [[2, 9]], 3: [[15, 10]]}, 0.08040263457045238)
-```
-
-The first element is same as in MC_Solver, but the second element will
-be the total utilization of all links which is around 0.08.
+For testing, a random topology generator and a random connection
+request generator is available.
 
 
 ## Working with PCE code
