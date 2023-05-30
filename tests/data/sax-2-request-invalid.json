@@ -1,0 +1,27 @@
+{
+    "complete": false,
+    "egress_port": {
+        "id": "id",
+        "name": "urn:sdx:port:amlight.net:Novi06:10",
+        "node": "urn:sdx:port:amlight.net:Novi06",
+        "short_name": "10",
+        "state": "enabled",
+        "status": "up"
+    },
+    "end_time": "2000-01-23T04:56:07+00:00",
+    "id": "id",
+    "ingress_port": {
+        "id": "id",
+        "name": "urn:sdx:port:amlight.net:Novi06:9",
+        "node": "urn:sdx:port:amlight.net:Novi06",
+        "short_name": "9",
+        "state": "enabled",
+        "status": "up"
+    },
+    "name": "name",
+    "quantity": 0,
+    "start_time": "2000-01-23T04:56:07+00:00",
+    "status": "success",
+    "time_stamp": "2000-01-23T04:56:07+00:00",
+    "version": 1
+}
