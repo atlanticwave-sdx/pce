@@ -78,7 +78,7 @@ $ source venv/bin/activate
 $ pip install .[test]
 ```
 
-Please note that editable installs does not work currently, due to the
+Please note that editable installs do not work currently, due to the
 shared top-level `sdx` module in datamodel.
 
 PCE can read topology data from Graphviz dot files, if the optional
