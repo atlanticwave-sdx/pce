@@ -12,7 +12,8 @@ path between nodes?
 
 ## Using PCE
 
-PCE's API is still evolving, but in general the usage is like this:
+PCE's API is still evolving.  With that caveat, and omitting some
+details, the general usage is like this:
 
 ```python
 from sdx.pce.load_balancing.te_solver import TESolver
