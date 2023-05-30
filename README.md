@@ -73,7 +73,7 @@ workflow like this:
 ```console
 $ git clone https://github.com/atlanticwave-sdx/pce.git
 $ cd pce
-$ python3 -m venv venv
+$ python3 -m venv venv --upgrade-deps
 $ source venv/bin/activate
 $ pip install .[test]
 ```
