@@ -4,3 +4,10 @@ requires = [
     "wheel",
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.black]
+src_paths = ["src", "tests", "setup.py"]
+
+[tool.isort]
+profile = "black"
+src_paths = ["src", "tests", "setup.py"]

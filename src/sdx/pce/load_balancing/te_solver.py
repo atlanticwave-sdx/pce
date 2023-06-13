@@ -427,9 +427,18 @@ class TESolver:
             count = 0
 
             for request in request_list:
-                bwconstraints[i][
-                    i + count * len(inputmatrix[0])
-                ] = request.required_bandwidth
+                # print(
+                #     f"bwconstraints: {bwconstraints}, request: {request}, request_list: {request_list}"
+                # )
+                # print(
+                #     f"i: {i}, count: {count} len(inputmatrix[0]): {len(inputmatrix[0])}, inputmatrix: {inputmatrix}"
+                # )
+                # print(
+                #     f"i + count * len(inputmatrix[0]: {i + count * len(inputmatrix[0])}"
+                # )
+
+                k = i + count * len(inputmatrix[0])
+                bwconstraints[i][k] = request.required_bandwidth
                 count += 1
 
         return bwconstraints
