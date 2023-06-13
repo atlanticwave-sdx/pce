@@ -365,15 +365,21 @@ class TEManager:
 
         - unreserve the vlan when the path is removed
     """
-    """
-    This is the top-level function, to be called after _generate_connection_breakdown_tm()
-    input: domain_breakdown
-        per port available vlan range is pased in datamodel._parse_available_vlans(self, vlan_str):
-    output: updated domain_breakdown with the vlan assigned to each port along a path 
-    
-    """
 
     def reserve_vlan_breakdown(self, domain_breakdown):
+        """
+        Reserve VLANs.
+
+        This is the top-level function, to be called after
+        _generate_connection_breakdown_tm()
+
+        :param domain_breakdown: per port available vlan range is
+            pased in datamodel._parse_available_vlans(self, vlan_str)
+
+        :return: updated domain_breakdown with the VLAN assigned to
+                 each port along a path
+        """
+
         # check if there exist a path of vlan continuity
         selected_vlan = self.find_vlan_on_path(self, domain_breakdown)
         if selected_vlan is None:
