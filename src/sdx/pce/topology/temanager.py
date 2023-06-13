@@ -383,9 +383,13 @@ class TEManager:
         # if not, assuming vlan translation on the domain border port
         upstream_o_vlan = ""
         for domain, segment in domain_breakdown:
-            print(domain)
-            i_port = segment["ingress_port"]
-            e_port = segment["egress_port"]
+            i_port = segment.get("ingress_port")
+            e_port = segment.get("egress_port")
+
+            print(f"VLAN reservation: domain: {domain}, i_port: {i_port}, e_port: {e_port}")
+
+            if i_port is None or e_port is None:
+                return False
 
             # find an available vlan for each port out of its available vlan range.
             # ToDO
