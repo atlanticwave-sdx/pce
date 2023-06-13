@@ -21,6 +21,8 @@ class TEManager:
         - generate inputs to the PCE solver
 
         - converter the solver output.
+
+        - VLAN reservation and unreservation.
     """
 
     def __init__(self, topology_data, connection_data):
@@ -356,7 +358,8 @@ class TEManager:
 
         - find the vlan continuity on a path if possible.
 
-        - find the vlan translation on the multi-domain path if continuity not possible
+        - find the vlan translation on the multi-domain path if
+          continuity not possible
 
         - reserve the vlan on all the ports on the path
 
