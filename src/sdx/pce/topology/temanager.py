@@ -405,9 +405,12 @@ class TEManager:
         return True
 
     def find_vlan_on_path(self, path):
-        """Finds a VLAN that's not being used at the moment on a provided path.
-            Returns an available VLAN if possible, None if none are available on
-            the submitted path.
+        """
+        Find an unused available VLAN on path.
+
+        Finds a VLAN that's not being used at the moment on a provided
+        path.  Returns an available VLAN if possible, None if none are
+        available on the submitted path.
 
         output: vlan_tag string or None
         """
