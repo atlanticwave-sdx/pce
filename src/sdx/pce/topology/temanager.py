@@ -439,7 +439,10 @@ class TEManager:
 
         output: vlan_tag string or None
         """
-        pass
+
+        # TODO: implement this
+        
+        return None
 
     def reserve_vlan_on_path(self, domain_breakdown, selected_vlan):
         # TODO: what is the difference between reserve_vlan and
