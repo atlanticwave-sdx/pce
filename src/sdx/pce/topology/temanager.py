@@ -401,8 +401,8 @@ class TEManager:
 
             # TODO: find an available vlan for each port out of its
             # available vlan range.
-            i_vlan = self.reserver_vlan(i_port)
-            o_vlan = self.reserver_vlan(e_port)
+            i_vlan = self.reserve_vlan(i_port)
+            o_vlan = self.reserve_vlan(e_port)
 
             print(
                 f"VLAN reservation: domain: {domain}, i_vlan: {i_vlan}, o_vlan: {o_vlan}"
