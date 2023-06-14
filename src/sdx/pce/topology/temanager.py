@@ -392,7 +392,9 @@ class TEManager:
             i_port = segment.get("ingress_port")
             e_port = segment.get("egress_port")
 
-            print(f"VLAN reservation: domain: {domain}, i_port: {i_port}, e_port: {e_port}")
+            print(
+                f"VLAN reservation: domain: {domain}, i_port: {i_port}, e_port: {e_port}"
+            )
 
             if i_port is None or e_port is None:
                 return False
@@ -401,6 +403,19 @@ class TEManager:
             # ToDO
             i_vlan = self.reserver_vlan(i_port)
             o_vlan = self.reserver_vlan(e_port)
+
+            print(
+                f"VLAN reservation: domain: {domain}, i_vlan: {i_vlan}, o_vlan: {o_vlan}"
+            )
+
+            if i_vlan is None:
+                self.unreserve_vlan(o_vlan)
+                return False
+
+            if o_vlan is None:
+                self.unreserve_vlan(i_vlan)
+                return False
+
             # if one has empty vlan range, first resume reserved vlans in the previous domain, then return false,
             # vlan translation from upstream_o_vlan to i_vlan
             segment["ingress_upstream_vlan"] = upstream_o_vlan
