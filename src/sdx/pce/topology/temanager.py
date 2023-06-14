@@ -1,9 +1,8 @@
+import threading
+from typing import Optional
+
 import networkx as nx
 from networkx.algorithms import approximation as approx
-
-import threading
-
-from typing import Optional
 
 from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
 from sdx.pce.models import (
@@ -442,23 +441,29 @@ class TEManager:
         """
 
         # TODO: implement this
-        
+
         return None
 
     def reserve_vlan_on_path(self, domain_breakdown, selected_vlan):
         # TODO: what is the difference between reserve_vlan and
         # reserve_vlan_on_path?
+
+        # TODO: implement this
+
         return domain_breakdown
 
     def reserve_vlan(self, port):
+        # TODO: implement this
         with self.topology_lock:
             pass
 
     # to be called by delete_connection()
     def unreserve_vlan_breakdown(self, break_down):
+        # TODO: implement this
         with self.topology_lock:
             pass
 
     def unreserve_vlan(self, port):
+        # TODO: implement this
         with self.topology_lock:
             pass
