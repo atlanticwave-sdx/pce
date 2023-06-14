@@ -424,7 +424,8 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:sax.net"))
         self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:amlight.net"))
 
-        temanager.reserve_vlan_breakdown(breakdown)
+        updated_breakdown = temanager.reserve_vlan_breakdown(breakdown)
+        self.assertIsNotNone(updated_breakdown)
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
