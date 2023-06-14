@@ -3,6 +3,8 @@ from networkx.algorithms import approximation as approx
 
 import threading
 
+from typing import Optional
+
 from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
 from sdx.pce.models import (
     ConnectionPath,
@@ -370,7 +372,7 @@ class TEManager:
         - unreserve the vlan when the path is removed
     """
 
-    def reserve_vlan_breakdown(self, domain_breakdown: dict) -> dict:
+    def reserve_vlan_breakdown(self, domain_breakdown: dict) -> Optional[dict]:
         """
         Reserve VLANs.
 
@@ -380,8 +382,8 @@ class TEManager:
         :param domain_breakdown: per port available vlan range is
             pased in datamodel._parse_available_vlans(self, vlan_str)
 
-        :return: updated domain_breakdown with the VLAN assigned to
-                 each port along a path
+        :return: Updated domain_breakdown with the VLAN assigned to
+                 each port along a path, or None if failure.
         """
 
         # check if there exist a path of vlan continuity
@@ -400,7 +402,7 @@ class TEManager:
             )
 
             if i_port is None or e_port is None:
-                return False
+                return None
 
             # TODO: find an available vlan for each port out of its
             # available vlan range.
@@ -413,11 +415,11 @@ class TEManager:
 
             if i_vlan is None:
                 self.unreserve_vlan(o_vlan)
-                return False
+                return None
 
             if o_vlan is None:
                 self.unreserve_vlan(i_vlan)
-                return False
+                return None
 
             # if one has empty vlan range, first resume reserved vlans in the previous domain, then return false,
             # vlan translation from upstream_o_vlan to i_vlan
@@ -426,7 +428,7 @@ class TEManager:
             segment["egress_vlan"] = o_vlan
             upstream_o_vlan = o_vlan
 
-        return True
+        return domain_breakdown
 
     def find_vlan_on_path(self, path):
         """
@@ -446,7 +448,7 @@ class TEManager:
     def reserve_vlan_on_path(self, domain_breakdown, selected_vlan):
         # TODO: what is the difference between reserve_vlan and
         # reserve_vlan_on_path?
-        pass
+        return domain_breakdown
 
     def reserve_vlan(self, port):
         with self.topology_lock:
