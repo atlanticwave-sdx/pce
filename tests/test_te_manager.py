@@ -377,13 +377,54 @@ class TEManagerTests(unittest.TestCase):
         # initialize TEManager with a merged topology.
         self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx"))
 
-
     def test_connection_amlight_to_zaoxi_with_vlans(self):
         """
         Test with VLAN.
         """
-        # TODO: write tests.
-        pass
+
+        # Below is copied from test_connection_amlight_to_zaoxi().  It
+        # would be nice to refactor the common code.
+
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        print(f"connection_request: {connection_request}")
+
+        temanager = TEManager(topology_data=None, connection_data=connection_request)
+
+        for path in (
+            TestData.TOPOLOGY_FILE_AMLIGHT,
+            TestData.TOPOLOGY_FILE_SAX,
+            TestData.TOPOLOGY_FILE_ZAOXI,
+        ):
+            topology = json.loads(path.read_text())
+            temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+        traffic_matrix = temanager.generate_connection_te()
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        conn = temanager.requests_connectivity(traffic_matrix)
+        print(f"Graph connectivity: {conn}")
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        self.assertIsNotNone(solution.connection_map)
+
+        breakdown = temanager.generate_connection_breakdown(solution)
+        print(f"breakdown: {json.dumps(breakdown)}")
+
+        # Note that the "domain" key is correct in the breakdown
+        # result when we initialize TEManager with None for topology,
+        # and later add individual topologies with add_topology().
+        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net"))
+        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:sax.net"))
+        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:amlight.net"))
+
+        temanager.reserve_vlan_breakdown(breakdown)
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
