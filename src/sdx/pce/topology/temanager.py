@@ -1,6 +1,8 @@
 import networkx as nx
 from networkx.algorithms import approximation as approx
 
+import threading
+
 from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
 from sdx.pce.models import (
     ConnectionPath,
@@ -47,6 +49,8 @@ class TEManager:
         )
 
         print(f"TEManager: self.connection: {self.connection}")
+
+        self.topology_lock = threading.Lock()
 
     def add_topology(self, topology_data: dict):
         """
@@ -443,14 +447,14 @@ class TEManager:
         pass
 
     def reserve_vlan(self, port):
-        with self.topolock:
+        with self.topology_lock:
             pass
 
     # to be called by delete_connection()
     def unreserve_vlan_breakdown(self, break_down):
-        with self.topolock:
+        with self.topology_lock:
             pass
 
     def unreserve_vlan(self, port):
-        with self.topolock:
+        with self.topology_lock:
             pass
