@@ -399,8 +399,8 @@ class TEManager:
             if i_port is None or e_port is None:
                 return False
 
-            # find an available vlan for each port out of its available vlan range.
-            # ToDO
+            # TODO: find an available vlan for each port out of its
+            # available vlan range.
             i_vlan = self.reserver_vlan(i_port)
             o_vlan = self.reserver_vlan(e_port)
 
