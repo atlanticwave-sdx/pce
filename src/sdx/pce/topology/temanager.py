@@ -422,6 +422,11 @@ class TEManager:
         """
         pass
 
+    def reserve_vlan_on_path(self, domain_breakdown, selected_vlan):
+        # TODO: what is the difference between reserve_vlan and
+        # reserve_vlan_on_path?
+        pass
+
     def reserve_vlan(self, port):
         with self.topolock:
             pass
