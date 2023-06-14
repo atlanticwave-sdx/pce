@@ -381,9 +381,9 @@ class TEManager:
         """
 
         # check if there exist a path of vlan continuity
-        selected_vlan = self.find_vlan_on_path(self, domain_breakdown)
+        selected_vlan = self.find_vlan_on_path(domain_breakdown)
         if selected_vlan is None:
-            self.reserve_vlan_on_path(self, domain_breakdown, selected_vlan)
+            self.reserve_vlan_on_path(domain_breakdown, selected_vlan)
             return True
 
         # if not, assuming vlan translation on the domain border port
