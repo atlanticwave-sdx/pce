@@ -377,6 +377,14 @@ class TEManagerTests(unittest.TestCase):
         # initialize TEManager with a merged topology.
         self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx"))
 
+
+    def test_connection_amlight_to_zaoxi_with_vlans(self):
+        """
+        Test with VLAN.
+        """
+        # TODO: write tests.
+        pass
+
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
         tm = self.temanager.generate_connection_te()
