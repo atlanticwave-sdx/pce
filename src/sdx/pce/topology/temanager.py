@@ -388,7 +388,7 @@ class TEManager:
 
         # if not, assuming vlan translation on the domain border port
         upstream_o_vlan = ""
-        for domain, segment in domain_breakdown:
+        for domain, segment in domain_breakdown.items():
             i_port = segment.get("ingress_port")
             e_port = segment.get("egress_port")
 
