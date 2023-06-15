@@ -201,17 +201,19 @@ class TESolver:
         return result
 
     # TODO: unclear what this function does.
-    def update_graph(self, graph, paths):
+    def _update_graph(
+                self, graph:nx.Graph, paths: Union[ConnectionSolution, None]
+    ) -> nx.Graph:
         if paths is None:
             return graph
-        for connection, path in paths.items():
+        for connection, path in paths.connection_map.items():
             # src = connection[0]   # src is unused
             # dest = connection[1]  # dest is unused
-            bw = connection[2]
+            bw = connection.required_bandwidth
 
             for edge in path:
-                u = edge[0]
-                v = edge[1]
+                u = edge.source
+                v = edge.destination
                 if graph.has_edge(u, v):
                     bandwidth = graph[u][v][Constants.BANDWIDTH] - bw
                     graph[u][v][Constants.BANDWIDTH] = max(
