@@ -427,6 +427,41 @@ class TEManagerTests(unittest.TestCase):
         updated_breakdown = temanager.reserve_vlan_breakdown(breakdown)
         self.assertIsNotNone(updated_breakdown)
 
+        # Per https://github.com/atlanticwave-sdx/pce/issues/101, each
+        # breakdown should be of the below form:
+        #
+        # {
+        #     "name": "TENET_vlan_201_203_Ampath_Tenet",
+        #     "dynamic_backup_path": true,
+        #     "uni_a": {
+        #         "tag": {
+        #             "value": 203,
+        #             "tag_type": 1
+        #         },
+        #         "interface_id": "cc:00:00:00:00:00:00:07:41"
+        #     },
+        #     "uni_z": {
+        #         "tag": {
+        #             "value": 201,
+        #             "tag_type": 1
+        #         },
+        #         "interface_id": "cc:00:00:00:00:00:00:08:50"
+        #     }
+        # }
+
+        self.assertIsNotNone(updated_breakdown.name)
+        self.assertIsNotNone(updated_breakdown.dynamic_backup_path)
+        self.assertIsNotNone(updated_breakdown.uni_a)
+        self.assertIsNotNone(updated_breakdown.uni_a.tag)
+        self.assertIsNotNone(updated_breakdown.uni_a.tag.value)
+        self.assertIsNotNone(updated_breakdown.uni_a.tag.tag_type)
+        self.assertIsNotNone(updated_breakdown.uni_a.interface_id)
+        self.assertIsNotNone(updated_breakdown.uni_z)
+        self.assertIsNotNone(updated_breakdown.uni_z.tag)
+        self.assertIsNotNone(updated_breakdown.uni_z.tag.value)
+        self.assertIsNotNone(updated_breakdown.uni_z.tag.tag_type)
+        self.assertIsNotNone(updated_breakdown.uni_z.interface_id)
+
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
         tm = self.temanager.generate_connection_te()
