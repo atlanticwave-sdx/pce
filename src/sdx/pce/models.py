@@ -59,3 +59,49 @@ class ConnectionSolution:
 
     connection_map: Mapping[ConnectionRequest, List[ConnectionPath]]
     cost: float
+
+
+# The classess below should help us construct a breakdown of the below
+# form that pertains to one domain:
+#
+#     {
+#         "name": "TENET_vlan_201_203_Ampath_Tenet",
+#         "dynamic_backup_path": true,
+#         "uni_a": {
+#             "tag": {
+#                 "value": 203,
+#                 "tag_type": 1
+#             },
+#             "interface_id": "cc:00:00:00:00:00:00:07:41"
+#         },
+#         "uni_z": {
+#             "tag": {
+#                 "value": 201,
+#                 "tag_type": 1
+#             },
+#             "interface_id": "cc:00:00:00:00:00:00:08:50"
+#         }
+#     }
+
+
+@dataclass_json
+@dataclass(frozen=True)
+class VLANTag:
+    value: int
+    tag_type: int
+
+
+@dataclass_json
+@dataclass(frozen=True)
+class Port:
+    tag: VLANTag
+    interface_id: str
+
+
+@dataclass_json
+@dataclass(frozen=True)
+class BreakDown:
+    name: str
+    dynamic_backup_path: bool
+    uni_a: Port
+    uni_z: Port
