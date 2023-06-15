@@ -373,10 +373,19 @@ class TEManager:
 
     def reserve_vlan_breakdown(self, domain_breakdown: dict) -> Optional[dict]:
         """
-        Reserve VLANs.
+        Upate domain breakdown with VLAN reservation information.
 
         This is the top-level function, to be called after
-        _generate_connection_breakdown_tm()
+        _generate_connection_breakdown_tm(), and should be a private
+        implementation detail.  It should be always called, meaning,
+        the VLAN tags should be present in the final breakdown,
+        regardless of whether the connection request explicitly asked
+        for it or not.
+
+        For this to work, TEManager should maintain a table of VLAN
+        allocation from each of the domains.  The ones that are not in
+        use can be reserved, and the ones that are not in use anymore
+        should be returned to the pool by calling unreserve().
 
         :param domain_breakdown: per port available vlan range is
             pased in datamodel._parse_available_vlans(self, vlan_str)
