@@ -462,10 +462,25 @@ class TEManager:
 
         return domain_breakdown
 
-    def reserve_vlan(self, port):
+    def reserve_vlan(self, port: dict):
         # TODO: implement this
-        with self.topology_lock:
-            pass
+        # with self.topology_lock:
+        #     pass
+        print(
+            f"reserve_vlan: {port.get('label_range')}, {type(port.get('label_range'))}"
+        )
+
+        label_range = port.get("label_range")
+        print(f"reserve_vlan: label_range={label_range}")
+        if label_range is None:
+            # TODO: what can we do when there's no label_range?  Is it
+            # a bug or an error when label_range is None?  Should we
+            # do an assert here?
+            # assert label_range is not None
+            print(f"label_range={label_range}, failing")
+
+        # Just return a random number for now.
+        return 200
 
     # to be called by delete_connection()
     def unreserve_vlan_breakdown(self, break_down):
