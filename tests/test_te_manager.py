@@ -462,21 +462,25 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(updated_breakdown.uni_z.tag.tag_type)
         self.assertIsNotNone(updated_breakdown.uni_z.interface_id)
 
-        # TODO: alternatively, if we're getting a dict back, maybe use
-        # the assertions below.
+        # Check that the beakdown is usable as JSON.
+        breakdown_json = updated_breakdown.to_json()
+        print(f"breakdown_json: {breakdown_json}")
+        self.assertIsInstance(breakdown_json, str)
 
-        # self.assertIsNotNone(updated_breakdown.get("name"))
-        # self.assertIsNotNone(updated_breakdown.get("dynamic_backup_path"))
-        # self.assertIsNotNone(updated_breakdown.get("uni_a"))
-        # self.assertIsNotNone(updated_breakdown.get("uni_a").get("tag"))
-        # self.assertIsNotNone(updated_breakdown.get("uni_a").get("tag").get("value"))
-        # self.assertIsNotNone(updated_breakdown.get("uni_a").get("tag").get("tag_type"))
-        # self.assertIsNotNone(updated_breakdown.get("uni_a").get("interface_id"))
-        # self.assertIsNotNone(updated_breakdown.get("uni_z"))
-        # self.assertIsNotNone(updated_breakdown.get("uni_z").get("tag"))
-        # self.assertIsNotNone(updated_breakdown.get("uni_z").get("tag").get("value"))
-        # self.assertIsNotNone(updated_breakdown.get("uni_z").get("tag").get("tag_type"))
-        # self.assertIsNotNone(updated_breakdown.get("uni_z").get("interface_id"))
+        # Check that the beakdown is usable as a dict.
+        breakdown_dict = updated_breakdown.to_dict()
+        self.assertIsNotNone(breakdown_dict.get("name"))
+        self.assertIsNotNone(breakdown_dict.get("dynamic_backup_path"))
+        self.assertIsNotNone(breakdown_dict.get("uni_a"))
+        self.assertIsNotNone(breakdown_dict.get("uni_a").get("tag"))
+        self.assertIsNotNone(breakdown_dict.get("uni_a").get("tag").get("value"))
+        self.assertIsNotNone(breakdown_dict.get("uni_a").get("tag").get("tag_type"))
+        self.assertIsNotNone(breakdown_dict.get("uni_a").get("interface_id"))
+        self.assertIsNotNone(breakdown_dict.get("uni_z"))
+        self.assertIsNotNone(breakdown_dict.get("uni_z").get("tag"))
+        self.assertIsNotNone(breakdown_dict.get("uni_z").get("tag").get("value"))
+        self.assertIsNotNone(breakdown_dict.get("uni_z").get("tag").get("tag_type"))
+        self.assertIsNotNone(breakdown_dict.get("uni_z").get("interface_id"))
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
