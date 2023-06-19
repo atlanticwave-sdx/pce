@@ -93,8 +93,6 @@ class TEManager:
         :param domain_name: the domain name
         :param nodes: a list of Node objects.
         """
-        # self._vlan_tags_table[domain_name] = {}
-
         for node in nodes:
             port_mapping = {}
 
