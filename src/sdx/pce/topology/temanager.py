@@ -406,6 +406,9 @@ class TEManager:
         #     return self.reserve_vlan_on_path(domain_breakdown, selected_vlan)
 
         # if not, assuming vlan translation on the domain border port
+
+        print(f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}")
+        
         upstream_o_vlan = ""
         for domain, segment in domain_breakdown.items():
             i_port = segment.get("ingress_port")
