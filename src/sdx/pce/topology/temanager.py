@@ -1,5 +1,5 @@
 import threading
-from typing import Optional
+from typing import Optional, List
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
@@ -56,6 +56,9 @@ class TEManager:
 
         self.topology_lock = threading.Lock()
 
+        # A {domain, {port, {vlan, in_use}}} mapping.
+        self._vlan_tags_table = {}
+
     def add_topology(self, topology_data: dict):
         """
         Add a new topology to TEManager.
@@ -63,6 +66,10 @@ class TEManager:
         :param topology_data: a dictionary that represents a topology.
         """
         self.topology_manager.add_topology(topology_data)
+
+        domain_name = topology_data.get("id")
+        # ports = topology_data.get("ports")
+        self._update_vlan_tags_table(domain_name, self.topology_manager.port_list)
 
     def update_topology(self, topology_data: dict):
         """
@@ -72,6 +79,75 @@ class TEManager:
         """
         self.topology_manager.update_topology(topology_data)
 
+        ## TODO: careful here when updating VLAN tags table -- what do
+        ## we do when an in use VLAN tag becomes invalid in the update?
+        # self._update_vlan_tags_table(self.topology_manager.port_list)
+
+    def _update_vlan_tags_table(self, domain_name, port_list):
+        """
+        """
+        # print(f"_update_vlan_tags_table: port_list: {port_list}")
+        # print(f"_update_vlan_tags_table: domain_name: {domain_name}, port_list: {port_list}")
+        print(f"_update_vlan_tags_table: domain_name: {domain_name}")
+
+        # update or insert
+        # if self._vlan_tags_table.get(domain_name):
+        self._vlan_tags_table[domain_name] = {}
+        # else:
+        # ports  = port_list.get("ports")
+        # print(f"22 _update_vlan_tags_table: domain_name: {domain_name}, ports: {ports}")
+
+        for port_id, link in port_list.items():
+            print(f"_33 _update_vlan_tags_table: port_id: {port_id}, link: {type(link)}")
+            print(f"_44 _update_vlan_tags_table: port_id: {port_id} ports: {len(link.ports)}")
+
+            # TODO: port here seems to be a dict, not sdx.datamodel.models.Port
+            for port in link.ports:
+                port_id = port.get("id")
+                label_range = port.get("label_range")
+                print(f"_55 port: {port_id} label_range: {label_range}")
+
+                assert label_range is not None, "label_range is None"
+
+                # label_range is of the form ['100-200', '1000']; let
+                # us expand it.  Would have been ideal if this was
+                # already in some parsed form, but it is not, so this
+                # is a work-around.
+                for label in label_range:
+                    print(f"_66 label: {label} {type(label)}")
+                    labels = self._expand_label(label)
+                    print(f"_77 labels: {labels}")
+                    labels_available = {}
+                    for label in labels:
+                        labels_available[label] = True
+
+                self._vlan_tags_table[domain_name][port_id] = labels_available
+        
+        # for port in port_list.get("ports"):
+        #     print(f"_update_vlan_tags_table: domain_name: {domain_name}, port: {port}")
+
+    def _expand_label(self, label: str) -> List[int]:
+        """
+        Expand label ranges to a list of numbers.
+
+        Items in label ranges can be of the form "100-200" or "100".
+        For the first case, we return [100,101,...200]; for the second
+        case, we return [100].
+        """
+        assert isinstance(label, str)
+        
+        labels = label.split("-")
+        if len(labels) == 2:
+            start = int(labels[0])
+            stop = int(labels[1])
+        else:
+            start = int(labels[0])
+            stop = int(labels[0]) + 1
+
+        assert start < stop
+
+        return  list(range(start, stop))
+    
     def generate_connection_te(self) -> TrafficMatrix:
         """
         Generate a Traffic Matrix from the connection request we have.
