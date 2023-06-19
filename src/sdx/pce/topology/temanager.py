@@ -112,10 +112,10 @@ class TEManager:
 
         self._vlan_tags_table[domain_name] = port_mapping
 
-        import pprint
-        print("WHEE ------------------------------")
-        pprint.pprint(self._vlan_tags_table)
-        print("WHEE ------------------------------")
+        # import pprint
+        # print("------ VLAN TAGS TABLE -------")
+        # pprint.pprint(self._vlan_tags_table)
+        # print("------------------------------")
 
     def _update_vlan_tags_table_from_links(self, domain_name, port_list):
         """
