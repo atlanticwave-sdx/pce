@@ -121,30 +121,13 @@ class TEManager:
 
         Also probably the wrong one.
         """
-        # print(f"_update_vlan_tags_table: port_list: {port_list}")
-        # print(f"_update_vlan_tags_table: domain_name: {domain_name}, port_list: {port_list}")
-        print(f"_update_vlan_tags_table: domain_name: {domain_name}")
-
-        # update or insert
-        # if self._vlan_tags_table.get(domain_name):
         self._vlan_tags_table[domain_name] = {}
-        # else:
-        # ports  = port_list.get("ports")
-        # print(f"22 _update_vlan_tags_table: domain_name: {domain_name}, ports: {ports}")
 
         for port_id, link in port_list.items():
-            print(
-                f"_33 _update_vlan_tags_table: port_id: {port_id}, link: {type(link)}"
-            )
-            print(
-                f"_44 _update_vlan_tags_table: port_id: {port_id} ports: {len(link.ports)}"
-            )
-
             # TODO: port here seems to be a dict, not sdx.datamodel.models.Port
             for port in link.ports:
                 port_id = port.get("id")
                 label_range = port.get("label_range")
-                print(f"_55 port: {port_id} label_range: {label_range}")
 
                 assert label_range is not None, "label_range is None"
 
@@ -153,17 +136,12 @@ class TEManager:
                 # already in some parsed form, but it is not, so this
                 # is a work-around.
                 for label in label_range:
-                    print(f"_66 label: {label} {type(label)}")
                     labels = self._expand_label(label)
-                    print(f"_77 labels: {labels}")
                     labels_available = {}
                     for label in labels:
                         labels_available[label] = True
 
                 self._vlan_tags_table[domain_name][port_id] = labels_available
-
-        # for port in port_list.get("ports"):
-        #     print(f"_update_vlan_tags_table: domain_name: {domain_name}, port: {port}")
 
     def _expand_label(self, label: str) -> List[int]:
         """
