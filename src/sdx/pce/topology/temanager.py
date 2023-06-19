@@ -9,7 +9,10 @@ from sdx.pce.models import (
     ConnectionPath,
     ConnectionRequest,
     ConnectionSolution,
+    TaggedBreakdown,
+    TaggedPort,
     TrafficMatrix,
+    VLANTag,
 )
 from sdx.pce.topology.manager import TopologyManager
 
@@ -371,7 +374,9 @@ class TEManager:
         - unreserve the vlan when the path is removed
     """
 
-    def reserve_vlan_breakdown(self, domain_breakdown: dict) -> Optional[dict]:
+    def reserve_vlan_breakdown(
+        self, domain_breakdown: dict
+    ) -> Optional[TaggedBreakdown]:
         """
         Upate domain breakdown with VLAN reservation information.
 
@@ -437,7 +442,18 @@ class TEManager:
             segment["egress_vlan"] = o_vlan
             upstream_o_vlan = o_vlan
 
-        return domain_breakdown
+        # return domain_breakdown
+
+        port_a = TaggedPort(
+            VLANTag(value=200, tag_type=1), interface_id="interface-id-a"
+        )
+        port_z = TaggedPort(
+            VLANTag(value=200, tag_type=1), interface_id="interface-id-z"
+        )
+
+        return TaggedBreakdown(
+            name="test-breakdown", dynamic_backup_path=False, uni_a=port_a, uni_z=port_z
+        )
 
     def find_vlan_on_path(self, path):
         """
