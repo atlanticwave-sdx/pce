@@ -87,21 +87,35 @@ class ConnectionSolution:
 @dataclass_json
 @dataclass(frozen=True)
 class VLANTag:
+    """
+    Representation of a VLAN tag.
+
+    TODO: document tag_type.
+    """
+
     value: int
     tag_type: int
 
 
 @dataclass_json
 @dataclass(frozen=True)
-class Port:
+class TaggedPort:
+    """
+    Representation of a port.
+    """
+
     tag: VLANTag
     interface_id: str
 
 
 @dataclass_json
 @dataclass(frozen=True)
-class BreakDown:
+class TaggedBreakdown:
+    """
+    Path breakdown within a single domain with VLAN assignments.
+    """
+
     name: str
     dynamic_backup_path: bool
-    uni_a: Port
-    uni_z: Port
+    uni_a: TaggedPort
+    uni_z: TaggedPort
