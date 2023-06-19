@@ -68,8 +68,11 @@ class TEManager:
         self.topology_manager.add_topology(topology_data)
 
         domain_name = topology_data.get("id")
-        # ports = topology_data.get("ports")
-        self._update_vlan_tags_table(domain_name, self.topology_manager.port_list)
+
+        nodes = self.topology_manager.topology.nodes
+        self._update_vlan_tags_table_from_nodes(domain_name, nodes)
+
+        # self._update_vlan_tags_table_from_links(domain_name, self.topology_manager.port_list)
 
     def update_topology(self, topology_data: dict):
         """
@@ -81,10 +84,44 @@ class TEManager:
 
         ## TODO: careful here when updating VLAN tags table -- what do
         ## we do when an in use VLAN tag becomes invalid in the update?
-        # self._update_vlan_tags_table(self.topology_manager.port_list)
+        # self._update_vlan_tags_table_from_nodes(self.topology_manager.topology.nodes)
 
-    def _update_vlan_tags_table(self, domain_name, port_list):
+    def _update_vlan_tags_table_from_nodes(self, domain_name: str, nodes):
         """
+        VLAN tags availability table from nodes->ports->label_range
+
+        :param domain_name: the domain name
+        :param nodes: a list of Node objects.
+        """
+        # self._vlan_tags_table[domain_name] = {}
+
+        for node in nodes:
+            port_mapping = {}
+
+            for port in node.ports:
+                port_id = port.id
+
+                port_mapping[port_id] = {}
+
+                label_range = port.label_range
+                for label in label_range:
+                    labels = self._expand_label(label)
+
+                    for label in labels:
+                        port_mapping[port_id][label] = True
+
+        self._vlan_tags_table[domain_name] = port_mapping
+
+        import pprint
+        print("WHEE ------------------------------")
+        pprint.pprint(self._vlan_tags_table)
+        print("WHEE ------------------------------")
+
+    def _update_vlan_tags_table_from_links(self, domain_name, port_list):
+        """
+        The version that uses links->ports.
+
+        Also probably the wrong one.
         """
         # print(f"_update_vlan_tags_table: port_list: {port_list}")
         # print(f"_update_vlan_tags_table: domain_name: {domain_name}, port_list: {port_list}")
@@ -98,8 +135,12 @@ class TEManager:
         # print(f"22 _update_vlan_tags_table: domain_name: {domain_name}, ports: {ports}")
 
         for port_id, link in port_list.items():
-            print(f"_33 _update_vlan_tags_table: port_id: {port_id}, link: {type(link)}")
-            print(f"_44 _update_vlan_tags_table: port_id: {port_id} ports: {len(link.ports)}")
+            print(
+                f"_33 _update_vlan_tags_table: port_id: {port_id}, link: {type(link)}"
+            )
+            print(
+                f"_44 _update_vlan_tags_table: port_id: {port_id} ports: {len(link.ports)}"
+            )
 
             # TODO: port here seems to be a dict, not sdx.datamodel.models.Port
             for port in link.ports:
@@ -122,7 +163,7 @@ class TEManager:
                         labels_available[label] = True
 
                 self._vlan_tags_table[domain_name][port_id] = labels_available
-        
+
         # for port in port_list.get("ports"):
         #     print(f"_update_vlan_tags_table: domain_name: {domain_name}, port: {port}")
 
@@ -135,19 +176,19 @@ class TEManager:
         case, we return [100].
         """
         assert isinstance(label, str)
-        
+
         labels = label.split("-")
         if len(labels) == 2:
             start = int(labels[0])
-            stop = int(labels[1])
+            stop = int(labels[1]) + 1
         else:
             start = int(labels[0])
             stop = int(labels[0]) + 1
 
         assert start < stop
 
-        return  list(range(start, stop))
-    
+        return list(range(start, stop))
+
     def generate_connection_te(self) -> TrafficMatrix:
         """
         Generate a Traffic Matrix from the connection request we have.
@@ -484,7 +525,7 @@ class TEManager:
         # if not, assuming vlan translation on the domain border port
 
         print(f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}")
-        
+
         upstream_o_vlan = ""
         for domain, segment in domain_breakdown.items():
             i_port = segment.get("ingress_port")
