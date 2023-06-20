@@ -142,13 +142,21 @@ class TEManager:
                 # us expand it.  Would have been ideal if this was
                 # already in some parsed form, but it is not, so this
                 # is a work-around.
+
+                labels_available = {}
+
                 for label in label_range:
-                    labels = self._expand_label(label)
-                    labels_available = {}
-                    for label in labels:
-                        labels_available[label] = True
+                    all_labels = self._expand_label(label)
+
+                    for l in all_labels:
+                        labels_available[l] = True
 
                 self._vlan_tags_table[domain_name][port_id] = labels_available
+
+        # import pprint
+        # print("------ VLAN TAGS TABLE -------")
+        # pprint.pprint(self._vlan_tags_table)
+        # print("------------------------------")
 
     def _expand_label(self, label: str) -> List[int]:
         """
