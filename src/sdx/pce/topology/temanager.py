@@ -128,13 +128,12 @@ class TEManager:
         for port_id, link in port_list.items():
             # TODO: port here seems to be a dict, not sdx.datamodel.models.Port
             for port in link.ports:
-
                 # # TODO: sometimes port_id and "inner" port_id below
                 # # can be different.  Why?
                 # port_id_inner = port.get("id")
                 # print(f"port_id: {port_id}, port_id_1: {port_id_1}")
                 # assert port_id == port_id_inner
-                
+
                 label_range = port.get("label_range")
 
                 # TODO: why is label_range sometimes None, and what to
@@ -529,6 +528,8 @@ class TEManager:
         # pprint.pprint(self._vlan_tags_table)
         # print("------------------------------")
 
+        result = {}
+
         upstream_o_vlan = ""
         for domain, segment in domain_breakdown.items():
             ingress_port = segment.get("ingress_port")
@@ -570,16 +571,21 @@ class TEManager:
             # segment["egress_vlan"] = egress_vlan
             # upstream_o_vlan = egress_vlan
 
-        port_a = TaggedPort(
-            VLANTag(value=ingress_vlan, tag_type=1), interface_id=ingress_port_id
-        )
-        port_z = TaggedPort(
-            VLANTag(value=egress_vlan, tag_type=1), interface_id=egress_port_id
-        )
+            port_a = TaggedPort(
+                VLANTag(value=ingress_vlan, tag_type=1), interface_id=ingress_port_id
+            )
+            port_z = TaggedPort(
+                VLANTag(value=egress_vlan, tag_type=1), interface_id=egress_port_id
+            )
 
-        return TaggedBreakdown(
-            name="test-breakdown", dynamic_backup_path=True, uni_a=port_a, uni_z=port_z
-        )
+            result[domain] = TaggedBreakdown(
+                name="test-breakdown",
+                dynamic_backup_path=True,
+                uni_a=port_a,
+                uni_z=port_z,
+            ).to_dict()
+
+        return result
 
     def find_vlan_on_path(self, path):
         """
