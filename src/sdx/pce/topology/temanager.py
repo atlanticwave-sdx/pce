@@ -596,15 +596,6 @@ class TEManager:
         # with self.topology_lock:
         #     pass
 
-        # label_range = port.get("label_range")
-        # print(f"reserve_vlan: label_range={label_range}")
-        # if label_range is None:
-        #     # TODO: what can we do when there's no label_range?  Is it
-        #     # a bug or an error when label_range is None?  Should we
-        #     # do an assert here?
-        #     # assert label_range is not None
-        #     print(f"label_range={label_range}, failing")
-
         port_id = port.get("id")
         assert port_id is not None
         print(f"reserve_vlan domain: {domain} port_id: {port_id}")
