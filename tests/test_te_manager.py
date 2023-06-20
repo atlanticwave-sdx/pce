@@ -425,7 +425,9 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:amlight.net"))
 
         updated_breakdown = temanager.reserve_vlan_breakdown(breakdown)
-        self.assertIsNotNone(updated_breakdown)
+        self.assertIsInstance(updated_breakdown, dict)
+
+        print(f"updated_breakdown = {updated_breakdown}")
 
         # Per https://github.com/atlanticwave-sdx/pce/issues/101, each
         # breakdown should be of the below form:
@@ -449,38 +451,94 @@ class TEManagerTests(unittest.TestCase):
         #     }
         # }
 
-        self.assertIsNotNone(updated_breakdown.name)
-        self.assertIsNotNone(updated_breakdown.dynamic_backup_path)
-        self.assertIsNotNone(updated_breakdown.uni_a)
-        self.assertIsNotNone(updated_breakdown.uni_a.tag)
-        self.assertIsNotNone(updated_breakdown.uni_a.tag.value)
-        self.assertIsNotNone(updated_breakdown.uni_a.tag.tag_type)
-        self.assertIsNotNone(updated_breakdown.uni_a.interface_id)
-        self.assertIsNotNone(updated_breakdown.uni_z)
-        self.assertIsNotNone(updated_breakdown.uni_z.tag)
-        self.assertIsNotNone(updated_breakdown.uni_z.tag.value)
-        self.assertIsNotNone(updated_breakdown.uni_z.tag.tag_type)
-        self.assertIsNotNone(updated_breakdown.uni_z.interface_id)
+        zaoxi_segment = updated_breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
+        sax_segment = updated_breakdown.get("urn:ogf:network:sdx:topology:sax.net")
+        amlight_segment = updated_breakdown.get(
+            "urn:ogf:network:sdx:topology:amlight.net"
+        )
 
-        # Check that the beakdown is usable as JSON.
-        breakdown_json = updated_breakdown.to_json()
-        print(f"breakdown_json: {breakdown_json}")
-        self.assertIsInstance(breakdown_json, str)
+        self.assertIsInstance(zaoxi_segment, dict)
+        self.assertIsInstance(zaoxi_segment.get("name"), str)
+        self.assertIsInstance(zaoxi_segment.get("dynamic_backup_path"), bool)
+        self.assertIsInstance(zaoxi_segment.get("uni_a"), dict)
+        self.assertIsInstance(zaoxi_segment.get("uni_a").get("tag"), dict)
+        self.assertIsInstance(zaoxi_segment.get("uni_a").get("tag").get("value"), int)
+        self.assertIsInstance(
+            zaoxi_segment.get("uni_a").get("tag").get("tag_type"), int
+        )
+        self.assertIsInstance(zaoxi_segment.get("uni_a").get("interface_id"), str)
+        self.assertIsInstance(zaoxi_segment.get("uni_z"), dict)
+        self.assertIsInstance(zaoxi_segment.get("uni_z").get("tag"), dict)
+        self.assertIsInstance(zaoxi_segment.get("uni_z").get("tag").get("value"), int)
+        self.assertIsInstance(
+            zaoxi_segment.get("uni_z").get("tag").get("tag_type"), int
+        )
+        self.assertIsInstance(zaoxi_segment.get("uni_z").get("interface_id"), str)
 
-        # Check that the beakdown is usable as a dict.
-        breakdown_dict = updated_breakdown.to_dict()
-        self.assertIsNotNone(breakdown_dict.get("name"))
-        self.assertIsNotNone(breakdown_dict.get("dynamic_backup_path"))
-        self.assertIsNotNone(breakdown_dict.get("uni_a"))
-        self.assertIsNotNone(breakdown_dict.get("uni_a").get("tag"))
-        self.assertIsNotNone(breakdown_dict.get("uni_a").get("tag").get("value"))
-        self.assertIsNotNone(breakdown_dict.get("uni_a").get("tag").get("tag_type"))
-        self.assertIsNotNone(breakdown_dict.get("uni_a").get("interface_id"))
-        self.assertIsNotNone(breakdown_dict.get("uni_z"))
-        self.assertIsNotNone(breakdown_dict.get("uni_z").get("tag"))
-        self.assertIsNotNone(breakdown_dict.get("uni_z").get("tag").get("value"))
-        self.assertIsNotNone(breakdown_dict.get("uni_z").get("tag").get("tag_type"))
-        self.assertIsNotNone(breakdown_dict.get("uni_z").get("interface_id"))
+        self.assertIsInstance(sax_segment, dict)
+        self.assertIsInstance(sax_segment.get("name"), str)
+        self.assertIsInstance(sax_segment.get("dynamic_backup_path"), bool)
+        self.assertIsInstance(sax_segment.get("uni_a"), dict)
+        self.assertIsInstance(sax_segment.get("uni_a").get("tag"), dict)
+        self.assertIsInstance(sax_segment.get("uni_a").get("tag").get("value"), int)
+        self.assertIsInstance(sax_segment.get("uni_a").get("tag").get("tag_type"), int)
+        self.assertIsInstance(sax_segment.get("uni_a").get("interface_id"), str)
+        self.assertIsInstance(sax_segment.get("uni_z"), dict)
+        self.assertIsInstance(sax_segment.get("uni_z").get("tag"), dict)
+        self.assertIsInstance(sax_segment.get("uni_z").get("tag").get("value"), int)
+        self.assertIsInstance(sax_segment.get("uni_z").get("tag").get("tag_type"), int)
+        self.assertIsInstance(sax_segment.get("uni_z").get("interface_id"), str)
+
+        self.assertIsInstance(amlight_segment, dict)
+        self.assertIsInstance(amlight_segment.get("name"), str)
+        self.assertIsInstance(amlight_segment.get("dynamic_backup_path"), bool)
+        self.assertIsInstance(amlight_segment.get("uni_a"), dict)
+        self.assertIsInstance(amlight_segment.get("uni_a").get("tag"), dict)
+        self.assertIsInstance(amlight_segment.get("uni_a").get("tag").get("value"), int)
+        self.assertIsInstance(
+            amlight_segment.get("uni_a").get("tag").get("tag_type"), int
+        )
+        self.assertIsInstance(amlight_segment.get("uni_a").get("interface_id"), str)
+        self.assertIsInstance(amlight_segment.get("uni_z"), dict)
+        self.assertIsInstance(amlight_segment.get("uni_z").get("tag"), dict)
+        self.assertIsInstance(amlight_segment.get("uni_z").get("tag").get("value"), int)
+        self.assertIsInstance(
+            amlight_segment.get("uni_z").get("tag").get("tag_type"), int
+        )
+        self.assertIsInstance(amlight_segment.get("uni_z").get("interface_id"), str)
+
+        # self.assertIsNotNone(updated_breakdown.name)
+        # self.assertIsNotNone(updated_breakdown.dynamic_backup_path)
+        # self.assertIsNotNone(updated_breakdown.uni_a)
+        # self.assertIsNotNone(updated_breakdown.uni_a.tag)
+        # self.assertIsNotNone(updated_breakdown.uni_a.tag.value)
+        # self.assertIsNotNone(updated_breakdown.uni_a.tag.tag_type)
+        # self.assertIsNotNone(updated_breakdown.uni_a.interface_id)
+        # self.assertIsNotNone(updated_breakdown.uni_z)
+        # self.assertIsNotNone(updated_breakdown.uni_z.tag)
+        # self.assertIsNotNone(updated_breakdown.uni_z.tag.value)
+        # self.assertIsNotNone(updated_breakdown.uni_z.tag.tag_type)
+        # self.assertIsNotNone(updated_breakdown.uni_z.interface_id)
+
+        # # Check that the beakdown is usable as JSON.
+        # breakdown_json = updated_breakdown.to_json()
+        # print(f"breakdown_json: {breakdown_json}")
+        # self.assertIsInstance(breakdown_json, str)
+
+        # # Check that the beakdown is usable as a dict.
+        # breakdown_dict = updated_breakdown.to_dict()
+        # self.assertIsNotNone(breakdown_dict.get("name"))
+        # self.assertIsNotNone(breakdown_dict.get("dynamic_backup_path"))
+        # self.assertIsNotNone(breakdown_dict.get("uni_a"))
+        # self.assertIsNotNone(breakdown_dict.get("uni_a").get("tag"))
+        # self.assertIsNotNone(breakdown_dict.get("uni_a").get("tag").get("value"))
+        # self.assertIsNotNone(breakdown_dict.get("uni_a").get("tag").get("tag_type"))
+        # self.assertIsNotNone(breakdown_dict.get("uni_a").get("interface_id"))
+        # self.assertIsNotNone(breakdown_dict.get("uni_z"))
+        # self.assertIsNotNone(breakdown_dict.get("uni_z").get("tag"))
+        # self.assertIsNotNone(breakdown_dict.get("uni_z").get("tag").get("value"))
+        # self.assertIsNotNone(breakdown_dict.get("uni_z").get("tag").get("tag_type"))
+        # self.assertIsNotNone(breakdown_dict.get("uni_z").get("interface_id"))
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
