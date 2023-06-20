@@ -595,9 +595,6 @@ class TEManager:
         # TODO: implement this
         # with self.topology_lock:
         #     pass
-        print(
-            f"reserve_vlan: {port.get('label_range')}, {type(port.get('label_range'))}"
-        )
 
         # label_range = port.get("label_range")
         # print(f"reserve_vlan: label_range={label_range}")
