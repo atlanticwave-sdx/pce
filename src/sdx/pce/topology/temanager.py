@@ -602,18 +602,14 @@ class TEManager:
         if port_id is None:
             return None
 
-        # vlan_mapping = self._vlan_tags_table.get(domain).get(port_id)
+        # Look up available VLAN tags by domain and port ID.
         vlan_table = self._vlan_tags_table.get(domain).get(port_id)
-        # print(f"reserve_vlan table={table}")
-
-        # vlan_table = table.get(port_id)
         print(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
 
         # TODO: figure out when vlan_table can be None
         if vlan_table is None:
             print(f"Can't find a mapping for domain:{domain} port:{port_id}")
-            # return None
-            return 200
+            return None
 
         if tag is None:
             # Find the first available one
