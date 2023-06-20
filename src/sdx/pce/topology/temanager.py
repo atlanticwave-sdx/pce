@@ -621,7 +621,10 @@ class TEManager:
             if vlan_table[tag] is True:
                 available_tag = tag
             else:
-                available_tag = None
+                return None
+
+        # mark the tag as in-use.
+        vlan_table[available_tag] = False
 
         # available_tag = 200
         return available_tag
