@@ -131,7 +131,12 @@ class TEManager:
                 port_id = port.get("id")
                 label_range = port.get("label_range")
 
-                assert label_range is not None, "label_range is None"
+                # TODO: why is label_range sometimes None, and what to
+                # do when that happens?
+                if label_range is None:
+                    continue
+
+                # assert label_range is not None, "label_range is None"
 
                 # label_range is of the form ['100-200', '1000']; let
                 # us expand it.  Would have been ideal if this was
