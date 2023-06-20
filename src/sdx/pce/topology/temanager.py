@@ -557,8 +557,6 @@ class TEManager:
             # segment["egress_vlan"] = egress_vlan
             # upstream_o_vlan = egress_vlan
 
-        # return domain_breakdown
-
         port_a = TaggedPort(
             VLANTag(value=ingress_vlan, tag_type=1), interface_id=ingress_port_id
         )
