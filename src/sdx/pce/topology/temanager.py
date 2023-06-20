@@ -502,6 +502,13 @@ class TEManager:
 
         print(f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}")
 
+        # TODO: Remove this temporary debug print
+        import pprint
+
+        print("------ VLAN TAGS TABLE -------")
+        pprint.pprint(self._vlan_tags_table)
+        print("------------------------------")
+
         upstream_o_vlan = ""
         for domain, segment in domain_breakdown.items():
             i_port = segment.get("ingress_port")
@@ -574,7 +581,7 @@ class TEManager:
 
         return domain_breakdown
 
-    def reserve_vlan(self, domain: str, port: dict):
+    def reserve_vlan(self, domain: str, port: dict, tag=None):
         # TODO: implement this
         # with self.topology_lock:
         #     pass
@@ -582,17 +589,44 @@ class TEManager:
             f"reserve_vlan: {port.get('label_range')}, {type(port.get('label_range'))}"
         )
 
-        label_range = port.get("label_range")
-        print(f"reserve_vlan: label_range={label_range}")
-        if label_range is None:
-            # TODO: what can we do when there's no label_range?  Is it
-            # a bug or an error when label_range is None?  Should we
-            # do an assert here?
-            # assert label_range is not None
-            print(f"label_range={label_range}, failing")
+        # label_range = port.get("label_range")
+        # print(f"reserve_vlan: label_range={label_range}")
+        # if label_range is None:
+        #     # TODO: what can we do when there's no label_range?  Is it
+        #     # a bug or an error when label_range is None?  Should we
+        #     # do an assert here?
+        #     # assert label_range is not None
+        #     print(f"label_range={label_range}, failing")
 
-        # Just return a random number for now.
-        return 200
+        port_id = port.get("id")
+        assert port_id is not None
+        print(f"reserve_vlan domain: {domain} port_id: {port_id}")
+
+        # vlan_mapping = self._vlan_tags_table.get(domain).get(port_id)
+        vlan_table = self._vlan_tags_table.get(domain).get(port_id)
+        # print(f"reserve_vlan table={table}")
+
+        # vlan_table = table.get(port_id)
+        print(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
+
+        if vlan_table is None:
+            print(f"Can't find a mapping for domain:{domain} port:{port_id}")
+            return None
+
+        if tag is None:
+            # Find the first available one
+            for vlan_tag, vlan_available in vlan_table.items():
+                if vlan_available:
+                    available_tag = vlan_tag
+                # TODO: return None if we've scanned the whole table.
+        else:
+            if vlan_table[tag] is True:
+                available_tag = tag
+            else:
+                available_tag = None
+
+        # available_tag = 200
+        return available_tag
 
     # to be called by delete_connection()
     def unreserve_vlan_breakdown(self, break_down):
