@@ -541,6 +541,8 @@ class TEManager:
                 f"VLAN reservation: domain: {domain}, ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}"
             )
 
+            # if one has empty vlan range, first resume reserved vlans
+            # in the previous domain, then return false.
             if egress_vlan is None:
                 self.unreserve_vlan(ingress_vlan)
                 return None
@@ -549,7 +551,6 @@ class TEManager:
                 self.unreserve_vlan(egress_vlan)
                 return None
 
-            # if one has empty vlan range, first resume reserved vlans in the previous domain, then return false,
             # vlan translation from upstream_o_vlan to i_vlan
             segment["ingress_upstream_vlan"] = upstream_o_vlan
             segment["ingress_vlan"] = ingress_vlan
