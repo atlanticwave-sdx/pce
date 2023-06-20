@@ -526,6 +526,10 @@ class TEManager:
             i_vlan = self.reserve_vlan(domain, i_port)
             o_vlan = self.reserve_vlan(domain, e_port)
 
+            # TODO: find these.
+            i_iface = i_port.get("id")
+            o_iface = e_port.get("id")
+
             print(
                 f"VLAN reservation: domain: {domain}, i_vlan: {i_vlan}, o_vlan: {o_vlan}"
             )
@@ -548,14 +552,14 @@ class TEManager:
         # return domain_breakdown
 
         port_a = TaggedPort(
-            VLANTag(value=200, tag_type=1), interface_id="interface-id-a"
+            VLANTag(value=i_vlan, tag_type=1), interface_id=i_iface
         )
         port_z = TaggedPort(
-            VLANTag(value=200, tag_type=1), interface_id="interface-id-z"
+            VLANTag(value=o_vlan, tag_type=1), interface_id=o_iface
         )
 
         return TaggedBreakdown(
-            name="test-breakdown", dynamic_backup_path=False, uni_a=port_a, uni_z=port_z
+            name="test-breakdown", dynamic_backup_path=True, uni_a=port_a, uni_z=port_z
         )
 
     def find_vlan_on_path(self, path):
