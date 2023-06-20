@@ -509,12 +509,11 @@ class TEManager:
 
         print(f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}")
 
-        # TODO: Remove this temporary debug print
-        import pprint
-
-        print("------ VLAN TAGS TABLE -------")
-        pprint.pprint(self._vlan_tags_table)
-        print("------------------------------")
+        # # TODO: Remove this temporary debug print
+        # import pprint
+        # print("------ VLAN TAGS TABLE -------")
+        # pprint.pprint(self._vlan_tags_table)
+        # print("------------------------------")
 
         upstream_o_vlan = ""
         for domain, segment in domain_breakdown.items():
