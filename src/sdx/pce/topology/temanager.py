@@ -597,8 +597,10 @@ class TEManager:
         #     pass
 
         port_id = port.get("id")
-        assert port_id is not None
         print(f"reserve_vlan domain: {domain} port_id: {port_id}")
+        
+        if port_id is None:
+            return None
 
         # vlan_mapping = self._vlan_tags_table.get(domain).get(port_id)
         vlan_table = self._vlan_tags_table.get(domain).get(port_id)
