@@ -518,51 +518,51 @@ class TEManager:
 
         upstream_o_vlan = ""
         for domain, segment in domain_breakdown.items():
-            i_port = segment.get("ingress_port")
-            e_port = segment.get("egress_port")
+            ingress_port = segment.get("ingress_port")
+            egress_port = segment.get("egress_port")
 
             print(
-                f"VLAN reservation: domain: {domain}, i_port: {i_port}, e_port: {e_port}"
+                f"VLAN reservation: domain: {domain}, ingress_port: {ingress_port}, egress_port: {egress_port}"
             )
 
-            if i_port is None or e_port is None:
+            if ingress_port is None or egress_port is None:
                 return None
 
             # TODO: find an available vlan for each port out of its
             # available vlan range.
-            i_vlan = self.reserve_vlan(domain, i_port)
-            o_vlan = self.reserve_vlan(domain, e_port)
+            ingress_vlan = self.reserve_vlan(domain, ingress_port)
+            egress_vlan = self.reserve_vlan(domain, egress_port)
 
             # TODO: find these.
-            i_iface = i_port.get("id")
-            o_iface = e_port.get("id")
+            ingress_port_id = ingress_port.get("id")
+            egress_port_id = egress_port.get("id")
 
             print(
-                f"VLAN reservation: domain: {domain}, i_vlan: {i_vlan}, o_vlan: {o_vlan}"
+                f"VLAN reservation: domain: {domain}, ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}"
             )
 
-            if i_vlan is None:
-                self.unreserve_vlan(o_vlan)
+            if egress_vlan is None:
+                self.unreserve_vlan(ingress_vlan)
                 return None
 
-            if o_vlan is None:
-                self.unreserve_vlan(i_vlan)
+            if ingress_vlan is None:
+                self.unreserve_vlan(egress_vlan)
                 return None
 
             # if one has empty vlan range, first resume reserved vlans in the previous domain, then return false,
             # vlan translation from upstream_o_vlan to i_vlan
             segment["ingress_upstream_vlan"] = upstream_o_vlan
-            segment["ingress_vlan"] = i_vlan
-            segment["egress_vlan"] = o_vlan
-            upstream_o_vlan = o_vlan
+            segment["ingress_vlan"] = ingress_vlan
+            segment["egress_vlan"] = egress_vlan
+            upstream_o_vlan = egress_vlan
 
         # return domain_breakdown
 
         port_a = TaggedPort(
-            VLANTag(value=i_vlan, tag_type=1), interface_id=i_iface
+            VLANTag(value=ingress_vlan, tag_type=1), interface_id=ingress_port_id
         )
         port_z = TaggedPort(
-            VLANTag(value=o_vlan, tag_type=1), interface_id=o_iface
+            VLANTag(value=egress_vlan, tag_type=1), interface_id=egress_port_id
         )
 
         return TaggedBreakdown(
