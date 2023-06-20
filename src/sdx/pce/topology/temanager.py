@@ -551,11 +551,11 @@ class TEManager:
                 self.unreserve_vlan(egress_vlan)
                 return None
 
-            # vlan translation from upstream_o_vlan to i_vlan
-            segment["ingress_upstream_vlan"] = upstream_o_vlan
-            segment["ingress_vlan"] = ingress_vlan
-            segment["egress_vlan"] = egress_vlan
-            upstream_o_vlan = egress_vlan
+            # # vlan translation from upstream_o_vlan to i_vlan
+            # segment["ingress_upstream_vlan"] = upstream_o_vlan
+            # segment["ingress_vlan"] = ingress_vlan
+            # segment["egress_vlan"] = egress_vlan
+            # upstream_o_vlan = egress_vlan
 
         # return domain_breakdown
 
