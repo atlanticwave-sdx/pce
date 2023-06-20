@@ -128,7 +128,13 @@ class TEManager:
         for port_id, link in port_list.items():
             # TODO: port here seems to be a dict, not sdx.datamodel.models.Port
             for port in link.ports:
-                port_id = port.get("id")
+
+                # # TODO: sometimes port_id and "inner" port_id below
+                # # can be different.  Why?
+                # port_id_inner = port.get("id")
+                # print(f"port_id: {port_id}, port_id_1: {port_id_1}")
+                # assert port_id == port_id_inner
+                
                 label_range = port.get("label_range")
 
                 # TODO: why is label_range sometimes None, and what to
@@ -605,7 +611,7 @@ class TEManager:
 
         port_id = port.get("id")
         print(f"reserve_vlan domain: {domain} port_id: {port_id}")
-        
+
         if port_id is None:
             return None
 
