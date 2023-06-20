@@ -69,10 +69,12 @@ class TEManager:
 
         domain_name = topology_data.get("id")
 
-        nodes = self.topology_manager.topology.nodes
-        self._update_vlan_tags_table_from_nodes(domain_name, nodes)
+        # nodes = self.topology_manager.topology.nodes
+        # self._update_vlan_tags_table_from_nodes(domain_name, nodes)
 
-        # self._update_vlan_tags_table_from_links(domain_name, self.topology_manager.port_list)
+        self._update_vlan_tags_table_from_links(
+            domain_name, self.topology_manager.port_list
+        )
 
     def update_topology(self, topology_data: dict):
         """
