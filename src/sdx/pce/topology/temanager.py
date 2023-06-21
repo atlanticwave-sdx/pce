@@ -143,13 +143,13 @@ class TEManager:
                 # already in some parsed form, but it is not, so this
                 # is a work-around.
 
-                labels_available = {}
-
+                # TODO: maybe rewrite this with itertools?
+                all_labels = []
                 for label in label_range:
-                    all_labels = self._expand_label(label)
+                    all_labels += self._expand_label(label)
 
-                    for l in all_labels:
-                        labels_available[l] = True
+                # Make a map lik: `{tag1: True, tag2: True, tag3: True...}`
+                labels_available = {label: True for label in all_labels}
 
                 self._vlan_tags_table[domain_name][port_id] = labels_available
 
