@@ -67,13 +67,9 @@ class TEManager:
         """
         self.topology_manager.add_topology(topology_data)
 
-        domain_name = topology_data.get("id")
-
-        # nodes = self.topology_manager.topology.nodes
-        # self._update_vlan_tags_table_from_nodes(domain_name, nodes)
-
         self._update_vlan_tags_table_from_links(
-            domain_name, self.topology_manager.port_list
+            domain_name=topology_data.get("id"),
+            port_list=self.topology_manager.port_list,
         )
 
     def update_topology(self, topology_data: dict):
@@ -86,31 +82,10 @@ class TEManager:
 
         # TODO: careful here when updating VLAN tags table -- what do
         # we do when an in use VLAN tag becomes invalid in the update?
-        # self._update_vlan_tags_table_from_nodes(self.topology_manager.topology.nodes)
-
-    def _update_vlan_tags_table_from_nodes(self, domain_name: str, nodes):
-        """
-        VLAN tags availability table from nodes->ports->label_range
-
-        :param domain_name: the domain name
-        :param nodes: a list of Node objects.
-        """
-        for node in nodes:
-            port_mapping = {}
-
-            for port in node.ports:
-                port_id = port.id
-
-                port_mapping[port_id] = {}
-
-                label_range = port.label_range
-                for label in label_range:
-                    labels = self._expand_label(label)
-
-                    for label in labels:
-                        port_mapping[port_id][label] = True
-
-        self._vlan_tags_table[domain_name] = port_mapping
+        # self._update_vlan_tags_table_from_links(
+        #     domain_name=topology_data.get("id"),
+        #     port_list=self.topology_manager.port_list,
+        # )
 
     def _update_vlan_tags_table_from_links(self, domain_name, port_list):
         """
