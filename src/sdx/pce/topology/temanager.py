@@ -142,20 +142,26 @@ class TEManager:
                 # us expand it.  Would have been ideal if this was
                 # already in some parsed form, but it is not, so this
                 # is a work-around.
-
-                # TODO: maybe rewrite this with itertools?
-                all_labels = []
-                for label in label_range:
-                    all_labels += self._expand_label(label)
+                all_labels = self._expand_label_range(label_range)
 
                 # Make a map lik: `{tag1: True, tag2: True, tag3: True...}`
                 labels_available = {label: True for label in all_labels}
 
                 self._vlan_tags_table[domain_name][port_id] = labels_available
 
+    def _expand_label_range(self, label_range) -> List[int]:
+        """
+        Expand the label range to a list of numbers.
+        """
+        # TODO: maybe rewrite this with itertools?
+        result = []
+        for label in label_range:
+            result += self._expand_label(label)
+        return result
+
     def _expand_label(self, label: str) -> List[int]:
         """
-        Expand label ranges to a list of numbers.
+        Expand items in label range to a list of numbers.
 
         Items in label ranges can be of the form "100-200" or "100".
         For the first case, we return [100,101,...200]; for the second
