@@ -105,7 +105,7 @@ class TaggedPort:
     """
 
     tag: VLANTag
-    interface_id: str
+    port_id: str
 
 
 @dataclass_json
