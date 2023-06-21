@@ -466,14 +466,14 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(
             zaoxi_segment.get("uni_a").get("tag").get("tag_type"), int
         )
-        self.assertIsInstance(zaoxi_segment.get("uni_a").get("interface_id"), str)
+        self.assertIsInstance(zaoxi_segment.get("uni_a").get("port_id"), str)
         self.assertIsInstance(zaoxi_segment.get("uni_z"), dict)
         self.assertIsInstance(zaoxi_segment.get("uni_z").get("tag"), dict)
         self.assertIsInstance(zaoxi_segment.get("uni_z").get("tag").get("value"), int)
         self.assertIsInstance(
             zaoxi_segment.get("uni_z").get("tag").get("tag_type"), int
         )
-        self.assertIsInstance(zaoxi_segment.get("uni_z").get("interface_id"), str)
+        self.assertIsInstance(zaoxi_segment.get("uni_z").get("port_id"), str)
 
         self.assertIsInstance(sax_segment, dict)
         self.assertIsInstance(sax_segment.get("name"), str)
@@ -482,12 +482,12 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(sax_segment.get("uni_a").get("tag"), dict)
         self.assertIsInstance(sax_segment.get("uni_a").get("tag").get("value"), int)
         self.assertIsInstance(sax_segment.get("uni_a").get("tag").get("tag_type"), int)
-        self.assertIsInstance(sax_segment.get("uni_a").get("interface_id"), str)
+        self.assertIsInstance(sax_segment.get("uni_a").get("port_id"), str)
         self.assertIsInstance(sax_segment.get("uni_z"), dict)
         self.assertIsInstance(sax_segment.get("uni_z").get("tag"), dict)
         self.assertIsInstance(sax_segment.get("uni_z").get("tag").get("value"), int)
         self.assertIsInstance(sax_segment.get("uni_z").get("tag").get("tag_type"), int)
-        self.assertIsInstance(sax_segment.get("uni_z").get("interface_id"), str)
+        self.assertIsInstance(sax_segment.get("uni_z").get("port_id"), str)
 
         self.assertIsInstance(amlight_segment, dict)
         self.assertIsInstance(amlight_segment.get("name"), str)
@@ -498,14 +498,14 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(
             amlight_segment.get("uni_a").get("tag").get("tag_type"), int
         )
-        self.assertIsInstance(amlight_segment.get("uni_a").get("interface_id"), str)
+        self.assertIsInstance(amlight_segment.get("uni_a").get("port_id"), str)
         self.assertIsInstance(amlight_segment.get("uni_z"), dict)
         self.assertIsInstance(amlight_segment.get("uni_z").get("tag"), dict)
         self.assertIsInstance(amlight_segment.get("uni_z").get("tag").get("value"), int)
         self.assertIsInstance(
             amlight_segment.get("uni_z").get("tag").get("tag_type"), int
         )
-        self.assertIsInstance(amlight_segment.get("uni_z").get("interface_id"), str)
+        self.assertIsInstance(amlight_segment.get("uni_z").get("port_id"), str)
 
         # self.assertIsNotNone(updated_breakdown.name)
         # self.assertIsNotNone(updated_breakdown.dynamic_backup_path)
@@ -513,12 +513,12 @@ class TEManagerTests(unittest.TestCase):
         # self.assertIsNotNone(updated_breakdown.uni_a.tag)
         # self.assertIsNotNone(updated_breakdown.uni_a.tag.value)
         # self.assertIsNotNone(updated_breakdown.uni_a.tag.tag_type)
-        # self.assertIsNotNone(updated_breakdown.uni_a.interface_id)
+        # self.assertIsNotNone(updated_breakdown.uni_a.port_id)
         # self.assertIsNotNone(updated_breakdown.uni_z)
         # self.assertIsNotNone(updated_breakdown.uni_z.tag)
         # self.assertIsNotNone(updated_breakdown.uni_z.tag.value)
         # self.assertIsNotNone(updated_breakdown.uni_z.tag.tag_type)
-        # self.assertIsNotNone(updated_breakdown.uni_z.interface_id)
+        # self.assertIsNotNone(updated_breakdown.uni_z.port_id)
 
         # # Check that the beakdown is usable as JSON.
         # breakdown_json = updated_breakdown.to_json()
@@ -533,12 +533,12 @@ class TEManagerTests(unittest.TestCase):
         # self.assertIsNotNone(breakdown_dict.get("uni_a").get("tag"))
         # self.assertIsNotNone(breakdown_dict.get("uni_a").get("tag").get("value"))
         # self.assertIsNotNone(breakdown_dict.get("uni_a").get("tag").get("tag_type"))
-        # self.assertIsNotNone(breakdown_dict.get("uni_a").get("interface_id"))
+        # self.assertIsNotNone(breakdown_dict.get("uni_a").get("port_id"))
         # self.assertIsNotNone(breakdown_dict.get("uni_z"))
         # self.assertIsNotNone(breakdown_dict.get("uni_z").get("tag"))
         # self.assertIsNotNone(breakdown_dict.get("uni_z").get("tag").get("value"))
         # self.assertIsNotNone(breakdown_dict.get("uni_z").get("tag").get("tag_type"))
-        # self.assertIsNotNone(breakdown_dict.get("uni_z").get("interface_id"))
+        # self.assertIsNotNone(breakdown_dict.get("uni_z").get("port_id"))
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()

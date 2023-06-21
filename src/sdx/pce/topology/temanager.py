@@ -537,10 +537,10 @@ class TEManager:
             # upstream_o_vlan = egress_vlan
 
             port_a = TaggedPort(
-                VLANTag(value=ingress_vlan, tag_type=1), interface_id=ingress_port_id
+                VLANTag(value=ingress_vlan, tag_type=1), port_id=ingress_port_id
             )
             port_z = TaggedPort(
-                VLANTag(value=egress_vlan, tag_type=1), interface_id=egress_port_id
+                VLANTag(value=egress_vlan, tag_type=1), port_id=egress_port_id
             )
 
             result[domain] = TaggedBreakdown(
