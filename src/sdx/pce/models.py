@@ -119,3 +119,13 @@ class TaggedBreakdown:
     dynamic_backup_path: bool
     uni_a: TaggedPort
     uni_z: TaggedPort
+
+
+@dataclass_json
+@dataclass(frozen=True)
+class TaggedBreakdowns:
+    """
+    Mapping from domain to breakdown.
+    """
+
+    breakdown: Mapping[str, TaggedBreakdown]
