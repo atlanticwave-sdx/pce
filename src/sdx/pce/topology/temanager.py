@@ -112,11 +112,6 @@ class TEManager:
 
         self._vlan_tags_table[domain_name] = port_mapping
 
-        # import pprint
-        # print("------ VLAN TAGS TABLE -------")
-        # pprint.pprint(self._vlan_tags_table)
-        # print("------------------------------")
-
     def _update_vlan_tags_table_from_links(self, domain_name, port_list):
         """
         The version that uses links->ports.
@@ -157,11 +152,6 @@ class TEManager:
                         labels_available[l] = True
 
                 self._vlan_tags_table[domain_name][port_id] = labels_available
-
-        # import pprint
-        # print("------ VLAN TAGS TABLE -------")
-        # pprint.pprint(self._vlan_tags_table)
-        # print("------------------------------")
 
     def _expand_label(self, label: str) -> List[int]:
         """
@@ -522,12 +512,6 @@ class TEManager:
 
         print(f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}")
 
-        # # TODO: Remove this temporary debug print
-        # import pprint
-        # print("------ VLAN TAGS TABLE -------")
-        # pprint.pprint(self._vlan_tags_table)
-        # print("------------------------------")
-
         result = {}
 
         upstream_o_vlan = ""
@@ -658,3 +642,10 @@ class TEManager:
         # TODO: implement this
         with self.topology_lock:
             pass
+
+    def _print_vlan_tags_table(self):
+        import pprint
+
+        print("------ VLAN TAGS TABLE -------")
+        pprint.pprint(self._vlan_tags_table)
+        print("------------------------------")
