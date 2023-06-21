@@ -1,4 +1,5 @@
 import threading
+from itertools import chain
 from typing import List, Optional
 
 import networkx as nx
@@ -124,15 +125,13 @@ class TEManager:
 
                 self._vlan_tags_table[domain_name][port_id] = labels_available
 
-    def _expand_label_range(self, label_range) -> List[int]:
+    def _expand_label_range(self, label_range: List[str]) -> List[int]:
         """
         Expand the label range to a list of numbers.
         """
-        # TODO: maybe rewrite this with itertools?
-        result = []
-        for label in label_range:
-            result += self._expand_label(label)
-        return result
+        labels = [self._expand_label(label) for label in label_range]
+        # flatten result and return it.
+        return list(chain.from_iterable(labels))
 
     def _expand_label(self, label: str) -> List[int]:
         """
