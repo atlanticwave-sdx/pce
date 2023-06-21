@@ -84,8 +84,8 @@ class TEManager:
         """
         self.topology_manager.update_topology(topology_data)
 
-        ## TODO: careful here when updating VLAN tags table -- what do
-        ## we do when an in use VLAN tag becomes invalid in the update?
+        # TODO: careful here when updating VLAN tags table -- what do
+        # we do when an in use VLAN tag becomes invalid in the update?
         # self._update_vlan_tags_table_from_nodes(self.topology_manager.topology.nodes)
 
     def _update_vlan_tags_table_from_nodes(self, domain_name: str, nodes):
