@@ -494,7 +494,7 @@ class TEManager:
 
         result = {}
 
-        upstream_o_vlan = ""
+        # upstream_o_vlan = ""
         for domain, segment in domain_breakdown.items():
             ingress_port = segment.get("ingress_port")
             egress_port = segment.get("egress_port")
