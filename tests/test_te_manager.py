@@ -23,13 +23,9 @@ class TEManagerTests(unittest.TestCase):
     """
 
     def setUp(self):
-        with open(TestData.TOPOLOGY_FILE_AMLIGHT, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
-
-        with open(TestData.CONNECTION_REQ_AMLIGHT, "r", encoding="utf-8") as fp:
-            connection_data = json.load(fp)
-
-        self.temanager = TEManager(topology_data, connection_data)
+        topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        self.temanager = TEManager(topology, request)
 
     def tearDown(self):
         self.temanager = None
@@ -112,14 +108,12 @@ class TEManagerTests(unittest.TestCase):
     def test_connection_breakdown_three_domains(self):
         # SDX already exists in the known topology from setUp
         # step. Add SAX topology.
-        with open(TestData.TOPOLOGY_FILE_SAX, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
-            self.temanager.add_topology(topology_data)
+        sax_topology = json.loads(TestData.TOPOLOGY_FILE_SAX.read_text())
+        self.temanager.add_topology(sax_topology)
 
         # Add ZAOXI topology as well.
-        with open(TestData.TOPOLOGY_FILE_ZAOXI, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
-            self.temanager.add_topology(topology_data)
+        zaoxi_topology = json.loads(TestData.TOPOLOGY_FILE_ZAOXI.read_text())
+        self.temanager.add_topology(zaoxi_topology)
 
         request = [
             {
@@ -165,14 +159,12 @@ class TEManagerTests(unittest.TestCase):
         Test case added to investigate
         https://github.com/atlanticwave-sdx/sdx-controller/issues/146
         """
-        with open(TestData.TOPOLOGY_FILE_SAX, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
-            self.temanager.add_topology(topology_data)
+        sax_topology = json.loads(TestData.TOPOLOGY_FILE_SAX.read_text())
+        self.temanager.add_topology(sax_topology)
 
         # Add ZAOXI topology as well.
-        with open(TestData.TOPOLOGY_FILE_ZAOXI, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
-            self.temanager.add_topology(topology_data)
+        zaoxi_topology = json.loads(TestData.TOPOLOGY_FILE_ZAOXI.read_text())
+        self.temanager.add_topology(zaoxi_topology)
 
         request = [
             {
@@ -226,15 +218,10 @@ class TEManagerTests(unittest.TestCase):
 
         TODO: Use a better name for this method.
         """
-        with open(TestData.TOPOLOGY_FILE_SAX_2, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
+        topology = json.loads(TestData.TOPOLOGY_FILE_SAX_2.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_INVALID.read_text())
 
-        with open(
-            TestData.CONNECTION_REQ_FILE_SAX_2_INVALID, "r", encoding="utf-8"
-        ) as fp:
-            connection_data = json.load(fp)
-
-        temanager = TEManager(topology_data, connection_data)
+        temanager = TEManager(topology, request)
         self.assertIsNotNone(temanager)
 
         graph = temanager.generate_graph_te()
@@ -254,15 +241,10 @@ class TEManagerTests(unittest.TestCase):
 
         TODO: Use a better name for this method.
         """
-        with open(TestData.TOPOLOGY_FILE_SAX_2, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
+        topology = json.loads(TestData.TOPOLOGY_FILE_SAX_2.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_VALID.read_text())
 
-        with open(
-            TestData.CONNECTION_REQ_FILE_SAX_2_VALID, "r", encoding="utf-8"
-        ) as fp:
-            connection_data = json.load(fp)
-
-        temanager = TEManager(topology_data, connection_data)
+        temanager = TEManager(topology, request)
         self.assertIsNotNone(temanager)
 
         graph = temanager.generate_graph_te()
