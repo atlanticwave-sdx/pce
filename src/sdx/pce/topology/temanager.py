@@ -141,17 +141,12 @@ class TEManager:
         For the first case, we return [100,101,...200]; for the second
         case, we return [100].
         """
-        assert isinstance(label, str)
+        if not isinstance(label, str):
+            raise ValueError("Label must be a string.")
 
-        labels = label.split("-")
-        if len(labels) == 2:
-            start = int(labels[0])
-            stop = int(labels[1]) + 1
-        else:
-            start = int(labels[0])
-            stop = int(labels[0]) + 1
-
-        assert start < stop
+        parts = label.split("-")
+        start = int(parts[0])
+        stop = int(parts[-1]) + 1
 
         return list(range(start, stop))
 
