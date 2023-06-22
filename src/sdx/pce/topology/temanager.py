@@ -10,10 +10,10 @@ from sdx.pce.models import (
     ConnectionPath,
     ConnectionRequest,
     ConnectionSolution,
-    TaggedBreakdown,
-    TaggedPort,
     TrafficMatrix,
-    VLANTag,
+    VlanTag,
+    VlanTaggedBreakdown,
+    VlanTaggedPort,
 )
 from sdx.pce.topology.manager import TopologyManager
 
@@ -459,7 +459,7 @@ class TEManager:
 
     def reserve_vlan_breakdown(
         self, domain_breakdown: dict
-    ) -> Optional[TaggedBreakdown]:
+    ) -> Optional[VlanTaggedBreakdown]:
         """
         Upate domain breakdown with VLAN reservation information.
 
@@ -535,11 +535,11 @@ class TEManager:
             # segment["egress_vlan"] = egress_vlan
             # upstream_o_vlan = egress_vlan
 
-            port_a = TaggedPort(
-                VLANTag(value=ingress_vlan, tag_type=1), port_id=ingress_port_id
+            port_a = VlanTaggedPort(
+                VlanTag(value=ingress_vlan, tag_type=1), port_id=ingress_port_id
             )
-            port_z = TaggedPort(
-                VLANTag(value=egress_vlan, tag_type=1), port_id=egress_port_id
+            port_z = VlanTaggedPort(
+                VlanTag(value=egress_vlan, tag_type=1), port_id=egress_port_id
             )
 
             # Names look like "AMLIGHT_vlan_201_202_Ampath_Tenet".  We
@@ -548,7 +548,7 @@ class TEManager:
             domain_name = domain.split(":")[-1].split(".")[0].upper()
             name = f"{domain_name}_vlan_{ingress_vlan}_{egress_vlan}"
 
-            result[domain] = TaggedBreakdown(
+            result[domain] = VlanTaggedBreakdown(
                 name=name,
                 dynamic_backup_path=True,
                 uni_a=port_a,

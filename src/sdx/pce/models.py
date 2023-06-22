@@ -86,7 +86,7 @@ class ConnectionSolution:
 
 @dataclass_json
 @dataclass(frozen=True)
-class VLANTag:
+class VlanTag:
     """
     Representation of a VLAN tag.
 
@@ -99,33 +99,33 @@ class VLANTag:
 
 @dataclass_json
 @dataclass(frozen=True)
-class TaggedPort:
+class VlanTaggedPort:
     """
     Representation of a port.
     """
 
-    tag: VLANTag
+    tag: VlanTag
     port_id: str
 
 
 @dataclass_json
 @dataclass(frozen=True)
-class TaggedBreakdown:
+class VlanTaggedBreakdown:
     """
     Path breakdown within a single domain with VLAN assignments.
     """
 
     name: str
     dynamic_backup_path: bool
-    uni_a: TaggedPort
-    uni_z: TaggedPort
+    uni_a: VlanTaggedPort
+    uni_z: VlanTaggedPort
 
 
 @dataclass_json
 @dataclass(frozen=True)
-class TaggedBreakdowns:
+class VlanTaggedBreakdowns:
     """
     Mapping from domain to breakdown.
     """
 
-    breakdown: Mapping[str, TaggedBreakdown]
+    breakdowns: Mapping[str, VlanTaggedBreakdown]
