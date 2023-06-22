@@ -37,8 +37,9 @@ class TEManagerTests(unittest.TestCase):
 
     def test_connection_breakdown_none_input(self):
         # Expect an error to be raised.
-        with self.assertRaises(AssertionError):
-            self.temanager.generate_connection_breakdown(None)
+        self.assertRaises(
+            AssertionError, self.temanager.generate_connection_breakdown, None
+        )
 
     def test_connection_breakdown_simple(self):
         # Test that the old way, which had plain old dicts and arrays
