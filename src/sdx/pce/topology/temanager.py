@@ -501,7 +501,8 @@ class TEManager:
             egress_port = segment.get("egress_port")
 
             print(
-                f"VLAN reservation: domain: {domain}, ingress_port: {ingress_port}, egress_port: {egress_port}"
+                f"VLAN reservation: domain: {domain}, "
+                f"ingress_port: {ingress_port}, egress_port: {egress_port}"
             )
 
             if ingress_port is None or egress_port is None:
@@ -517,7 +518,8 @@ class TEManager:
             egress_port_id = egress_port.get("id")
 
             print(
-                f"VLAN reservation: domain: {domain}, ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}"
+                f"VLAN reservation: domain: {domain}, "
+                f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}"
             )
 
             # if one has empty vlan range, first resume reserved vlans
