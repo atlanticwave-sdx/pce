@@ -510,8 +510,8 @@ class TEManager:
 
             # TODO: find an available vlan for each port out of its
             # available vlan range.
-            ingress_vlan = self.reserve_vlan(domain, ingress_port)
-            egress_vlan = self.reserve_vlan(domain, egress_port)
+            ingress_vlan = self._reserve_vlan(domain, ingress_port)
+            egress_vlan = self._reserve_vlan(domain, egress_port)
 
             # TODO: find these.
             ingress_port_id = ingress_port.get("id")
@@ -525,11 +525,11 @@ class TEManager:
             # if one has empty vlan range, first resume reserved vlans
             # in the previous domain, then return false.
             if egress_vlan is None:
-                self.unreserve_vlan(ingress_vlan)
+                self._unreserve_vlan(ingress_vlan)
                 return None
 
             if ingress_vlan is None:
-                self.unreserve_vlan(egress_vlan)
+                self._unreserve_vlan(egress_vlan)
                 return None
 
             # # vlan translation from upstream_o_vlan to i_vlan
