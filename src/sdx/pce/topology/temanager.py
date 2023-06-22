@@ -458,7 +458,7 @@ class TEManager:
         - unreserve the vlan when the path is removed
     """
 
-    def reserve_vlan_breakdown(
+    def _reserve_vlan_breakdown(
         self, domain_breakdown: dict
     ) -> Optional[VlanTaggedBreakdowns]:
         """
@@ -487,7 +487,7 @@ class TEManager:
         # # disabled for now, until the simple case is handled.
         # selected_vlan = self.find_vlan_on_path(domain_breakdown)
         # if selected_vlan is not None:
-        #     return self.reserve_vlan_on_path(domain_breakdown, selected_vlan)
+        #     return self._reserve_vlan_on_path(domain_breakdown, selected_vlan)
 
         # if not, assuming vlan translation on the domain border port
 
@@ -560,7 +560,7 @@ class TEManager:
 
         return VlanTaggedBreakdowns(breakdowns=breakdowns)
 
-    def find_vlan_on_path(self, path):
+    def _find_vlan_on_path(self, path):
         """
         Find an unused available VLAN on path.
 
@@ -575,7 +575,7 @@ class TEManager:
 
         return None
 
-    def reserve_vlan_on_path(self, domain_breakdown, selected_vlan):
+    def _reserve_vlan_on_path(self, domain_breakdown, selected_vlan):
         # TODO: what is the difference between reserve_vlan and
         # reserve_vlan_on_path?
 
@@ -583,7 +583,7 @@ class TEManager:
 
         return domain_breakdown
 
-    def reserve_vlan(self, domain: str, port: dict, tag=None):
+    def _reserve_vlan(self, domain: str, port: dict, tag=None):
         # with self.topology_lock:
         #     pass
 
@@ -621,12 +621,12 @@ class TEManager:
         return available_tag
 
     # to be called by delete_connection()
-    def unreserve_vlan_breakdown(self, break_down):
+    def _unreserve_vlan_breakdown(self, break_down):
         # TODO: implement this
         with self.topology_lock:
             pass
 
-    def unreserve_vlan(self, port):
+    def _unreserve_vlan(self, port):
         # TODO: implement this
         with self.topology_lock:
             pass
