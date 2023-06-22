@@ -606,7 +606,14 @@ class TEManager:
             return None
 
         # Look up available VLAN tags by domain and port ID.
-        vlan_table = self._vlan_tags_table.get(domain).get(port_id)
+        domain_table = self._vlan_tags_table.get(domain)
+
+        if domain_table is None:
+            print(f"reserve_vlan domain: {domain} entry: {domain_table}")
+            return None
+
+        vlan_table = domain_table.get(port_id)
+
         print(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
 
         # TODO: figure out when vlan_table can be None
