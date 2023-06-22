@@ -352,7 +352,7 @@ class TEManager:
 
         # Make tests pass, temporarily.
         if tagged_breakdown is None:
-            return domain_breakdown
+            return None
 
         assert isinstance(tagged_breakdown, VlanTaggedBreakdowns)
 
