@@ -13,6 +13,7 @@ from sdx.pce.models import (
     TrafficMatrix,
     VlanTag,
     VlanTaggedBreakdown,
+    VlanTaggedBreakdowns,
     VlanTaggedPort,
 )
 from sdx.pce.topology.manager import TopologyManager
@@ -459,7 +460,7 @@ class TEManager:
 
     def reserve_vlan_breakdown(
         self, domain_breakdown: dict
-    ) -> Optional[VlanTaggedBreakdown]:
+    ) -> Optional[VlanTaggedBreakdowns]:
         """
         Upate domain breakdown with VLAN reservation information.
 
@@ -492,7 +493,7 @@ class TEManager:
 
         print(f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}")
 
-        result = {}
+        breakdowns = {}
 
         # upstream_o_vlan = ""
         for domain, segment in domain_breakdown.items():
@@ -548,14 +549,14 @@ class TEManager:
             domain_name = domain.split(":")[-1].split(".")[0].upper()
             name = f"{domain_name}_vlan_{ingress_vlan}_{egress_vlan}"
 
-            result[domain] = VlanTaggedBreakdown(
+            breakdowns[domain] = VlanTaggedBreakdown(
                 name=name,
                 dynamic_backup_path=True,
                 uni_a=port_a,
                 uni_z=port_z,
-            ).to_dict()
+            )
 
-        return result
+        return VlanTaggedBreakdowns(breakdowns=breakdowns)
 
     def find_vlan_on_path(self, path):
         """
