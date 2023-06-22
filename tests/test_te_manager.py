@@ -142,22 +142,23 @@ class TEManagerTests(unittest.TestCase):
         self.assertEqual(len(breakdown), 3)
 
         amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
-        print(f"amlight: {amlight}")
-        self.assertIsInstance(amlight, dict)
-        self.assertIsInstance(amlight.get("ingress_port"), dict)
-        self.assertIsInstance(amlight.get("egress_port"), dict)
-
-        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
-        print(f"sax: {sax}")
-        self.assertIsInstance(sax, dict)
-        self.assertIsInstance(sax.get("ingress_port"), dict)
-        self.assertIsInstance(sax.get("egress_port"), dict)
-
         zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
-        print(f"zaoxi: {zaoxi}")
-        self.assertIsInstance(zaoxi, dict)
-        self.assertIsInstance(zaoxi.get("ingress_port"), dict)
-        self.assertIsInstance(zaoxi.get("egress_port"), dict)
+        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
+
+        for segment in [zaoxi, sax, amlight]:
+            self.assertIsInstance(segment, dict)
+            self.assertIsInstance(segment.get("name"), str)
+            self.assertIsInstance(segment.get("dynamic_backup_path"), bool)
+            self.assertIsInstance(segment.get("uni_a"), dict)
+            self.assertIsInstance(segment.get("uni_a").get("tag"), dict)
+            self.assertIsInstance(segment.get("uni_a").get("tag").get("value"), int)
+            self.assertIsInstance(segment.get("uni_a").get("tag").get("tag_type"), int)
+            self.assertIsInstance(segment.get("uni_a").get("port_id"), str)
+            self.assertIsInstance(segment.get("uni_z"), dict)
+            self.assertIsInstance(segment.get("uni_z").get("tag"), dict)
+            self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
+            self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
+            self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
 
     def test_connection_breakdown_three_domains_sax_connection(self):
         """
