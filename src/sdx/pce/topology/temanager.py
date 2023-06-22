@@ -39,12 +39,19 @@ class TEManager:
         self.topology_manager = TopologyManager()
         self.connection_handler = ConnectionHandler()
 
+        # A {domain, {port, {vlan, in_use}}} mapping.
+        self._vlan_tags_table = {}
+
         # Making topology_data optional while investigating
         # https://github.com/atlanticwave-sdx/sdx-controller/issues/145.
         # TODO: a nicer thing to do would be to keep less state around.
         if topology_data:
             self.topology_manager.add_topology(topology_data)
             self.graph = self.generate_graph_te()
+            self._update_vlan_tags_table(
+                domain_name=topology_data.get("id"),
+                port_list=self.topology_manager.port_list,
+            )
         else:
             self.graph = None
 
@@ -57,9 +64,6 @@ class TEManager:
         print(f"TEManager: self.connection: {self.connection}")
 
         self.topology_lock = threading.Lock()
-
-        # A {domain, {port, {vlan, in_use}}} mapping.
-        self._vlan_tags_table = {}
 
     def add_topology(self, topology_data: dict):
         """
