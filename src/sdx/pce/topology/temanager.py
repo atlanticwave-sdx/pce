@@ -542,8 +542,14 @@ class TEManager:
                 VLANTag(value=egress_vlan, tag_type=1), port_id=egress_port_id
             )
 
+            # Names look like "AMLIGHT_vlan_201_202_Ampath_Tenet".  We
+            # can form the initial part, but where did the
+            # `Ampath_Tenet` at the end come from?
+            domain_name = domain.split(":")[-1].split(".")[0].upper()
+            name = f"{domain_name}_vlan_{ingress_vlan}_{egress_vlan}"
+
             result[domain] = TaggedBreakdown(
-                name="test-breakdown",
+                name=name,
                 dynamic_backup_path=True,
                 uni_a=port_a,
                 uni_z=port_z,
