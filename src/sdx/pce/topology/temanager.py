@@ -581,7 +581,6 @@ class TEManager:
         return domain_breakdown
 
     def reserve_vlan(self, domain: str, port: dict, tag=None):
-        # TODO: implement this
         # with self.topology_lock:
         #     pass
 
