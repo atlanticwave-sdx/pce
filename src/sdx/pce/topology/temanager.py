@@ -101,10 +101,13 @@ class TEManager:
         for port_id, link in port_list.items():
             # TODO: port here seems to be a dict, not sdx.datamodel.models.Port
             for port in link.ports:
-                # # TODO: sometimes port_id and "inner" port_id below
-                # # can be different.  Why?
+                # TODO: sometimes port_id and "inner" port_id below
+                # can be different.  Why?  For example, port_id of
+                # urn:sdx:port:amlight.net:B1:2 and port_id_inner of
+                # urn:sdx:port:amlight.net:B2:2.
+
                 # port_id_inner = port.get("id")
-                # print(f"port_id: {port_id}, port_id_1: {port_id_1}")
+                # print(f"port_id: {port_id}, port_id_inner: {port_id_inner}")
                 # assert port_id == port_id_inner
 
                 label_range = port.get("label_range")
