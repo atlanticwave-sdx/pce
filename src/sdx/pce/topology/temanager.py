@@ -68,7 +68,11 @@ class TEManager:
         """
         self.topology_manager.add_topology(topology_data)
 
-        self._update_vlan_tags_table_from_links(
+        # Ports appear in two places in the combined topology
+        # maintained by TopologyManager: attached to each of the
+        # nodes, and attached to links.  Here we are using the ports
+        # attached to links.
+        self._update_vlan_tags_table(
             domain_name=topology_data.get("id"),
             port_list=self.topology_manager.port_list,
         )
@@ -88,11 +92,9 @@ class TEManager:
         #     port_list=self.topology_manager.port_list,
         # )
 
-    def _update_vlan_tags_table_from_links(self, domain_name, port_list):
+    def _update_vlan_tags_table(self, domain_name, port_list):
         """
-        The version that uses links->ports.
-
-        Also probably the wrong one.
+        Update VLAN tags table.
         """
         self._vlan_tags_table[domain_name] = {}
 
