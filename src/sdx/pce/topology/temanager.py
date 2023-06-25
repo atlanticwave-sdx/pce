@@ -589,7 +589,7 @@ class TEManager:
 
         # TODO: implement this
 
-        return None
+        assert False, "Not implemented"
 
     def _reserve_vlan_on_path(self, domain_breakdown, selected_vlan):
         # TODO: what is the difference between reserve_vlan and
@@ -597,7 +597,8 @@ class TEManager:
 
         # TODO: implement this
 
-        return domain_breakdown
+        # return domain_breakdown
+        assert False, "Not implemented"
 
     def _reserve_vlan(self, domain: str, port: dict, tag=None):
         # with self.topology_lock:
@@ -646,13 +647,17 @@ class TEManager:
     # to be called by delete_connection()
     def _unreserve_vlan_breakdown(self, break_down):
         # TODO: implement this
-        with self.topology_lock:
-            pass
+        # with self.topology_lock:
+        #     pass
+        assert False, "Not implemented"
 
-    def _unreserve_vlan(self, port):
-        # TODO: implement this
-        with self.topology_lock:
-            pass
+    def _unreserve_vlan(self, domain: str, port: dict, tag=None):
+        """
+        Mark a VLAN tag as not in use.
+        """
+        # with self.topology_lock:
+        #     pass
+        assert False, "Not implemented"
 
     def _print_vlan_tags_table(self):
         import pprint
