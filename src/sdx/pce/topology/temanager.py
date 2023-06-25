@@ -626,20 +626,22 @@ class TEManager:
             print(f"Can't find a mapping for domain:{domain} port:{port_id}")
             return None
 
+        available_tag = None
+
         if tag is None:
-            # Find the first available one
+            # Find the first available VLAN tag from the table.
             for vlan_tag, vlan_available in vlan_table.items():
                 if vlan_available:
                     available_tag = vlan_tag
-                # TODO: return None if we've scanned the whole table.
         else:
             if vlan_table[tag] is True:
                 available_tag = tag
             else:
                 return None
 
-        # mark the tag as in-use.
-        vlan_table[available_tag] = False
+        if available_tag is not None:
+            # mark the tag as in-use.
+            vlan_table[available_tag] = False
 
         # available_tag = 200
         return available_tag
