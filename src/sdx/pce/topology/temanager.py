@@ -39,6 +39,9 @@ class TEManager:
         self.topology_manager = TopologyManager()
         self.connection_handler = ConnectionHandler()
 
+        # A lock to safely perform topology operations.
+        self._topology_lock = threading.Lock()
+        
         # A {domain, {port, {vlan, in_use}}} mapping.
         self._vlan_tags_table = {}
 
@@ -62,8 +65,6 @@ class TEManager:
         )
 
         print(f"TEManager: self.connection: {self.connection}")
-
-        self.topology_lock = threading.Lock()
 
     def add_topology(self, topology_data: dict):
         """
@@ -601,7 +602,7 @@ class TEManager:
         assert False, "Not implemented"
 
     def _reserve_vlan(self, domain: str, port: dict, tag=None):
-        # with self.topology_lock:
+        # with self._topology_lock:
         #     pass
 
         port_id = port.get("id")
@@ -649,7 +650,7 @@ class TEManager:
     # to be called by delete_connection()
     def _unreserve_vlan_breakdown(self, break_down):
         # TODO: implement this
-        # with self.topology_lock:
+        # with self._topology_lock:
         #     pass
         assert False, "Not implemented"
 
@@ -657,7 +658,7 @@ class TEManager:
         """
         Mark a VLAN tag as not in use.
         """
-        # with self.topology_lock:
+        # with self._topology_lock:
         #     pass
         assert False, "Not implemented"
 
