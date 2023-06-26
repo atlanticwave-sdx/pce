@@ -41,7 +41,7 @@ class TEManager:
 
         # A lock to safely perform topology operations.
         self._topology_lock = threading.Lock()
-        
+
         # A {domain, {port, {vlan, in_use}}} mapping.
         self._vlan_tags_table = {}
 
