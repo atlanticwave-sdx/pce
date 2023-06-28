@@ -534,12 +534,9 @@ class TEManager:
             if ingress_port is None or egress_port is None:
                 return None
 
-            # TODO: find an available vlan for each port out of its
-            # available vlan range.
             ingress_vlan = self._reserve_vlan(domain, ingress_port)
             egress_vlan = self._reserve_vlan(domain, egress_port)
 
-            # TODO: find these.
             ingress_port_id = ingress_port.get("id")
             egress_port_id = egress_port.get("id")
 
