@@ -669,7 +669,7 @@ class TEManager:
         """
         # TODO: implement this.
         # https://github.com/atlanticwave-sdx/pce/issues/127
-        
+
         # with self._topology_lock:
         #     pass
         assert False, "Not implemented"
