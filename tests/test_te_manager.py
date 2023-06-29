@@ -23,13 +23,9 @@ class TEManagerTests(unittest.TestCase):
     """
 
     def setUp(self):
-        with open(TestData.TOPOLOGY_FILE_AMLIGHT, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
-
-        with open(TestData.CONNECTION_REQ_AMLIGHT, "r", encoding="utf-8") as fp:
-            connection_data = json.load(fp)
-
-        self.temanager = TEManager(topology_data, connection_data)
+        topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        self.temanager = TEManager(topology, request)
 
     def tearDown(self):
         self.temanager = None
@@ -41,8 +37,9 @@ class TEManagerTests(unittest.TestCase):
 
     def test_connection_breakdown_none_input(self):
         # Expect an error to be raised.
-        with self.assertRaises(AssertionError):
-            self.temanager.generate_connection_breakdown(None)
+        self.assertRaises(
+            AssertionError, self.temanager.generate_connection_breakdown, None
+        )
 
     def test_connection_breakdown_simple(self):
         # Test that the old way, which had plain old dicts and arrays
@@ -112,14 +109,12 @@ class TEManagerTests(unittest.TestCase):
     def test_connection_breakdown_three_domains(self):
         # SDX already exists in the known topology from setUp
         # step. Add SAX topology.
-        with open(TestData.TOPOLOGY_FILE_SAX, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
-            self.temanager.add_topology(topology_data)
+        sax_topology = json.loads(TestData.TOPOLOGY_FILE_SAX.read_text())
+        self.temanager.add_topology(sax_topology)
 
         # Add ZAOXI topology as well.
-        with open(TestData.TOPOLOGY_FILE_ZAOXI, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
-            self.temanager.add_topology(topology_data)
+        zaoxi_topology = json.loads(TestData.TOPOLOGY_FILE_ZAOXI.read_text())
+        self.temanager.add_topology(zaoxi_topology)
 
         request = [
             {
@@ -142,36 +137,35 @@ class TEManagerTests(unittest.TestCase):
         self.assertEqual(len(breakdown), 3)
 
         amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
-        print(f"amlight: {amlight}")
-        self.assertIsInstance(amlight, dict)
-        self.assertIsInstance(amlight.get("ingress_port"), dict)
-        self.assertIsInstance(amlight.get("egress_port"), dict)
-
-        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
-        print(f"sax: {sax}")
-        self.assertIsInstance(sax, dict)
-        self.assertIsInstance(sax.get("ingress_port"), dict)
-        self.assertIsInstance(sax.get("egress_port"), dict)
-
         zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
-        print(f"zaoxi: {zaoxi}")
-        self.assertIsInstance(zaoxi, dict)
-        self.assertIsInstance(zaoxi.get("ingress_port"), dict)
-        self.assertIsInstance(zaoxi.get("egress_port"), dict)
+        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
+
+        for segment in [zaoxi, sax, amlight]:
+            self.assertIsInstance(segment, dict)
+            self.assertIsInstance(segment.get("name"), str)
+            self.assertIsInstance(segment.get("dynamic_backup_path"), bool)
+            self.assertIsInstance(segment.get("uni_a"), dict)
+            self.assertIsInstance(segment.get("uni_a").get("tag"), dict)
+            self.assertIsInstance(segment.get("uni_a").get("tag").get("value"), int)
+            self.assertIsInstance(segment.get("uni_a").get("tag").get("tag_type"), int)
+            self.assertIsInstance(segment.get("uni_a").get("port_id"), str)
+            self.assertIsInstance(segment.get("uni_z"), dict)
+            self.assertIsInstance(segment.get("uni_z").get("tag"), dict)
+            self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
+            self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
+            self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
 
     def test_connection_breakdown_three_domains_sax_connection(self):
         """
         Test case added to investigate
         https://github.com/atlanticwave-sdx/sdx-controller/issues/146
         """
-        with open(TestData.TOPOLOGY_FILE_SAX, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
-            self.temanager.add_topology(topology_data)
+        sax_topology = json.loads(TestData.TOPOLOGY_FILE_SAX.read_text())
+        self.temanager.add_topology(sax_topology)
 
         # Add ZAOXI topology as well.
-        with open(TestData.TOPOLOGY_FILE_ZAOXI, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
-            self.temanager.add_topology(topology_data)
+        zaoxi_topology = json.loads(TestData.TOPOLOGY_FILE_ZAOXI.read_text())
+        self.temanager.add_topology(zaoxi_topology)
 
         request = [
             {
@@ -225,15 +219,10 @@ class TEManagerTests(unittest.TestCase):
 
         TODO: Use a better name for this method.
         """
-        with open(TestData.TOPOLOGY_FILE_SAX_2, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
+        topology = json.loads(TestData.TOPOLOGY_FILE_SAX_2.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_INVALID.read_text())
 
-        with open(
-            TestData.CONNECTION_REQ_FILE_SAX_2_INVALID, "r", encoding="utf-8"
-        ) as fp:
-            connection_data = json.load(fp)
-
-        temanager = TEManager(topology_data, connection_data)
+        temanager = TEManager(topology, request)
         self.assertIsNotNone(temanager)
 
         graph = temanager.generate_graph_te()
@@ -253,15 +242,10 @@ class TEManagerTests(unittest.TestCase):
 
         TODO: Use a better name for this method.
         """
-        with open(TestData.TOPOLOGY_FILE_SAX_2, "r", encoding="utf-8") as fp:
-            topology_data = json.load(fp)
+        topology = json.loads(TestData.TOPOLOGY_FILE_SAX_2.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_VALID.read_text())
 
-        with open(
-            TestData.CONNECTION_REQ_FILE_SAX_2_VALID, "r", encoding="utf-8"
-        ) as fp:
-            connection_data = json.load(fp)
-
-        temanager = TEManager(topology_data, connection_data)
+        temanager = TEManager(topology, request)
         self.assertIsNotNone(temanager)
 
         graph = temanager.generate_graph_te()
@@ -330,9 +314,45 @@ class TEManagerTests(unittest.TestCase):
         # Note that the "domain" key is correct in the breakdown
         # result when we initialize TEManager with None for topology,
         # and later add individual topologies with add_topology().
-        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net"))
-        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:sax.net"))
-        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx:topology:amlight.net"))
+        zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
+        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
+        amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
+
+        # Per https://github.com/atlanticwave-sdx/pce/issues/101, each
+        # breakdown should be of the below form:
+        #
+        # {
+        #     "name": "TENET_vlan_201_203_Ampath_Tenet",
+        #     "dynamic_backup_path": true,
+        #     "uni_a": {
+        #         "tag": {
+        #             "value": 203,
+        #             "tag_type": 1
+        #         },
+        #         "interface_id": "cc:00:00:00:00:00:00:07:41"
+        #     },
+        #     "uni_z": {
+        #         "tag": {
+        #             "value": 201,
+        #             "tag_type": 1
+        #         },
+        #         "interface_id": "cc:00:00:00:00:00:00:08:50"
+        #     }
+        # }
+        for segment in [zaoxi, sax, amlight]:
+            self.assertIsInstance(segment, dict)
+            self.assertIsInstance(segment.get("name"), str)
+            self.assertIsInstance(segment.get("dynamic_backup_path"), bool)
+            self.assertIsInstance(segment.get("uni_a"), dict)
+            self.assertIsInstance(segment.get("uni_a").get("tag"), dict)
+            self.assertIsInstance(segment.get("uni_a").get("tag").get("value"), int)
+            self.assertIsInstance(segment.get("uni_a").get("tag").get("tag_type"), int)
+            self.assertIsInstance(segment.get("uni_a").get("port_id"), str)
+            self.assertIsInstance(segment.get("uni_z"), dict)
+            self.assertIsInstance(segment.get("uni_z").get("tag"), dict)
+            self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
+            self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
+            self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
 
     def test_connection_amlight_to_zaoxi_with_merged_topology(self):
         """
