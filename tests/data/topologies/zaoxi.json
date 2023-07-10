@@ -144,7 +144,8 @@
       "location": {
         "address": "Sangano",
         "latitude": -9.533459658700743,  
-        "longitude": 13.216709879405311 
+        "longitude": 13.216709879405311,
+        "ISO3166-2-lvl4": "IT-SN" 
       },
       "name": "zaoxi:Novi01",
       "ports": [
@@ -157,7 +158,8 @@
             "100-200",
             "10001"
           ],
-          "status": "up"
+          "status": "up",
+          "state": "enabled"
         },
         {
           "id": "urn:ogf:network:sdx:port:zaoxi:B1:2",
@@ -168,7 +170,8 @@
             "100-200",
             "10001"
           ],
-          "status": "up"
+          "status": "up",
+          "state": "enabled"
         },
         {
           "id": "urn:ogf:network:sdx:port:zaoxi:B1:3",
@@ -179,7 +182,8 @@
             "100-200",
             "10001"
           ],
-          "status": "up"
+          "status": "up",
+          "state": "enabled"
         }
       ],
       "short_name": "B1"
@@ -189,7 +193,8 @@
       "location": {
         "address": "CapeTown",
         "latitude": -3.73163824920348,  
-        "longitude": -38.52443289673026
+        "longitude": -38.52443289673026,
+        "ISO3166-2-lvl4": "ZA-WC"
       },
       "name": "zaoxi:Novi02",
       "ports": [
@@ -202,7 +207,8 @@
           "name": "Novi02:1",
           "node": "urn:ogf:network:sdx:node:zaoxi:B2",
           "short_name": "B2:1",
-          "status": "up"
+          "status": "up",
+          "state": "enabled"
         },
         {
           "id": "urn:ogf:network:sdx:port:zaoxi:B2:2",
@@ -213,7 +219,8 @@
           "name": "Novi02:2",
           "node": "urn:ogf:network:sdx:node:zaoxi:B2",
           "short_name": "B2:2",
-          "status": "up"
+          "status": "up",
+          "state": "enabled"
         },
         {
           "id": "urn:ogf:network:sdx:port:zaoxi:B2:3",
@@ -224,7 +231,8 @@
           "name": "Novi02:3",
           "node": "urn:ogf:network:sdx:node:zaoxi:B2",
           "short_name": "B2:3",
-          "status": "up"
+          "status": "up",
+          "state": "enabled"
         }
       ],
       "short_name": "B2"
@@ -234,7 +242,8 @@
       "location": {
         "address": "Karoo",
         "latitude": -32.3632301851245, 
-        "longitude": 22.541224555821298
+        "longitude": 22.541224555821298,
+        "ISO3166-2-lvl4": "ZA-KR"
       },
       "name": "zaoxi:Novi100",
       "ports": [
@@ -247,7 +256,8 @@
           "name": "Novi100:1",
           "node": "urn:ogf:network:sdx:node:zaoxi:A1",
           "short_name": "A1:1",
-          "status": "up"
+          "status": "up",
+          "state": "enabled"
         },
         {
           "id": "urn:ogf:network:sdx:port:zaoxi:A1:2",
@@ -258,7 +268,8 @@
           "name": "Novi100:2",
           "node": "urn:ogf:network:sdx:node:zaoxi:A1",
           "short_name": "A1:2",
-          "status": "up"
+          "status": "up",
+          "state": "enabled"
         }
       ],
       "short_name": "A1"
