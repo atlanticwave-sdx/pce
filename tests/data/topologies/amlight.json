@@ -184,7 +184,8 @@
         "location": {
           "address": "Miami",
           "latitude": 25.75633040531146, 
-          "longitude": -80.37676058477908
+          "longitude": -80.37676058477908,
+          "ISO3166-2-lvl4": "US-MIA"
         },
         "name": "amlight:Novi01",
         "ports": [
@@ -197,7 +198,8 @@
               "100-200",
               "10001"
             ],
-            "status": "up"
+            "status": "up",
+            "state": "enabled"
           },
           {
             "id": "urn:sdx:port:amlight.net:B1:2",
@@ -208,7 +210,8 @@
               "100-200",
               "10001"
             ],
-            "status": "up"
+            "status": "up",
+            "state": "enabled"
           },
           {
             "id": "urn:sdx:port:amlight.net:B1:3",
@@ -219,7 +222,8 @@
               "100-200",
               "10001"
             ],
-            "status": "up"
+            "status": "up",
+            "state": "enabled"
           }
         ],
         "short_name": "B1"
@@ -229,7 +233,8 @@
         "location": {
           "address": "BocaRaton",
           "latitude": 26.381437356374075, 
-          "longitude": -80.10225977485742
+          "longitude": -80.10225977485742,
+          "ISO3166-2-lvl4": "US-BC"
         },
         "name": "amlight:Novi02",
         "ports": [
@@ -242,7 +247,8 @@
             "name": "Novi02:1",
             "node": "urn:sdx:node:amlight.net:B2",
             "short_name": "B2:1",
-            "status": "up"
+            "status": "up",
+            "state": "enabled"
           },
           {
             "id": "urn:sdx:port:amlight.net:B2:2",
@@ -253,7 +259,8 @@
             "name": "Novi02:2",
             "node": "urn:sdx:node:amlight.net:B2",
             "short_name": "B2:2",
-            "status": "up"
+            "status": "up",
+            "state": "enabled"
           },
           {
             "id": "urn:sdx:port:amlight.net:B2:3",
@@ -264,7 +271,8 @@
             "name": "Novi02:3",
             "node": "urn:sdx:node:amlight.net:B2",
             "short_name": "B2:3",
-            "status": "up"
+            "status": "up",
+            "state": "enabled"
           }
         ],
         "short_name": "B2"
@@ -274,7 +282,8 @@
         "location": {
           "address": "redclara",
           "latitude": 30.34943181039702,
-          "longitude": -81.66666016473143
+          "longitude": -81.66666016473143,
+          "ISO3166-2-lvl4": "US-RC"
         },
         "name": "amlight:Novi100",
         "ports": [
@@ -287,7 +296,8 @@
             "name": "Novi100:1",
             "node": "urn:sdx:node:amlight.net:A1",
             "short_name": "A1:1",
-            "status": "up"
+            "status": "up",
+            "state": "enabled"
           },
           {
             "id": "urn:sdx:port:amlight.net:A1:2",
@@ -298,7 +308,8 @@
             "name": "Novi100:2",
             "node": "urn:sdx:node:amlight.net:A1",
             "short_name": "A1:2",
-            "status": "up"
+            "status": "up",
+            "state": "enabled"
           }
         ],
         "short_name": "A1"
