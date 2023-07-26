@@ -141,3 +141,4 @@ tests/data/topologies/amlight.png
 /coverage.lcov
 /coverage.xml
 
+/src/sdx/pce/_version.py
