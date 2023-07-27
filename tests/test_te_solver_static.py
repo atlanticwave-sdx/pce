@@ -7,28 +7,29 @@ from sdx.pce.load_balancing.te_solver import TESolver
 from sdx.pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
 from sdx.pce.topology.temanager import TEManager
 
+from . import TestData
+
 
 class SolverTests(unittest.TestCase):
     """
     Check that the solver from pce does what we expects it to do.
     """
 
-    TEST_DATA_DIR = pathlib.Path(__file__).parent.joinpath("data")
-
-    TOPOLOGY_SDX = TEST_DATA_DIR.joinpath("sdx.json")
-    CONNECTION_REQ = TEST_DATA_DIR.joinpath("test_request.json")
-
-    TOPOLOGY_AMLIGHT = TEST_DATA_DIR.joinpath("amlight.json")
-    TOPOLOGY_SAX = TEST_DATA_DIR.joinpath("sax.json")
-    TOPOLOGY_ZAOXI = TEST_DATA_DIR.joinpath("zaoxi.json")
-
-    TOPOLOGY_FILE_LIST = [TOPOLOGY_AMLIGHT, TOPOLOGY_ZAOXI, TOPOLOGY_SAX]
-    TOPOLOGY_FILE_LIST_UPDATE = [TOPOLOGY_AMLIGHT, TOPOLOGY_ZAOXI, TOPOLOGY_SAX]
+    TOPOLOGY_FILE_LIST = [
+        TestData.TOPOLOGY_FILE_AMLIGHT,
+        TestData.TOPOLOGY_FILE_ZAOXI,
+        TestData.TOPOLOGY_FILE_SAX,
+    ]
+    TOPOLOGY_FILE_LIST_UPDATE = [
+        TestData.TOPOLOGY_FILE_AMLIGHT,
+        TestData.TOPOLOGY_FILE_ZAOXI,
+        TestData.TOPOLOGY_FILE_SAX,
+    ]
 
     def setUp(self):
-        with open(self.TOPOLOGY_SDX, "r", encoding="utf-8") as t:
+        with open(TestData.TOPOLOGY_FILE_SDX, "r", encoding="utf-8") as t:
             topology_data = json.load(t)
-        with open(self.CONNECTION_REQ, "r", encoding="utf-8") as c:
+        with open(TestData.CONNECTION_REQ, "r", encoding="utf-8") as c:
             connection_data = json.load(c)
 
         self.temanager = TEManager(topology_data, connection_data)
