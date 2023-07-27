@@ -122,4 +122,4 @@ Test data is stored in [tests/data](./tests/data) as JSON files.
 
 [tox]: https://tox.wiki/en/latest/index.html
 
-[test_request.json]: (./tests/data/test_request.json)
+[test_request.json]: ./tests/data/test_request.json
