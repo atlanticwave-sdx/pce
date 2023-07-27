@@ -1,3 +1,7 @@
+"""
+Solver tests that use some static topology files.  These tests used to
+be in sdx-controller.
+"""
 import json
 import unittest
 
