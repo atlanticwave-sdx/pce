@@ -50,18 +50,9 @@ Connections.
 
 ### Connection Requests
 
-Format of a connection request is in the form of [[Source node,
-Destination node, Bandwidth required, Latency required],..].  Here is
-an example of a random connection request:
-
-```
-[[1,10,8,20],[2,9,10,15],[15,10,6,22]]
-```
-
-There are three queries in this connection request.  The first one is
-`[1,10,8,20]`, and it means this connection query is to route traffic
-from Node 1 to Node 10, requring a bandwith of 8 and maximum latency
-of 20.
+Connection requests should carry an identifier, source, destination,
+required bandwidth, and required latency, among other things.  They
+are in JSON format.  For an example, see [test_request.json].
 
 
 ## Working with PCE code
@@ -130,3 +121,5 @@ Test data is stored in [tests/data](./tests/data) as JSON files.
 [OR-Tools]: https://developers.google.com/optimization/
 
 [tox]: https://tox.wiki/en/latest/index.html
+
+[test_request.json]: (./tests/data/test_request.json)
