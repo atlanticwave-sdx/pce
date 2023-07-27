@@ -12,7 +12,7 @@ from sdx.pce.topology.temanager import TEManager
 from . import TestData
 
 
-class SolverTests(unittest.TestCase):
+class TESolverTests(unittest.TestCase):
     """
     Check that the solver from pce does what we expects it to do.
     """
@@ -73,14 +73,12 @@ class SolverTests(unittest.TestCase):
         solution = TESolver(graph, connection_request).solve()
         print(f"TESolver result: {solution}")
 
-        # The reality, for now, is that TE Solver has not been able to
-        # compute a path.
-        self.assertIsNone(solution.connection_map, "No path was computed")
-        self.assertEqual(solution.cost, 0)
+        self.assertIsNotNone(solution.connection_map)
+        self.assertEqual(solution.cost, 5.0)
 
         breakdown = self.temanager.generate_connection_breakdown(solution)
         print(f"Breakdown: {breakdown}")
-        self.assertIsNone(breakdown)
+        self.assertIsNotNone(breakdown)
 
     def test_computation_update(self):
         for topology_file in self.TOPOLOGY_FILE_LIST:
@@ -104,14 +102,12 @@ class SolverTests(unittest.TestCase):
         solution = TESolver(graph, connection_request).solve()
         print(f"TESolver result: {solution}")
 
-        # The reality, for now, is that TE Solver has not been able to
-        # compute a path.
-        self.assertIsNone(solution.connection_map, "No path was computed")
-        self.assertEqual(solution.cost, 0)
+        self.assertIsNotNone(solution.connection_map)
+        self.assertEqual(solution.cost, 5.0)
 
         breakdown = self.temanager.generate_connection_breakdown(solution)
         print(f"Breakdown: {breakdown}")
-        self.assertIsNone(breakdown)
+        self.assertIsNotNone(breakdown)
 
 
 if __name__ == "__main__":
