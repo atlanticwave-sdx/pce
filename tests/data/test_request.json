@@ -1,6 +1,6 @@
 {
-    "id": "id",
-    "name": "AMLight",
+    "id": "test-connection-request",
+    "name": "Test connection request",
     "start_time": "2000-01-23T04:56:07.000Z",
     "end_time": "2000-01-23T04:56:07.000Z",
     "bandwidth_required": 10,
