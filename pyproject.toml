@@ -1,9 +1,64 @@
 [build-system]
 requires = [
-    "setuptools >= 44",
+    "setuptools >= 61.0",
+    "setuptools-scm >= 6.2",
     "wheel",
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "sdx-pce"
+description = "Heuristic and Optimal Algorithms for CSP and TE Computation"
+dynamic = [ "version" ]
+authors = [
+    { name = "Yufeng Xin", email = "yxin@renci.org" },
+    { name = "Yifei Wang", email = "ywang13@renci.org" }
+]
+readme = "README.md"
+requires-python = ">=3.6"
+license = {file = "LICENSE"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+dependencies = [
+    "matplotlib",  #  for pylab
+    "networkx",
+    "numpy",
+    "ortools",
+    "prtpy",
+    "pydot",
+    "dataclasses-json",
+    "sdxdatamodel @ git+https://github.com/atlanticwave-sdx/datamodel@2.0.0"
+]
+
+[project.urls]
+Home = "https://github.com/atlanticwave-sdx/pce"
+Issues = "https://github.com/atlanticwave-sdx/pce/issues"
+
+[project.optional-dependencies]
+test = [
+    "pytest >= 7.1.2",
+    "pytest-cov >= 3.0.0",
+]
+pygraphviz = [
+    "pygraphviz"
+]    
+
+[options.packages.find]
+where = "src"
+
+[tool.pytest.ini_options]
+addopts = "--cov=sdx.pce --cov-report html --cov-report term-missing"
+testpaths = [
+    "tests"
+]
+
+[tool.setuptools_scm]
+# Write version info collected from git to a file.  This happens when
+# we run `python -m build`.
+write_to = "src/sdx/pce/_version.py"
 
 [tool.black]
 src_paths = ["src", "tests", "setup.py"]
@@ -11,3 +66,21 @@ src_paths = ["src", "tests", "setup.py"]
 [tool.isort]
 profile = "black"
 src_paths = ["src", "tests", "setup.py"]
+
+[tool.coverage.run]
+branch = true
+# source_pkgs = sdx.pce
+omit = [ "tests/*" ]
+relative_files = true
+
+# The section below will let us have relative paths in test coverage
+# report. See https://hynek.me/articles/testing-packaging/
+[tool.coverage.paths]
+source = [
+    # In checkouts.
+    "src/",
+    # In installed paths.
+    "**/site-packages/",
+    # In tox environments.
+    ".tox/**/site-packages/",
+]
