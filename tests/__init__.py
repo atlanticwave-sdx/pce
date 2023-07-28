@@ -1,4 +1,5 @@
 import pathlib
+import tempfile
 from importlib.resources import files
 
 
@@ -11,14 +12,14 @@ class TestData:
     TOPOLOGY_FILE_AMLIGHT = PACKAGE_DATA_DIR / "topologies" / "amlight.json"
     CONNECTION_REQ = PACKAGE_DATA_DIR / "requests" / "test_request.json"
 
+    # Write test output files in OS temporary directory.
+    TEST_OUTPUT_DIR = pathlib.Path(tempfile.gettempdir())
+    TEST_OUTPUT_AMLIGHT_IMG = TEST_OUTPUT_DIR / "sdx-pce-amlight.png"
+
+    # Other test data files.
     TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
 
-    TOPOLOGY_DATA_DIR = TEST_DATA_DIR / "topologies"
-
     TOPOLOGY_FILE_SDX = TEST_DATA_DIR / "sdx.json"
-
-    TOPOLOGY_FILE_AMLIGHT_IMG = TOPOLOGY_DATA_DIR / "amlight.png"
-
     CONNECTION_REQ_AMLIGHT = TEST_DATA_DIR / "test_request_amlight.json"
 
     TOPOLOGY_FILE_SAX_2 = TEST_DATA_DIR / "sax-2.json"
