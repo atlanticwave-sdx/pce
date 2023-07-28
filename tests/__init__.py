@@ -14,7 +14,9 @@ class TestData:
 
     # Write test output files in OS temporary directory.
     TEST_OUTPUT_DIR = pathlib.Path(tempfile.gettempdir())
-    TEST_OUTPUT_AMLIGHT_IMG = TEST_OUTPUT_DIR / "sdx-pce-amlight.png"
+    TEST_OUTPUT_IMG_AMLIGHT = TEST_OUTPUT_DIR / "sdx-pce-amlight.png"
+    TEST_OUTPUT_IMG_SAX = TEST_OUTPUT_DIR / "sdx-pce-sax.png"
+    TEST_OUTPUT_IMG_ZAOXI = TEST_OUTPUT_DIR / "sdx-pce-zaoxi.png"
 
     # Other test data files.
     TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
