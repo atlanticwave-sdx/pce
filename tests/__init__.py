@@ -5,7 +5,7 @@ from importlib.resources import files
 
 class TestData:
     # Some data files are in src/sdx/pce/data.
-    PACKAGE_DATA_DIR = files("sdx") / "pce" / "data"
+    PACKAGE_DATA_DIR = files("sdx.pce") / "data"
 
     TOPOLOGY_FILE_ZAOXI = PACKAGE_DATA_DIR / "topologies" / "zaoxi.json"
     TOPOLOGY_FILE_SAX = PACKAGE_DATA_DIR / "topologies" / "sax.json"
