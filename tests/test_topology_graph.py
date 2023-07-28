@@ -31,4 +31,6 @@ class TopologyGrpahTests(unittest.TestCase):
         # pos = nx.spring_layout(graph, seed=225)
 
         nx.draw(graph)
-        plt.savefig(TestData.TOPOLOGY_FILE_AMLIGHT_IMG)
+        plt.savefig(TestData.TEST_OUTPUT_AMLIGHT_IMG)
+
+        print(f"Graph has been written to {TestData.TEST_OUTPUT_AMLIGHT_IMG}.")
