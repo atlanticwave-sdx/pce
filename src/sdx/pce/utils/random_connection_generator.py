@@ -13,9 +13,7 @@ class RandomConnectionGenerator:
         self.num_nodes = num_nodes
 
     # Output: list of tuples of request
-    def generate_connection_requests(
-        self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022
-    ) -> TrafficMatrix:
+    def generate(self, querynum, l_bw, u_bw, l_lat, u_lat, seed=2022) -> TrafficMatrix:
         """
         Create a random traffic matrix.
 
