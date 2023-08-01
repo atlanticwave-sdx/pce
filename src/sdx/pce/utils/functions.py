@@ -79,10 +79,8 @@ class GraphFunction:
         pass
 
 
-""" use dijsktra to get the primary shortest path """
-
-
 def dijnew(graph, start_node, end_node):
+    """ use dijsktra to get the primary shortest path """
     graph_new = graph_simplify(graph)
     shortest_distance = {}
     predecessor = {}
