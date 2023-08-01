@@ -204,7 +204,7 @@ class TESolver:
         """
         After a path is provisioned, it needs to update the topology by subtracting the used bandwidth
         """  
-        paths = connection.connection_map
+        paths = pathsconnection.connection_map
         if paths is None:
             return graph
         for connection, path in paths.items():
