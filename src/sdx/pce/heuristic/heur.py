@@ -126,7 +126,7 @@ class TEGroupSolver:
         partition_list = []
         for i in range(k):
             v = tm_size / (2 ** (i + 1))
-            r.append(v * global_name.Min_C_BW)
+            r.append(v * Constants.MIN_C_BW)
             partition = []
             partition_list.append(partition)
         r.append(0)
@@ -247,7 +247,8 @@ if __name__ == "__main__":
 
     if args.topology_file is not None:
         if args.te_file is not None:
-            graph, tm = dot_file(args.topology_file, args.te_file)
+            # graph, tm = dot_file(args.topology_file, args.te_file)
+            print("Supporting dot file!")
         else:
             print("Missing the TE file!")
             exit()
