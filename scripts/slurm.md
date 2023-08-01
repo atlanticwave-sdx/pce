@@ -1,7 +1,10 @@
-## Slurm cluster
+""" Slurm cluster
 Python 3.8 and above
+"""
+unc vpn
 
-```
+ssh
+
 cd ~/pce
 
 ----Longleaf.unc.edu---
@@ -17,11 +20,11 @@ sinteractive
 module load python/3.10.0
 pip install -r requirements.txt 
 export PYTHONPATH=$PYTHONPATH:$PWD/src
-sbatch --mail-type=begin --mail-type=end --mail-type=fail --mail-user=yxin@email.unc.edu -p general -N 1 --mem=128g -n 1 -c 12 -t 5- --wrap="python src/Utility/simulation.py -m 200"
+sbatch --mail-type=begin --mail-type=end --mail-type=fail --mail-user=yxin@email.unc.edu -p general -N 1 --mem=128g -n 1 -c 12 -t 5- --wrap="python ./simulation.py -m 200"
 
-(sbatch --mail-type=begin --mail-type=end --mail-type=fail --mail-user=yxin@email.unc.edu -p batch -N 1 --mem=128g -n 1 -c 12 -t 5- --wrap="python scripts/simulation.py -m 3" )
+(sbatch --mail-type=begin --mail-type=end --mail-type=fail --mail-user=yxin@email.unc.edu -p batch -N 1 --mem=128g -n 1 -c 12 -t 5- --wrap="python ./simulation.py -m 3" )
 
-sbatch --mail-type=begin --mail-type=end --mail-type=fail --mail-user=yxin@email.unc.edu -p batch -N 1 --mem=128g -n 1 -c 12 -t 5- --wrap="python scripts/simulation.py -m 100 -p 0.2 -c 1 -b 1 "
+sbatch --mail-type=begin --mail-type=end --mail-type=fail --mail-user=yxin@email.unc.edu -p batch -N 1 --mem=128g -n 1 -c 12 -t 5- --wrap="python ./simulation.py -m 100 -p 0.2 -c 1 -b 1 "
 
 scancel 5544939510
 ```

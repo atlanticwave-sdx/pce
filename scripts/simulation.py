@@ -4,6 +4,7 @@ import numpy as np
 
 from sdx.pce.load_balancing.te_solver import TESolver
 from sdx.pce.utils.constants import Constants
+from sdx.pce.models import ConnectionSolution
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
 
@@ -147,8 +148,8 @@ if __name__ == "__main__":
 
     print("Optimal solver")
     solver = TESolver(graph, tm, args.c, args.b)
-    path, result = solver.solve()
-    ordered_paths = solver.solution_translator(path, result)
+    ordered_paths = solver.solve()
+    #ordered_paths = solver.solution_translator(path, result)
     graph = solver.update_graph(graph, ordered_paths)
 
     bw_stat(graph)
