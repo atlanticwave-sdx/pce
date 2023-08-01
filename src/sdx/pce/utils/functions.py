@@ -122,10 +122,8 @@ def dijnew(graph, start_node, end_node):
     return path
 
 
-""" make the non-simple graph to be the simple graph """
-
-
 def graph_simplify(graph):
+    """ make the non-simple graph to be the simple graph """
     for node in graph:
         for endpoint in graph[node]:
             try:
