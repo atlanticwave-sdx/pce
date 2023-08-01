@@ -213,8 +213,8 @@ class TESolver:
             bw = connection.required_bandwidth
 
             for edge in path:
-                u = edge[0]
-                v = edge[1]
+                u = edge.source
+                v = edge.destination
                 if graph.has_edge(u, v):
                     bandwidth = graph[u][v][Constants.BANDWIDTH] - bw
                     graph[u][v][Constants.BANDWIDTH] = max(
