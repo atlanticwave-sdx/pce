@@ -62,7 +62,7 @@ class RandomTopologyGenerator:
         return self.latency_list
 
     def generate_graph(self, plot=True, g=None) -> nx.Graph:
-        """ generate a random graph """
+        """generate a random graph"""
         if g is None:
             while True:
                 g = erdos_renyi_graph(self.num_node, self.link_probability, self.seed)
@@ -93,7 +93,7 @@ class RandomTopologyGenerator:
         return self.graph
 
     def link_property_assign(self):
-        """ set the random bw and latency per link """
+        """set the random bw and latency per link"""
 
         self.latency_list = []
         for u, v, w in self.graph.edges(data=True):
@@ -106,7 +106,7 @@ class RandomTopologyGenerator:
         return self.latency_list
 
     def nodes_connected(self, g, u, v):
-        """ if u and v connected """
+        """if u and v connected"""
         return u in g.neighbors(v)
 
     def get_connectivity(self):
