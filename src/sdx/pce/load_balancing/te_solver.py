@@ -200,8 +200,11 @@ class TESolver:
         print(f"solution_translator result: {result}")
         return result
 
-    # TODO: unclear what this function does.
-    def update_graph(self, graph, paths):
+    def update_graph(self, graph, pathsconnection):
+        """
+        After a path is provisioned, it needs to update the topology by subtracting the used bandwidth
+        """  
+        paths = connection.connection_map
         if paths is None:
             return graph
         for connection, path in paths.items():
@@ -222,8 +225,10 @@ class TESolver:
     def set_obj(self, obj):
         self.objective = obj
 
-    # form OR matrix
     def _mc_cost(self, links):
+        """
+        Defining the link cost function to be a constant weight 
+        """
         cost_list = []
         for link in links:
             cost_list.append(self.graph[link[0]][link[1]][Constants.WEIGHT])
@@ -235,6 +240,9 @@ class TESolver:
         return cost
 
     def _lb_cost(self, links):
+        """
+        Defining the link cost function to be the bw utilization 
+        """
         cost_list = []
         for link in links:
             cost_list.append(self.graph[link[0]][link[1]][Constants.BANDWIDTH])
@@ -247,6 +255,10 @@ class TESolver:
         return cost
 
     def _create_data_model(self) -> DataModel:
+        """
+        Top function to create the OR optimization model in the array format
+        """
+
         latency = True
 
         nodenum = self.graph.number_of_nodes()
@@ -357,9 +369,10 @@ class TESolver:
             num_inequality=2 * linknum + int(len(self.tm.connection_requests)),
         )
 
-    # flowmatrix
-    # also set self.links: 2*links
     def _flow_matrix(self, g):
+        """generating the network flow matrix
+        # also set self.links: 2*links
+        """
         nodenum = len(g.nodes)
         linknum = 2 * len(g.edges)
 
@@ -390,8 +403,10 @@ class TESolver:
 
         return inputmatrix, link_list
 
-    # shape: (len(tm)*numnode, len(num)*2*numedge)
     def _lhsflow(self, request_list, inputmatrix):
+        """ 
+        lefthand matrix of the network flow equation. shape: (len(tm)*numnode, len(num)*2*numedge)
+        """
         r = len(request_list)
         m, n = inputmatrix.shape
         print(f"r={r}:m={m}:n={n}")
