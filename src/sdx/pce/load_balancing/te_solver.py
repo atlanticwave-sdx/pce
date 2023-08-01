@@ -210,7 +210,7 @@ class TESolver:
         for connection, path in paths.items():
             # src = connection[0]   # src is unused
             # dest = connection[1]  # dest is unused
-            bw = connection[2]
+            bw = connection.required_bandwidth
 
             for edge in path:
                 u = edge[0]
