@@ -8,6 +8,7 @@ except:
     # Use compatibility library with Python 3.8.
     from importlib_resources import files
 
+
 class TestData:
     # Some data files are in src/sdx/pce/data.
     PACKAGE_DATA_DIR = files("sdx.pce") / "data"
