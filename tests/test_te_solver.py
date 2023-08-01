@@ -105,7 +105,11 @@ class TESolverTests(unittest.TestCase):
         graph = nx.read_edgelist(
             edge_list_file,
             nodetype=int,
-            data=(("weight", float), ("bandwidth", float), ("latency", float),),
+            data=(
+                ("weight", float),
+                ("bandwidth", float),
+                ("latency", float),
+            ),
         )
 
         with open(traffic_matrix_file) as fp:

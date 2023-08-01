@@ -54,7 +54,7 @@ class GraphFunction:
                 distance_list.append(w[Constants.WEIGHT])
         elif cost_flag == Constants.COST_FLAG_RANDOM:
             for u, v, w in self.graph.edges(data=True):
-                w[Constants.WEIGHT] = random.randint(1, 2 ** 24)
+                w[Constants.WEIGHT] = random.randint(1, 2**24)
                 distance_list.append(w[Constants.WEIGHT])
         elif cost_flag == Constants.COST_FLAG_STATIC:
             for u, v, w in self.graph.edges(data=True):
