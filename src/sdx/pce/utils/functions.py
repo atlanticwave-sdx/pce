@@ -135,10 +135,8 @@ def graph_simplify(graph):
     return graph
 
 
-""" remove the primary shortest path and redo the dijsktra to get the backup path """
-
-
 def backup_path(graph, start_node, end_node):
+    """ remove the primary shortest path and redo the dijsktra to get the backup path """
     backupstart_node = start_node
     backupend_node = end_node
     graphprimary = copy.deepcopy(graph)
