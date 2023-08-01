@@ -74,5 +74,6 @@ class RandomConnectionGenerator:
     def random(self, min, mx, size):
         return np.random.randint(min, max, 1000)
 
+
 # tm = RandomConnectionGenerator(20)
 # connection = tm.generate(3, 100, 1000, 1000, 1500, 2022)

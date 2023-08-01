@@ -10,6 +10,7 @@ from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
 
 from sdx.pce.heuristic.heur import TEGroupSolver
 
+
 def random_graph(n, p, m):
     graph_generator = RandomTopologyGenerator(n, p)
     graph = graph_generator.generate_graph()
@@ -146,12 +147,12 @@ if __name__ == "__main__":
         if args.l is None:
             print("Error: Static cost file is needed!")
             exit(1)
-    
-    if args.h==0:
+
+    if args.h == 0:
         print("Optimal solver")
         solver = TESolver(graph, tm, args.c, args.b)
         ordered_paths = solver.solve()
-        #ordered_paths = solver.solution_translator(path, result)
+        # ordered_paths = solver.solution_translator(path, result)
         graph = solver.update_graph(graph, ordered_paths)
     else:
         print("Heuristic solver")

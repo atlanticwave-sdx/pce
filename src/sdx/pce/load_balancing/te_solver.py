@@ -203,7 +203,7 @@ class TESolver:
     def update_graph(self, graph, pathsconnection):
         """
         After a path is provisioned, it needs to update the topology by subtracting the used bandwidth
-        """  
+        """
         paths = pathsconnection.connection_map
         if paths is None:
             return graph
@@ -227,7 +227,7 @@ class TESolver:
 
     def _mc_cost(self, links):
         """
-        Defining the link cost function to be a constant weight 
+        Defining the link cost function to be a constant weight
         """
         cost_list = []
         for link in links:
@@ -241,7 +241,7 @@ class TESolver:
 
     def _lb_cost(self, links):
         """
-        Defining the link cost function to be the bw utilization 
+        Defining the link cost function to be the bw utilization
         """
         cost_list = []
         for link in links:
@@ -404,7 +404,7 @@ class TESolver:
         return inputmatrix, link_list
 
     def _lhsflow(self, request_list, inputmatrix):
-        """ 
+        """
         lefthand matrix of the network flow equation. shape: (len(tm)*numnode, len(num)*2*numedge)
         """
         r = len(request_list)
