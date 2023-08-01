@@ -105,9 +105,8 @@ class RandomTopologyGenerator:
 
         return self.latency_list
 
-    """ if u and v connected """
-
     def nodes_connected(self, g, u, v):
+        """ if u and v connected """
         return u in g.neighbors(v)
 
     def get_connectivity(self):
