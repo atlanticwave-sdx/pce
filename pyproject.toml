@@ -30,6 +30,7 @@ dependencies = [
     "prtpy",
     "pydot",
     "dataclasses-json",
+    "importlib-resources; python_version < '3.9'",
     "sdxdatamodel @ git+https://github.com/atlanticwave-sdx/datamodel@2.0.0"
 ]
 
