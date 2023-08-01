@@ -8,6 +8,7 @@ from sdx.pce.models import ConnectionSolution
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
 
+from sdx.pce.heuristic.heur import TEGroupSolver
 
 def random_graph(n, p, m):
     graph_generator = RandomTopologyGenerator(n, p)
@@ -145,11 +146,17 @@ if __name__ == "__main__":
         if args.l is None:
             print("Error: Static cost file is needed!")
             exit(1)
-
-    print("Optimal solver")
-    solver = TESolver(graph, tm, args.c, args.b)
-    ordered_paths = solver.solve()
-    #ordered_paths = solver.solution_translator(path, result)
-    graph = solver.update_graph(graph, ordered_paths)
+    
+    if args.h==0:
+        print("Optimal solver")
+        solver = TESolver(graph, tm, args.c, args.b)
+        ordered_paths = solver.solve()
+        #ordered_paths = solver.solution_translator(path, result)
+        graph = solver.update_graph(graph, ordered_paths)
+    else:
+        print("Heuristic solver")
+        solver = TEGroupSolver(graph, tm, args.c, args.b)
+        partition_tm = solver.connection_split(args.alg, args.k)
+        solver.solve(partition_tm)
 
     bw_stat(graph)

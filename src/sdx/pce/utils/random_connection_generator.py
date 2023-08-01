@@ -74,27 +74,5 @@ class RandomConnectionGenerator:
     def random(self, min, mx, size):
         return np.random.randint(min, max, 1000)
 
-    def linear_grouping(self, tm, k):
-        if len(tm) > 20:
-            tm.sort(key=lambda x: x[2])
-
-        group_list = [tm[x : x + k] for x in range(0, len(tm), k)]
-
-        # with open('splittedconnection.json', 'w') as json_file:
-        #    data = splitted_list
-        #    json.dump(data, json_file, indent=4)
-
-        print(group_list)
-
-        return group_list
-
-    def geometric_grouping(self, tm, k):
-        pass
-
-    def alt_geometric_grouping(self, tm, k):
-        pass
-
-
 # tm = RandomConnectionGenerator(20)
-# connection = tm.randomConnectionGenerator(3, 100, 1000, 1000, 1500, 2022)
-# split_connection = tm.connectionSplitter(5)
+# connection = tm.generate(3, 100, 1000, 1000, 1500, 2022)
