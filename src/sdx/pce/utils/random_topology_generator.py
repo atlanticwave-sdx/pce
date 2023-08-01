@@ -61,9 +61,8 @@ class RandomTopologyGenerator:
     def get_latency_list(self):
         return self.latency_list
 
-    """ generate a random graph """
-
     def generate_graph(self, plot=True, g=None) -> nx.Graph:
+        """ generate a random graph """
         if g is None:
             while True:
                 g = erdos_renyi_graph(self.num_node, self.link_probability, self.seed)
