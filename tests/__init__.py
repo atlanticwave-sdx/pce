@@ -1,7 +1,12 @@
 import pathlib
 import tempfile
-from importlib.resources import files
 
+try:
+    # Use stdlib modules with Python > 3.8.
+    from importlib.resources import files
+except:
+    # Use compatibility library with Python 3.8.
+    from importlib_resources import files
 
 class TestData:
     # Some data files are in src/sdx/pce/data.
