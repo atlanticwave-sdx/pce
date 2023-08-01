@@ -79,8 +79,8 @@ class GraphFunction:
         pass
 
 
-# use dijsktra to get the primary shortest path
 def dijnew(graph, start_node, end_node):
+    """use dijsktra to get the primary shortest path"""
     graph_new = graph_simplify(graph)
     shortest_distance = {}
     predecessor = {}
@@ -122,8 +122,8 @@ def dijnew(graph, start_node, end_node):
     return path
 
 
-# make the non-simple graph to be the simple graph
 def graph_simplify(graph):
+    """make the non-simple graph to be the simple graph"""
     for node in graph:
         for endpoint in graph[node]:
             try:
@@ -135,8 +135,8 @@ def graph_simplify(graph):
     return graph
 
 
-# remove the primary shortest path and redo the dijsktra to get the backup path
 def backup_path(graph, start_node, end_node):
+    """remove the primary shortest path and redo the dijsktra to get the backup path"""
     backupstart_node = start_node
     backupend_node = end_node
     graphprimary = copy.deepcopy(graph)
