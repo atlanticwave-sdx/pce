@@ -68,7 +68,7 @@ class RandomConnectionGenerator:
     def lognormal(self, mu, sigma, size):
         normal_std = 0.5
         # normal_std = np.sqrt(np.log(1 + (sigma/mu)**2))
-        normal_mean = np.log(mu) - normal_std**2 / 2
+        normal_mean = np.log(mu) - normal_std ** 2 / 2
         return np.random.lognormal(normal_mean, normal_std, size)
 
     def random(self, min, mx, size):

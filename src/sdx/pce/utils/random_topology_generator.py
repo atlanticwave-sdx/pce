@@ -62,6 +62,7 @@ class RandomTopologyGenerator:
         return self.latency_list
 
     """ generate a random graph """
+
     def generate_graph(self, plot=True, g=None) -> nx.Graph:
         if g is None:
             while True:
@@ -93,7 +94,8 @@ class RandomTopologyGenerator:
         return self.graph
 
     """ set the random bw and latency per link """
-    def link_property_assign(self):  
+
+    def link_property_assign(self):
         self.latency_list = []
         for u, v, w in self.graph.edges(data=True):
             w[Constants.BANDWIDTH] = random.randint(self.low_bw, self.upper_bw)
@@ -105,6 +107,7 @@ class RandomTopologyGenerator:
         return self.latency_list
 
     """ if u and v connected """
+
     def nodes_connected(self, g, u, v):
         return u in g.neighbors(v)
 

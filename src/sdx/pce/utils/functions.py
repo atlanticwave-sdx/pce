@@ -54,7 +54,7 @@ class GraphFunction:
                 distance_list.append(w[Constants.WEIGHT])
         elif cost_flag == Constants.COST_FLAG_RANDOM:
             for u, v, w in self.graph.edges(data=True):
-                w[Constants.WEIGHT] = random.randint(1, 2**24)
+                w[Constants.WEIGHT] = random.randint(1, 2 ** 24)
                 distance_list.append(w[Constants.WEIGHT])
         elif cost_flag == Constants.COST_FLAG_STATIC:
             for u, v, w in self.graph.edges(data=True):
@@ -80,6 +80,8 @@ class GraphFunction:
 
 
 """ use dijsktra to get the primary shortest path """
+
+
 def dijnew(graph, start_node, end_node):
     graph_new = graph_simplify(graph)
     shortest_distance = {}
@@ -123,6 +125,8 @@ def dijnew(graph, start_node, end_node):
 
 
 """ make the non-simple graph to be the simple graph """
+
+
 def graph_simplify(graph):
     for node in graph:
         for endpoint in graph[node]:
@@ -136,6 +140,8 @@ def graph_simplify(graph):
 
 
 """ remove the primary shortest path and redo the dijsktra to get the backup path """
+
+
 def backup_path(graph, start_node, end_node):
     backupstart_node = start_node
     backupend_node = end_node

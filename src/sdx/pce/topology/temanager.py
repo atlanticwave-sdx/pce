@@ -575,10 +575,7 @@ class TEManager:
             name = f"{domain_name}_vlan_{ingress_vlan}_{egress_vlan}"
 
             breakdowns[domain] = VlanTaggedBreakdown(
-                name=name,
-                dynamic_backup_path=True,
-                uni_a=port_a,
-                uni_z=port_z,
+                name=name, dynamic_backup_path=True, uni_a=port_a, uni_z=port_z,
             )
 
         return VlanTaggedBreakdowns(breakdowns=breakdowns)

@@ -45,9 +45,7 @@ class TEManagerTests(unittest.TestCase):
         # Test that the old way, which had plain old dicts and arrays
         # representing connection requests, still works.
         request = [
-            {
-                "1": [[0, 1], [1, 2]],
-            },
+            {"1": [[0, 1], [1, 2]],},
             1.0,
         ]
 
@@ -58,9 +56,7 @@ class TEManagerTests(unittest.TestCase):
     def test_connection_breakdown_tm(self):
         # Breaking down a traffic matrix.
         request = [
-            {
-                "1": [[0, 1], [1, 2]],
-            },
+            {"1": [[0, 1], [1, 2]],},
             1.0,
         ]
 
@@ -85,10 +81,7 @@ class TEManagerTests(unittest.TestCase):
     def test_connection_breakdown_two_similar_requests(self):
         # Solving and breaking down two similar connection requests.
         request = [
-            {
-                "1": [[0, 1], [1, 2]],
-                "2": [[0, 1], [1, 2]],
-            },
+            {"1": [[0, 1], [1, 2]], "2": [[0, 1], [1, 2]],},
             1.0,
         ]
 
@@ -117,11 +110,7 @@ class TEManagerTests(unittest.TestCase):
         self.temanager.add_topology(zaoxi_topology)
 
         request = [
-            {
-                "1": [[1, 2], [3, 4]],
-                "2": [[1, 2], [3, 5]],
-                "3": [[7, 8], [8, 9]],
-            },
+            {"1": [[1, 2], [3, 4]], "2": [[1, 2], [3, 5]], "3": [[7, 8], [8, 9]],},
             1.0,
         ]
 
@@ -168,9 +157,7 @@ class TEManagerTests(unittest.TestCase):
         self.temanager.add_topology(zaoxi_topology)
 
         request = [
-            {
-                "1": [[6, 9]],
-            },
+            {"1": [[6, 9]],},
             1.0,
         ]
 
