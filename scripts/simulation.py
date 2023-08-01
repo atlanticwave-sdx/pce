@@ -2,13 +2,12 @@ import argparse
 
 import numpy as np
 
+from sdx.pce.heuristic.heur import TEGroupSolver
 from sdx.pce.load_balancing.te_solver import TESolver
-from sdx.pce.utils.constants import Constants
 from sdx.pce.models import ConnectionSolution
+from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
-
-from sdx.pce.heuristic.heur import TEGroupSolver
 
 
 def random_graph(n, p, m):
