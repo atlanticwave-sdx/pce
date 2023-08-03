@@ -5,16 +5,16 @@ unc vpn
 
 ssh longleaf.unc.edu
 
-git clone https://github.com/atlanticwave-sdx/pce.git
-cd ~/pce
-pip install .
-
 ----Longleaf.unc.edu---
 module load anaconda
 
 conda env list
 conda create -n my_env python=3.8
 conda activate my_env
+
+git clone https://github.com/atlanticwave-sdx/pce.git
+cd ~/pce
+pip install .
 
 
 ---ht1.renci.org---
