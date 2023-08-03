@@ -38,6 +38,7 @@ def dot_file(g_file, tm_file):
 
 
 def bw_stat(g):
+    """generating link statistics after TE results"""
     total_weight = 0.0
     total_util = 0.0
     max_util = 0.0
