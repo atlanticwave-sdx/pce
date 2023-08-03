@@ -2,36 +2,12 @@ import argparse
 
 import numpy as np
 
-from sdx.pce.heuristic.heur import TEGroupSolver
+from sdx.pce.heuristic.heur import TEGroupSolver,random_graph,matrix_to_connection
 from sdx.pce.load_balancing.te_solver import TESolver
 from sdx.pce.models import ConnectionSolution
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
-
-
-def random_graph(n, p, m):
-    """
-    Generate a random graph and a traffic matrix
-    :param n: number of nodes
-    :param p: probability that a link exist between a pair of nodes
-    :param m: number of connections in the request
-    """
-    graph_generator = RandomTopologyGenerator(n, p)
-    graph = graph_generator.generate_graph()
-
-    tm_generator = RandomConnectionGenerator(n)
-    tm = tm_generator.generate(m, 500, 2000, 80, 100).connection_requests
-    matrix = []
-    for rq in tm:
-        query = []
-        query.append(rq.source)
-        query.append(rq.destination)
-        query.append(rq.required_bandwidth)
-        query.append(rq.required_latency)
-        matrix.append(tuple(query))
-    return graph, matrix
-
 
 def dot_file(g_file, tm_file):
     pass
@@ -172,7 +148,8 @@ if __name__ == "__main__":
 
     if args.heur == 0:
         print("Optimal solver")
-        solver = TESolver(graph, tm, args.c, args.b)
+        request = matrix_to_connection(tm)
+        solver = TESolver(graph, request, args.c, args.b)
         ordered_paths = solver.solve()
         # ordered_paths = solver.solution_translator(path, result)
         graph = solver.update_graph(graph, ordered_paths)
