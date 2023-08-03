@@ -2,12 +2,13 @@ import argparse
 
 import numpy as np
 
-from sdx.pce.heuristic.heur import TEGroupSolver,random_graph,matrix_to_connection
+from sdx.pce.heuristic.heur import TEGroupSolver, matrix_to_connection, random_graph
 from sdx.pce.load_balancing.te_solver import TESolver
 from sdx.pce.models import ConnectionSolution
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
+
 
 def dot_file(g_file, tm_file):
     pass
