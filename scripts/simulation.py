@@ -2,20 +2,12 @@ import argparse
 
 import numpy as np
 
+from sdx.pce.heuristic.heur import TEGroupSolver, matrix_to_connection, random_graph
 from sdx.pce.load_balancing.te_solver import TESolver
+from sdx.pce.models import ConnectionSolution
 from sdx.pce.utils.constants import Constants
 from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
-
-
-def random_graph(n, p, m):
-    graph_generator = RandomTopologyGenerator(n, p)
-    graph = graph_generator.generate_graph()
-
-    tm_generator = RandomConnectionGenerator(n)
-    tm = tm_generator.generate(m, 500, 1000, 80, 100)
-
-    return graph, tm
 
 
 def dot_file(g_file, tm_file):
@@ -23,6 +15,7 @@ def dot_file(g_file, tm_file):
 
 
 def bw_stat(g):
+    """generating link statistics after TE results"""
     total_weight = 0.0
     total_util = 0.0
     max_util = 0.0
@@ -104,6 +97,13 @@ if __name__ == "__main__":
         type=str,
     )
     parse.add_argument(
+        "-heur",
+        dest="heur",
+        default=0,
+        help="Heuristic = 1, Default = 0 for the optimal. ",
+        type=int,
+    )
+    parse.add_argument(
         "-k", dest="k", default=2, help="Group Heuristic  -- Number of groups", type=int
     )
     parse.add_argument(
@@ -126,7 +126,9 @@ if __name__ == "__main__":
 
     if args.topology_file is not None:
         if args.te_file is not None:
-            graph, tm = dot_file(args.topology_file, args.te_file)
+            # graph, tm = dot_file(args.topology_file, args.te_file)
+            print("Supporting dot file later!")
+            exit()
         else:
             print("Missing the TE file!")
             exit()
@@ -145,10 +147,17 @@ if __name__ == "__main__":
             print("Error: Static cost file is needed!")
             exit(1)
 
-    print("Optimal solver")
-    solver = TESolver(graph, tm, args.c, args.b)
-    path, result = solver.solve()
-    ordered_paths = solver.solution_translator(path, result)
-    graph = solver.update_graph(graph, ordered_paths)
+    if args.heur == 0:
+        print("Optimal solver")
+        request = matrix_to_connection(tm)
+        solver = TESolver(graph, request, args.c, args.b)
+        ordered_paths = solver.solve()
+        # ordered_paths = solver.solution_translator(path, result)
+        graph = solver.update_graph(graph, ordered_paths)
+    else:
+        print("Heuristic solver")
+        solver = TEGroupSolver(graph, tm, args.c, args.b)
+        partition_tm = solver.connection_split(args.alg, args.k)
+        solver.solve(partition_tm)
 
     bw_stat(graph)
