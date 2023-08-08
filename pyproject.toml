@@ -51,7 +51,7 @@ pygraphviz = [
 where = "src"
 
 [tool.pytest.ini_options]
-addopts = "--cov=sdx.pce --cov-report html --cov-report term-missing"
+addopts = "--cov=sdx_pce --cov-report html --cov-report term-missing"
 testpaths = [
     "tests"
 ]
