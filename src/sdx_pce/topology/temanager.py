@@ -274,9 +274,6 @@ class TEManager:
         breakdown = {}
         paths = connection.connection_map  # p2p for now
 
-        # i_port = None
-        # e_port = None
-
         for domain, links in paths.items():
             print(f"domain: {domain}, links: {links}")
 
