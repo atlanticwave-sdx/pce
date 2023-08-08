@@ -1,3 +1,5 @@
+import logging
+
 from grenml import GRENMLManager
 from grenml.models.nodes import Node
 from sdx.datamodel.models.topology import Topology
@@ -29,7 +31,7 @@ class GrenmlConverter(object):
     def add_nodes(self, nodes):
         for node in nodes:
             location = node.get_location()
-            print(f"adding node: {node.id}")
+            logging.info(f"adding node: {node.id}")
             self.grenml_manager.add_node(
                 node.id,
                 node.name,
@@ -58,7 +60,7 @@ class GrenmlConverter(object):
                     )
                     end_nodes.append(grenml_node)
                 else:
-                    print(
+                    logging.warning(
                         f"This port ({port['id']}) doesn't belong to any "
                         f"node in the topology, likely an Interdomain port?"
                     )
