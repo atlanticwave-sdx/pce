@@ -20,7 +20,7 @@ Topology will be generated in .json file. Other link info files will aslo be gen
 
 Formualtion:
 
-![alt text](https://github.com/yifei666/pce/blob/e65eec6f1b4886e68c26d332420f64d34ff397eb/Reference/CSP_formulation_latex.png)
+![CSP Formulation](./CSP_formulation_latex.png)
 
 ## Load Balancing
 
@@ -28,7 +28,7 @@ Load Balancing is developed based on the CSP problem. User can input a list of q
 
 Example Formualtion:
 
-![alt text](https://github.com/yifei666/pce/blob/91f8fb82f85d5ada8714b597c5cd5ae4979ba92b/Reference/LoadBalancing_Ex.png)
+![Load Balancing](./LoadBalancing_Ex.png)
 
 ## Utility and Benchmark
 
