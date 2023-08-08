@@ -59,7 +59,7 @@ testpaths = [
 [tool.setuptools_scm]
 # Write version info collected from git to a file.  This happens when
 # we run `python -m build`.
-write_to = "src/sdx/pce/_version.py"
+write_to = "src/sdx_pce/_version.py"
 
 [tool.black]
 src_paths = ["src", "tests", "setup.py"]
