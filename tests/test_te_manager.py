@@ -36,10 +36,8 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(connection)
 
     def test_connection_breakdown_none_input(self):
-        # Expect an error to be raised.
-        self.assertRaises(
-            AssertionError, self.temanager.generate_connection_breakdown, None
-        )
+        # Expect no breakdown when input is None.
+        self.assertIsNone(self.temanager.generate_connection_breakdown(None))
 
     def test_connection_breakdown_tm(self):
         # Breaking down a traffic matrix.
