@@ -17,8 +17,8 @@ PCE's API is still evolving.  With that caveat, and omitting some
 details, the general usage is like this:
 
 ```python
-from sdx.pce.load_balancing.te_solver import TESolver
-from sdx.pce.topology.temanager import TEManager
+from sdx_pce.load_balancing.te_solver import TESolver
+from sdx_pce.topology.temanager import TEManager
 
 temanager = TEManager(initial_topology, connection_request)
 for topology in topologies:
