@@ -40,8 +40,8 @@ Example Formualtion:
 ## Utility and Benchmark
 
 Other utility funcions are aslo included, such as: Dijkstra
-algorithms, Network connectivity check, etc.
+algorithms, network connectivity check, etc.
 
 Benchmark results are also provided. Computation time and cost
 difference std are being tested between solver formulation and
-heurtistic sorting methods( by latency and by cost).
+heurtistic sorting methods (by latency and by cost).
