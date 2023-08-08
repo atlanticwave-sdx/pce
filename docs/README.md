@@ -1,6 +1,8 @@
 # Background
 
-## Google OR-Tools
+<!-- TODO: add an introduction -->
+
+## google OR-Tools
 
 Solver in this OR-Tools is used to solve for the optimal solution. It
 takes in the formulation matrix with defined objective functions and
@@ -15,6 +17,8 @@ selected, the variable is 0.
 
 A topology will be represented in a JSON format.  Each link in the
 network will have three attributes: cost, latency and bandwidth.
+
+<!-- TODO: describe these better -->
 
 - nodes: Number of nodes in the graph
 - p: Probability of link creation
@@ -37,7 +41,11 @@ Example Formualtion:
 
 ![Load Balancing](./load_balancing.png)
 
+<!-- TODO: expand discussion on this image -->
+
 ## Utility and Benchmark
+
+<!-- TODO: is this up-to-date? -->
 
 Other utility funcions are aslo included, such as: Dijkstra
 algorithms, network connectivity check, etc.
