@@ -260,17 +260,9 @@ class TEManager:
 
         return True
 
-    def generate_connection_breakdown(self, connection) -> dict:
+    def generate_connection_breakdown(self, connection: ConnectionSolution) -> dict:
         """
-        A "router" method for backward compatibility.
-        """
-        if isinstance(connection, ConnectionSolution):
-            return self._generate_connection_breakdown_tm(connection)
-        return self._generate_connection_breakdown_old(connection)
-
-    def _generate_connection_breakdown_tm(self, connection: ConnectionSolution) -> dict:
-        """
-        Take a connection and generate a breakdown.
+        Take a connection solution and generate a breakdown.
 
         This is an alternative to generate_connection_breakdown()
         below which uses the newly defined types from sdx_pce.models.
