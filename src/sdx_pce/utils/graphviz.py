@@ -25,7 +25,7 @@ from typing import Union
 import networkx as nx
 from networkx.algorithms import approximation as approx
 
-from sdx.pce.utils.constants import Constants
+from sdx_pce.utils.constants import Constants
 
 __all__ = ["can_read_dot_file", "read_dot_file"]
 

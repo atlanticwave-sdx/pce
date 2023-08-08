@@ -51,7 +51,7 @@ pygraphviz = [
 where = "src"
 
 [tool.pytest.ini_options]
-addopts = "--cov=sdx.pce --cov-report html --cov-report term-missing"
+addopts = "--cov=sdx_pce --cov-report html --cov-report term-missing"
 testpaths = [
     "tests"
 ]
@@ -59,14 +59,14 @@ testpaths = [
 [tool.setuptools_scm]
 # Write version info collected from git to a file.  This happens when
 # we run `python -m build`.
-write_to = "src/sdx/pce/_version.py"
+write_to = "src/sdx_pce/_version.py"
 
 [tool.black]
-src_paths = ["src", "tests", "setup.py"]
+src_paths = ["src", "tests", "scripts"]
 
 [tool.isort]
 profile = "black"
-src_paths = ["src", "tests", "setup.py"]
+src_paths = ["src", "tests", "scripts"]
 
 [tool.coverage.run]
 branch = true

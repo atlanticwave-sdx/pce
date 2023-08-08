@@ -1,6 +1,5 @@
 from grenml import GRENMLManager
 from grenml.models.nodes import Node
-
 from sdx.datamodel.models.topology import Topology
 
 

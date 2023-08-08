@@ -5,9 +5,9 @@ be in sdx-controller.
 import json
 import unittest
 
-from sdx.pce.load_balancing.te_solver import TESolver
-from sdx.pce.models import ConnectionSolution
-from sdx.pce.topology.temanager import TEManager
+from sdx_pce.load_balancing.te_solver import TESolver
+from sdx_pce.models import ConnectionSolution
+from sdx_pce.topology.temanager import TEManager
 
 from . import TestData
 

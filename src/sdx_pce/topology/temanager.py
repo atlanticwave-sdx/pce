@@ -4,9 +4,9 @@ from typing import List, Optional
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
-
 from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
-from sdx.pce.models import (
+
+from sdx_pce.models import (
     ConnectionPath,
     ConnectionRequest,
     ConnectionSolution,
@@ -16,7 +16,7 @@ from sdx.pce.models import (
     VlanTaggedBreakdowns,
     VlanTaggedPort,
 )
-from sdx.pce.topology.manager import TopologyManager
+from sdx_pce.topology.manager import TopologyManager
 
 
 class TEManager:
@@ -49,7 +49,7 @@ class TEManager:
         # https://github.com/atlanticwave-sdx/sdx-controller/issues/145.
         #
         # TODO: a nicer thing to do would be to keep less state around.
-        # https://github.com/atlanticwave-sdx/pce/issues/122
+        # https://github.com/atlanticwave-sdx_pce/issues/122
         if topology_data:
             self.topology_manager.add_topology(topology_data)
             self.graph = self.generate_graph_te()
@@ -95,7 +95,7 @@ class TEManager:
 
         # TODO: careful here when updating VLAN tags table -- what do
         # we do when an in use VLAN tag becomes invalid in the update?
-        # See https://github.com/atlanticwave-sdx/pce/issues/123
+        # See https://github.com/atlanticwave-sdx_pce/issues/123
         #
         # self._update_vlan_tags_table_from_links(
         #     domain_name=topology_data.get("id"),
@@ -116,7 +116,7 @@ class TEManager:
                 # urn:sdx:port:amlight.net:B1:2 and port_id_inner of
                 # urn:sdx:port:amlight.net:B2:2.
                 #
-                # See https://github.com/atlanticwave-sdx/pce/issues/124
+                # See https://github.com/atlanticwave-sdx_pce/issues/124
                 #
                 # port_id_inner = port.get("id")
                 # print(f"port_id: {port_id}, port_id_inner: {port_id_inner}")
@@ -273,7 +273,7 @@ class TEManager:
         Take a connection and generate a breakdown.
 
         This is an alternative to generate_connection_breakdown()
-        below which uses the newly defined types from sdx.pce.models.
+        below which uses the newly defined types from sdx_pce.models.
         """
         if connection is None or connection.connection_map is None:
             print(f"Can't find a breakdown for {connection}")
@@ -376,7 +376,7 @@ class TEManager:
         Take a connection and generate a breakdown.
 
         TODO: remove this when convenient.
-        https://github.com/atlanticwave-sdx/pce/issues/125
+        https://github.com/atlanticwave-sdx_pce/issues/125
         """
         assert connection is not None
 
@@ -595,7 +595,7 @@ class TEManager:
         """
 
         # TODO: implement this
-        # https://github.com/atlanticwave-sdx/pce/issues/126
+        # https://github.com/atlanticwave-sdx_pce/issues/126
 
         assert False, "Not implemented"
 
@@ -604,7 +604,7 @@ class TEManager:
         # reserve_vlan_on_path?
 
         # TODO: implement this
-        # https://github.com/atlanticwave-sdx/pce/issues/126
+        # https://github.com/atlanticwave-sdx_pce/issues/126
 
         # return domain_breakdown
         assert False, "Not implemented"
@@ -658,7 +658,7 @@ class TEManager:
     # to be called by delete_connection()
     def _unreserve_vlan_breakdown(self, break_down):
         # TODO: implement this.
-        # https://github.com/atlanticwave-sdx/pce/issues/127
+        # https://github.com/atlanticwave-sdx_pce/issues/127
         # with self._topology_lock:
         #     pass
         assert False, "Not implemented"
@@ -668,7 +668,7 @@ class TEManager:
         Mark a VLAN tag as not in use.
         """
         # TODO: implement this.
-        # https://github.com/atlanticwave-sdx/pce/issues/127
+        # https://github.com/atlanticwave-sdx_pce/issues/127
 
         # with self._topology_lock:
         #     pass

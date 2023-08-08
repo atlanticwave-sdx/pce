@@ -5,14 +5,14 @@ import unittest
 
 import networkx as nx
 
-from sdx.pce.load_balancing.te_solver import TESolver
-from sdx.pce.models import (
+from sdx_pce.load_balancing.te_solver import TESolver
+from sdx_pce.models import (
     ConnectionPath,
     ConnectionRequest,
     ConnectionSolution,
     TrafficMatrix,
 )
-from sdx.pce.topology.temanager import TEManager
+from sdx_pce.topology.temanager import TEManager
 
 from . import TestData
 
@@ -215,7 +215,7 @@ class TEManagerTests(unittest.TestCase):
     def test_generate_graph_and_connection_with_sax_2_invalid(self):
         """
         This is a test added to investigate
-        https://github.com/atlanticwave-sdx/pce/issues/107
+        https://github.com/atlanticwave-sdx_pce/issues/107
 
         TODO: Use a better name for this method.
         """
@@ -238,7 +238,7 @@ class TEManagerTests(unittest.TestCase):
     def test_generate_graph_and_connection_with_sax_2_valid(self):
         """
         This is a test added to investigate
-        https://github.com/atlanticwave-sdx/pce/issues/107
+        https://github.com/atlanticwave-sdx_pce/issues/107
 
         TODO: Use a better name for this method.
         """
@@ -318,7 +318,7 @@ class TEManagerTests(unittest.TestCase):
         sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
         amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
 
-        # Per https://github.com/atlanticwave-sdx/pce/issues/101, each
+        # Per https://github.com/atlanticwave-sdx_pce/issues/101, each
         # breakdown should be of the below form:
         #
         # {

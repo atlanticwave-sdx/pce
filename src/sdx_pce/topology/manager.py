@@ -2,7 +2,6 @@ import copy
 import datetime
 
 import networkx as nx
-
 from sdx.datamodel.models.topology import (
     TOPOLOGY_INITIAL_VERSION,
     SDX_TOPOLOGY_ID_prefix,
