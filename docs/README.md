@@ -30,7 +30,7 @@ aslo be generated for later use.
 
 Formualtion:
 
-![CSP Formulation](./CSP_formulation_latex.png)
+![CSP Formulation](./csp_formulation.png)
 
 ## Load Balancing
 
@@ -39,7 +39,7 @@ list of queries and get the overall optimal solutions.
 
 Example Formualtion:
 
-![Load Balancing](./LoadBalancing_Ex.png)
+![Load Balancing](./load_balancing.png)
 
 ## Utility and Benchmark
 
