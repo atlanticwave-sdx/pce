@@ -13,12 +13,8 @@ selected, the variable is 0.
 
 ## Constrained Shortest Path (CSP)
 
-Randomgraph is used to generate the topology of a network. Each link
-in the network will have three attributes: cost, latency and
-bandwidth.
-
-Topology will be generated in .json file. Other link info files will
-aslo be generated for later use.
+A topology will be represented in a JSON format.  Each link in the
+network will have three attributes: cost, latency and bandwidth.
 
 - nodes: Number of nodes in the graph
 - p: Probability of link creation
