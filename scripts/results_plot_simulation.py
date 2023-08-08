@@ -235,7 +235,7 @@ def plot_heur(title, path):
 
 # Driver Code:
 if __name__ == "__main__":
-    # fname = '/Users/yxin/NSF/aw-sdx/sdx/pce/tests/results/simulation.57036414_10.out'
+    # fname = '/Users/yxin/NSF/aw-sdx/sdx_pce/tests/results/simulation.57036414_10.out'
     # N = 2
     # LastNlines(fname, N)
     path = "../../tests/results/"

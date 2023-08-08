@@ -10,8 +10,8 @@ except:
 
 
 class TestData:
-    # Some data files are in src/sdx/pce/data.
-    PACKAGE_DATA_DIR = files("sdx.pce") / "data"
+    # Some data files are in src/sdx_pce/data.
+    PACKAGE_DATA_DIR = files("sdx_pce") / "data"
 
     TOPOLOGY_FILE_ZAOXI = PACKAGE_DATA_DIR / "topologies" / "zaoxi.json"
     TOPOLOGY_FILE_SAX = PACKAGE_DATA_DIR / "topologies" / "sax.json"
@@ -20,9 +20,9 @@ class TestData:
 
     # Write test output files in OS temporary directory.
     TEST_OUTPUT_DIR = pathlib.Path(tempfile.gettempdir())
-    TEST_OUTPUT_IMG_AMLIGHT = TEST_OUTPUT_DIR / "sdx-pce-amlight.png"
-    TEST_OUTPUT_IMG_SAX = TEST_OUTPUT_DIR / "sdx-pce-sax.png"
-    TEST_OUTPUT_IMG_ZAOXI = TEST_OUTPUT_DIR / "sdx-pce-zaoxi.png"
+    TEST_OUTPUT_IMG_AMLIGHT = TEST_OUTPUT_DIR / "sdx_pce-amlight.png"
+    TEST_OUTPUT_IMG_SAX = TEST_OUTPUT_DIR / "sdx_pce-sax.png"
+    TEST_OUTPUT_IMG_ZAOXI = TEST_OUTPUT_DIR / "sdx_pce-zaoxi.png"
 
     # Other test data files.
     TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"

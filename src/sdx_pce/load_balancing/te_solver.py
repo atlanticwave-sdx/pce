@@ -15,14 +15,14 @@ import networkx as nx
 import numpy as np
 from ortools.linear_solver import pywraplp
 
-from sdx.pce.models import (
+from sdx_pce.models import (
     ConnectionPath,
     ConnectionRequest,
     ConnectionSolution,
     TrafficMatrix,
 )
-from sdx.pce.utils.constants import Constants
-from sdx.pce.utils.functions import GraphFunction
+from sdx_pce.utils.constants import Constants
+from sdx_pce.utils.functions import GraphFunction
 
 
 @dataclass
@@ -427,7 +427,7 @@ class TESolver:
         Form bandwidth constraints.
 
         To learn what this means, see the formulation diagram at
-        https://github.com/atlanticwave-sdx/pce/tree/main/Documentation.
+        https://github.com/atlanticwave-sdx_pce/tree/main/Documentation.
 
         The yellow portion of the diagram is the "inputmatrix" input
         to this function.  The return value should represent the green

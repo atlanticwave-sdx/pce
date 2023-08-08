@@ -5,8 +5,8 @@ import unittest
 import matplotlib.pyplot as plt
 import networkx as nx
 
-from sdx.pce.topology.grenmlconverter import GrenmlConverter
-from sdx.pce.topology.manager import TopologyManager
+from sdx_pce.topology.grenmlconverter import GrenmlConverter
+from sdx_pce.topology.manager import TopologyManager
 
 from . import TestData
 
