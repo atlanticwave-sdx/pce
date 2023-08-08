@@ -62,11 +62,11 @@ testpaths = [
 write_to = "src/sdx_pce/_version.py"
 
 [tool.black]
-src_paths = ["src", "tests", "setup.py"]
+src_paths = ["src", "tests", "scripts"]
 
 [tool.isort]
 profile = "black"
-src_paths = ["src", "tests", "setup.py"]
+src_paths = ["src", "tests", "scripts"]
 
 [tool.coverage.run]
 branch = true
