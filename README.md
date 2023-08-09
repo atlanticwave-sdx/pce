@@ -86,7 +86,7 @@ compiler and development libraries and headers of graphviz installed.
 
 Use [pytest] to run all tests:
 
-```console
+```
 $ pip install --editable .[test]
 $ pytest
 ```
@@ -94,7 +94,7 @@ $ pytest
 If you want to print console and logging messages when running a test,
 do:
 
-```console
+```
 $ pytest --log-cli-level=all [-s|--capture=no] \
     tests/test_te_manager.py::TEManagerTests::test_generate_solver_input
 ```
@@ -102,13 +102,13 @@ $ pytest --log-cli-level=all [-s|--capture=no] \
 To run tests using several versions of Python in isolated virtual
 environments, use [tox]:
 
-```console
+```
 $ tox
 ```
 
 With tox, you can run a single test verbosely like so:
 
-```console
+```
 $ tox -e py311 -- --log-cli-level=all [-s|--capture=no] \
     tests/test_te_manager.py::TEManagerTests::test_generate_solver_input
 ```
@@ -117,7 +117,7 @@ The test that depend on pygraphviz are skipped by default.  If you are
 able to install pygraphviz in your setup, you can run that test too
 with:
 
-```console
+```
 $ tox -e extras
 ```
 
