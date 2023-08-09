@@ -84,7 +84,22 @@ compiler and development libraries and headers of graphviz installed.
 
 ### Running tests
 
-To run tests, using [tox] is recommended:
+Use pytest to run all tests:
+
+```console
+$ pip install --editable .[test]
+$ pytest
+```
+
+If you want to print stdout/stderr and logging messages when running a
+specific test, do:
+
+```console
+$ pytest --log-cli-level=all [-s|--capture=no] \
+    tests/test_te_manager.py::TEManagerTests::test_generate_solver_input
+```
+
+Using [tox] is possible and recommended:
 
 ```console
 $ tox
@@ -93,7 +108,8 @@ $ tox
 With tox, you can run single tests like so:
 
 ```console
-$ tox -- [-s] tests/test_te_manager.py::TestTEManager::test_generate_solver_input
+$ tox -- --log-cli-level=all [-s|--capture=no] \
+    tests/test_te_manager.py::TEManagerTests::test_generate_solver_input
 ```
 
 The test that depend on pygraphviz are skipped by default.  If you are
@@ -120,6 +136,7 @@ Test data is stored in [tests/data](./tests/data) as JSON files.
 [NetworkX]: https://networkx.org/
 [OR-Tools]: https://developers.google.com/optimization/
 
+[pytest]: https://docs.pytest.org/
 [tox]: https://tox.wiki/en/latest/index.html
 
 [test_request.json]: ./src/sdx/pce/data/requests/test_request.json
