@@ -91,21 +91,22 @@ $ pip install --editable .[test]
 $ pytest
 ```
 
-If you want to print stdout/stderr and logging messages when running a
-specific test, do:
+If you want to print console and logging messages when running a test,
+do:
 
 ```console
 $ pytest --log-cli-level=all [-s|--capture=no] \
     tests/test_te_manager.py::TEManagerTests::test_generate_solver_input
 ```
 
-Using [tox] is possible and recommended:
+To run tests using several versions of Python in isolated virtual
+environments, use [tox]:
 
 ```console
 $ tox
 ```
 
-With tox, you can run single tests like so:
+With tox, you can run a single test verbosely like so:
 
 ```console
 $ tox -e py311 -- --log-cli-level=all [-s|--capture=no] \
