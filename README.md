@@ -84,7 +84,7 @@ compiler and development libraries and headers of graphviz installed.
 
 ### Running tests
 
-Use pytest to run all tests:
+Use [pytest] to run all tests:
 
 ```console
 $ pip install --editable .[test]
