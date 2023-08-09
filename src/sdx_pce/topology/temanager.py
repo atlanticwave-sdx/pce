@@ -67,7 +67,7 @@ class TEManager:
             connection_data
         )
 
-        logging.info(f"TEManager: self.connection: {self.connection}")
+        logging.info(f"TEManager: self.connection: {self.connection.to_dict()}")
 
     def add_topology(self, topology_data: dict):
         """
