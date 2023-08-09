@@ -260,17 +260,9 @@ class TEManager:
 
         return True
 
-    def generate_connection_breakdown(self, connection) -> dict:
+    def generate_connection_breakdown(self, connection: ConnectionSolution) -> dict:
         """
-        A "router" method for backward compatibility.
-        """
-        if isinstance(connection, ConnectionSolution):
-            return self._generate_connection_breakdown_tm(connection)
-        return self._generate_connection_breakdown_old(connection)
-
-    def _generate_connection_breakdown_tm(self, connection: ConnectionSolution) -> dict:
-        """
-        Take a connection and generate a breakdown.
+        Take a connection solution and generate a breakdown.
 
         This is an alternative to generate_connection_breakdown()
         below which uses the newly defined types from sdx_pce.models.
@@ -281,9 +273,6 @@ class TEManager:
 
         breakdown = {}
         paths = connection.connection_map  # p2p for now
-
-        # i_port = None
-        # e_port = None
 
         for domain, links in paths.items():
             print(f"domain: {domain}, links: {links}")
@@ -370,102 +359,6 @@ class TEManager:
         # Return a dict containing VLAN-tagged breakdown in the
         # expected format.
         return tagged_breakdown.to_dict().get("breakdowns")
-
-    def _generate_connection_breakdown_old(self, connection):
-        """
-        Take a connection and generate a breakdown.
-
-        TODO: remove this when convenient.
-        https://github.com/atlanticwave-sdx_pce/issues/125
-        """
-        assert connection is not None
-
-        breakdown = {}
-        paths = connection[0]  # p2p for now
-        # cost = connection[1]
-        i_port = None
-        e_port = None
-
-        print(f"Domain breakdown with graph: {self.graph}")
-        print(f"Graph nodes: {self.graph.nodes}")
-        print(f"Graph edges: {self.graph.edges}")
-
-        print(f"Paths: {paths}")
-
-        for i, j in paths.items():
-            print(f"i: {i}, j: {j}")
-            current_link_set = []
-            for count, link in enumerate(j):
-                print(f"count: {count}, link: {link}")
-                assert len(link) == 2
-
-                node_1 = self.graph.nodes.get(link[0])
-                assert node_1 is not None
-
-                node_2 = self.graph.nodes.get(link[1])
-                assert node_2 is not None
-
-                print(f"node_1: {node_1}, node_2: {node_2}")
-
-                domain_1 = self.topology_manager.get_domain_name(node_1["id"])
-                domain_2 = self.topology_manager.get_domain_name(node_2["id"])
-
-                # # TODO: handle the cases where a domain was not found.
-                # if domain_1 is None:
-                #     domain_1 = f"domain_{i}"
-                # if domain_2 is None:
-                #     domain_2 = f"domain_{i}"
-
-                print(f"domain_1: {domain_1}, domain_2: {domain_2}")
-
-                current_link_set.append(link)
-                current_domain = domain_1
-                if domain_1 == domain_2:
-                    # current_domain = domain_1
-                    if count == len(j) - 1:
-                        breakdown[current_domain] = current_link_set.copy()
-                else:
-                    breakdown[current_domain] = current_link_set.copy()
-                    current_domain = None
-                    current_link_set = []
-
-        print(f"[intermediate] breakdown: {breakdown}")
-
-        # now starting with the ingress_port
-        first = True
-        i = 0
-        domain_breakdown = {}
-
-        for domain, links in breakdown.items():
-            print(f"Creating domain_breakdown: domain: {domain}, links: {links}")
-            segment = {}
-            if first:
-                first = False
-                last_link = links[-1]
-                n1 = self.graph.nodes[last_link[0]]["id"]
-                n2 = self.graph.nodes[last_link[1]]["id"]
-                n1, p1, n2, p2 = self.topology_manager.topology.get_port_by_link(n1, n2)
-                i_port = self.connection.ingress_port.to_dict()
-                e_port = p1
-                next_i = p2
-            elif i == len(breakdown) - 1:
-                i_port = next_i
-                e_port = self.connection.egress_port.to_dict()
-            else:
-                last_link = links[-1]
-                n1 = self.graph.nodes[last_link[0]]["id"]
-                n2 = self.graph.nodes[last_link[1]]["id"]
-                n1, p1, n2, p2 = self.topology_manager.topology.get_port_by_link(n1, n2)
-                i_port = next_i
-                e_port = p1
-                next_i = p2
-            segment["ingress_port"] = i_port
-            segment["egress_port"] = e_port
-            domain_breakdown[domain] = segment.copy()
-            i = i + 1
-
-        print(f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}")
-        return domain_breakdown
 
     """
     functions for vlan reservation.

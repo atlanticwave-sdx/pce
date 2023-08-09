@@ -36,24 +36,8 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(connection)
 
     def test_connection_breakdown_none_input(self):
-        # Expect an error to be raised.
-        self.assertRaises(
-            AssertionError, self.temanager.generate_connection_breakdown, None
-        )
-
-    def test_connection_breakdown_simple(self):
-        # Test that the old way, which had plain old dicts and arrays
-        # representing connection requests, still works.
-        request = [
-            {
-                "1": [[0, 1], [1, 2]],
-            },
-            1.0,
-        ]
-
-        breakdown = self.temanager.generate_connection_breakdown(request)
-        print(f"Breakdown: {breakdown}")
-        self.assertIsNotNone(breakdown)
+        # Expect no breakdown when input is None.
+        self.assertIsNone(self.temanager.generate_connection_breakdown(None))
 
     def test_connection_breakdown_tm(self):
         # Breaking down a traffic matrix.
