@@ -108,7 +108,7 @@ $ tox
 With tox, you can run single tests like so:
 
 ```console
-$ tox -- --log-cli-level=all [-s|--capture=no] \
+$ tox -e py311 -- --log-cli-level=all [-s|--capture=no] \
     tests/test_te_manager.py::TEManagerTests::test_generate_solver_input
 ```
 
