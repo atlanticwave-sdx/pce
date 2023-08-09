@@ -473,7 +473,7 @@ class TESolver:
 
         request_list = self.tm.connection_requests
 
-        logging.info(f"request: {len(request_list)}, " f"links: {len(links)}")
+        logging.info(f"request: {len(request_list)}, links: {len(links)}")
 
         zerolist = np.zeros(len(links), dtype=int)
         latency_list = []
