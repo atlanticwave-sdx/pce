@@ -99,8 +99,8 @@ $ pytest --log-cli-level=all [-s|--capture=no] \
     tests/test_te_manager.py::TEManagerTests::test_generate_solver_input
 ```
 
-To run tests using several versions of Python in isolated virtual
-environments, use [tox]:
+Use [tox] to run tests using several versions of Python in isolated
+virtual environments:
 
 ```
 $ tox
