@@ -70,13 +70,15 @@ class TESolver:
 
         self.links = []  # list of links[src][dest], 2*numEdges
 
+        self._logger = logging.getLogger(__name__)
+
     def solve(self) -> Tuple[Union[ConnectionSolution, None], float]:
         """
         Return the computed path and associated cost.
         """
         data = self._create_data_model()
         if data is None:
-            logging.warning("Could not create a data model")
+            self._logger.warning("Could not create a data model")
             return ConnectionSolution(connection_map=None, cost=0)
 
         # Create the mip solver with the SCIP backend.
@@ -86,7 +88,7 @@ class TESolver:
         for j in range(data.num_vars):
             x[j] = solver.IntVar(0, 1, "x[%i]" % j)
 
-        logging.info(
+        self._logger.info(
             f"Number of variables = {solver.NumVariables()}, "
             f"num_constraints: {data.num_constraints}, "
             f"num_inequality: {data.num_inequality}"
@@ -98,7 +100,7 @@ class TESolver:
             ]
             solver.Add(sum(constraint_expr) == data.bounds[i])
 
-        logging.info(
+        self._logger.info(
             f"len(data.bounds): {len(data.bounds)}, "
             f"len(data.constraint_coeffs)): {len(data.constraint_coeffs)}, "
             f"data.num_inequality: {data.num_inequality}"
@@ -115,7 +117,7 @@ class TESolver:
             ]
             solver.Add(sum(constraint_expr) <= data.bounds[i])
 
-        logging.info(f"Number of constraints = {solver.NumConstraints()}")
+        self._logger.info(f"Number of constraints = {solver.NumConstraints()}")
 
         objective = solver.Objective()
         for j in range(data.num_vars):
@@ -126,20 +128,20 @@ class TESolver:
         solution = []
         paths = None
         if status == pywraplp.Solver.OPTIMAL:
-            logging.info(f"Objective value = {solver.Objective().Value()}")
+            self._logger.info(f"Objective value = {solver.Objective().Value()}")
             for j in range(data.num_vars):
                 # print(x[j].name(), ' = ', x[j].solution_value())
                 solution.append(x[j].solution_value())
 
             paths = np.array(solution).reshape(len(self.tm.connection_requests), -1)
-            logging.info(f"paths.shape={paths.shape}")
+            self._logger.info(f"paths.shape={paths.shape}")
             # print(path)
 
             # print('Problem solved in %f milliseconds' % solver.wall_time())
             # print('Problem solved in %d iterations' % solver.iterations())
             # print('Problem solved in %d branch-and-bound nodes' % solver.nodes())
         else:
-            logging.warning("The problem does not have an optimal solution.")
+            self._logger.warning("The problem does not have an optimal solution.")
 
         # returns: dict(conn request, [path]), cost
         return self._solution_translator(paths, solver.Objective().Value())
@@ -150,7 +152,7 @@ class TESolver:
         # extract the edge/path
         real_paths = []
         if paths is None:
-            logging.warning("No solution: empty input")
+            self._logger.warning("No solution: empty input")
             return ConnectionSolution(connection_map=None, cost=cost)
         for path in paths:
             real_path = []
@@ -186,7 +188,7 @@ class TESolver:
                 for edge in path:
                     # print("edge:"+str(edge))
                     if edge[0] == src:
-                        logging.info(f"Adding edge {edge} for request {request}")
+                        self._logger.info(f"Adding edge {edge} for request {request}")
                         # ordered_paths.append(edge)
 
                         # Make a path and add it to the solution map
@@ -203,7 +205,7 @@ class TESolver:
         # print("ordered paths:"+str(ordered_paths))
         # return ordered_paths
 
-        logging.info(f"solution_translator result: {result}")
+        self._logger.info(f"solution_translator result: {result}")
         return result
 
     def update_graph(self, graph, pathsconnection):
@@ -270,7 +272,7 @@ class TESolver:
         nodenum = self.graph.number_of_nodes()
         linknum = self.graph.number_of_edges()
 
-        logging.info(f"Creating data model: #nodes: {nodenum}, #links: {linknum}")
+        self._logger.info(f"Creating data model: #nodes: {nodenum}, #links: {linknum}")
 
         # graph flow matrix
         inputmatrix, links = self._flow_matrix(self.graph)
@@ -292,7 +294,7 @@ class TESolver:
 
             # Avoid going past array bounds.
             if request.source > nodenum or request.destination > nodenum:
-                logging.warning(
+                self._logger.warning(
                     f"Cannot create data model: "
                     f"request.source ({request.source}) or "
                     f"request.destination ({request.destination}) "
@@ -304,7 +306,7 @@ class TESolver:
             rhs[request.destination] = 1
             bounds += list(rhs)
 
-        logging.info(f"bound 1: {len(bounds)}")
+        self._logger.info(f"bound 1: {len(bounds)}")
 
         # rhsbw -TODO *2 edges
         bwlinklist = []
@@ -320,42 +322,44 @@ class TESolver:
 
         # add the bwconstraint rhs
         bounds += bwlinklist
-        logging.info(f"bound 2: {len(bounds)}")
+        self._logger.info(f"bound 2: {len(bounds)}")
 
         # add the latconstraint rhs
         if latency:
             bounds += latconstraint["rhs"]
-            logging.info(f"bound 3: {len(bounds)}")
+            self._logger.info(f"bound 3: {len(bounds)}")
             # print(bounds)
 
         # form the constraints: lhs
         flowconstraints = self._lhsflow(self.tm.connection_requests, inputmatrix)
         bwconstraints = self._lhsbw(self.tm.connection_requests, inputmatrix)
 
-        logging.info(f"Constraints Shape:{len(flowconstraints)}:{len(bwconstraints)}")
+        self._logger.info(
+            f"Constraints Shape:{len(flowconstraints)}:{len(bwconstraints)}"
+        )
         # print("\n flow"+str(flowconstraints))
         # print("\n bw:"+str(type(bwconstraints)))
 
         bw_np = np.array(bwconstraints)
-        logging.info(f"np:{flowconstraints.shape} : {bw_np.shape}")
+        self._logger.info(f"np:{flowconstraints.shape} : {bw_np.shape}")
         flow_lhs = np.concatenate((flowconstraints, bw_np))
-        logging.info(f"flow_lhs: {np.shape(flow_lhs)}")
+        self._logger.info(f"flow_lhs: {np.shape(flow_lhs)}")
 
         if latency:
-            logging.info(f"latcons: {np.shape(latconstraint['lhs'])}")
+            self._logger.info(f"latcons: {np.shape(latconstraint['lhs'])}")
             lhs = np.concatenate((flow_lhs, latconstraint["lhs"]))
         else:
             lhs = flow_lhs
 
         # objective function
         if self.objective == Constants.OBJECTIVE_COST:
-            logging.info("Objecive: Cost")
+            self._logger.info("Objecive: Cost")
             cost = self._mc_cost(links)
         if self.objective == Constants.OBJECTIVE_LOAD_BALANCING:
-            logging.info("Objecive: Load Balance")
+            self._logger.info("Objecive: Load Balance")
             cost = self._lb_cost(links)
 
-        logging.info(
+        self._logger.info(
             f"cost len: {len(cost)}, "
             f"lhs shape: {lhs.shape}, "
             f"rhs shape: {len(bounds)}"
@@ -418,7 +422,7 @@ class TESolver:
         """
         r = len(request_list)
         m, n = inputmatrix.shape
-        logging.info(f"_lhsflow: r={r}:m={m}:n={n}")
+        self._logger.info(f"_lhsflow: r={r}:m={m}:n={n}")
         # out = np.zeros((r,m,r,n), dtype=inputmatrix.dtype)
         # diag = np.einsum('ijik->ijk',out)
         # diag[:] = inputmatrix
@@ -428,7 +432,7 @@ class TESolver:
         out = np.zeros((r * m, r * n), dtype=inputmatrix.dtype)
         for i in range(r):
             out[i * m : (i + 1) * m, i * n : (i + 1) * n] = inputmatrix
-        logging.info(f"lhsflow: out: {out.shape}")
+        self._logger.info(f"lhsflow: out: {out.shape}")
         return out
 
     def _lhsbw(self, request_list, inputmatrix):
@@ -473,7 +477,7 @@ class TESolver:
 
         request_list = self.tm.connection_requests
 
-        logging.info(f"request: {len(request_list)}, links: {len(links)}")
+        self._logger.info(f"request: {len(request_list)}, links: {len(links)}")
 
         zerolist = np.zeros(len(links), dtype=int)
         latency_list = []

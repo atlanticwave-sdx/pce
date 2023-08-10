@@ -61,13 +61,15 @@ class TEManager:
         else:
             self.graph = None
 
-        logging.info(f"TEManager: connection_data: {connection_data}")
+        self._logger = logging.getLogger(__name__)
+
+        self._logger.info(f"TEManager: connection_data: {connection_data}")
 
         self.connection = self.connection_handler.import_connection_data(
             connection_data
         )
 
-        logging.info(f"TEManager: self.connection: {self.connection.to_dict()}")
+        self._logger.info(f"TEManager: self.connection: {self.connection.to_dict()}")
 
     def add_topology(self, topology_data: dict):
         """
@@ -175,7 +177,7 @@ class TEManager:
         ingress_port = self.connection.ingress_port
         egress_port = self.connection.egress_port
 
-        logging.info(
+        self._logger.info(
             f"generate_connection_te(), ports: "
             f"ingress_port.id: {ingress_port.id}, "
             f"egress_port.id: {egress_port.id}"
@@ -185,13 +187,13 @@ class TEManager:
         egress_node = self.topology_manager.topology.get_node_by_port(egress_port.id)
 
         if ingress_node is None:
-            logging.warning(
+            self._logger.warning(
                 f"No ingress node was found for ingress port ID '{ingress_port.id}'"
             )
             return None
 
         if egress_node is None:
-            logging.warning(
+            self._logger.warning(
                 f"No egress node is found for egress port ID '{egress_port.id}'"
             )
             return None
@@ -205,17 +207,21 @@ class TEManager:
         ]
 
         if len(ingress_nodes) <= 0:
-            logging.warning(f"No ingress node '{ingress_node.id}' found in the graph")
+            self._logger.warning(
+                f"No ingress node '{ingress_node.id}' found in the graph"
+            )
             return None
 
         if len(egress_nodes) <= 0:
-            logging.warning(f"No egress node '{egress_node.id}' found in the graph")
+            self._logger.warning(
+                f"No egress node '{egress_node.id}' found in the graph"
+            )
             return None
 
         required_bandwidth = self.connection.bandwidth or 0
         required_latency = self.connection.latency or 0
 
-        logging.info(
+        self._logger.info(
             f"Setting required_latency: {required_latency}, "
             f"required_bandwidth: {required_bandwidth}"
         )
@@ -257,7 +263,7 @@ class TEManager:
         # TODO: write some tests for this method.
         for request in tm.connection_requests:
             conn = self.graph_node_connectivity(request.source, request.destination)
-            logging.info(
+            self._logger.info(
                 f"Request connectivity: source {request.source}, "
                 f"destination: {request.destination} = {conn}"
             )
@@ -271,19 +277,19 @@ class TEManager:
         Take a connection solution and generate a breakdown.
         """
         if connection is None or connection.connection_map is None:
-            logging.warning(f"Can't find a breakdown for {connection}")
+            self._logger.warning(f"Can't find a breakdown for {connection}")
             return None
 
         breakdown = {}
         paths = connection.connection_map  # p2p for now
 
         for domain, links in paths.items():
-            logging.info(f"domain: {domain}, links: {links}")
+            self._logger.info(f"domain: {domain}, links: {links}")
 
             current_link_set = []
 
             for count, link in enumerate(links):
-                logging.info(f"count: {count}, link: {link}")
+                self._logger.info(f"count: {count}, link: {link}")
 
                 assert isinstance(link, ConnectionPath)
 
@@ -293,14 +299,16 @@ class TEManager:
                 dst_node = self.graph.nodes.get(link.destination)
                 assert dst_node is not None
 
-                logging.info(f"source node: {src_node}, destination node: {dst_node}")
+                self._logger.info(
+                    f"source node: {src_node}, destination node: {dst_node}"
+                )
 
                 src_domain = self.topology_manager.get_domain_name(src_node.get("id"))
                 dst_domain = self.topology_manager.get_domain_name(dst_node.get("id"))
 
                 # TODO: what do we do when a domain can't be
                 # determined? Can a domain be `None`?
-                logging.info(
+                self._logger.info(
                     f"source domain: {src_domain}, destination domain: {dst_domain}"
                 )
 
@@ -315,7 +323,7 @@ class TEManager:
                     current_domain = None
                     current_link_set = []
 
-        logging.info(f"[intermediate] breakdown: {breakdown}")
+        self._logger.info(f"[intermediate] breakdown: {breakdown}")
 
         # now starting with the ingress_port
         first = True
@@ -323,7 +331,9 @@ class TEManager:
         domain_breakdown = {}
 
         for domain, links in breakdown.items():
-            logging.info(f"Creating domain_breakdown: domain: {domain}, links: {links}")
+            self._logger.info(
+                f"Creating domain_breakdown: domain: {domain}, links: {links}"
+            )
             segment = {}
             if first:
                 first = False
@@ -350,12 +360,12 @@ class TEManager:
             domain_breakdown[domain] = segment.copy()
             i = i + 1
 
-        logging.info(
+        self._logger.info(
             f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}"
         )
 
         tagged_breakdown = self._reserve_vlan_breakdown(domain_breakdown)
-        logging.info(
+        self._logger.info(
             f"generate_connection_breakdown(): tagged_breakdown: {tagged_breakdown}"
         )
 
@@ -419,7 +429,9 @@ class TEManager:
 
         # if not, assuming vlan translation on the domain border port
 
-        logging.info(f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}")
+        self._logger.info(
+            f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}"
+        )
 
         breakdowns = {}
 
@@ -428,7 +440,7 @@ class TEManager:
             ingress_port = segment.get("ingress_port")
             egress_port = segment.get("egress_port")
 
-            logging.info(
+            self._logger.info(
                 f"VLAN reservation: domain: {domain}, "
                 f"ingress_port: {ingress_port}, egress_port: {egress_port}"
             )
@@ -442,7 +454,7 @@ class TEManager:
             ingress_port_id = ingress_port.get("id")
             egress_port_id = egress_port.get("id")
 
-            logging.info(
+            self._logger.info(
                 f"VLAN reservation: domain: {domain}, "
                 f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}"
             )
@@ -516,7 +528,7 @@ class TEManager:
         #     pass
 
         port_id = port.get("id")
-        logging.info(f"reserve_vlan domain: {domain} port_id: {port_id}")
+        self._logger.info(f"reserve_vlan domain: {domain} port_id: {port_id}")
 
         if port_id is None:
             return None
@@ -525,16 +537,18 @@ class TEManager:
         domain_table = self._vlan_tags_table.get(domain)
 
         if domain_table is None:
-            logging.warning(f"reserve_vlan domain: {domain} entry: {domain_table}")
+            self._logger.warning(f"reserve_vlan domain: {domain} entry: {domain_table}")
             return None
 
         vlan_table = domain_table.get(port_id)
 
-        logging.info(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
+        self._logger.info(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
 
         # TODO: figure out when vlan_table can be None
         if vlan_table is None:
-            logging.warning(f"Can't find a mapping for domain:{domain} port:{port_id}")
+            self._logger.warning(
+                f"Can't find a mapping for domain:{domain} port:{port_id}"
+            )
             return None
 
         available_tag = None
@@ -579,6 +593,6 @@ class TEManager:
     def _print_vlan_tags_table(self):
         import pprint
 
-        logging.info("------ VLAN TAGS TABLE -------")
-        logging.info(pprint.pformat(self._vlan_tags_table))
-        logging.info("------------------------------")
+        self._logger.info("------ VLAN TAGS TABLE -------")
+        self._logger.info(pprint.pformat(self._vlan_tags_table))
+        self._logger.info("------------------------------")
