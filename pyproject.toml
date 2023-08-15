@@ -30,7 +30,6 @@ dependencies = [
     "prtpy",
     "pydot",
     "dataclasses-json",
-    "importlib-resources; python_version < '3.9'",
     "sdx-datamodel @ git+https://github.com/atlanticwave-sdx/datamodel@103.topology-files-refactoring"
 ]
 
@@ -42,6 +41,7 @@ Issues = "https://github.com/atlanticwave-sdx/pce/issues"
 test = [
     "pytest >= 7.1.2",
     "pytest-cov >= 3.0.0",
+    "importlib-resources; python_version < '3.9'",
 ]
 pygraphviz = [
     "pygraphviz"
