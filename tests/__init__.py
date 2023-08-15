@@ -10,13 +10,15 @@ except:
 
 
 class TestData:
-    # Some data files are in src/sdx_pce/data.
-    PACKAGE_DATA_DIR = files("sdx_pce") / "data"
+    # Some data files are in src/sdx_datamodel/data.
+    TOPOLOGY_DIR = files("sdx_datamodel") / "data" / "topologies"
+    TOPOLOGY_FILE_ZAOXI = TOPOLOGY_DIR / "zaoxi.json"
+    TOPOLOGY_FILE_SAX = TOPOLOGY_DIR / "sax.json"
+    TOPOLOGY_FILE_AMLIGHT = TOPOLOGY_DIR / "amlight.json"
+    TOPOLOGY_FILE_SDX = TOPOLOGY_DIR / "sdx.json"
 
-    TOPOLOGY_FILE_ZAOXI = PACKAGE_DATA_DIR / "topologies" / "zaoxi.json"
-    TOPOLOGY_FILE_SAX = PACKAGE_DATA_DIR / "topologies" / "sax.json"
-    TOPOLOGY_FILE_AMLIGHT = PACKAGE_DATA_DIR / "topologies" / "amlight.json"
-    CONNECTION_REQ = PACKAGE_DATA_DIR / "requests" / "test_request.json"
+    REQUESTS_DIR = files("sdx_datamodel") / "data" / "requests"
+    CONNECTION_REQ = REQUESTS_DIR / "test_request.json"
 
     # Write test output files in OS temporary directory.
     TEST_OUTPUT_DIR = pathlib.Path(tempfile.gettempdir())
@@ -27,7 +29,6 @@ class TestData:
     # Other test data files.
     TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
 
-    TOPOLOGY_FILE_SDX = TEST_DATA_DIR / "sdx.json"
     CONNECTION_REQ_AMLIGHT = TEST_DATA_DIR / "test_request_amlight.json"
 
     TOPOLOGY_FILE_SAX_2 = TEST_DATA_DIR / "sax-2.json"
