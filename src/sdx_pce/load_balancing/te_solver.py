@@ -24,6 +24,7 @@ from sdx_pce.models import (
 from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.functions import GraphFunction
 
+from sdx_pce.topology.manager import TopologyManager
 
 @dataclass
 class DataModel:
@@ -254,12 +255,10 @@ class TESolver:
 
         return cost
 
-    def _create_data_model(self) -> DataModel:
+    def _create_data_model(self, latency=True) -> DataModel:
         """
         Top function to create the OR optimization model in the array format
         """
-
-        latency = True
 
         nodenum = self.graph.number_of_nodes()
         linknum = self.graph.number_of_edges()
@@ -269,14 +268,9 @@ class TESolver:
         # graph flow matrix
         inputmatrix, links = self._flow_matrix(self.graph)
         self.links = links
-        # inputdistancelist:link weight
-        # distance_list=self.graph_generator.get_distance_list()
-        # latency_list=self.graph_generator.get_latency_list()
 
-        # print("distance_list:"+str(np.shape(distance_list)))
-        # print("latency_list:"+str(np.shape(latency_list)))
-
-        latconstraint = self._make_latency_constaints(links)
+        if latency:
+            latconstraint = self._make_latency_constaints(links)
 
         # form the bound: rhs
         # flows: numnode*len(request)

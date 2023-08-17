@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
-from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
+from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 
 from sdx_pce.models import (
     ConnectionPath,

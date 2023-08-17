@@ -13,6 +13,11 @@ from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx_pce.utils.random_topology_generator import RandomTopologyGenerator
 
+from network_topology import *
+from csv_network_parser import *
+from path_te_solver import *
+from ms_solver import *
+from MIPSolver import *
 
 def random_graph(n, p, m):
     """
@@ -262,12 +267,13 @@ if __name__ == "__main__":
     parse.print_help()
     args = parse.parse_args()
     # result(args.te_file,args.node_name , args.result)
-
+    scale=2
     if args.topology_file is not None:
         if args.te_file is not None:
             # graph, tm = dot_file(args.topology_file, args.te_file)
+            network = parse_topology(args.topology_file)
+            parse_demands(network, args.te_file, scale)
             print("Supporting dot file later!")
-            exit()
         else:
             print("Missing the TE file!")
             exit()
@@ -277,18 +283,46 @@ if __name__ == "__main__":
 
         graph, tm = random_graph(n, p, args.m)
 
-    if args.group > args.m:
-        print("Group cannot be greater the number of connections!")
-        exit(0)
+    if args.alg >=10:
+        parse_tunnels(network)
+        initialize_weights(network)
 
-    te = TEGroupSolver(graph, tm, args.c, args.b)
-    start = datetime.now()
-    partition_tm = te.connection_split(args.alg, args.group)
-    end = datetime.now()
-    # print elapsed time in microseconds
-    print("Elapsed", (end - start).total_seconds(), "s")
+        if args.alg ==10:    
+            mip = CvxSolver()
+            solver = MSSolver(mip, network)
+            solver.add_demand_constraints()
+            solver.add_edge_capacity_constraints()
+            solver.Maximize(get_max_flow_objective(network))
 
-    ordered_paths, result = te.solve(partition_tm)
+            result = solver.solve()
+            ordered_paths=solver.mip.problem.status
+            if mip.problem.status == 'optimal':
+                print("Optimal solution was found.")
+                print("Max flow:", result)   
+                solution=get_edge_flow_allocations(network)
+                print(solution)       
+        
+        else:
+            path_solver=PathTESolver(network)
+            path_solver.Maximize(get_max_flow_objective(network))
+            ordered_paths, result = path_solver.solve()
+            edge_flow=path_solver.get_edge_flow_allocations()
+            print(edge_flow)
+            demands_unmet=path_solver.get_demands_unmet()
+            print(demands_unmet)
+    else:
+        if args.group > args.m:
+            print("Group cannot be greater the number of connections!")
+            exit(0)
 
-    print(f"path: {ordered_paths}")
+        te = TEGroupSolver(graph, tm, args.c, args.b)
+        start = datetime.now()
+        partition_tm = te.connection_split(args.alg, args.group)
+        end = datetime.now()
+        # print elapsed time in microseconds
+        print("Elapsed", (end - start).total_seconds(), "s")
+
+        ordered_paths, result = te.solve(partition_tm)
+
+    #print(f"path: {ordered_paths}")
     print(f"Optimal: {result}")
