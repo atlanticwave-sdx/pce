@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
-from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
+from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 
 from sdx_pce.models import (
     ConnectionPath,
@@ -109,7 +109,7 @@ class TEManager:
         self._vlan_tags_table[domain_name] = {}
 
         for port_id, link in port_list.items():
-            # TODO: port here seems to be a dict, not sdx.datamodel.models.Port
+            # TODO: port here seems to be a dict, not sdx_datamodel.models.Port
             for port in link.ports:
                 # TODO: sometimes port_id and "inner" port_id below
                 # can be different.  Why?  For example, port_id of

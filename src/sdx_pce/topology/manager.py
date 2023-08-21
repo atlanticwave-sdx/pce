@@ -2,11 +2,11 @@ import copy
 import datetime
 
 import networkx as nx
-from sdx.datamodel.models.topology import (
+from sdx_datamodel.models.topology import (
     TOPOLOGY_INITIAL_VERSION,
     SDX_TOPOLOGY_ID_prefix,
 )
-from sdx.datamodel.parsing.topologyhandler import TopologyHandler
+from sdx_datamodel.parsing.topologyhandler import TopologyHandler
 
 from .grenmlconverter import GrenmlConverter
 
