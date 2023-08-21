@@ -25,7 +25,7 @@ jobs:
         with:
           python-version: "3.9"
           cache: 'pip'  # cache pip dependencies
-          cache-dependency-path: setup.cfg
+          cache-dependency-path: pyproject.toml
 
       - name: Install dependencies
         run: |
