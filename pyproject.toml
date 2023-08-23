@@ -45,7 +45,10 @@ test = [
 ]
 pygraphviz = [
     "pygraphviz"
-]    
+]
+lint = [
+     "ruff == 0.0.285",
+]
 
 [options.packages.find]
 where = "src"
