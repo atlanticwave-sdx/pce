@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from sdx_pce.models import ConnectionRequest, TrafficMatrix
