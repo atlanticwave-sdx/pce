@@ -1,4 +1,3 @@
-import pathlib
 import unittest
 
 from sdx_pce.topology.grenmlconverter import GrenmlConverter
