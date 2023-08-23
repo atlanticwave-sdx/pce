@@ -118,18 +118,15 @@ class TEManager:
                 #
                 # See https://github.com/atlanticwave-sdx_pce/issues/124
                 #
-                # port_id_inner = port.get("id")
-                # print(f"port_id: {port_id}, port_id_inner: {port_id_inner}")
-                # assert port_id == port_id_inner
+                port_id_inner = port.get("id")
+                print(f"port_id: {port_id}, port_id_inner: {port_id_inner}")
+                assert port_id == port_id_inner, "Ports appear to be inconsistent"
 
                 label_range = port.get("label_range")
 
                 # TODO: why is label_range sometimes None, and what to
                 # do when that happens?
-                if label_range is None:
-                    continue
-
-                # assert label_range is not None, "label_range is None"
+                assert label_range is not None, "label_range is None"
 
                 # label_range is of the form ['100-200', '1000']; let
                 # us expand it.  Would have been ideal if this was
