@@ -48,6 +48,8 @@ pygraphviz = [
 ]
 lint = [
      "ruff == 0.0.285",
+    "black == 23.*",
+    "isort == 5.*",
 ]
 
 [options.packages.find]
