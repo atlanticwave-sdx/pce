@@ -85,3 +85,9 @@ source = [
     # In tox environments.
     ".tox/**/site-packages/",
 ]
+
+[tool.ruff]
+ignore = [
+    "E501"  # Ignore 'line too long' errors since we auto-format
+            # using black.
+]
