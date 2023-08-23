@@ -43,16 +43,16 @@ jobs:
           cache: 'pip'  # caching pip dependencies
           cache-dependency-path: pyproject.toml
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install .[test,pygraphviz,lint]
-
       # See https://docs.github.com/en/enterprise-cloud@latest/actions/using-github-hosted-runners/customizing-github-hosted-runners
       - name: Install libgraphviz-dev
         run: |
           sudo apt-get update
           sudo apt-get -y install libgraphviz-dev
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[test,pygraphviz,lint]
 
       - name: Run some basic checks with flake8
         run: |
