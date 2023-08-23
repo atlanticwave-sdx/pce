@@ -5,11 +5,7 @@ import unittest
 import networkx as nx
 
 from sdx_pce.load_balancing.te_solver import TESolver
-from sdx_pce.models import (
-    ConnectionRequest,
-    ConnectionSolution,
-    TrafficMatrix,
-)
+from sdx_pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
 from sdx_pce.topology.temanager import TEManager
 
 from . import TestData
