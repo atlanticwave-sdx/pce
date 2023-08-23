@@ -49,7 +49,7 @@ class TEManager:
         # https://github.com/atlanticwave-sdx/sdx-controller/issues/145.
         #
         # TODO: a nicer thing to do would be to keep less state around.
-        # https://github.com/atlanticwave-sdx_pce/issues/122
+        # https://github.com/atlanticwave-sdx/pce/issues/122
         if topology_data:
             self.topology_manager.add_topology(topology_data)
             self.graph = self.generate_graph_te()
@@ -95,7 +95,7 @@ class TEManager:
 
         # TODO: careful here when updating VLAN tags table -- what do
         # we do when an in use VLAN tag becomes invalid in the update?
-        # See https://github.com/atlanticwave-sdx_pce/issues/123
+        # See https://github.com/atlanticwave-sdx/pce/issues/123
         #
         # self._update_vlan_tags_table_from_links(
         #     domain_name=topology_data.get("id"),
@@ -116,7 +116,7 @@ class TEManager:
                 # urn:sdx:port:amlight.net:B1:2 and port_id_inner of
                 # urn:sdx:port:amlight.net:B2:2.
                 #
-                # See https://github.com/atlanticwave-sdx_pce/issues/124
+                # See https://github.com/atlanticwave-sdx/pce/issues/124
                 #
                 port_id_inner = port.get("id")
                 print(f"port_id: {port_id}, port_id_inner: {port_id_inner}")
@@ -485,7 +485,7 @@ class TEManager:
         """
 
         # TODO: implement this
-        # https://github.com/atlanticwave-sdx_pce/issues/126
+        # https://github.com/atlanticwave-sdx/pce/issues/126
 
         assert False, "Not implemented"
 
@@ -494,7 +494,7 @@ class TEManager:
         # reserve_vlan_on_path?
 
         # TODO: implement this
-        # https://github.com/atlanticwave-sdx_pce/issues/126
+        # https://github.com/atlanticwave-sdx/pce/issues/126
 
         # return domain_breakdown
         assert False, "Not implemented"
@@ -548,7 +548,7 @@ class TEManager:
     # to be called by delete_connection()
     def _unreserve_vlan_breakdown(self, break_down):
         # TODO: implement this.
-        # https://github.com/atlanticwave-sdx_pce/issues/127
+        # https://github.com/atlanticwave-sdx/pce/issues/127
         # with self._topology_lock:
         #     pass
         assert False, "Not implemented"
@@ -558,7 +558,7 @@ class TEManager:
         Mark a VLAN tag as not in use.
         """
         # TODO: implement this.
-        # https://github.com/atlanticwave-sdx_pce/issues/127
+        # https://github.com/atlanticwave-sdx/pce/issues/127
 
         # with self._topology_lock:
         #     pass

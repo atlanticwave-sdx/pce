@@ -199,7 +199,7 @@ class TEManagerTests(unittest.TestCase):
     def test_generate_graph_and_connection_with_sax_2_invalid(self):
         """
         This is a test added to investigate
-        https://github.com/atlanticwave-sdx_pce/issues/107
+        https://github.com/atlanticwave-sdx/pce/issues/107
 
         TODO: Use a better name for this method.
         """
@@ -222,7 +222,7 @@ class TEManagerTests(unittest.TestCase):
     def test_generate_graph_and_connection_with_sax_2_valid(self):
         """
         This is a test added to investigate
-        https://github.com/atlanticwave-sdx_pce/issues/107
+        https://github.com/atlanticwave-sdx/pce/issues/107
 
         TODO: Use a better name for this method.
         """
@@ -302,7 +302,7 @@ class TEManagerTests(unittest.TestCase):
         sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
         amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
 
-        # Per https://github.com/atlanticwave-sdx_pce/issues/101, each
+        # Per https://github.com/atlanticwave-sdx/pce/issues/101, each
         # breakdown should be of the below form:
         #
         # {
