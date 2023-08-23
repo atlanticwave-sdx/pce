@@ -53,22 +53,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install .[test,pygraphviz,lint]
 
-      - name: Run some basic checks with flake8
-        run: |
-          # Stop the build if there are Python syntax errors or undefined names.
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-
-      - name: Check against PEP8 naming conventions
-        run: |
-          # This needs pep8-naming, installed above
-          flake8 . --count --select=N8 --show-source --statistics
-
-      - name: Run complexity checks with flake8
-        run: |
-          # Note that `--exit-zero` treats all errors as warnings.
-          # Code that is too complex is not considered an error, for
-          # now.
-          flake8 . --count --exit-zero --max-complexity=10
+      - name: Lint with ruff
+        run: ruff check $(git ls-files "*.py")
 
       - name: Run tests
         run: |
