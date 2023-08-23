@@ -34,8 +34,8 @@ jobs:
 
       - name: Run "black --check"
         run: |
-          python -m black --check .
+          python -m black --check $(git ls-files "*.py")
 
       - name: Run "isort --check"
         run: |
-          python -m isort --check --profile black .
+          python -m isort --check $(git ls-files "*.py")
