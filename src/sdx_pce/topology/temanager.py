@@ -122,6 +122,17 @@ class TEManager:
                 # print(f"port_id: {port_id}, port_id_inner: {port_id_inner}")
                 # assert port_id == port_id_inner
 
+                # Collect all port IDs in this link.
+                link_port_ids = [x.get("id") for x in link.ports]
+
+                # Do some error checks.
+                link_port_count = len(link_port_ids)
+                if link_port_count != 2:
+                    raise ValueError(f"Link has {link_port_count} ports, not 2")
+
+                if port_id not in link_port_ids:
+                    raise ValueError(f"port {port_id} not in {link_port_ids}")
+
                 label_range = port.get("label_range")
 
                 # TODO: why is label_range sometimes None, and what to
