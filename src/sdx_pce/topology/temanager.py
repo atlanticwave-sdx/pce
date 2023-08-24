@@ -129,7 +129,7 @@ class TEManager:
                 if label_range is None:
                     continue
 
-                # assert label_range is not None, "label_range is None"
+                assert label_range is not None, "label_range is None"
 
                 # label_range is of the form ['100-200', '1000']; let
                 # us expand it.  Would have been ideal if this was
