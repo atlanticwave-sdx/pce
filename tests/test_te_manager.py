@@ -155,7 +155,7 @@ class TEManagerTests(unittest.TestCase):
         solution = self._make_tm_and_solve(request)
 
         print(f"topology: {self.temanager.topology_manager.topology}")
-        print(f"topology_list: {self.temanager.topology_manager.topology_list}")
+        print(f"topology_list: {self.temanager.topology_manager._topology_map}")
 
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)

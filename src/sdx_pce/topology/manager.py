@@ -30,7 +30,7 @@ class TopologyManager:
         self.topology_handler = TopologyHandler()
 
         self.topology = None
-        self.topology_list = {}
+        self._topology_map = {}
         self._port_map = {}  # {port, link}
 
         self.num_interdomain_link = 0
@@ -55,12 +55,12 @@ class TopologyManager:
 
     def clear_topology(self):
         self.topology = None
-        self.topology_list = {}
+        self._topology_map = {}
         self._port_map = {}
 
     def add_topology(self, data):
         topology = self.topology_handler.import_topology_data(data)
-        self.topology_list[topology.id] = topology
+        self._topology_map[topology.id] = topology
 
         if self.topology is None:
             self.topology = copy.deepcopy(topology)
@@ -103,8 +103,8 @@ class TopologyManager:
         TODO: This function name may be a misnomer?
         """
         domain_id = None
-        # print(f"len of topology_list: {len(self.topology_list)}")
-        for topology_id, topology in self.topology_list.items():
+        # print(f"len of topology_list: {len(self._topology_map)}")
+        for topology_id, topology in self._topology_map.items():
             if topology.has_node_by_id(node_id):
                 domain_id = topology_id
                 break
@@ -117,7 +117,7 @@ class TopologyManager:
         return id
 
     def remove_topology(self, topology_id):
-        self.topology_list.pop(topology_id, None)
+        self._topology_map.pop(topology_id, None)
         self.update_version(False)
         self.update_timestamp()
 
@@ -125,7 +125,7 @@ class TopologyManager:
         # likely adding new inter-domain links
         update_handler = TopologyHandler()
         topology = update_handler.import_topology_data(data)
-        self.topology_list[topology.id] = topology
+        self._topology_map[topology.id] = topology
 
         # Nodes.
         nodes = topology.get_nodes()
@@ -261,7 +261,7 @@ class TopologyManager:
     # on performance properties for now
     def update_link_property(self, link_id, property, value):
         # 1. update the individual topology
-        for id, topology in self.topology_list.items():
+        for id, topology in self._topology_map.items():
             links = topology.get_links()
             for link in links:
                 print(link.id + ";" + id)
