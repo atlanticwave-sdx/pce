@@ -27,16 +27,11 @@ class TopologyManager:
     def __init__(self):
         super().__init__()
 
-        self.topology_handler = TopologyHandler()
-
         self._topology = None
         self._topology_map = {}
         self._port_map = {}  # {port, link}
 
         self.num_interdomain_link = 0
-
-    def get_handler(self):
-        return self.topology_handler
 
     def topology_id(self, id):
         self._topology._id(id)
@@ -59,7 +54,7 @@ class TopologyManager:
         self._port_map = {}
 
     def add_topology(self, data):
-        topology = self.topology_handler.import_topology_data(data)
+        topology = TopologyHandler().import_topology_data(data)
         self._topology_map[topology.id] = topology
 
         if self._topology is None:
