@@ -9,18 +9,13 @@ Created on Mon Sep  7 13:42:31 2022
 import copy
 from dataclasses import dataclass
 from itertools import chain, cycle
-from typing import List, Mapping, Tuple, Union
+from typing import List, Tuple, Union
 
 import networkx as nx
 import numpy as np
 from ortools.linear_solver import pywraplp
 
-from sdx_pce.models import (
-    ConnectionPath,
-    ConnectionRequest,
-    ConnectionSolution,
-    TrafficMatrix,
-)
+from sdx_pce.models import ConnectionPath, ConnectionSolution, TrafficMatrix
 from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.functions import GraphFunction
 
@@ -75,7 +70,7 @@ class TESolver:
         """
         data = self._create_data_model()
         if data is None:
-            print(f"Could not create a data model")
+            print("Could not create a data model")
             return ConnectionSolution(connection_map=None, cost=0)
 
         # Create the mip solver with the SCIP backend.
@@ -157,14 +152,12 @@ class TESolver:
 
         # associate with the TM requests
         id_connection = 0
-        ordered_paths = {}
 
         result = ConnectionSolution(connection_map={}, cost=cost)
 
         for request in self.tm.connection_requests:
             src = request.source
             dest = request.destination
-            bw = request.required_bandwidth
             # latency = connection[3]  # latency is unused
 
             # Add request as the key to solution map

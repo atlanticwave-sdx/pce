@@ -106,6 +106,13 @@ $ tox -e extras
 
 Test data is stored in [tests/data](./tests/data) as JSON files.
 
+There are also some code checks (ruff, black, and isort) that you can
+run with:
+
+```console
+$ tox -e lint
+```
+
 
 <!-- URLs -->
 
@@ -123,3 +130,7 @@ Test data is stored in [tests/data](./tests/data) as JSON files.
 [tox]: https://tox.wiki/en/latest/index.html
 
 [test_request.json]: ./src/sdx/pce/data/requests/test_request.json
+
+[ruff]: https://pypi.org/project/ruff/
+[black]: https://pypi.org/project/black/
+[isort]: https://pypi.org/project/isort/

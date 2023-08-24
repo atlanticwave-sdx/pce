@@ -45,7 +45,12 @@ test = [
 ]
 pygraphviz = [
     "pygraphviz"
-]    
+]
+lint = [
+    "ruff == 0.0.285",
+    "black == 23.*",
+    "isort == 5.*",
+]
 
 [options.packages.find]
 where = "src"
@@ -84,4 +89,10 @@ source = [
     "**/site-packages/",
     # In tox environments.
     ".tox/**/site-packages/",
+]
+
+[tool.ruff]
+ignore = [
+    "E501"  # Ignore 'line too long' errors since we auto-format
+            # using black.
 ]

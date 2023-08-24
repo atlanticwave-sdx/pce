@@ -17,7 +17,6 @@ Pydot is "pure" Python, and pygraphviz is implemented as bindings to
 graphviz C library, so installing the latter is a little more work.
 """
 
-import json
 import re
 from pathlib import Path
 from typing import Union

@@ -4,10 +4,7 @@ import numpy as np
 
 from sdx_pce.heuristic.heur import TEGroupSolver, matrix_to_connection, random_graph
 from sdx_pce.load_balancing.te_solver import TESolver
-from sdx_pce.models import ConnectionSolution
 from sdx_pce.utils.constants import Constants
-from sdx_pce.utils.random_connection_generator import RandomConnectionGenerator
-from sdx_pce.utils.random_topology_generator import RandomTopologyGenerator
 
 
 def dot_file(g_file, tm_file):
