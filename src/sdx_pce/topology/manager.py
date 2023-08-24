@@ -29,7 +29,7 @@ class TopologyManager:
 
         self.topology_handler = TopologyHandler()
 
-        self.topology = None
+        self._topology = None
         self._topology_map = {}
         self._port_map = {}  # {port, link}
 
@@ -39,13 +39,13 @@ class TopologyManager:
         return self.topology_handler
 
     def topology_id(self, id):
-        self.topology._id(id)
+        self._topology._id(id)
 
     def set_topology(self, topology):
-        self.topology = topology
+        self._topology = topology
 
     def get_topology(self):
-        return self.topology
+        return self._topology
 
     def get_port_map(self) -> Mapping[str, dict]:
         """
@@ -54,7 +54,7 @@ class TopologyManager:
         return self._port_map
 
     def clear_topology(self):
-        self.topology = None
+        self._topology = None
         self._topology_map = {}
         self._port_map = {}
 
@@ -62,8 +62,8 @@ class TopologyManager:
         topology = self.topology_handler.import_topology_data(data)
         self._topology_map[topology.id] = topology
 
-        if self.topology is None:
-            self.topology = copy.deepcopy(topology)
+        if self._topology is None:
+            self._topology = copy.deepcopy(topology)
 
             # Generate a new topology id
             self.generate_id()
@@ -81,11 +81,11 @@ class TopologyManager:
 
             # Nodes
             nodes = topology.get_nodes()
-            self.topology.add_nodes(nodes)
+            self._topology.add_nodes(nodes)
 
             # links
             links = topology.get_links()
-            self.topology.add_links(links)
+            self._topology.add_links(links)
 
             # version
             self.update_version(False)
@@ -112,8 +112,8 @@ class TopologyManager:
         return domain_id
 
     def generate_id(self):
-        self.topology.set_id(SDX_TOPOLOGY_ID_prefix)
-        self.topology.version = TOPOLOGY_INITIAL_VERSION
+        self._topology.set_id(SDX_TOPOLOGY_ID_prefix)
+        self._topology.version = TOPOLOGY_INITIAL_VERSION
         return id
 
     def remove_topology(self, topology_id):
@@ -130,14 +130,14 @@ class TopologyManager:
         # Nodes.
         nodes = topology.get_nodes()
         for node in nodes:
-            self.topology.remove_node(node.id)
+            self._topology.remove_node(node.id)
 
         # Links.
         links = topology.get_links()
         for link in links:
             if not link.nni:
                 # print(link.id+";......."+str(link.nni))
-                self.topology.remove_link(link.id)
+                self._topology.remove_link(link.id)
                 for port in link.ports:
                     self._port_map.pop(port["id"])
 
@@ -148,25 +148,25 @@ class TopologyManager:
 
         # Nodes.
         nodes = topology.get_nodes()
-        self.topology.add_nodes(nodes)
+        self._topology.add_nodes(nodes)
 
         # Links.
         links = topology.get_links()
-        self.topology.add_links(links)
+        self._topology.add_links(links)
 
         self.update_version(True)
         self.update_timestamp()
 
     def update_version(self, sub: bool):
         try:
-            [ver, sub_ver] = self.topology.version.split(".")
+            [ver, sub_ver] = self._topology.version.split(".")
         except ValueError:
-            ver = self.topology.version
+            ver = self._topology.version
             sub_ver = "0"
 
-        self.topology.version = self.new_version(ver, sub_ver, sub)
+        self._topology.version = self.new_version(ver, sub_ver, sub)
 
-        return self.topology.version
+        return self._topology.version
 
     def new_version(self, ver, sub_ver, sub: bool):
         if not sub:
@@ -179,7 +179,7 @@ class TopologyManager:
 
     def update_timestamp(self):
         ct = datetime.datetime.now().isoformat()
-        self.topology.time_stamp = ct
+        self._topology.time_stamp = ct
 
         return ct
 
@@ -207,7 +207,7 @@ class TopologyManager:
                 if port_id == existing_port:
                     # print("Interdomain port:" + port_id)
                     # remove redundant link between two domains
-                    self.topology.remove_link(existing_link.id)
+                    self._topology.remove_link(existing_link.id)
                     num_interdomain_link = +1
             self._port_map[port_id] = interdomain_port_dict[port_id]
 
@@ -216,13 +216,13 @@ class TopologyManager:
     # adjacent matrix of the graph, in jason?
     def generate_graph(self):
         graph = nx.Graph()
-        links = self.topology.links
+        links = self._topology.links
         for link in links:
             inter_domain_link = False
             ports = link.ports
             end_nodes = []
             for port in ports:
-                node = self.topology.get_node_by_port(port["id"])
+                node = self._topology.get_node_by_port(port["id"])
                 if node is None:
                     print(
                         "This port doesn't belong to any node in the topology, likely a Non-SDX port!"
@@ -247,7 +247,7 @@ class TopologyManager:
         return graph
 
     def generate_grenml(self):
-        self.converter = GrenmlConverter(self.topology)
+        self.converter = GrenmlConverter(self._topology)
 
         return self.converter.read_topology()
 
@@ -272,7 +272,7 @@ class TopologyManager:
 
         # 2. check on the inter-domain link?
         # 3. update the interodamin topology
-        links = self.topology.get_links()
+        links = self._topology.get_links()
         for link in links:
             if link.id == link_id:
                 setattr(link, property, value)

@@ -181,8 +181,10 @@ class TEManager:
             f"egress_port.id: {egress_port.id}"
         )
 
-        ingress_node = self.topology_manager.topology.get_node_by_port(ingress_port.id)
-        egress_node = self.topology_manager.topology.get_node_by_port(egress_port.id)
+        topology = self.topology_manager.get_topology()
+
+        ingress_node = topology.get_node_by_port(ingress_port.id)
+        egress_node = topology.get_node_by_port(egress_port.id)
 
         if ingress_node is None:
             print(f"No ingress node was found for ingress port ID '{ingress_port.id}'")
@@ -326,7 +328,9 @@ class TEManager:
                 last_link = links[-1]
                 n1 = self.graph.nodes[last_link.source]["id"]
                 n2 = self.graph.nodes[last_link.destination]["id"]
-                n1, p1, n2, p2 = self.topology_manager.topology.get_port_by_link(n1, n2)
+                n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
+                    n1, n2
+                )
                 i_port = self.connection.ingress_port.to_dict()
                 e_port = p1
                 next_i = p2
@@ -337,7 +341,9 @@ class TEManager:
                 last_link = links[-1]
                 n1 = self.graph.nodes[last_link.source]["id"]
                 n2 = self.graph.nodes[last_link.destination]["id"]
-                n1, p1, n2, p2 = self.topology_manager.topology.get_port_by_link(n1, n2)
+                n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
+                    n1, n2
+                )
                 i_port = next_i
                 e_port = p1
                 next_i = p2
