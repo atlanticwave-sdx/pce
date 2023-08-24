@@ -43,11 +43,13 @@ class TopologyManagerTests(unittest.TestCase):
             with open(topology_file, "r", encoding="utf-8") as infile:
                 self.topology_manager.add_topology(json.load(infile))
 
-        self.assertIsInstance(self.topology_manager.get_topology().to_dict(), dict)
+        topology = self.topology_manager.get_topology()
+
+        self.assertIsInstance(topology.to_dict(), dict)
 
         print(f"Writing result to {self.TOPOLOGY_OUT}")
         with open(self.TOPOLOGY_OUT, "w") as outfile:
-            json.dump(self.topology_manager.get_topology().to_dict(), outfile, indent=4)
+            json.dump(topology.to_dict(), outfile, indent=4)
 
     def test_update_topology(self):
         print("Test Topology Update!")
@@ -59,10 +61,12 @@ class TopologyManagerTests(unittest.TestCase):
             with open(topology_file, "r", encoding="utf-8") as infile:
                 self.topology_manager.update_topology(json.load(infile))
 
-        self.assertIsInstance(self.topology_manager.get_topology().to_dict(), dict)
+        topology = self.topology_manager.get_topology()
+
+        self.assertIsInstance(topology.to_dict(), dict)
 
         with open(self.TOPOLOGY_OUT, "w") as outfile:
-            json.dump(self.topology_manager.get_topology().to_dict(), outfile, indent=4)
+            json.dump(topology.to_dict(), outfile, indent=4)
 
         graph = self.topology_manager.generate_graph()
         # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
@@ -94,10 +98,12 @@ class TopologyManagerTests(unittest.TestCase):
         self.topology_manager.update_link_property(self.LINK_ID, "latency", 8)
         self.topology_manager.update_link_property(self.INTER_LINK_ID, "latency", 8)
 
-        self.assertIsInstance(self.topology_manager.get_topology().to_dict(), dict)
+        topology = self.topology_manager.get_topology()
+
+        self.assertIsInstance(topology.to_dict(), dict)
 
         with open(self.TOPOLOGY_OUT, "w") as outfile:
-            json.dump(self.topology_manager.get_topology().to_dict(), outfile, indent=4)
+            json.dump(topology.to_dict(), outfile, indent=4)
 
     def test_link_property_update_json(self):
         print("Test Topology JSON Link Property Update!")
