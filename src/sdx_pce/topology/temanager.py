@@ -111,22 +111,12 @@ class TEManager:
         for port_id, link in port_list.items():
             # TODO: port here seems to be a dict, not sdx_datamodel.models.Port
             for port in link.ports:
-                # TODO: sometimes port_id and "inner" port_id below
-                # can be different.  Why?  For example, port_id of
-                # urn:sdx:port:amlight.net:B1:2 and port_id_inner of
-                # urn:sdx:port:amlight.net:B2:2.
-                #
-                # See https://github.com/atlanticwave-sdx_pce/issues/124
-                #
-                # port_id_inner = port.get("id")
-                # print(f"port_id: {port_id}, port_id_inner: {port_id_inner}")
-                # assert port_id == port_id_inner
-
                 # Collect all port IDs in this link.
                 link_port_ids = [x.get("id") for x in link.ports]
 
                 # Do some error checks.
                 link_port_count = len(link_port_ids)
+
                 if link_port_count != 2:
                     raise ValueError(f"Link has {link_port_count} ports, not 2")
 
