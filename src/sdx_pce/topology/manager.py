@@ -1,5 +1,6 @@
 import copy
 import datetime
+from typing import Mapping
 
 import networkx as nx
 from sdx_datamodel.models.topology import (
@@ -30,7 +31,7 @@ class TopologyManager:
 
         self.topology = None
         self.topology_list = {}
-        self.port_list = {}  # {port, link}
+        self._port_map = {}  # {port, link}
 
         self.num_interdomain_link = 0
 
@@ -46,10 +47,16 @@ class TopologyManager:
     def get_topology(self):
         return self.topology
 
+    def get_port_map(self) -> Mapping[str, dict]:
+        """
+        Return a mapping between port IDs and links.
+        """
+        return self._port_map
+
     def clear_topology(self):
         self.topology = None
         self.topology_list = {}
-        self.port_list = {}
+        self._port_map = {}
 
     def add_topology(self, data):
         topology = self.topology_handler.import_topology_data(data)
@@ -65,7 +72,7 @@ class TopologyManager:
             links = topology.get_links()
             for link in links:
                 for port in link.ports:
-                    self.port_list[port["id"]] = link
+                    self._port_map[port["id"]] = link
         else:
             # check the inter-domain links first.
             self.num_interdomain_link += self.inter_domain_check(topology)
@@ -132,7 +139,7 @@ class TopologyManager:
                 # print(link.id+";......."+str(link.nni))
                 self.topology.remove_link(link.id)
                 for port in link.ports:
-                    self.port_list.pop(port["id"])
+                    self._port_map.pop(port["id"])
 
         # Check the inter-domain links first.
         num_interdomain_link = self.inter_domain_check(topology)
@@ -195,14 +202,14 @@ class TopologyManager:
         for port_id in interdomain_port_dict:
             # print("interdomain_port:")
             # print(port_id)
-            for existing_port, existing_link in self.port_list.items():
+            for existing_port, existing_link in self._port_map.items():
                 # print(existing_port)
                 if port_id == existing_port:
                     # print("Interdomain port:" + port_id)
                     # remove redundant link between two domains
                     self.topology.remove_link(existing_link.id)
                     num_interdomain_link = +1
-            self.port_list[port_id] = interdomain_port_dict[port_id]
+            self._port_map[port_id] = interdomain_port_dict[port_id]
 
         return num_interdomain_link
 

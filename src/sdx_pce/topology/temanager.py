@@ -55,7 +55,7 @@ class TEManager:
             self.graph = self.generate_graph_te()
             self._update_vlan_tags_table(
                 domain_name=topology_data.get("id"),
-                port_map=self.topology_manager.port_list,
+                port_map=self.topology_manager.get_port_map(),
             )
         else:
             self.graph = None
@@ -82,7 +82,7 @@ class TEManager:
         # attached to links.
         self._update_vlan_tags_table(
             domain_name=topology_data.get("id"),
-            port_map=self.topology_manager.port_list,
+            port_map=self.topology_manager.get_port_map(),
         )
 
     def update_topology(self, topology_data: dict):
