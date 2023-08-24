@@ -41,8 +41,8 @@ class TopologyManagerTests(unittest.TestCase):
 
         for topology_file in self.TOPOLOGY_FILE_LIST:
             print(f"Adding Topology file: {topology_file}")
-            with open(topology_file, "r", encoding="utf-8") as infile:
-                self.topology_manager.add_topology(json.load(infile))
+            topology_data = json.loads(pathlib.Path(topology_file).read_text())
+            self.topology_manager.add_topology(topology_data)
 
         topology = self.topology_manager.get_topology()
 
@@ -60,8 +60,8 @@ class TopologyManagerTests(unittest.TestCase):
 
         for topology_file in self.TOPOLOGY_FILE_LIST_UPDATE:
             print(f"Updating topology: {topology_file}")
-            with open(topology_file, "r", encoding="utf-8") as infile:
-                self.topology_manager.update_topology(json.load(infile))
+            topology_data = json.loads(pathlib.Path(topology_file).read_text())
+            self.topology_manager.add_topology(topology_data)
 
         topology = self.topology_manager.get_topology()
 
@@ -112,15 +112,15 @@ class TopologyManagerTests(unittest.TestCase):
     def test_link_property_update_json(self):
         print("Test Topology JSON Link Property Update!")
 
-        with open(self.TOPOLOGY_IN, "r", encoding="utf-8") as infile:
-            data = json.load(infile)
-            self.topology_manager.update_element_property_json(
-                data, "links", self.LINK_ID, "latency", 20
-            )
+        topology_data = json.loads(pathlib.Path(self.TOPOLOGY_IN).read_text())
 
-            self.assertIsInstance(data, dict)
+        self.topology_manager.update_element_property_json(
+            topology_data, "links", self.LINK_ID, "latency", 20
+        )
 
-            pathlib.Path(self.TOPOLOGY_OUT).write_text(json.dumps(data, indent=4))
+        self.assertIsInstance(topology_data, dict)
+
+        pathlib.Path(self.TOPOLOGY_OUT).write_text(json.dumps(topology_data, indent=4))
 
     def test_get_domain_name(self):
         """
@@ -128,8 +128,8 @@ class TopologyManagerTests(unittest.TestCase):
         """
         for topology_file in self.TOPOLOGY_FILE_LIST:
             print(f"Adding Topology file: {topology_file}")
-            with open(topology_file, "r", encoding="utf-8") as infile:
-                self.topology_manager.add_topology(json.load(infile))
+            topology_data = json.loads(pathlib.Path(topology_file).read_text())
+            self.topology_manager.add_topology(topology_data)
 
         topology = self.topology_manager.get_topology()
 
