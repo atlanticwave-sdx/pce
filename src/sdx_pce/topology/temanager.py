@@ -17,6 +17,7 @@ from sdx_pce.models import (
     VlanTaggedPort,
 )
 from sdx_pce.topology.manager import TopologyManager
+from sdx_pce.utils.exceptions import ValidationError
 
 
 class TEManager:
@@ -119,10 +120,10 @@ class TEManager:
                 link_port_count = len(link_port_ids)
 
                 if link_port_count != 2:
-                    raise ValueError(f"Link has {link_port_count} ports, not 2")
+                    raise ValidationError(f"Link has {link_port_count} ports, not 2")
 
                 if port_id not in link_port_ids:
-                    raise ValueError(f"port {port_id} not in {link_port_ids}")
+                    raise ValidationError(f"port {port_id} not in {link_port_ids}")
 
                 label_range = port.get("label_range")
 
@@ -160,7 +161,7 @@ class TEManager:
         case, we return [100].
         """
         if not isinstance(label, str):
-            raise ValueError("Label must be a string.")
+            raise ValidationError("Label must be a string.")
 
         parts = label.split("-")
         start = int(parts[0])
