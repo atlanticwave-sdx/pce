@@ -23,7 +23,7 @@ class GrenmlConverterTests(unittest.TestCase):
         pass
 
     def test_grenml_converter_amlight(self):
-        manager = TopologyManager()
+        TopologyManager()
 
         # TODO: this does not raise errors when it should (such as
         # when the input file is not present). Make the necessary
