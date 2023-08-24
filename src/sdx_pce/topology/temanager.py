@@ -102,7 +102,7 @@ class TEManager:
         #     port_list=self.topology_manager.port_list,
         # )
 
-    def _update_vlan_tags_table(self, domain_name, port_list):
+    def _update_vlan_tags_table(self, domain_name: str, port_list: dict):
         """
         Update VLAN tags table.
         """
