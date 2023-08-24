@@ -28,8 +28,7 @@ class TopologyManager:
         self._topology = None
         self._topology_map = {}
         self._port_map = {}  # {port, link}
-
-        self.num_interdomain_link = 0
+        self._num_interdomain_link = 0
 
     def topology_id(self, id):
         self._topology._id(id)
@@ -68,8 +67,8 @@ class TopologyManager:
                     self._port_map[port["id"]] = link
         else:
             # check the inter-domain links first.
-            self.num_interdomain_link += self.inter_domain_check(topology)
-            if self.num_interdomain_link == 0:
+            self._num_interdomain_link += self.inter_domain_check(topology)
+            if self._num_interdomain_link == 0:
                 print(f"Warning: no interdomain links detected in {topology.id}!")
 
             # Nodes
