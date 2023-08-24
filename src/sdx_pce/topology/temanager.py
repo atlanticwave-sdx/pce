@@ -138,9 +138,8 @@ class TEManager:
                 # TODO: why is label_range sometimes None, and what to
                 # do when that happens?
                 if label_range is None:
+                    print(f"label_range on {port.get('id')} is None")
                     continue
-
-                assert label_range is not None, "label_range is None"
 
                 # label_range is of the form ['100-200', '1000']; let
                 # us expand it.  Would have been ideal if this was
