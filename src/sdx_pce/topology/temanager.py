@@ -111,7 +111,8 @@ class TEManager:
         for port_id, link in port_list.items():
             # TODO: port here seems to be a dict, not sdx_datamodel.models.Port
             for port in link.ports:
-                # Collect all port IDs in this link.
+                # Collect all port IDs in this link.  Each link should
+                # have two ports.
                 link_port_ids = [x.get("id") for x in link.ports]
 
                 # Do some error checks.
