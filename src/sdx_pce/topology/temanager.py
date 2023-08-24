@@ -55,7 +55,7 @@ class TEManager:
             self.graph = self.generate_graph_te()
             self._update_vlan_tags_table(
                 domain_name=topology_data.get("id"),
-                port_list=self.topology_manager.port_list,
+                port_map=self.topology_manager.port_list,
             )
         else:
             self.graph = None
@@ -82,7 +82,7 @@ class TEManager:
         # attached to links.
         self._update_vlan_tags_table(
             domain_name=topology_data.get("id"),
-            port_list=self.topology_manager.port_list,
+            port_map=self.topology_manager.port_list,
         )
 
     def update_topology(self, topology_data: dict):
@@ -102,13 +102,13 @@ class TEManager:
         #     port_list=self.topology_manager.port_list,
         # )
 
-    def _update_vlan_tags_table(self, domain_name: str, port_list: dict):
+    def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
         Update VLAN tags table.
         """
         self._vlan_tags_table[domain_name] = {}
 
-        for port_id, link in port_list.items():
+        for port_id, link in port_map.items():
             # TODO: port here seems to be a dict, not sdx_datamodel.models.Port
             for port in link.ports:
                 # Collect all port IDs in this link.  Each link should
