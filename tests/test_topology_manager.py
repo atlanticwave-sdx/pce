@@ -1,4 +1,5 @@
 import json
+import pathlib
 import unittest
 
 import matplotlib.pyplot as plt
@@ -48,8 +49,9 @@ class TopologyManagerTests(unittest.TestCase):
         self.assertIsInstance(topology.to_dict(), dict)
 
         print(f"Writing result to {self.TOPOLOGY_OUT}")
-        with open(self.TOPOLOGY_OUT, "w") as outfile:
-            json.dump(topology.to_dict(), outfile, indent=4)
+        pathlib.Path(self.TOPOLOGY_OUT).write_text(
+            json.dumps(topology.to_dict(), indent=4)
+        )
 
     def test_update_topology(self):
         print("Test Topology Update!")
@@ -65,8 +67,9 @@ class TopologyManagerTests(unittest.TestCase):
 
         self.assertIsInstance(topology.to_dict(), dict)
 
-        with open(self.TOPOLOGY_OUT, "w") as outfile:
-            json.dump(topology.to_dict(), outfile, indent=4)
+        pathlib.Path(self.TOPOLOGY_OUT).write_text(
+            json.dumps(topology.to_dict(), indent=4)
+        )
 
         graph = self.topology_manager.generate_graph()
         # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
@@ -102,8 +105,9 @@ class TopologyManagerTests(unittest.TestCase):
 
         self.assertIsInstance(topology.to_dict(), dict)
 
-        with open(self.TOPOLOGY_OUT, "w") as outfile:
-            json.dump(topology.to_dict(), outfile, indent=4)
+        pathlib.Path(self.TOPOLOGY_OUT).write_text(
+            json.dumps(topology.to_dict(), indent=4)
+        )
 
     def test_link_property_update_json(self):
         print("Test Topology JSON Link Property Update!")
@@ -116,8 +120,7 @@ class TopologyManagerTests(unittest.TestCase):
 
             self.assertIsInstance(data, dict)
 
-            with open(self.TOPOLOGY_OUT, "w") as outfile:
-                json.dump(data, outfile, indent=4)
+            pathlib.Path(self.TOPOLOGY_OUT).write_text(json.dumps(data, indent=4))
 
     def test_get_domain_name(self):
         """
