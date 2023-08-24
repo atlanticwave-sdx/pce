@@ -25,8 +25,6 @@ class TopologyManager:
     """
 
     def __init__(self):
-        super().__init__()
-
         self._topology = None
         self._topology_map = {}
         self._port_map = {}  # {port, link}
