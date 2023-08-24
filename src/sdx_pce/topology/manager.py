@@ -25,9 +25,17 @@ class TopologyManager:
     """
 
     def __init__(self):
+        # The merged "super" topology of topologies of different
+        # domains, with inter-domain links between them computed.
         self._topology = None
+
+        # Mapping from topology ID to topology.
         self._topology_map = {}
-        self._port_map = {}  # {port, link}
+
+        # Mapping from port ID to link.
+        self._port_map = {}
+
+        # Number of interdomain links we computed.
         self._num_interdomain_link = 0
 
     def topology_id(self, id):
