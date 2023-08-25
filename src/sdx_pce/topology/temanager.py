@@ -17,6 +17,7 @@ from sdx_pce.models import (
     VlanTaggedPort,
 )
 from sdx_pce.topology.manager import TopologyManager
+from sdx_pce.utils.exceptions import ValidationError
 
 
 class TEManager:
@@ -55,7 +56,7 @@ class TEManager:
             self.graph = self.generate_graph_te()
             self._update_vlan_tags_table(
                 domain_name=topology_data.get("id"),
-                port_list=self.topology_manager.port_list,
+                port_map=self.topology_manager.get_port_map(),
             )
         else:
             self.graph = None
@@ -82,7 +83,7 @@ class TEManager:
         # attached to links.
         self._update_vlan_tags_table(
             domain_name=topology_data.get("id"),
-            port_list=self.topology_manager.port_list,
+            port_map=self.topology_manager.get_port_map(),
         )
 
     def update_topology(self, topology_data: dict):
@@ -102,34 +103,35 @@ class TEManager:
         #     port_list=self.topology_manager.port_list,
         # )
 
-    def _update_vlan_tags_table(self, domain_name, port_list):
+    def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
         Update VLAN tags table.
         """
         self._vlan_tags_table[domain_name] = {}
 
-        for port_id, link in port_list.items():
+        for port_id, link in port_map.items():
             # TODO: port here seems to be a dict, not sdx_datamodel.models.Port
             for port in link.ports:
-                # TODO: sometimes port_id and "inner" port_id below
-                # can be different.  Why?  For example, port_id of
-                # urn:sdx:port:amlight.net:B1:2 and port_id_inner of
-                # urn:sdx:port:amlight.net:B2:2.
-                #
-                # See https://github.com/atlanticwave-sdx_pce/issues/124
-                #
-                # port_id_inner = port.get("id")
-                # print(f"port_id: {port_id}, port_id_inner: {port_id_inner}")
-                # assert port_id == port_id_inner
+                # Collect all port IDs in this link.  Each link should
+                # have two ports.
+                link_port_ids = [x.get("id") for x in link.ports]
+
+                # Do some error checks.
+                link_port_count = len(link_port_ids)
+
+                if link_port_count != 2:
+                    raise ValidationError(f"Link has {link_port_count} ports, not 2")
+
+                if port_id not in link_port_ids:
+                    raise ValidationError(f"port {port_id} not in {link_port_ids}")
 
                 label_range = port.get("label_range")
 
                 # TODO: why is label_range sometimes None, and what to
                 # do when that happens?
                 if label_range is None:
+                    print(f"label_range on {port.get('id')} is None")
                     continue
-
-                # assert label_range is not None, "label_range is None"
 
                 # label_range is of the form ['100-200', '1000']; let
                 # us expand it.  Would have been ideal if this was
@@ -159,7 +161,7 @@ class TEManager:
         case, we return [100].
         """
         if not isinstance(label, str):
-            raise ValueError("Label must be a string.")
+            raise ValidationError("Label must be a string.")
 
         parts = label.split("-")
         start = int(parts[0])
@@ -180,8 +182,10 @@ class TEManager:
             f"egress_port.id: {egress_port.id}"
         )
 
-        ingress_node = self.topology_manager.topology.get_node_by_port(ingress_port.id)
-        egress_node = self.topology_manager.topology.get_node_by_port(egress_port.id)
+        topology = self.topology_manager.get_topology()
+
+        ingress_node = topology.get_node_by_port(ingress_port.id)
+        egress_node = topology.get_node_by_port(egress_port.id)
 
         if ingress_node is None:
             print(f"No ingress node was found for ingress port ID '{ingress_port.id}'")
@@ -325,7 +329,9 @@ class TEManager:
                 last_link = links[-1]
                 n1 = self.graph.nodes[last_link.source]["id"]
                 n2 = self.graph.nodes[last_link.destination]["id"]
-                n1, p1, n2, p2 = self.topology_manager.topology.get_port_by_link(n1, n2)
+                n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
+                    n1, n2
+                )
                 i_port = self.connection.ingress_port.to_dict()
                 e_port = p1
                 next_i = p2
@@ -336,7 +342,9 @@ class TEManager:
                 last_link = links[-1]
                 n1 = self.graph.nodes[last_link.source]["id"]
                 n2 = self.graph.nodes[last_link.destination]["id"]
-                n1, p1, n2, p2 = self.topology_manager.topology.get_port_by_link(n1, n2)
+                n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
+                    n1, n2
+                )
                 i_port = next_i
                 e_port = p1
                 next_i = p2
