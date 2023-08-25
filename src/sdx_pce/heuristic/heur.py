@@ -1,5 +1,4 @@
 import argparse
-import json
 
 # importing the module
 from datetime import datetime
@@ -9,7 +8,6 @@ import prtpy
 
 from sdx_pce.load_balancing.te_solver import TESolver
 from sdx_pce.models import ConnectionRequest, TrafficMatrix
-from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx_pce.utils.random_topology_generator import RandomTopologyGenerator
 
