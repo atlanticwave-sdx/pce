@@ -398,6 +398,56 @@ class TEManagerTests(unittest.TestCase):
         print(f"sax: {sax}, sax2: {sax2}")
         print(f"amlight: {amlight}, amlight2: {amlight2}")
 
+    def test_connection_amlight_to_zaoxi_many_requests(self):
+        """
+        Exercise many identical connection requests.
+        """
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        print(f"connection_request: {connection_request}")
+
+        temanager = TEManager(topology_data=None, connection_data=connection_request)
+
+        for path in (
+            TestData.TOPOLOGY_FILE_AMLIGHT,
+            TestData.TOPOLOGY_FILE_SAX,
+            TestData.TOPOLOGY_FILE_ZAOXI,
+        ):
+            topology = json.loads(path.read_text())
+            temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+        traffic_matrix = temanager.generate_connection_te()
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        breakdowns = set()
+        num_requests = 10
+
+        for _ in range(0, num_requests):
+            conn = temanager.requests_connectivity(traffic_matrix)
+            print(f"Graph connectivity: {conn}")
+
+            solution = TESolver(graph, traffic_matrix).solve()
+            print(f"TESolver result: {solution}")
+
+            self.assertIsNotNone(solution.connection_map)
+
+            breakdown = json.dumps(temanager.generate_connection_breakdown(solution))
+
+            print(f"breakdown: {breakdown}")
+            self.assertIsNotNone(breakdown)
+
+            breakdowns.add(breakdown)
+
+        print(f"breakdowns: {breakdowns}")
+
+        # Check that we have the same number of unique breakdowns as
+        # connection requests.
+        self.assertEqual(len(breakdowns), num_requests)
+
     def test_connection_amlight_to_zaoxi_with_merged_topology(self):
         """
         Solve with the "merged" topology of amlight, sax, and zaoxi.
