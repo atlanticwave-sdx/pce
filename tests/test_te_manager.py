@@ -193,7 +193,7 @@ class TEManagerTests(unittest.TestCase):
     def test_generate_graph_and_connection_with_sax_2_invalid(self):
         """
         This is a test added to investigate
-        https://github.com/atlanticwave-sdx_pce/issues/107
+        https://github.com/atlanticwave-sdx/pce/issues/107
 
         TODO: Use a better name for this method.
         """
@@ -216,7 +216,7 @@ class TEManagerTests(unittest.TestCase):
     def test_generate_graph_and_connection_with_sax_2_valid(self):
         """
         This is a test added to investigate
-        https://github.com/atlanticwave-sdx_pce/issues/107
+        https://github.com/atlanticwave-sdx/pce/issues/107
 
         TODO: Use a better name for this method.
         """
@@ -296,7 +296,7 @@ class TEManagerTests(unittest.TestCase):
         sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
         amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
 
-        # Per https://github.com/atlanticwave-sdx_pce/issues/101, each
+        # Per https://github.com/atlanticwave-sdx/pce/issues/101, each
         # breakdown should be of the below form:
         #
         # {
@@ -331,6 +331,122 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
             self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
+
+    def test_connection_amlight_to_zaoxi_two_requests(self):
+        """
+        Exercise two identical connection requests.
+        """
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        print(f"connection_request: {connection_request}")
+
+        temanager = TEManager(topology_data=None, connection_data=connection_request)
+
+        for path in (
+            TestData.TOPOLOGY_FILE_AMLIGHT,
+            TestData.TOPOLOGY_FILE_SAX,
+            TestData.TOPOLOGY_FILE_ZAOXI,
+        ):
+            topology = json.loads(path.read_text())
+            temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+        traffic_matrix = temanager.generate_connection_te()
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        conn = temanager.requests_connectivity(traffic_matrix)
+        print(f"Graph connectivity: {conn}")
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        self.assertIsNotNone(solution.connection_map)
+
+        breakdown = temanager.generate_connection_breakdown(solution)
+        print(f"breakdown: {json.dumps(breakdown)}")
+
+        zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
+        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
+        amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
+
+        # Find solution for another identical connection request, and
+        # compare solutions.  They should be different.
+        traffic_matrix2 = temanager.generate_connection_te()
+
+        solution = TESolver(graph, traffic_matrix2).solve()
+        print(f"TESolver result: {solution}")
+
+        self.assertIsNotNone(solution.connection_map)
+
+        breakdown2 = temanager.generate_connection_breakdown(solution)
+        print(f"breakdown2: {json.dumps(breakdown2)}")
+
+        self.assertNotEqual(breakdown, breakdown2)
+
+        zaoxi2 = breakdown2.get("urn:ogf:network:sdx:topology:zaoxi.net")
+        sax2 = breakdown2.get("urn:ogf:network:sdx:topology:sax.net")
+        amlight2 = breakdown2.get("urn:ogf:network:sdx:topology:amlight.net")
+
+        self.assertNotEqual(zaoxi, zaoxi2)
+        self.assertNotEqual(sax, sax2)
+        self.assertNotEqual(amlight, amlight2)
+
+        print(f"zaoxi: {zaoxi}, zaoxi2: {zaoxi2}")
+        print(f"sax: {sax}, sax2: {sax2}")
+        print(f"amlight: {amlight}, amlight2: {amlight2}")
+
+    def test_connection_amlight_to_zaoxi_many_requests(self):
+        """
+        Exercise many identical connection requests.
+        """
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        print(f"connection_request: {connection_request}")
+
+        temanager = TEManager(topology_data=None, connection_data=connection_request)
+
+        for path in (
+            TestData.TOPOLOGY_FILE_AMLIGHT,
+            TestData.TOPOLOGY_FILE_SAX,
+            TestData.TOPOLOGY_FILE_ZAOXI,
+        ):
+            topology = json.loads(path.read_text())
+            temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+        traffic_matrix = temanager.generate_connection_te()
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        breakdowns = set()
+        num_requests = 10
+
+        for _ in range(0, num_requests):
+            conn = temanager.requests_connectivity(traffic_matrix)
+            print(f"Graph connectivity: {conn}")
+
+            solution = TESolver(graph, traffic_matrix).solve()
+            print(f"TESolver result: {solution}")
+
+            self.assertIsNotNone(solution.connection_map)
+
+            breakdown = json.dumps(temanager.generate_connection_breakdown(solution))
+
+            print(f"breakdown: {breakdown}")
+            self.assertIsNotNone(breakdown)
+
+            breakdowns.add(breakdown)
+
+        print(f"breakdowns: {breakdowns}")
+
+        # Check that we have the same number of unique breakdowns as
+        # connection requests.
+        self.assertEqual(len(breakdowns), num_requests)
 
     def test_connection_amlight_to_zaoxi_with_merged_topology(self):
         """

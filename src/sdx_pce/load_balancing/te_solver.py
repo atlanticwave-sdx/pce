@@ -420,7 +420,7 @@ class TESolver:
         Form bandwidth constraints.
 
         To learn what this means, see the formulation diagram at
-        https://github.com/atlanticwave-sdx_pce/tree/main/Documentation.
+        https://github.com/atlanticwave-sdx/pce/tree/main/Documentation.
 
         The yellow portion of the diagram is the "inputmatrix" input
         to this function.  The return value should represent the green
