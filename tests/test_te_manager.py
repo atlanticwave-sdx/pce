@@ -18,15 +18,15 @@ class TEManagerTests(unittest.TestCase):
 
     def setUp(self):
         topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT.read_text())
-        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
-        self.temanager = TEManager(topology, request)
+        self.temanager = TEManager(topology)
 
     def tearDown(self):
         self.temanager = None
 
     def test_generate_solver_input(self):
         print("Test Convert Connection To Topology")
-        connection = self._make_connection()
+        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        connection = self._make_connection(request)
         self.assertIsNotNone(connection)
 
     def test_connection_breakdown_none_input(self):
@@ -200,7 +200,7 @@ class TEManagerTests(unittest.TestCase):
         topology = json.loads(TestData.TOPOLOGY_FILE_SAX_2.read_text())
         request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_INVALID.read_text())
 
-        temanager = TEManager(topology, request)
+        temanager = TEManager(topology)
         self.assertIsNotNone(temanager)
 
         graph = temanager.generate_graph_te()
@@ -210,7 +210,7 @@ class TEManagerTests(unittest.TestCase):
         # Expect None because the connection_data contains
         # unresolvable port IDs, which are not present in the given
         # topology.
-        connection = temanager.generate_connection_te()
+        connection = temanager.generate_connection_te(request)
         self.assertIsNone(connection)
 
     def test_generate_graph_and_connection_with_sax_2_valid(self):
@@ -223,7 +223,7 @@ class TEManagerTests(unittest.TestCase):
         topology = json.loads(TestData.TOPOLOGY_FILE_SAX_2.read_text())
         request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_VALID.read_text())
 
-        temanager = TEManager(topology, request)
+        temanager = TEManager(topology)
         self.assertIsNotNone(temanager)
 
         graph = temanager.generate_graph_te()
@@ -232,7 +232,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(graph)
         self.assertIsInstance(graph, nx.Graph)
 
-        tm = temanager.generate_connection_te()
+        tm = temanager.generate_connection_te(request)
         print(f"traffic matrix: {tm}")
         self.assertIsInstance(tm, TrafficMatrix)
 
@@ -260,7 +260,7 @@ class TEManagerTests(unittest.TestCase):
         connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
         print(f"connection_request: {connection_request}")
 
-        temanager = TEManager(topology_data=None, connection_data=connection_request)
+        temanager = TEManager(topology_data=None)
 
         for path in (
             TestData.TOPOLOGY_FILE_AMLIGHT,
@@ -271,7 +271,7 @@ class TEManagerTests(unittest.TestCase):
             temanager.add_topology(topology)
 
         graph = temanager.generate_graph_te()
-        traffic_matrix = temanager.generate_connection_te()
+        traffic_matrix = temanager.generate_connection_te(connection_request)
 
         print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
 
@@ -339,7 +339,7 @@ class TEManagerTests(unittest.TestCase):
         connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
         print(f"connection_request: {connection_request}")
 
-        temanager = TEManager(topology_data=None, connection_data=connection_request)
+        temanager = TEManager(topology_data=None)
 
         for path in (
             TestData.TOPOLOGY_FILE_AMLIGHT,
@@ -350,7 +350,7 @@ class TEManagerTests(unittest.TestCase):
             temanager.add_topology(topology)
 
         graph = temanager.generate_graph_te()
-        traffic_matrix = temanager.generate_connection_te()
+        traffic_matrix = temanager.generate_connection_te(connection_request)
 
         print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
 
@@ -405,7 +405,7 @@ class TEManagerTests(unittest.TestCase):
         connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
         print(f"connection_request: {connection_request}")
 
-        temanager = TEManager(topology_data=None, connection_data=connection_request)
+        temanager = TEManager(topology_data=None)
 
         for path in (
             TestData.TOPOLOGY_FILE_AMLIGHT,
@@ -416,7 +416,7 @@ class TEManagerTests(unittest.TestCase):
             temanager.add_topology(topology)
 
         graph = temanager.generate_graph_te()
-        traffic_matrix = temanager.generate_connection_te()
+        traffic_matrix = temanager.generate_connection_te(connection_request)
 
         print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
 
@@ -463,12 +463,10 @@ class TEManagerTests(unittest.TestCase):
         topology_data = json.loads(TestData.TOPOLOGY_FILE_SDX.read_text())
         print(f"topology_data: {topology_data}")
 
-        temanager = TEManager(
-            topology_data=topology_data, connection_data=connection_request
-        )
+        temanager = TEManager(topology_data=topology_data)
 
         graph = temanager.generate_graph_te()
-        traffic_matrix = temanager.generate_connection_te()
+        traffic_matrix = temanager.generate_connection_te(connection_request)
 
         print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
 
@@ -493,7 +491,9 @@ class TEManagerTests(unittest.TestCase):
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
-        tm = self.temanager.generate_connection_te()
+
+        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        tm = self.temanager.generate_connection_te(request)
 
         print(f"graph: {graph}")
         print(f"tm: {tm}")
@@ -504,12 +504,12 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(tm)
         self.assertIsInstance(tm, TrafficMatrix)
 
-    def _make_connection(self):
+    def _make_connection(self, connection_request):
         graph = self.temanager.graph
         print(f"Generated networkx graph of the topology: {graph}")
         print(f"Graph nodes: {graph.nodes[0]}, edges: {graph.edges}")
 
-        connection = self.temanager.generate_connection_te()
+        connection = self.temanager.generate_connection_te(connection_request)
         print(f"connection: {connection}")
 
         return connection

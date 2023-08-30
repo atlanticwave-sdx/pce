@@ -34,11 +34,10 @@ class TEManager:
         - VLAN reservation and unreservation.
     """
 
-    def __init__(self, topology_data, connection_data):
+    def __init__(self, topology_data):
         super().__init__()
 
         self.topology_manager = TopologyManager()
-        self.connection_handler = ConnectionHandler()
 
         # A lock to safely perform topology operations.
         self._topology_lock = threading.Lock()
@@ -60,14 +59,6 @@ class TEManager:
             )
         else:
             self.graph = None
-
-        print(f"TEManager: connection_data: {connection_data}")
-
-        self.connection = self.connection_handler.import_connection_data(
-            connection_data
-        )
-
-        print(f"TEManager: self.connection: {self.connection}")
 
     def add_topology(self, topology_data: dict):
         """
@@ -169,12 +160,18 @@ class TEManager:
 
         return list(range(start, stop))
 
-    def generate_connection_te(self) -> TrafficMatrix:
+    def generate_connection_te(self, connection_request: dict) -> TrafficMatrix:
         """
         Generate a Traffic Matrix from the connection request we have.
         """
-        ingress_port = self.connection.ingress_port
-        egress_port = self.connection.egress_port
+        print(f"generate_connection_te: connection_request: {connection_request}")
+
+        request = ConnectionHandler().import_connection_data(connection_request)
+
+        print(f"generate_connection_te: decoded request: {request}")
+
+        ingress_port = request.ingress_port
+        egress_port = request.egress_port
 
         print(
             f"generate_connection_te(), ports: "
@@ -211,8 +208,8 @@ class TEManager:
             print(f"No egress node '{egress_node.id}' found in the graph")
             return None
 
-        required_bandwidth = self.connection.bandwidth or 0
-        required_latency = self.connection.latency or 0
+        required_bandwidth = request.bandwidth or 0
+        required_latency = request.latency or 0
 
         print(
             f"Setting required_latency: {required_latency}, "
