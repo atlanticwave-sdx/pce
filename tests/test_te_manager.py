@@ -374,7 +374,7 @@ class TEManagerTests(unittest.TestCase):
 
         # Find solution for another identical connection request, and
         # compare solutions.  They should be different.
-        traffic_matrix2 = temanager.generate_connection_te()
+        traffic_matrix2 = temanager.generate_connection_te(connection_request)
 
         solution = TESolver(graph, traffic_matrix2).solve()
         print(f"TESolver result: {solution}")
