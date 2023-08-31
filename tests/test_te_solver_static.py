@@ -36,7 +36,7 @@ class TESolverTests(unittest.TestCase):
 
     def test_computation_breakdown(self):
         graph = self.temanager.generate_graph_te()
-        connection_request = self.temanager.generate_connection_te(
+        connection_request = self.temanager.generate_traffic_matrix(
             self.connection_request
         )
 
@@ -64,7 +64,7 @@ class TESolverTests(unittest.TestCase):
         graph = self.temanager.generate_graph_te()
         print(f"Graph: {graph}")
 
-        connection_request = self.temanager.generate_connection_te(
+        connection_request = self.temanager.generate_traffic_matrix(
             self.connection_request
         )
         print(f"Connection Request: {connection_request}")
@@ -96,7 +96,7 @@ class TESolverTests(unittest.TestCase):
                 self.temanager.update_topology(data)
 
         graph = self.temanager.generate_graph_te()
-        connection_request = self.temanager.generate_connection_te(
+        connection_request = self.temanager.generate_traffic_matrix(
             self.connection_request
         )
 

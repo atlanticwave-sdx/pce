@@ -158,21 +158,21 @@ class TEManager:
 
         return list(range(start, stop))
 
-    def generate_connection_te(self, connection_request: dict) -> TrafficMatrix:
+    def generate_traffic_matrix(self, connection_request: dict) -> TrafficMatrix:
         """
         Generate a Traffic Matrix from the connection request we have.
         """
-        print(f"generate_connection_te: connection_request: {connection_request}")
+        print(f"generate_traffic_matrix: connection_request: {connection_request}")
 
         request = ConnectionHandler().import_connection_data(connection_request)
 
-        print(f"generate_connection_te: decoded request: {request}")
+        print(f"generate_traffic_matrix: decoded request: {request}")
 
         ingress_port = request.ingress_port
         egress_port = request.egress_port
 
         print(
-            f"generate_connection_te(), ports: "
+            f"generate_traffic_matrix, ports: "
             f"ingress_port.id: {ingress_port.id}, "
             f"egress_port.id: {egress_port.id}"
         )
