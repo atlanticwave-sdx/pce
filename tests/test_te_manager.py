@@ -501,7 +501,12 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(tm)
         self.assertIsInstance(tm, TrafficMatrix)
 
-    def _make_traffic_matrix_from_request(self, connection_request):
+    def _make_traffic_matrix_from_request(
+        self, connection_request: dict
+    ) -> TrafficMatrix:
+        """
+        Make a traffic matrix out of a connection request dict.
+        """
         graph = self.temanager.graph
         print(f"Generated networkx graph of the topology: {graph}")
         print(f"Graph nodes: {graph.nodes[0]}, edges: {graph.edges}")
