@@ -198,9 +198,8 @@ class TEManagerTests(unittest.TestCase):
         TODO: Use a better name for this method.
         """
         topology = json.loads(TestData.TOPOLOGY_FILE_SAX_2.read_text())
-        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_INVALID.read_text())
-
         temanager = TEManager(topology)
+
         self.assertIsNotNone(temanager)
 
         graph = temanager.generate_graph_te()
@@ -210,6 +209,7 @@ class TEManagerTests(unittest.TestCase):
         # Expect None because the connection_data contains
         # unresolvable port IDs, which are not present in the given
         # topology.
+        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_INVALID.read_text())
         tm = temanager.generate_traffic_matrix(request)
         self.assertIsNone(tm)
 
@@ -221,17 +221,16 @@ class TEManagerTests(unittest.TestCase):
         TODO: Use a better name for this method.
         """
         topology = json.loads(TestData.TOPOLOGY_FILE_SAX_2.read_text())
-        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_VALID.read_text())
-
         temanager = TEManager(topology)
+
         self.assertIsNotNone(temanager)
 
         graph = temanager.generate_graph_te()
-
         print(f"graph: {graph}")
         self.assertIsNotNone(graph)
         self.assertIsInstance(graph, nx.Graph)
 
+        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_VALID.read_text())
         tm = temanager.generate_traffic_matrix(request)
         print(f"traffic matrix: {tm}")
         self.assertIsInstance(tm, TrafficMatrix)
@@ -257,9 +256,6 @@ class TEManagerTests(unittest.TestCase):
         """
         Exercise a connection request between Amlight and Zaoxi.
         """
-        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
-        print(f"connection_request: {connection_request}")
-
         temanager = TEManager(topology_data=None)
 
         for path in (
@@ -271,6 +267,9 @@ class TEManagerTests(unittest.TestCase):
             temanager.add_topology(topology)
 
         graph = temanager.generate_graph_te()
+
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
         print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
@@ -336,9 +335,6 @@ class TEManagerTests(unittest.TestCase):
         """
         Exercise two identical connection requests.
         """
-        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
-        print(f"connection_request: {connection_request}")
-
         temanager = TEManager(topology_data=None)
 
         for path in (
@@ -350,6 +346,9 @@ class TEManagerTests(unittest.TestCase):
             temanager.add_topology(topology)
 
         graph = temanager.generate_graph_te()
+
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
         print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
@@ -402,9 +401,6 @@ class TEManagerTests(unittest.TestCase):
         """
         Exercise many identical connection requests.
         """
-        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
-        print(f"connection_request: {connection_request}")
-
         temanager = TEManager(topology_data=None)
 
         for path in (
@@ -416,6 +412,9 @@ class TEManagerTests(unittest.TestCase):
             temanager.add_topology(topology)
 
         graph = temanager.generate_graph_te()
+
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
         print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
@@ -456,16 +455,15 @@ class TEManagerTests(unittest.TestCase):
         have a merged topology, nodes do not resolve to correct
         domains.
         """
-
-        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
-        print(f"connection_request: {connection_request}")
-
         topology_data = json.loads(TestData.TOPOLOGY_FILE_SDX.read_text())
         print(f"topology_data: {topology_data}")
 
         temanager = TEManager(topology_data=topology_data)
 
         graph = temanager.generate_graph_te()
+
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
         print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
