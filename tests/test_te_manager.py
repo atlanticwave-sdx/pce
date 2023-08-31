@@ -398,7 +398,7 @@ class TEManagerTests(unittest.TestCase):
         print(f"sax: {sax}, sax2: {sax2}")
         print(f"amlight: {amlight}, amlight2: {amlight2}")
 
-    def test_connection_amlight_to_zaoxi_many_requests(self):
+    def test_connection_amlight_to_zaoxi_many_identical_requests(self):
         """
         Exercise many identical connection requests.
         """
