@@ -490,15 +490,14 @@ class TEManagerTests(unittest.TestCase):
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
 
-        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
-        tm = self.temanager.generate_traffic_matrix(request)
-
         print(f"graph: {graph}")
-        print(f"tm: {tm}")
-
         self.assertIsNotNone(graph)
         self.assertIsInstance(graph, nx.Graph)
 
+        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        tm = self.temanager.generate_traffic_matrix(request)
+
+        print(f"tm: {tm}")
         self.assertIsNotNone(tm)
         self.assertIsInstance(tm, TrafficMatrix)
 
