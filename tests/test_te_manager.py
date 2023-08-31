@@ -523,6 +523,7 @@ class TEManagerTests(unittest.TestCase):
         print(f"Breakdown #2: {json.dumps(breakdown2)}")
 
         self.assertNotEqual(connection_request1, connection_request2)
+        self.assertNotEqual(traffic_matrix1, traffic_matrix2)
         self.assertNotEqual(solution1, solution2)
         self.assertNotEqual(breakdown1, breakdown2)
 
