@@ -323,18 +323,20 @@ class TEManager:
 
             if first:
                 first = False
-                i_port, _ = self._get_ports_by_link(links[0])
-                e_port, next_i = self._get_ports_by_link(links[-1])
+                # ingress port for this domain is on the first link.
+                ingress_port, _ = self._get_ports_by_link(links[0])
+                # egress port for this domain is on the last link.
+                egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
             elif i == len(breakdown) - 1:
-                i_port = next_i
-                _, e_port = self._get_ports_by_link(links[-1])
+                ingress_port = next_ingress_port
+                _, egress_port = self._get_ports_by_link(links[-1])
             else:
-                i_port = next_i
-                e_port, next_i = self._get_ports_by_link(links[-1])
+                ingress_port = next_ingress_port
+                egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
 
             segment = {}                
-            segment["ingress_port"] = i_port
-            segment["egress_port"] = e_port
+            segment["ingress_port"] = ingress_port
+            segment["egress_port"] = egress_port
             print(f"segment for {domain}: {segment}")
 
             domain_breakdown[domain] = segment.copy()
