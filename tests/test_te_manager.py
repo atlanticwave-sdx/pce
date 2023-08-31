@@ -469,6 +469,58 @@ class TEManagerTests(unittest.TestCase):
         # connection requests.
         self.assertEqual(len(breakdowns), num_requests)
 
+    def test_connection_amlight_to_zaoxi_two_requests(self):
+        temanager = TEManager(topology_data=None)
+
+        for path in (
+            TestData.TOPOLOGY_FILE_AMLIGHT,
+            TestData.TOPOLOGY_FILE_SAX,
+            TestData.TOPOLOGY_FILE_ZAOXI,
+        ):
+            topology = json.loads(path.read_text())
+            temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+        print(f"Generated graph: '{graph}'")
+
+        self.assertIsInstance(graph, nx.Graph)
+
+        connection_request1 = json.loads(TestData.CONNECTION_REQ.read_text())
+        print(f"Connection request #1: {connection_request1}")
+        traffic_matrix1 = temanager.generate_traffic_matrix(connection_request1)
+
+        print(f"Traffic matrix #1: '{traffic_matrix1}'")
+        self.assertIsInstance(traffic_matrix1, TrafficMatrix)
+
+        solution1 = TESolver(graph, traffic_matrix1).solve()
+        print(f"TESolver result #1: {solution1}")
+
+        self.assertIsInstance(solution1, ConnectionSolution)
+        self.assertIsNotNone(solution1.connection_map)
+
+        breakdown1 = temanager.generate_connection_breakdown(solution1)
+        print(f"Breakdown #1: {json.dumps(breakdown1)}")
+
+        connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        print(f"Connection request #2: {connection_request2}")
+
+        traffic_matrix2 = temanager.generate_traffic_matrix(connection_request2)
+        print(f"Traffic matrix #2: '{traffic_matrix2}'")
+        self.assertIsInstance(traffic_matrix2, TrafficMatrix)
+
+        solution2 = TESolver(graph, traffic_matrix2).solve()
+        print(f"TESolver result #2: {solution2}")
+
+        self.assertIsInstance(solution2, ConnectionSolution)
+        self.assertIsNotNone(solution2.connection_map)
+
+        breakdown2 = temanager.generate_connection_breakdown(solution1)
+        print(f"Breakdown #2: {json.dumps(breakdown2)}")
+
+        self.assertNotEqual(connection_request1, connection_request2)
+        self.assertNotEqual(solution1, solution2)
+        self.assertNotEqual(breakdown1, breakdown2)
+
     def test_connection_amlight_to_zaoxi_with_merged_topology(self):
         """
         Solve with the "merged" topology of amlight, sax, and zaoxi.
