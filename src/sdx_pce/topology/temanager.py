@@ -35,8 +35,6 @@ class TEManager:
     """
 
     def __init__(self, topology_data):
-        super().__init__()
-
         self.topology_manager = TopologyManager()
 
         # A lock to safely perform topology operations.
