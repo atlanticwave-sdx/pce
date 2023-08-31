@@ -210,8 +210,8 @@ class TEManagerTests(unittest.TestCase):
         # Expect None because the connection_data contains
         # unresolvable port IDs, which are not present in the given
         # topology.
-        connection = temanager.generate_traffic_matrix(request)
-        self.assertIsNone(connection)
+        tm = temanager.generate_traffic_matrix(request)
+        self.assertIsNone(tm)
 
     def test_generate_graph_and_connection_with_sax_2_valid(self):
         """
