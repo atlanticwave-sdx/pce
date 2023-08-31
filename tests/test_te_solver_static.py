@@ -36,15 +36,13 @@ class TESolverTests(unittest.TestCase):
 
     def test_computation_breakdown(self):
         graph = self.temanager.generate_graph_te()
-        connection_request = self.temanager.generate_traffic_matrix(
-            self.connection_request
-        )
+        tm = self.temanager.generate_traffic_matrix(self.connection_request)
 
         print(f"Number of nodes: {graph.number_of_nodes()}")
         print(f"Graph edges: {graph.edges}")
-        print(f"Traffic Matrix: {connection_request}")
+        print(f"Traffic Matrix: {tm}")
 
-        solution = TESolver(graph, connection_request).solve()
+        solution = TESolver(graph, tm).solve()
         print(f"TESolver result: {solution}")
 
         self.assertIsInstance(solution, ConnectionSolution)
@@ -63,15 +61,13 @@ class TESolverTests(unittest.TestCase):
         graph = self.temanager.generate_graph_te()
         print(f"Graph: {graph}")
 
-        connection_request = self.temanager.generate_traffic_matrix(
-            self.connection_request
-        )
-        print(f"Connection Request: {connection_request}")
+        tm = self.temanager.generate_traffic_matrix(self.connection_request)
+        print(f"Traffic matrix: {tm}")
 
-        conn = self.temanager.requests_connectivity(connection_request)
+        conn = self.temanager.requests_connectivity(tm)
         print(f"Graph connectivity: {conn}")
 
-        solution = TESolver(graph, connection_request).solve()
+        solution = TESolver(graph, tm).solve()
         print(f"TESolver result: {solution}")
 
         self.assertIsNotNone(solution.connection_map)
@@ -93,14 +89,12 @@ class TESolverTests(unittest.TestCase):
             self.temanager.update_topology(data)
 
         graph = self.temanager.generate_graph_te()
-        connection_request = self.temanager.generate_traffic_matrix(
-            self.connection_request
-        )
+        tm = self.temanager.generate_traffic_matrix(self.connection_request)
 
-        conn = self.temanager.requests_connectivity(connection_request)
+        conn = self.temanager.requests_connectivity(tm)
         print(f"Graph connectivity: {conn}")
 
-        solution = TESolver(graph, connection_request).solve()
+        solution = TESolver(graph, tm).solve()
         print(f"TESolver result: {solution}")
 
         self.assertIsNotNone(solution.connection_map)
