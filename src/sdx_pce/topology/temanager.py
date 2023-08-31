@@ -325,56 +325,30 @@ class TEManager:
                 first = False
 
                 first_link = links[0]
-                first_link_node1 = self.graph.nodes[first_link.source]["id"]
-                first_link_node2 = self.graph.nodes[first_link.destination]["id"]
-                (
-                    _,
-                    first_link_port1,
-                    _,
-                    _,
-                ) = self.topology_manager.get_topology().get_port_by_link(
-                    first_link_node1, first_link_node2
-                )
-                print(f"First link, domain: {domain}, port1: {first_link_port1}")
-                i_port = first_link_port1
+                p1, _ = self._get_ports_by_link(first_link)
+                i_port = p1
 
                 last_link = links[-1]
-                n1 = self.graph.nodes[last_link.source]["id"]
-                n2 = self.graph.nodes[last_link.destination]["id"]
-                n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
-                    n1, n2
-                )
-                print(
-                    f"Last link, domain: {domain}, n1 => {n1}, p1 => {p1}, n2 => {n2}, p2 => {p2}"
-                )
+                p1, p2 = self._get_ports_by_link(last_link)
                 e_port = p1
                 next_i = p2
             elif i == len(breakdown) - 1:
                 i_port = next_i
-                # e_port = self.connection.egress_port.to_dict()
-                link = links[i]
-                n1 = self.graph.nodes[link.source]["id"]
-                n2 = self.graph.nodes[link.destination]["id"]
-                n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
-                    n1, n2
-                )
-                print(
-                    f"Link #{i}, domain: {domain}, n1 => {n1}, p1 => {p1}, n2 => {n2}, p2 => {p2}"
-                )
+                last_link = links[-1]
+                p1, p2 = self._get_ports_by_link(last_link)
                 e_port = p2
-                
             else:
                 last_link = links[-1]
-                n1 = self.graph.nodes[last_link.source]["id"]
-                n2 = self.graph.nodes[last_link.destination]["id"]
-                n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
-                    n1, n2
-                )
+                p1, p2 = self._get_ports_by_link(last_link)
+
                 i_port = next_i
                 e_port = p1
                 next_i = p2
+
             segment["ingress_port"] = i_port
             segment["egress_port"] = e_port
+            print(f"segment for {domain}: {segment}")
+
             domain_breakdown[domain] = segment.copy()
             i = i + 1
 
@@ -392,6 +366,22 @@ class TEManager:
         # Return a dict containing VLAN-tagged breakdown in the
         # expected format.
         return tagged_breakdown.to_dict().get("breakdowns")
+
+    def _get_ports_by_link(self, link):
+        """
+        Given a link, find the ports associated with it.
+        """
+        node1 = self.graph.nodes[link.source]["id"]
+        node2 = self.graph.nodes[link.destination]["id"]
+
+        n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
+            node1, node2
+        )
+
+        assert n1 == node1
+        assert n2 == node2
+
+        return p1, p2
 
     """
     functions for vlan reservation.
