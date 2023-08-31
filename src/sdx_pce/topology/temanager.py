@@ -323,21 +323,14 @@ class TEManager:
 
             if first:
                 first = False
-
-                first_link = links[0]
-                i_port, _ = self._get_ports_by_link(first_link)
-
-                last_link = links[-1]
-                e_port, next_i = self._get_ports_by_link(last_link)
+                i_port, _ = self._get_ports_by_link(links[0])
+                e_port, next_i = self._get_ports_by_link(links[-1])
             elif i == len(breakdown) - 1:
                 i_port = next_i
-                last_link = links[-1]
-                _, e_port = self._get_ports_by_link(last_link)
+                _, e_port = self._get_ports_by_link(links[-1])
             else:
-                last_link = links[-1]
                 i_port = next_i
-                
-                e_port, next_i = self._get_ports_by_link(last_link)
+                e_port, next_i = self._get_ports_by_link(links[-1])
 
             segment = {}                
             segment["ingress_port"] = i_port
