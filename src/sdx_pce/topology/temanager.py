@@ -339,7 +339,7 @@ class TEManager:
                 ingress_port = next_ingress_port
                 egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
 
-            segment = {}                
+            segment = {}
             segment["ingress_port"] = ingress_port
             segment["egress_port"] = egress_port
             print(f"segment for {domain}: {segment}")
