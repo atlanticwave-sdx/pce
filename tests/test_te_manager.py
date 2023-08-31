@@ -469,7 +469,10 @@ class TEManagerTests(unittest.TestCase):
         # connection requests.
         self.assertEqual(len(breakdowns), num_requests)
 
-    def test_connection_amlight_to_zaoxi_two_requests(self):
+    def test_connection_amlight_to_zaoxi_two_distinct_requests(self):
+        """
+        Test with two distinct connection requests.
+        """
         temanager = TEManager(topology_data=None)
 
         for path in (
@@ -485,6 +488,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsInstance(graph, nx.Graph)
 
+        # Use a connection request that should span all three domains.
         connection_request1 = json.loads(TestData.CONNECTION_REQ.read_text())
         print(f"Connection request #1: {connection_request1}")
         traffic_matrix1 = temanager.generate_traffic_matrix(connection_request1)
@@ -501,6 +505,7 @@ class TEManagerTests(unittest.TestCase):
         breakdown1 = temanager.generate_connection_breakdown(solution1)
         print(f"Breakdown #1: {json.dumps(breakdown1)}")
 
+        # Use another connection request that spans just one domain.
         connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
         print(f"Connection request #2: {connection_request2}")
 
