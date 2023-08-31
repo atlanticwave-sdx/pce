@@ -26,7 +26,7 @@ class TEManagerTests(unittest.TestCase):
     def test_generate_solver_input(self):
         print("Test Convert Connection To Topology")
         request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
-        connection = self._make_connection(request)
+        connection = self._make_traffic_matrix_from_request(request)
         self.assertIsNotNone(connection)
 
     def test_connection_breakdown_none_input(self):
@@ -501,15 +501,15 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(tm)
         self.assertIsInstance(tm, TrafficMatrix)
 
-    def _make_connection(self, connection_request):
+    def _make_traffic_matrix_from_request(self, connection_request):
         graph = self.temanager.graph
         print(f"Generated networkx graph of the topology: {graph}")
         print(f"Graph nodes: {graph.nodes[0]}, edges: {graph.edges}")
 
-        connection = self.temanager.generate_traffic_matrix(connection_request)
-        print(f"connection: {connection}")
+        traffic_matrix = self.temanager.generate_traffic_matrix(connection_request)
+        print(f"traffic_matrix: {traffic_matrix}")
 
-        return connection
+        return traffic_matrix
 
     def _make_tm_and_solve(self, request) -> ConnectionSolution:
         """
@@ -518,7 +518,7 @@ class TEManagerTests(unittest.TestCase):
         """
 
         # Make a connection request.
-        tm = self._make_traffic_matrix(request)
+        tm = self._make_traffic_matrix_from_list(request)
         print(f"tm: {tm}")
 
         graph = self.temanager.generate_graph_te()
@@ -534,7 +534,7 @@ class TEManagerTests(unittest.TestCase):
 
         return solution
 
-    def _make_traffic_matrix(self, old_style_request: list) -> TrafficMatrix:
+    def _make_traffic_matrix_from_list(self, old_style_request: list) -> TrafficMatrix:
         """
         Make a traffic matrix from the old-style list.
 
