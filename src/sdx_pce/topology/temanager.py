@@ -323,18 +323,46 @@ class TEManager:
             segment = {}
             if first:
                 first = False
+
+                first_link = links[0]
+                first_link_node1 = self.graph.nodes[first_link.source]["id"]
+                first_link_node2 = self.graph.nodes[first_link.destination]["id"]
+                (
+                    _,
+                    first_link_port1,
+                    _,
+                    _,
+                ) = self.topology_manager.get_topology().get_port_by_link(
+                    first_link_node1, first_link_node2
+                )
+                print(f"First link, domain: {domain}, port1: {first_link_port1}")
+                i_port = first_link_port1
+
                 last_link = links[-1]
                 n1 = self.graph.nodes[last_link.source]["id"]
                 n2 = self.graph.nodes[last_link.destination]["id"]
                 n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
                     n1, n2
                 )
-                i_port = self.connection.ingress_port.to_dict()
+                print(
+                    f"Last link, domain: {domain}, n1 => {n1}, p1 => {p1}, n2 => {n2}, p2 => {p2}"
+                )
                 e_port = p1
                 next_i = p2
             elif i == len(breakdown) - 1:
                 i_port = next_i
-                e_port = self.connection.egress_port.to_dict()
+                # e_port = self.connection.egress_port.to_dict()
+                link = links[i]
+                n1 = self.graph.nodes[link.source]["id"]
+                n2 = self.graph.nodes[link.destination]["id"]
+                n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
+                    n1, n2
+                )
+                print(
+                    f"Link #{i}, domain: {domain}, n1 => {n1}, p1 => {p1}, n2 => {n2}, p2 => {p2}"
+                )
+                e_port = p2
+                
             else:
                 last_link = links[-1]
                 n1 = self.graph.nodes[last_link.source]["id"]
