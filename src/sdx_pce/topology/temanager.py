@@ -161,6 +161,12 @@ class TEManager:
     def generate_traffic_matrix(self, connection_request: dict) -> TrafficMatrix:
         """
         Generate a Traffic Matrix from the connection request we have.
+
+        A connection request specifies an ingress port, an egress
+        port, and some other properties.  The ports may belong to
+        different domains.  We need to break that request down into a
+        set of requests, each of them specific to a domain.  We call
+        such a domain-wise set of requests a traffic matrix.
         """
         print(f"generate_traffic_matrix: connection_request: {connection_request}")
 
