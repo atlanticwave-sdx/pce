@@ -57,9 +57,8 @@ class TESolverTests(unittest.TestCase):
     def test_computation_breakdown_many_topologies(self):
         for topology_file in self.TOPOLOGY_FILE_LIST:
             print(f"Adding Topology: {topology_file}")
-            with open(topology_file, "r", encoding="utf-8") as data_file:
-                data = json.load(data_file)
-                self.temanager.topology_manager.add_topology(data)
+            data = json.loads(topology_file.read_text())
+            self.temanager.topology_manager.add_topology(data)
 
         graph = self.temanager.generate_graph_te()
         print(f"Graph: {graph}")
@@ -85,15 +84,13 @@ class TESolverTests(unittest.TestCase):
     def test_computation_update(self):
         for topology_file in self.TOPOLOGY_FILE_LIST:
             print(f"Adding Topology: {topology_file}")
-            with open(topology_file, "r", encoding="utf-8") as data_file:
-                data = json.load(data_file)
-                self.temanager.add_topology(data)
+            data = json.loads(topology_file.read_text())
+            self.temanager.add_topology(data)
 
         for topology_file in self.TOPOLOGY_FILE_LIST_UPDATE:
             print(f"Updating Topology: {topology_file}")
-            with open(topology_file, "r", encoding="utf-8") as data_file:
-                data = json.load(data_file)
-                self.temanager.update_topology(data)
+            data = json.loads(topology_file.read_text())
+            self.temanager.update_topology(data)
 
         graph = self.temanager.generate_graph_te()
         connection_request = self.temanager.generate_traffic_matrix(
