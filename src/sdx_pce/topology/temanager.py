@@ -318,6 +318,11 @@ class TEManager:
         i = 0
         domain_breakdown = {}
 
+        # TODO: using dict to represent a breakdown is dubious, and
+        # may lead to incorrect results.  Dicts are lexically ordered,
+        # and that may break some assumptions about the order in which
+        # we form and traverse the breakdown.
+
         for domain, links in breakdown.items():
             print(f"Creating domain_breakdown: domain: {domain}, links: {links}")
 
