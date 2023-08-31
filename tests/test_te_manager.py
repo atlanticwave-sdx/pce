@@ -353,7 +353,7 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
 
-    def test_connection_amlight_to_zaoxi_two_requests(self):
+    def test_connection_amlight_to_zaoxi_two_identical_requests(self):
         """
         Exercise two identical connection requests.
         """
