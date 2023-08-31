@@ -320,31 +320,26 @@ class TEManager:
 
         for domain, links in breakdown.items():
             print(f"Creating domain_breakdown: domain: {domain}, links: {links}")
-            segment = {}
+
             if first:
                 first = False
 
                 first_link = links[0]
-                p1, _ = self._get_ports_by_link(first_link)
-                i_port = p1
+                i_port, _ = self._get_ports_by_link(first_link)
 
                 last_link = links[-1]
-                p1, p2 = self._get_ports_by_link(last_link)
-                e_port = p1
-                next_i = p2
+                e_port, next_i = self._get_ports_by_link(last_link)
             elif i == len(breakdown) - 1:
                 i_port = next_i
                 last_link = links[-1]
-                p1, p2 = self._get_ports_by_link(last_link)
-                e_port = p2
+                _, e_port = self._get_ports_by_link(last_link)
             else:
                 last_link = links[-1]
-                p1, p2 = self._get_ports_by_link(last_link)
-
                 i_port = next_i
-                e_port = p1
-                next_i = p2
+                
+                e_port, next_i = self._get_ports_by_link(last_link)
 
+            segment = {}                
             segment["ingress_port"] = i_port
             segment["egress_port"] = e_port
             print(f"segment for {domain}: {segment}")
