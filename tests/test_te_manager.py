@@ -252,6 +252,28 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNone(solution.connection_map, None)
         self.assertEqual(solution.cost, 0.0)
 
+    def test_connection_amlight(self):
+        """
+        Test with just one topology/domain.
+        """
+        temanager = TEManager(topology_data=None)
+
+        topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT.read_text())
+        temanager.add_topology(topology)
+        graph = temanager.generate_graph_te()
+
+        self.assertIsInstance(graph, nx.Graph)
+
+        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        print(f"connection request: {request}")
+
+        traffic_matrix = temanager.generate_traffic_matrix(request)
+        self.assertIsInstance(traffic_matrix, TrafficMatrix)
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+        self.assertIsInstance(solution, ConnectionSolution)
+
     def test_connection_amlight_to_zaoxi(self):
         """
         Exercise a connection request between Amlight and Zaoxi.
