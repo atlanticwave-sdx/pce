@@ -10,7 +10,7 @@
         "vendor": null
     },
     "version": "0.0",
-    "time_stamp": "2023-05-04T21:01:51.954870",
+    "timestamp": "2023-05-04T21:01:51.954870",
     "nodes": [
         {
             "id": "urn:ogf:network:sdx:node:sax:B1",
@@ -272,7 +272,7 @@
             "status": null,
             "state": null,
             "private_attributes": null,
-            "time_stamp": null,
+            "timestamp": null,
             "measurement_period": null
         },
         {
@@ -312,7 +312,7 @@
             "status": null,
             "state": null,
             "private_attributes": null,
-            "time_stamp": null,
+            "timestamp": null,
             "measurement_period": null
         },
         {
@@ -352,7 +352,7 @@
             "status": null,
             "state": null,
             "private_attributes": null,
-            "time_stamp": null,
+            "timestamp": null,
             "measurement_period": null
         },
         {
@@ -392,7 +392,7 @@
             "status": null,
             "state": null,
             "private_attributes": null,
-            "time_stamp": null,
+            "timestamp": null,
             "measurement_period": null
         },
         {
@@ -432,7 +432,7 @@
             "status": null,
             "state": null,
             "private_attributes": null,
-            "time_stamp": null,
+            "timestamp": null,
             "measurement_period": null
         },
         {
@@ -472,7 +472,7 @@
             "status": null,
             "state": null,
             "private_attributes": null,
-            "time_stamp": null,
+            "timestamp": null,
             "measurement_period": null
         },
         {
@@ -512,7 +512,7 @@
             "status": null,
             "state": null,
             "private_attributes": null,
-            "time_stamp": null,
+            "timestamp": null,
             "measurement_period": null
         },
         {
@@ -552,7 +552,7 @@
             "status": null,
             "state": null,
             "private_attributes": null,
-            "time_stamp": null,
+            "timestamp": null,
             "measurement_period": null
         }
     ],
