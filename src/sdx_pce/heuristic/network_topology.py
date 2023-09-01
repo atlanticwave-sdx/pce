@@ -1,6 +1,7 @@
 from itertools import islice
-from helper import *
 import pdb
+
+from .helper import *
 
 class Node:
     def __init__(self, mkt):
@@ -271,6 +272,22 @@ class Network:
         # Putting 100 km distance for all edges as of now, fix later.
         for (s,t) in self.edges:
             graph.add_edge(s, t, distance=400)
+        return graph
+    
+    """
+    Need to convert the node index: (1)it is integer (2) starting from 0
+    """
+    def to_nx_simple(self):
+        import networkx
+        graph = networkx.Graph()
+        for n in self.nodes.keys():
+            graph.add_node(int(n)-1)
+        # Putting 100 km distance for all edges as of now, fix later.
+        for (src,dst) in self.edges:
+            s=int(src)-1
+            t=int(dst)-1
+            if (not graph.has_edge(s, t)) and (not graph.has_edge(t, s)):
+                graph.add_edge(s, t, original_bandwidth=self.edges[src,dst].capacity, bandwidth=self.edges[src,dst].capacity, distance=400)
         return graph
 
     def draw(self, labels):

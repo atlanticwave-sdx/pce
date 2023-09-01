@@ -2,7 +2,8 @@ import argparse
 
 import numpy as np
 
-from sdx_pce.heuristic.heur import TEGroupSolver, matrix_to_connection, random_graph
+from sdx_pce.heuristic.csv_network_parser import *
+from sdx_pce.heuristic.heur import TEGroupSolver, matrix_to_connection, demand_to_connection, random_graph
 from sdx_pce.load_balancing.te_solver import TESolver
 from sdx_pce.models import ConnectionSolution
 from sdx_pce.utils.constants import Constants
@@ -123,12 +124,15 @@ if __name__ == "__main__":
 
     parse.print_help()
     args = parse.parse_args()
-
+    scale=1
     if args.topology_file is not None:
         if args.te_file is not None:
             # graph, tm = dot_file(args.topology_file, args.te_file)
-            print("Supporting dot file later!")
-            exit()
+            network = parse_topology(args.topology_file)
+            parse_demands(network, args.te_file, scale)
+            graph = network.to_nx_simple()
+            request = demand_to_connection(network.demands)
+            print("This is csv file, Supporting dot file later!")
         else:
             print("Missing the TE file!")
             exit()
@@ -141,6 +145,7 @@ if __name__ == "__main__":
             args.m = 3
         print("n=" + str(args.n) + ";p=" + str(args.p) + ";m=" + str(args.m))
         graph, tm = random_graph(args.n, args.p, args.m)
+        request = matrix_to_connection(tm)
 
     if args.c == Constants.COST_FLAG_STATIC:  # 4
         if args.l is None:
@@ -149,7 +154,6 @@ if __name__ == "__main__":
 
     if args.heur == 0:
         print("Optimal solver")
-        request = matrix_to_connection(tm)
         solver = TESolver(graph, request, args.c, args.b)
         ordered_paths = solver.solve()
         # ordered_paths = solver.solution_translator(path, result)

@@ -1,6 +1,7 @@
 import random
-from network_topology import *
 import csv
+
+from .network_topology import *
 
 def parse_topology(network_name):
     network = Network(network_name)

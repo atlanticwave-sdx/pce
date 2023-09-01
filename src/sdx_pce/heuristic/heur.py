@@ -13,12 +13,8 @@ from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx_pce.utils.random_topology_generator import RandomTopologyGenerator
 
-from network_topology import *
-from csv_network_parser import *
-from path_te_solver import *
-from ms_solver import *
-from MIPSolver import *
-
+l_lat=80
+u_lat=100
 def random_graph(n, p, m):
     """
     Generate a random graph and a traffic matrix
@@ -57,6 +53,23 @@ def matrix_to_connection(matrix):
         traffic_matrix.connection_requests.append(request)
     return traffic_matrix
 
+def demand_to_connection(demands):
+    """
+    Convert the plain traffic matrix to TrafficMatrix model used by TESolver as input
+    """
+    traffic_matrix = TrafficMatrix(connection_requests=[])
+    print(f"Number of Demands:{len(demands)}")
+    for d, demand in demands.items():
+        if demand.src==demand.dst:  continue 
+        request = ConnectionRequest(
+            source=int(demand.src)-1,
+            destination=int(demand.dst)-1,
+            required_bandwidth=demand.amount,
+            required_latency = np.random.randint(l_lat, u_lat)
+        )
+        #print(request)
+        traffic_matrix.connection_requests.append(request)
+    return traffic_matrix
 
 class TEGroupSolver:
     """ "
@@ -288,6 +301,7 @@ if __name__ == "__main__":
         initialize_weights(network)
 
         if args.alg ==10:    
+            #Original tunnel-based  MS solver for flow maximization 
             mip = CvxSolver()
             solver = MSSolver(mip, network)
             solver.add_demand_constraints()
@@ -302,14 +316,60 @@ if __name__ == "__main__":
                 solution=get_edge_flow_allocations(network)
                 print(solution)       
         
-        else:
+        if args.alg ==11:    
+            #Original tunnel-based MS solver for FCC flow maximization 
+            mip = CvxSolver()
+            solver = FFCSolver(mip, network)
+
+            solver.add_demand_constraints()
+            solver.add_edge_capacity_constraints()
+
+            # Enumerate single link failures (k = 1)
+            for edge in network.edges:
+                # edges are directional tuples, thus, failing (a,b) implies that (b,a) also fails.
+                edges = set([network.edges[edge], network.edges[edge[::-1]]])
+                solver.failure_scenario_edge_constraint(edges)
+
+            objective = get_ffc_objective(network)
+            solver.Maximize(objective)
+            result = solver.solve()
+            if mip.problem.status == 'optimal':
+                print("Optimal solution was found.")
+                print("Optimal objective:", result)
+            else:
+                print("Optimal solution was not found.")
+
+        if args.alg ==20:
+            # Tunnel-based flow maximization solver with OR Tools 
+            # More statistics on link utilization, etc
             path_solver=PathTESolver(network)
-            path_solver.Maximize(get_max_flow_objective(network))
+            path_solver.create_data_model()
+            path_solver.Maximize()
             ordered_paths, result = path_solver.solve()
             edge_flow=path_solver.get_edge_flow_allocations()
             print(edge_flow)
             demands_unmet=path_solver.get_demands_unmet()
             print(demands_unmet)
+
+        if args.alg ==21:
+            print("FCC with link failure resiliency")
+            # Tunnel-based flow maximization FCC solver with OR Tools 
+            # More statistics on link utilization, etc
+            fcc_solver=FCCPathTESolver(network)
+            fcc_solver.create_data_model()
+            # Enumerate single link failures (k = 1)
+            for edge in network.edges:
+            # edges are directional tuples, thus, failing (a,b) implies that (b,a) also fails.
+                edges = set([network.edges[edge], network.edges[edge[::-1]]])
+                fcc_solver.failure_scenario_edge_constraint(edges)
+            fcc_solver.Maximize_FCC()
+            ordered_paths, result = fcc_solver.solve()
+            edge_flow=fcc_solver.get_edge_flow_allocations()
+            print(edge_flow)
+            demands_met=fcc_solver.get_demands_met()
+            print(f"Met Demands:{demands_met}")
+            demands_unmet=fcc_solver.get_demands_unmet()
+            print(f"Unmet Demands:{demands_unmet}")
     else:
         if args.group > args.m:
             print("Group cannot be greater the number of connections!")

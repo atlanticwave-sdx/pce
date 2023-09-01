@@ -181,7 +181,7 @@ class TESolver:
                 for edge in path:
                     # print("edge:"+str(edge))
                     if edge[0] == src:
-                        print(f"Adding edge {edge} for request {request}")
+                        #print(f"Adding edge {edge} for request {request}")
                         # ordered_paths.append(edge)
 
                         # Make a path and add it to the solution map
@@ -198,7 +198,7 @@ class TESolver:
         # print("ordered paths:"+str(ordered_paths))
         # return ordered_paths
 
-        print(f"solution_translator result: {result}")
+        #print(f"solution_translator result: {result}")
         return result
 
     def update_graph(self, graph, pathsconnection):
@@ -255,7 +255,7 @@ class TESolver:
 
         return cost
 
-    def _create_data_model(self, latency=True) -> DataModel:
+    def _create_data_model(self, latency=False) -> DataModel:
         """
         Top function to create the OR optimization model in the array format
         """
@@ -305,6 +305,7 @@ class TESolver:
                 bw = self.graph[v][u][Constants.BANDWIDTH]
 
             bwlinklist.append(bw)
+            #print(f"link ({u},{v}) bw:{bw}")
 
         # add the bwconstraint rhs
         bounds += bwlinklist
@@ -388,9 +389,8 @@ class TESolver:
         inputmatrix = np.zeros((nodenum, linknum), dtype=int)
         n = 0
         for link in link_list:
-            src = link[0]
-            dest = link[1]
-            # print(str(src)+":"+str(dest)+"\n")
+            src = int(link[0])
+            dest = int(link[1])
             inputmatrix[src][n] = -1
             inputmatrix[dest][n] = 1
             n += 1
