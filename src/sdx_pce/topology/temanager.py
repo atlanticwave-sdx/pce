@@ -353,7 +353,9 @@ class TEManager:
 
         print(f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}")
 
-        tagged_breakdown = self._reserve_vlan_breakdown(domain_breakdown)
+        tagged_breakdown = self._reserve_vlan_breakdown(
+            domain_breakdown=domain_breakdown, request_id=solution.request_id
+        )
         print(f"generate_connection_breakdown(): tagged_breakdown: {tagged_breakdown}")
 
         # Make tests pass, temporarily.
@@ -400,7 +402,9 @@ class TEManager:
     """
 
     def _reserve_vlan_breakdown(
-        self, domain_breakdown: dict
+        self,
+        domain_breakdown: dict,
+        request_id: str,
     ) -> Optional[VlanTaggedBreakdowns]:
         """
         Upate domain breakdown with VLAN reservation information.
@@ -449,8 +453,8 @@ class TEManager:
             if ingress_port is None or egress_port is None:
                 return None
 
-            ingress_vlan = self._reserve_vlan(domain, ingress_port)
-            egress_vlan = self._reserve_vlan(domain, egress_port)
+            ingress_vlan = self._reserve_vlan(domain, ingress_port, request_id)
+            egress_vlan = self._reserve_vlan(domain, egress_port, request_id)
 
             ingress_port_id = ingress_port.get("id")
             egress_port_id = egress_port.get("id")
@@ -524,7 +528,7 @@ class TEManager:
         # return domain_breakdown
         assert False, "Not implemented"
 
-    def _reserve_vlan(self, domain: str, port: dict, tag=None):
+    def _reserve_vlan(self, domain: str, port: dict, request_id: str, tag=None):
         # with self._topology_lock:
         #     pass
 
@@ -565,7 +569,7 @@ class TEManager:
 
         if available_tag is not None:
             # mark the tag as in-use.
-            vlan_table[available_tag] = False
+            vlan_table[available_tag] = request_id
 
         # available_tag = 200
         return available_tag
