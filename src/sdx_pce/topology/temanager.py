@@ -34,11 +34,8 @@ class TEManager:
         - VLAN reservation and unreservation.
     """
 
-    def __init__(self, topology_data, connection_data):
-        super().__init__()
-
+    def __init__(self, topology_data):
         self.topology_manager = TopologyManager()
-        self.connection_handler = ConnectionHandler()
 
         # A lock to safely perform topology operations.
         self._topology_lock = threading.Lock()
@@ -60,14 +57,6 @@ class TEManager:
             )
         else:
             self.graph = None
-
-        print(f"TEManager: connection_data: {connection_data}")
-
-        self.connection = self.connection_handler.import_connection_data(
-            connection_data
-        )
-
-        print(f"TEManager: self.connection: {self.connection}")
 
     def add_topology(self, topology_data: dict):
         """
@@ -169,15 +158,27 @@ class TEManager:
 
         return list(range(start, stop))
 
-    def generate_connection_te(self) -> TrafficMatrix:
+    def generate_traffic_matrix(self, connection_request: dict) -> TrafficMatrix:
         """
         Generate a Traffic Matrix from the connection request we have.
+
+        A connection request specifies an ingress port, an egress
+        port, and some other properties.  The ports may belong to
+        different domains.  We need to break that request down into a
+        set of requests, each of them specific to a domain.  We call
+        such a domain-wise set of requests a traffic matrix.
         """
-        ingress_port = self.connection.ingress_port
-        egress_port = self.connection.egress_port
+        print(f"generate_traffic_matrix: connection_request: {connection_request}")
+
+        request = ConnectionHandler().import_connection_data(connection_request)
+
+        print(f"generate_traffic_matrix: decoded request: {request}")
+
+        ingress_port = request.ingress_port
+        egress_port = request.egress_port
 
         print(
-            f"generate_connection_te(), ports: "
+            f"generate_traffic_matrix, ports: "
             f"ingress_port.id: {ingress_port.id}, "
             f"egress_port.id: {egress_port.id}"
         )
@@ -211,8 +212,8 @@ class TEManager:
             print(f"No egress node '{egress_node.id}' found in the graph")
             return None
 
-        required_bandwidth = self.connection.bandwidth or 0
-        required_latency = self.connection.latency or 0
+        required_bandwidth = request.bandwidth or 0
+        required_latency = request.latency or 0
 
         print(
             f"Setting required_latency: {required_latency}, "
@@ -264,19 +265,19 @@ class TEManager:
 
         return True
 
-    def generate_connection_breakdown(self, connection: ConnectionSolution) -> dict:
+    def generate_connection_breakdown(self, solution: ConnectionSolution) -> dict:
         """
         Take a connection solution and generate a breakdown.
 
         This is an alternative to generate_connection_breakdown()
         below which uses the newly defined types from sdx_pce.models.
         """
-        if connection is None or connection.connection_map is None:
-            print(f"Can't find a breakdown for {connection}")
+        if solution is None or solution.connection_map is None:
+            print(f"Can't find a breakdown for {solution}")
             return None
 
         breakdown = {}
-        paths = connection.connection_map  # p2p for now
+        paths = solution.connection_map  # p2p for now
 
         for domain, links in paths.items():
             print(f"domain: {domain}, links: {links}")
@@ -321,35 +322,32 @@ class TEManager:
         i = 0
         domain_breakdown = {}
 
+        # TODO: using dict to represent a breakdown is dubious, and
+        # may lead to incorrect results.  Dicts are lexically ordered,
+        # and that may break some assumptions about the order in which
+        # we form and traverse the breakdown.
+
         for domain, links in breakdown.items():
             print(f"Creating domain_breakdown: domain: {domain}, links: {links}")
-            segment = {}
+
             if first:
                 first = False
-                last_link = links[-1]
-                n1 = self.graph.nodes[last_link.source]["id"]
-                n2 = self.graph.nodes[last_link.destination]["id"]
-                n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
-                    n1, n2
-                )
-                i_port = self.connection.ingress_port.to_dict()
-                e_port = p1
-                next_i = p2
+                # ingress port for this domain is on the first link.
+                ingress_port, _ = self._get_ports_by_link(links[0])
+                # egress port for this domain is on the last link.
+                egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
             elif i == len(breakdown) - 1:
-                i_port = next_i
-                e_port = self.connection.egress_port.to_dict()
+                ingress_port = next_ingress_port
+                _, egress_port = self._get_ports_by_link(links[-1])
             else:
-                last_link = links[-1]
-                n1 = self.graph.nodes[last_link.source]["id"]
-                n2 = self.graph.nodes[last_link.destination]["id"]
-                n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
-                    n1, n2
-                )
-                i_port = next_i
-                e_port = p1
-                next_i = p2
-            segment["ingress_port"] = i_port
-            segment["egress_port"] = e_port
+                ingress_port = next_ingress_port
+                egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
+
+            segment = {}
+            segment["ingress_port"] = ingress_port
+            segment["egress_port"] = egress_port
+            print(f"segment for {domain}: {segment}")
+
             domain_breakdown[domain] = segment.copy()
             i = i + 1
 
@@ -367,6 +365,22 @@ class TEManager:
         # Return a dict containing VLAN-tagged breakdown in the
         # expected format.
         return tagged_breakdown.to_dict().get("breakdowns")
+
+    def _get_ports_by_link(self, link):
+        """
+        Given a link, find the ports associated with it.
+        """
+        node1 = self.graph.nodes[link.source]["id"]
+        node2 = self.graph.nodes[link.destination]["id"]
+
+        n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
+            node1, node2
+        )
+
+        assert n1 == node1
+        assert n2 == node2
+
+        return p1, p2
 
     """
     functions for vlan reservation.

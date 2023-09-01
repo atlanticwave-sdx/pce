@@ -20,14 +20,18 @@ details, the general usage is like this:
 from sdx_pce.load_balancing.te_solver import TESolver
 from sdx_pce.topology.temanager import TEManager
 
-temanager = TEManager(initial_topology, connection_request)
+temanager = TEManager(initial_topology)
 for topology in topologies:
     temanager.add_topology(topology)
     
 graph = temanager.generate_graph_te()
-traffic_matrix = temanager.generate_connection_te()
+traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
 solution = TESolver(graph, traffic_matrix).solve()
+
+breakdown = temanager.generate_connection_breakdown(solution)
+for domain, link in breakdown.items():
+    # publish(domain, link)
 ```
 
 Note that PCE requires two inputs: network topology and connection
