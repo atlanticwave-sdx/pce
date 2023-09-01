@@ -574,6 +574,16 @@ class TEManager:
         # available_tag = 200
         return available_tag
 
+    def unreserve_vlan(self, request_id: str):
+        """
+        Return previously reserved VLANs back to the pool.
+        """
+        for domain, port_table in self._vlan_tags_table.items():
+            for port, vlan_table in port_table.items():
+                for vlan, assignment in vlan_table.items():
+                    if assignment == request_id:
+                        vlan_table[vlan] = True
+
     # to be called by delete_connection()
     def _unreserve_vlan_breakdown(self, break_down):
         # TODO: implement this.
