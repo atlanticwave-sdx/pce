@@ -179,7 +179,7 @@ class TopologyManager:
 
     def update_timestamp(self):
         ct = datetime.datetime.now().isoformat()
-        self._topology.time_stamp = ct
+        self._topology.timestamp = ct
 
         return ct
 
@@ -298,7 +298,7 @@ class TopologyManager:
             sub_ver = "0"
 
         data["version"] = self.new_version(ver, sub_ver, True)
-        data["time_stamp"] = datetime.datetime.now().isoformat()
+        data["timestamp"] = datetime.datetime.now().isoformat()
 
     def update_node_property(self):
         pass
