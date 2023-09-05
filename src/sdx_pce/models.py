@@ -18,7 +18,6 @@ class ConnectionRequest:
     destination: int
     required_bandwidth: float
     required_latency: float
-    request_id: str = None
 
     # Make ConnectionRequest hashable since it is used as key in
     # ConnectionSolution

@@ -228,7 +228,6 @@ class TEManager:
             destination=egress_nodes[0],
             required_bandwidth=required_bandwidth,
             required_latency=required_latency,
-            request_id=request_id,
         )
 
         return TrafficMatrix(connection_requests=[request], request_id=request_id)

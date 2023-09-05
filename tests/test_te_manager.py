@@ -729,8 +729,7 @@ class TEManagerTests(unittest.TestCase):
                         destination=destination,
                         required_bandwidth=required_bandwidth,
                         required_latency=required_latency,
-                        request_id="test-request",
                     )
                 )
 
-        return TrafficMatrix(connection_requests=new_requests, request_id="test-matrix")
+        return TrafficMatrix(connection_requests=new_requests, request_id=self.id())
