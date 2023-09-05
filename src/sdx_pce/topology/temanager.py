@@ -574,7 +574,8 @@ class TEManager:
         vlan_table[available_tag] = request_id
 
         print(
-            f"reserve_vlan domain, after reservation: {domain} vlan_table: {vlan_table}"
+            f"reserve_vlan domain {domain}, after reservation: "
+            f"vlan_table: {vlan_table}, available_tag: {available_tag}"
         )
 
         return available_tag
