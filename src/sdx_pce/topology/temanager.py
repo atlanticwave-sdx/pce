@@ -561,7 +561,7 @@ class TEManager:
         if tag is None:
             # Find the first available VLAN tag from the table.
             for vlan_tag, vlan_available in vlan_table.items():
-                if vlan_available:
+                if vlan_available is True:
                     available_tag = vlan_tag
         else:
             if vlan_table[tag] is True:
@@ -569,9 +569,13 @@ class TEManager:
             else:
                 return None
 
-        if available_tag is not None:
+        if available_tag is not True:
             # mark the tag as in-use.
             vlan_table[available_tag] = request_id
+
+        print(
+            f"reserve_vlan domain, after reservation: {domain} vlan_table: {vlan_table}"
+        )
 
         # available_tag = 200
         return available_tag
