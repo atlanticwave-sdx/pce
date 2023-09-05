@@ -22,7 +22,7 @@ class RandomConnectionGenerator:
                  format (source, destination, bandwidth, latency).
         """
         np.random.seed(seed)
-        traffic_matrix = TrafficMatrix(connection_requests=[])
+        connection_requests = []
 
         bw = self.lognormal((l_bw + u_bw) / 2.0, 1, querynum)
         if querynum <= self.num_nodes:
@@ -41,7 +41,7 @@ class RandomConnectionGenerator:
                     required_latency=required_latency,
                 )
 
-                traffic_matrix.connection_requests.append(request)
+                connection_requests.append(request)
         else:
             for i in range(querynum):
                 source = np.random.randint(0, self.num_nodes)
@@ -59,9 +59,13 @@ class RandomConnectionGenerator:
                     required_latency=required_latency,
                 )
 
-                traffic_matrix.connection_requests.append(request)
+                connection_requests.append(request)
 
-        return traffic_matrix
+        request_id = f"request-{np.random.randint(1, 100)}"
+
+        return TrafficMatrix(
+            connection_requests=connection_requests, request_id=request_id
+        )
 
     def lognormal(self, mu, sigma, size):
         normal_std = 0.5
