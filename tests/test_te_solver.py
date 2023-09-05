@@ -111,7 +111,9 @@ class TESolverTests(unittest.TestCase):
             ),
         )
 
-        tm = TrafficMatrix.from_dict(json.loads(traffic_matrix_file.read_text()))
+        tm_dict = json.loads(traffic_matrix_file.read_text())
+        tm_dict["request_id"] = self.id()
+        tm = TrafficMatrix.from_dict(tm_dict)
 
         solution = TESolver(graph, tm, Constants.COST_FLAG_HOP).solve()
         print(f"Solution: {solution}")
@@ -137,7 +139,9 @@ class TESolverTests(unittest.TestCase):
         self.assertNotEqual(graph, None, "Could not read dot file")
 
         connection_file = TestData.TEST_DATA_DIR / "test_connection.json"
-        tm = TrafficMatrix.from_dict(json.loads(connection_file.read_text()))
+        tm_dict = json.loads(connection_file.read_text())
+        tm_dict["request_id"] = self.id()
+        tm = TrafficMatrix.from_dict(tm_dict)
 
         self.assertNotEqual(tm, None, "Could not read connection file")
 
