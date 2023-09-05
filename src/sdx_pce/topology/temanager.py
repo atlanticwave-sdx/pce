@@ -229,7 +229,7 @@ class TEManager:
             request_id=request_id,
         )
 
-        return TrafficMatrix(connection_requests=[request])
+        return TrafficMatrix(connection_requests=[request], request_id=request_id)
 
     def generate_graph_te(self) -> nx.Graph:
         """

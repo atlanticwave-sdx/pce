@@ -36,7 +36,7 @@ class TrafficMatrix:
     """
 
     connection_requests: List[ConnectionRequest]
-    request_id: str = None
+    request_id: str
 
 
 @dataclass_json

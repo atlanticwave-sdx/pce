@@ -729,4 +729,4 @@ class TEManagerTests(unittest.TestCase):
                     )
                 )
 
-        return TrafficMatrix(connection_requests=new_requests)
+        return TrafficMatrix(connection_requests=new_requests, request_id="test-matrix")
