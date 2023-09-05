@@ -19,6 +19,8 @@ from sdx_pce.models import (
 from sdx_pce.topology.manager import TopologyManager
 from sdx_pce.utils.exceptions import ValidationError
 
+UNUSED_VLAN = None
+
 
 class TEManager:
 
@@ -128,8 +130,8 @@ class TEManager:
                 # is a work-around.
                 all_labels = self._expand_label_range(label_range)
 
-                # Make a map lik: `{tag1: True, tag2: True, tag3: True...}`
-                labels_available = {label: True for label in all_labels}
+                # Make a map like: `{label1: UNUSED_VLAN, label2: UNUSED_VLAN,...}`
+                labels_available = {label: UNUSED_VLAN for label in all_labels}
 
                 self._vlan_tags_table[domain_name][port_id] = labels_available
 
@@ -544,7 +546,7 @@ class TEManager:
         domain_table = self._vlan_tags_table.get(domain)
 
         if domain_table is None:
-            print(f"reserve_vlan domain: {domain} entry: {domain_table}")
+            print(f"reserve_vlan: Can't find domain: {domain} entry: {domain_table}")
             return None
 
         vlan_table = domain_table.get(port_id)
@@ -560,24 +562,22 @@ class TEManager:
 
         if tag is None:
             # Find the first available VLAN tag from the table.
-            for vlan_tag, vlan_available in vlan_table.items():
-                if vlan_available is True:
+            for vlan_tag, vlan_usage in vlan_table.items():
+                if vlan_usage is UNUSED_VLAN:
                     available_tag = vlan_tag
         else:
-            if vlan_table[tag] is True:
+            if vlan_table[tag] is UNUSED_VLAN:
                 available_tag = tag
             else:
                 return None
 
-        if available_tag is not True:
-            # mark the tag as in-use.
-            vlan_table[available_tag] = request_id
+        # mark the tag as in-use.
+        vlan_table[available_tag] = request_id
 
         print(
             f"reserve_vlan domain, after reservation: {domain} vlan_table: {vlan_table}"
         )
 
-        # available_tag = 200
         return available_tag
 
     def unreserve_vlan(self, request_id: str):
@@ -588,7 +588,7 @@ class TEManager:
             for port, vlan_table in port_table.items():
                 for vlan, assignment in vlan_table.items():
                     if assignment == request_id:
-                        vlan_table[vlan] = True
+                        vlan_table[vlan] = UNUSED_VLAN
 
     # to be called by delete_connection()
     def _unreserve_vlan_breakdown(self, break_down):
