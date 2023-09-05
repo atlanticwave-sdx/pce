@@ -519,7 +519,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(solution2, ConnectionSolution)
         self.assertIsNotNone(solution2.connection_map)
 
-        breakdown2 = temanager.generate_connection_breakdown(solution1)
+        breakdown2 = temanager.generate_connection_breakdown(solution2)
         print(f"Breakdown #2: {json.dumps(breakdown2)}")
 
         self.assertNotEqual(connection_request1, connection_request2)
