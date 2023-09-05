@@ -441,6 +441,7 @@ class TEManagerTests(unittest.TestCase):
         num_requests = 10
 
         for i in range(0, num_requests):
+            # Give each connection request a unique ID.
             connection_request["id"] = f"{self.id()}-#{i}"
             print(f"connection_request: {connection_request}")
 
