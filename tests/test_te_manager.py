@@ -1,6 +1,7 @@
 import json
 import pprint
 import unittest
+import uuid
 
 import networkx as nx
 
@@ -436,18 +437,21 @@ class TEManagerTests(unittest.TestCase):
         graph = temanager.generate_graph_te()
 
         connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
-        print(f"connection_request: {connection_request}")
-        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
-
-        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
-
-        self.assertIsNotNone(graph)
-        self.assertIsNotNone(traffic_matrix)
 
         breakdowns = set()
         num_requests = 10
 
         for _ in range(0, num_requests):
+            connection_request["id"] = str(uuid.uuid4())
+            print(f"connection_request: {connection_request}")
+
+            traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+
+            print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+            self.assertIsNotNone(graph)
+            self.assertIsNotNone(traffic_matrix)
+
             conn = temanager.requests_connectivity(traffic_matrix)
             print(f"Graph connectivity: {conn}")
 
