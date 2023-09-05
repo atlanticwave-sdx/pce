@@ -1,7 +1,6 @@
 import json
 import pprint
 import unittest
-import uuid
 
 import networkx as nx
 
@@ -441,8 +440,8 @@ class TEManagerTests(unittest.TestCase):
         breakdowns = set()
         num_requests = 10
 
-        for _ in range(0, num_requests):
-            connection_request["id"] = str(uuid.uuid4())
+        for i in range(0, num_requests):
+            connection_request["id"] = f"{self.id()}-#{i}"
             print(f"connection_request: {connection_request}")
 
             traffic_matrix = temanager.generate_traffic_matrix(connection_request)
