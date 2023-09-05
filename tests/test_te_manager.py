@@ -576,6 +576,13 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertEqual(breakdown1, breakdown2)
 
+        # If we generate another breakdown without un-reserving any
+        # VLANs, the result should be distinct from the previous ones.
+        breakdown3 = temanager.generate_connection_breakdown(solution)
+        print(f"breakdown3: {json.dumps(breakdown3)}")
+        self.assertNotEqual(breakdown1, breakdown3)
+        self.assertNotEqual(breakdown2, breakdown3)        
+
     def test_connection_amlight_to_zaoxi_with_merged_topology(self):
         """
         Solve with the "merged" topology of amlight, sax, and zaoxi.
