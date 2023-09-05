@@ -214,6 +214,7 @@ class TEManager:
 
         required_bandwidth = request.bandwidth or 0
         required_latency = request.latency or 0
+        request_id = request.id
 
         print(
             f"Setting required_latency: {required_latency}, "
@@ -225,6 +226,7 @@ class TEManager:
             destination=egress_nodes[0],
             required_bandwidth=required_bandwidth,
             required_latency=required_latency,
+            request_id=request_id,
         )
 
         return TrafficMatrix(connection_requests=[request])
