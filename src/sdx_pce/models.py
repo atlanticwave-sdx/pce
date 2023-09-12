@@ -35,6 +35,7 @@ class TrafficMatrix:
     """
 
     connection_requests: List[ConnectionRequest]
+    request_id: str
 
 
 @dataclass_json
@@ -59,6 +60,7 @@ class ConnectionSolution:
 
     connection_map: Mapping[ConnectionRequest, List[ConnectionPath]]
     cost: float
+    request_id: str
 
 
 # The classess below should help us construct a breakdown of the below

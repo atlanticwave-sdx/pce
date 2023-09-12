@@ -71,7 +71,9 @@ class TESolver:
         data = self._create_data_model()
         if data is None:
             print("Could not create a data model")
-            return ConnectionSolution(connection_map=None, cost=0)
+            return ConnectionSolution(
+                connection_map=None, cost=0, request_id=self.tm.request_id
+            )
 
         # Create the mip solver with the SCIP backend.
         solver = pywraplp.Solver.CreateSolver("SCIP")
@@ -140,7 +142,9 @@ class TESolver:
         real_paths = []
         if paths is None:
             print("No solution: empty input")
-            return ConnectionSolution(connection_map=None, cost=cost)
+            return ConnectionSolution(
+                connection_map=None, cost=cost, request_id=self.tm.request_id
+            )
         for path in paths:
             real_path = []
             i = 0
@@ -153,7 +157,9 @@ class TESolver:
         # associate with the TM requests
         id_connection = 0
 
-        result = ConnectionSolution(connection_map={}, cost=cost)
+        result = ConnectionSolution(
+            connection_map={}, cost=cost, request_id=self.tm.request_id
+        )
 
         for request in self.tm.connection_requests:
             src = request.source

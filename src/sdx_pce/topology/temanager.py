@@ -19,6 +19,8 @@ from sdx_pce.models import (
 from sdx_pce.topology.manager import TopologyManager
 from sdx_pce.utils.exceptions import ValidationError
 
+UNUSED_VLAN = None
+
 
 class TEManager:
 
@@ -128,8 +130,8 @@ class TEManager:
                 # is a work-around.
                 all_labels = self._expand_label_range(label_range)
 
-                # Make a map lik: `{tag1: True, tag2: True, tag3: True...}`
-                labels_available = {label: True for label in all_labels}
+                # Make a map like: `{label1: UNUSED_VLAN, label2: UNUSED_VLAN,...}`
+                labels_available = {label: UNUSED_VLAN for label in all_labels}
 
                 self._vlan_tags_table[domain_name][port_id] = labels_available
 
@@ -214,6 +216,7 @@ class TEManager:
 
         required_bandwidth = request.bandwidth or 0
         required_latency = request.latency or 0
+        request_id = request.id
 
         print(
             f"Setting required_latency: {required_latency}, "
@@ -227,7 +230,7 @@ class TEManager:
             required_latency=required_latency,
         )
 
-        return TrafficMatrix(connection_requests=[request])
+        return TrafficMatrix(connection_requests=[request], request_id=request_id)
 
     def generate_graph_te(self) -> nx.Graph:
         """
@@ -353,7 +356,9 @@ class TEManager:
 
         print(f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}")
 
-        tagged_breakdown = self._reserve_vlan_breakdown(domain_breakdown)
+        tagged_breakdown = self._reserve_vlan_breakdown(
+            domain_breakdown=domain_breakdown, request_id=solution.request_id
+        )
         print(f"generate_connection_breakdown(): tagged_breakdown: {tagged_breakdown}")
 
         # Make tests pass, temporarily.
@@ -400,7 +405,9 @@ class TEManager:
     """
 
     def _reserve_vlan_breakdown(
-        self, domain_breakdown: dict
+        self,
+        domain_breakdown: dict,
+        request_id: str,
     ) -> Optional[VlanTaggedBreakdowns]:
         """
         Upate domain breakdown with VLAN reservation information.
@@ -449,8 +456,8 @@ class TEManager:
             if ingress_port is None or egress_port is None:
                 return None
 
-            ingress_vlan = self._reserve_vlan(domain, ingress_port)
-            egress_vlan = self._reserve_vlan(domain, egress_port)
+            ingress_vlan = self._reserve_vlan(domain, ingress_port, request_id)
+            egress_vlan = self._reserve_vlan(domain, egress_port, request_id)
 
             ingress_port_id = ingress_port.get("id")
             egress_port_id = egress_port.get("id")
@@ -524,7 +531,7 @@ class TEManager:
         # return domain_breakdown
         assert False, "Not implemented"
 
-    def _reserve_vlan(self, domain: str, port: dict, tag=None):
+    def _reserve_vlan(self, domain: str, port: dict, request_id: str, tag=None):
         # with self._topology_lock:
         #     pass
 
@@ -538,7 +545,7 @@ class TEManager:
         domain_table = self._vlan_tags_table.get(domain)
 
         if domain_table is None:
-            print(f"reserve_vlan domain: {domain} entry: {domain_table}")
+            print(f"reserve_vlan: Can't find domain: {domain} entry: {domain_table}")
             return None
 
         vlan_table = domain_table.get(port_id)
@@ -554,21 +561,34 @@ class TEManager:
 
         if tag is None:
             # Find the first available VLAN tag from the table.
-            for vlan_tag, vlan_available in vlan_table.items():
-                if vlan_available:
+            for vlan_tag, vlan_usage in vlan_table.items():
+                if vlan_usage is UNUSED_VLAN:
                     available_tag = vlan_tag
         else:
-            if vlan_table[tag] is True:
+            if vlan_table[tag] is UNUSED_VLAN:
                 available_tag = tag
             else:
                 return None
 
-        if available_tag is not None:
-            # mark the tag as in-use.
-            vlan_table[available_tag] = False
+        # mark the tag as in-use.
+        vlan_table[available_tag] = request_id
 
-        # available_tag = 200
+        print(
+            f"reserve_vlan domain {domain}, after reservation: "
+            f"vlan_table: {vlan_table}, available_tag: {available_tag}"
+        )
+
         return available_tag
+
+    def unreserve_vlan(self, request_id: str):
+        """
+        Return previously reserved VLANs back to the pool.
+        """
+        for domain, port_table in self._vlan_tags_table.items():
+            for port, vlan_table in port_table.items():
+                for vlan, assignment in vlan_table.items():
+                    if assignment == request_id:
+                        vlan_table[vlan] = UNUSED_VLAN
 
     # to be called by delete_connection()
     def _unreserve_vlan_breakdown(self, break_down):

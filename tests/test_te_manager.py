@@ -436,18 +436,22 @@ class TEManagerTests(unittest.TestCase):
         graph = temanager.generate_graph_te()
 
         connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
-        print(f"connection_request: {connection_request}")
-        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
-
-        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
-
-        self.assertIsNotNone(graph)
-        self.assertIsNotNone(traffic_matrix)
 
         breakdowns = set()
         num_requests = 10
 
-        for _ in range(0, num_requests):
+        for i in range(0, num_requests):
+            # Give each connection request a unique ID.
+            connection_request["id"] = f"{self.id()}-#{i}"
+            print(f"connection_request: {connection_request}")
+
+            traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+
+            print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+            self.assertIsNotNone(graph)
+            self.assertIsNotNone(traffic_matrix)
+
             conn = temanager.requests_connectivity(traffic_matrix)
             print(f"Graph connectivity: {conn}")
 
@@ -519,13 +523,65 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(solution2, ConnectionSolution)
         self.assertIsNotNone(solution2.connection_map)
 
-        breakdown2 = temanager.generate_connection_breakdown(solution1)
+        breakdown2 = temanager.generate_connection_breakdown(solution2)
         print(f"Breakdown #2: {json.dumps(breakdown2)}")
 
         self.assertNotEqual(connection_request1, connection_request2)
         self.assertNotEqual(traffic_matrix1, traffic_matrix2)
         self.assertNotEqual(solution1, solution2)
         self.assertNotEqual(breakdown1, breakdown2)
+
+    def test_connection_amlight_to_zaoxi_unreserve(self):
+        """
+        Exercise a connection request between Amlight and Zaoxi.
+        """
+        temanager = TEManager(topology_data=None)
+
+        for path in (
+            TestData.TOPOLOGY_FILE_AMLIGHT,
+            TestData.TOPOLOGY_FILE_SAX,
+            TestData.TOPOLOGY_FILE_ZAOXI,
+        ):
+            topology = json.loads(path.read_text())
+            temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        print(f"connection_request: {connection_request}")
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        conn = temanager.requests_connectivity(traffic_matrix)
+        print(f"Graph connectivity: {conn}")
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        self.assertIsNotNone(solution.connection_map)
+
+        breakdown1 = temanager.generate_connection_breakdown(solution)
+        print(f"breakdown1: {json.dumps(breakdown1)}")
+
+        # Return all used VLANs.
+        temanager.unreserve_vlan(request_id=connection_request.get("id"))
+
+        # Can we get the same breakdown for the same request now?
+        breakdown2 = temanager.generate_connection_breakdown(solution)
+        print(f"breakdown2: {json.dumps(breakdown2)}")
+
+        self.assertEqual(breakdown1, breakdown2)
+
+        # If we generate another breakdown without un-reserving any
+        # VLANs, the result should be distinct from the previous ones.
+        breakdown3 = temanager.generate_connection_breakdown(solution)
+        print(f"breakdown3: {json.dumps(breakdown3)}")
+        self.assertNotEqual(breakdown1, breakdown3)
+        self.assertNotEqual(breakdown2, breakdown3)
 
     def test_connection_amlight_to_zaoxi_with_merged_topology(self):
         """
@@ -683,4 +739,4 @@ class TEManagerTests(unittest.TestCase):
                     )
                 )
 
-        return TrafficMatrix(connection_requests=new_requests)
+        return TrafficMatrix(connection_requests=new_requests, request_id=self.id())
