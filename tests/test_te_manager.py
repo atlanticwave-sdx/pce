@@ -307,6 +307,9 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
+        links = self.temanager.get_links_on_path(solution)
+        print(f"Links on path: {links}")
+
         breakdown = temanager.generate_connection_breakdown(solution)
         print(f"breakdown: {json.dumps(breakdown)}")
 
