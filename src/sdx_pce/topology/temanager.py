@@ -268,6 +268,32 @@ class TEManager:
 
         return True
 
+    def get_links_on_path(self, solution: ConnectionSolution) -> list:
+        """
+        Return all the links on a connection solution.
+        """
+        if solution is None or solution.connection_map is None:
+            print(f"Can't find paths for {solution}")
+            return None
+
+        result = []
+
+        for domain, links in solution.connection_map.items():
+            for link in links:
+                print(f"domain: {domain}, link: {link}")
+
+                assert isinstance(link, ConnectionPath)
+
+                src_node = self.graph.nodes.get(link.source)
+                # assert src_node is not None
+
+                dst_node = self.graph.nodes.get(link.destination)
+                # assert dst_node is not None
+
+                print(f"source node: {src_node}, destination node: {dst_node}")
+
+        return result
+
     def generate_connection_breakdown(self, solution: ConnectionSolution) -> dict:
         """
         Take a connection solution and generate a breakdown.
