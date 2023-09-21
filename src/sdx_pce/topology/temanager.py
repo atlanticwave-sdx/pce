@@ -268,7 +268,7 @@ class TEManager:
 
         return True
 
-    def get_links_on_path(self, solution: ConnectionSolution) -> list:
+    def get_links_on_path(self, graph, solution: ConnectionSolution) -> list:
         """
         Return all the links on a connection solution.
         """
@@ -277,20 +277,42 @@ class TEManager:
             return None
 
         result = []
+        link_ids = []
+
+        print(f"get_links_on_path graph.nodes: {graph.nodes}")
+        print(f"get_links_on_path self.graph.nodes: {self.graph.nodes}")
+
+        # TODO: why are these different?
+        # assert graph.nodes == self.graph.nodes
 
         for domain, links in solution.connection_map.items():
+            print(f"domain: {domain}, links: {links}")
             for link in links:
                 print(f"domain: {domain}, link: {link}")
 
                 assert isinstance(link, ConnectionPath)
 
-                src_node = self.graph.nodes.get(link.source)
-                # assert src_node is not None
+                src_node = graph.nodes.get(link.source)
+                assert src_node is not None
 
-                dst_node = self.graph.nodes.get(link.destination)
-                # assert dst_node is not None
+                dst_node = graph.nodes.get(link.destination)
+                assert dst_node is not None
 
-                print(f"source node: {src_node}, destination node: {dst_node}")
+                print(
+                    f"get_links_on_path: src_node: {src_node} (#{link.source}), "
+                    f"dst_node: {dst_node} (#{link.destination})"
+                )
+
+                ln = self._get_ports_by_link(graph, link)
+                print(f"get_links_on_path: ln: {ln}")
+
+                if ln:
+                    link_ids.append(ln.get("id"))
+
+                result.append(link)
+
+        print(f"get_links_on_path: {result}")
+        printf(f"get_links_on_path:ln: {link_ids}")
 
         return result
 
@@ -306,7 +328,10 @@ class TEManager:
             return None
 
         breakdown = {}
+        all_links = []
         paths = solution.connection_map  # p2p for now
+
+        print(f"generate_connection_breakdown graph.nodes: {self.graph.nodes}")
 
         for domain, links in paths.items():
             print(f"domain: {domain}, links: {links}")
@@ -317,6 +342,7 @@ class TEManager:
                 print(f"count: {count}, link: {link}")
 
                 assert isinstance(link, ConnectionPath)
+                all_links.append(link)
 
                 src_node = self.graph.nodes.get(link.source)
                 assert src_node is not None
@@ -345,6 +371,7 @@ class TEManager:
                     current_link_set = []
 
         print(f"[intermediate] breakdown: {breakdown}")
+        print(f"generate_connection_breakdown all_links: {all_links}")
 
         # now starting with the ingress_port
         first = True
@@ -362,15 +389,19 @@ class TEManager:
             if first:
                 first = False
                 # ingress port for this domain is on the first link.
-                ingress_port, _ = self._get_ports_by_link(links[0])
+                ingress_port, _ = self._get_ports_by_link(self.graph, links[0])
                 # egress port for this domain is on the last link.
-                egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
+                egress_port, next_ingress_port = self._get_ports_by_link(
+                    self.graph, links[-1]
+                )
             elif i == len(breakdown) - 1:
                 ingress_port = next_ingress_port
-                _, egress_port = self._get_ports_by_link(links[-1])
+                _, egress_port = self._get_ports_by_link(self.graph, links[-1])
             else:
                 ingress_port = next_ingress_port
-                egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
+                egress_port, next_ingress_port = self._get_ports_by_link(
+                    self.graph, links[-1]
+                )
 
             segment = {}
             segment["ingress_port"] = ingress_port
@@ -397,16 +428,23 @@ class TEManager:
         # expected format.
         return tagged_breakdown.to_dict().get("breakdowns")
 
-    def _get_ports_by_link(self, link):
+    def _get_ports_by_link(self, graph, link: ConnectionPath):
         """
         Given a link, find the ports associated with it.
         """
-        node1 = self.graph.nodes[link.source]["id"]
-        node2 = self.graph.nodes[link.destination]["id"]
+        assert isinstance(link, ConnectionPath)
 
-        n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
-            node1, node2
-        )
+        node1 = graph.nodes[link.source]["id"]
+        node2 = graph.nodes[link.destination]["id"]
+
+        print(f"_get_ports_by_link: node1: {node1}, node2: {node2}")
+
+        ports = self.topology_manager.get_topology().get_port_by_link(node1, node2)
+
+        if ports is None:
+            return None
+
+        n1, p1, n2, p2 = ports
 
         assert n1 == node1
         assert n2 == node2
