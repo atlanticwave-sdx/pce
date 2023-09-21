@@ -307,12 +307,14 @@ class TEManager:
                 print(f"get_links_on_path: ln: {ln}")
 
                 if ln:
-                    link_ids.append(ln.get("id"))
+                    p1, p2 = ln
+                    print(f"get_links_on_path: p1: {p1}, p2: {p2}")
+                    link_ids.append({"uni_a": p1.get("id"), "uni_z": p2.get("id")})
 
                 result.append(link)
 
         print(f"get_links_on_path: {result}")
-        printf(f"get_links_on_path:ln: {link_ids}")
+        print(f"get_links_on_path:ln: {link_ids}")
 
         return result
 
