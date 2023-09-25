@@ -33,6 +33,7 @@ class Edge:
         self.is_shortcut = False
         self.unity = unity
         self.capacity = capacity
+        self.avail_capacity=capacity
         self.distance = None
         self.tunnels = []
         self.shortcuts = []
@@ -264,6 +265,7 @@ class Network:
         assert shortcut_obj 
         return shortcut_obj
     
+    #return a DiGraph with updated bandwidth.
     def update_graph_edge_flow(self):
         import networkx
         graph = networkx.DiGraph()
@@ -276,7 +278,8 @@ class Network:
             allocation = 0
             for tunnel in edge.tunnels:
                 allocation += tunnel.v_flow.SolutionValue()
-            graph.add_edge(s, t, original_bandwidth=edge.capacity, bandwidth=max(0,edge.capacity-allocation), distance=400)
+            edge.avail_capacity = max(0,edge.avail_capacity-allocation)
+            graph.add_edge(s, t, original_bandwidth=edge.capacity, bandwidth=edge.avail_capacity, distance=400)
         return graph       
 
     def to_nx(self):
