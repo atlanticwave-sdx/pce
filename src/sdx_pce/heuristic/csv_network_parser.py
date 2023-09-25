@@ -1,7 +1,7 @@
 import random
 import csv
 
-from network_topology import *
+from sdx_pce.heuristic.network_topology import *
 
 def parse_topology(network_name):
     network = Network(network_name)

@@ -9,14 +9,15 @@ from sdx_pce.models import ConnectionSolution
 from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx_pce.utils.random_topology_generator import RandomTopologyGenerator
+from sdx_pce.utils.functions import bw_stat
 
 
 def dot_file(g_file, tm_file):
     pass
 
-
+"""
 def bw_stat(g):
-    """generating link statistics after TE results"""
+    #generating link statistics after TE results
     total_weight = 0.0
     total_util = 0.0
     max_util = 0.0
@@ -46,7 +47,7 @@ def bw_stat(g):
         f"total_weight={total_weight};total_util={total_util};" f"max_util={max_util}"
     )
     return util_dict
-
+"""
 if __name__ == "__main__":
     parse = argparse.ArgumentParser()
 
@@ -167,3 +168,4 @@ if __name__ == "__main__":
         solver.solve(partition_tm)
 
     util_dict = bw_stat(graph)
+    print(f"link utility:\n{util_dict}")

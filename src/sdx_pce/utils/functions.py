@@ -8,10 +8,44 @@ Created on Wed Aug 11 16:40:56 2021
 import copy
 import random
 
+import networkx as nx
+import numpy as np
+
 from networkx.algorithms import approximation as approx
 
 from sdx_pce.utils.constants import Constants
 
+def bw_stat(g):
+    """generating link statistics after TE results"""
+    total_weight = 0.0
+    total_util = 0.0
+    max_util = 0.0
+    util_list = []
+    util_dict={}
+    for u, v, w in g.edges(data=True):
+        avail_bw = w[Constants.BANDWIDTH]
+        bw = w[Constants.ORIGINAL_BANDWIDTH]
+        weight = Constants.ALPHA * (1.0 / (avail_bw + 0.1))
+        total_weight = total_weight + weight
+        util = 1.0 - avail_bw / bw
+        total_util = total_util + util
+        if util > max_util:
+            max_util = util
+        util_list.append(util)
+        util_dict[(u,v)] = util
+    util_array = np.array(util_list)
+    mean_util = np.mean(util_array)
+    std_util = np.std(util_array)
+    ninetypercetile_util = np.percentile(util_array, 90)
+    # print(util_array)
+    print(
+        f"mean_util={mean_util};std_util={std_util};"
+        f"ninetypercetile_util={ninetypercetile_util}"
+    )
+    print(
+        f"total_weight={total_weight};total_util={total_util};" f"max_util={max_util}"
+    )
+    return util_dict
 
 class GraphFunction:
     def __init__(self, g=None) -> None:

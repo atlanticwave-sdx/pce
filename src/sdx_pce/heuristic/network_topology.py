@@ -1,7 +1,7 @@
 from itertools import islice
 import pdb
 
-from helper import *
+from sdx_pce.heuristic.helper import *
 
 class Node:
     def __init__(self, mkt):
@@ -264,6 +264,21 @@ class Network:
         assert shortcut_obj 
         return shortcut_obj
     
+    def update_graph_edge_flow(self):
+        import networkx
+        graph = networkx.DiGraph()
+        for n in self.nodes.keys():
+            graph.add_node(n)
+        # update with bandwidth, available bandwidth
+        for edge in self.edges.values():
+            s=edge.e[0]
+            t=edge.e[1]
+            allocation = 0
+            for tunnel in edge.tunnels:
+                allocation += tunnel.v_flow.SolutionValue()
+            graph.add_edge(s, t, original_bandwidth=edge.capacity, bandwidth=max(0,edge.capacity-allocation), distance=400)
+        return graph       
+
     def to_nx(self):
         import networkx
         graph = networkx.DiGraph()

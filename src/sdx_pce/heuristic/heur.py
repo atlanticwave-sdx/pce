@@ -16,6 +16,8 @@ from sdx_pce.utils.random_topology_generator import RandomTopologyGenerator
 from sdx_pce.heuristic.csv_network_parser import *
 from sdx_pce.heuristic.path_te_solver import *
 
+from sdx_pce.utils.functions import bw_stat
+
 
 l_lat=80
 u_lat=100
@@ -369,11 +371,14 @@ if __name__ == "__main__":
             fcc_solver.Maximize_FCC()
             ordered_paths, result = fcc_solver.solve()
             edge_flow=fcc_solver.get_edge_flow_allocations()
-            print(edge_flow)
+            print(f"Edge flow:\n{edge_flow}")
             demands_met=fcc_solver.get_demands_met()
             print(f"Met Demands:{demands_met}")
             demands_unmet=fcc_solver.get_demands_unmet()
             print(f"Unmet Demands:{demands_unmet}")
+
+        #network.update_bw(edge_flow)
+        graph = network.update_graph_edge_flow()
     else:
         if args.group > args.m:
             print("Group cannot be greater the number of connections!")
@@ -390,3 +395,5 @@ if __name__ == "__main__":
 
     #print(f"path: {ordered_paths}")
     print(f"Optimal: {result}")
+    util_dict = bw_stat(graph)
+    print(f"link utility:\n{util_dict}")

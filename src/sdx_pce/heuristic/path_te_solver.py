@@ -9,9 +9,9 @@ import networkx as nx
 import numpy as np
 from ortools.linear_solver import pywraplp
 
-from network_topology import *
-from csv_network_parser import *
-from MIPSolver import GORSolver
+from sdx_pce.heuristic.network_topology import *
+from sdx_pce.heuristic.csv_network_parser import *
+from sdx_pce.heuristic.MIPSolver import GORSolver
 
 from sdx_pce.load_balancing.te_solver import TESolver, DataModel
 
