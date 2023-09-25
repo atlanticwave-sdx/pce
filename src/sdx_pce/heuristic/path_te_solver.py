@@ -123,6 +123,15 @@ class PathTESolver:
         return ordered_paths
 
     def criticality(self):
+        """
+        input:
+        demand: traffic matrix
+        solution: Solver solution
+        function: 
+            link criticality=
+            network reliability r = sum s*f
+        output: dict{link:criticality}, r
+        """
         pass
 
     def get_edge_flow_allocations(self):

@@ -13,6 +13,10 @@ from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx_pce.utils.random_topology_generator import RandomTopologyGenerator
 
+from sdx_pce.heuristic.csv_network_parser import *
+from sdx_pce.heuristic.path_te_solver import *
+
+
 l_lat=80
 u_lat=100
 def random_graph(n, p, m):

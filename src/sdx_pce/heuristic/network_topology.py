@@ -1,7 +1,7 @@
 from itertools import islice
 import pdb
 
-from .helper import *
+from helper import *
 
 class Node:
     def __init__(self, mkt):

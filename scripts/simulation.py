@@ -21,6 +21,7 @@ def bw_stat(g):
     total_util = 0.0
     max_util = 0.0
     util_list = []
+    util_dict={}
     for u, v, w in g.edges(data=True):
         avail_bw = w[Constants.BANDWIDTH]
         bw = w[Constants.ORIGINAL_BANDWIDTH]
@@ -31,6 +32,7 @@ def bw_stat(g):
         if util > max_util:
             max_util = util
         util_list.append(util)
+        util_dict[(u,v)] = util
     util_array = np.array(util_list)
     mean_util = np.mean(util_array)
     std_util = np.std(util_array)
@@ -43,7 +45,7 @@ def bw_stat(g):
     print(
         f"total_weight={total_weight};total_util={total_util};" f"max_util={max_util}"
     )
-
+    return util_dict
 
 if __name__ == "__main__":
     parse = argparse.ArgumentParser()
@@ -164,4 +166,4 @@ if __name__ == "__main__":
         partition_tm = solver.connection_split(args.alg, args.k)
         solver.solve(partition_tm)
 
-    bw_stat(graph)
+    util_dict = bw_stat(graph)
