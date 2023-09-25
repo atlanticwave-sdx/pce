@@ -279,8 +279,10 @@ class TEManager:
         result = []
         link_ids = []
 
-        print(f"get_links_on_path graph.nodes: {graph.nodes}")
-        print(f"get_links_on_path self.graph.nodes: {self.graph.nodes}")
+        print(f"get_links_on_path graph.nodes: {graph.nodes} (ID: {id(graph)})")
+        print(
+            f"get_links_on_path self.graph.nodes: {self.graph.nodes} (ID: {id(self.graph)})"
+        )
 
         # TODO: why are these different?
         # assert graph.nodes == self.graph.nodes
