@@ -275,6 +275,7 @@ class TEManager:
         The result will be a list of dicts, like so:
 
         .. code-block::
+
            [{'source': 'urn:ogf:network:sdx:port:zaoxi:A1:1',
               'destination': 'urn:ogf:network:sdx:port:zaoxi:B1:3'},
             {'source': 'urn:ogf:network:sdx:port:zaoxi:B1:1',
