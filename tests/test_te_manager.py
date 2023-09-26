@@ -307,6 +307,14 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
+        links = temanager.get_links_on_path(solution)
+        print(f"Links on path: {links}")
+
+        # Make a flat list of links in connection solution dict, and
+        # check that we have the same number of links.
+        values = sum([v for v in solution.connection_map.values()], [])
+        self.assertEqual(len(links), len(values))
+
         breakdown = temanager.generate_connection_breakdown(solution)
         print(f"breakdown: {json.dumps(breakdown)}")
 

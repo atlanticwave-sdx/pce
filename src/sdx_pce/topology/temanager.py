@@ -268,6 +268,56 @@ class TEManager:
 
         return True
 
+    def get_links_on_path(self, solution: ConnectionSolution) -> list:
+        """
+        Return all the links on a connection solution.
+
+        The result will be a list of dicts, like so:
+
+        .. code-block::
+
+           [{'source': 'urn:ogf:network:sdx:port:zaoxi:A1:1',
+              'destination': 'urn:ogf:network:sdx:port:zaoxi:B1:3'},
+            {'source': 'urn:ogf:network:sdx:port:zaoxi:B1:1',
+             'destination': 'urn:ogf:network:sdx:port:sax:B3:1'},
+            {'source': 'urn:ogf:network:sdx:port:sax:B3:3',
+             'destination': 'urn:ogf:network:sdx:port:sax:B1:4'},
+            {'source': 'urn:ogf:network:sdx:port:sax:B1:1',
+             'destination': 'urn:sdx:port:amlight:B1:1'},
+            {'source': 'urn:sdx:port:amlight.net:B1:3',
+             'destination': 'urn:sdx:port:amlight.net:A1:1'}]
+
+        """
+        if solution is None or solution.connection_map is None:
+            print(f"Can't find paths for {solution}")
+            return None
+
+        result = []
+
+        for domain, links in solution.connection_map.items():
+            for link in links:
+                assert isinstance(link, ConnectionPath)
+
+                src_node = self.graph.nodes.get(link.source)
+                assert src_node is not None
+
+                dst_node = self.graph.nodes.get(link.destination)
+                assert dst_node is not None
+
+                ports = self._get_ports_by_link(link)
+
+                print(
+                    f"get_links_on_path: src_node: {src_node} (#{link.source}), "
+                    f"dst_node: {dst_node} (#{link.destination}), "
+                    f"ports: {ports}"
+                )
+
+                if ports:
+                    p1, p2 = ports
+                    result.append({"source": p1.get("id"), "destination": p2.get("id")})
+
+        return result
+
     def generate_connection_breakdown(self, solution: ConnectionSolution) -> dict:
         """
         Take a connection solution and generate a breakdown.
@@ -371,16 +421,24 @@ class TEManager:
         # expected format.
         return tagged_breakdown.to_dict().get("breakdowns")
 
-    def _get_ports_by_link(self, link):
+    def _get_ports_by_link(self, link: ConnectionPath):
         """
         Given a link, find the ports associated with it.
+
+        Returns a (Port, Port) tuple.
         """
+        assert isinstance(link, ConnectionPath)
+
         node1 = self.graph.nodes[link.source]["id"]
         node2 = self.graph.nodes[link.destination]["id"]
 
-        n1, p1, n2, p2 = self.topology_manager.get_topology().get_port_by_link(
-            node1, node2
-        )
+        ports = self.topology_manager.get_topology().get_port_by_link(node1, node2)
+
+        # Avoid some possible crashes.
+        if ports is None:
+            return None
+
+        n1, p1, n2, p2 = ports
 
         assert n1 == node1
         assert n2 == node2
