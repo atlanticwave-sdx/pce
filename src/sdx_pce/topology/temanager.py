@@ -277,7 +277,6 @@ class TEManager:
             return None
 
         result = []
-        link_ids = []
 
         for domain, links in solution.connection_map.items():
             print(f"domain: {domain}, links: {links}")
@@ -303,18 +302,11 @@ class TEManager:
                     f"dst_node: {dst_node} (#{link.destination})"
                 )
 
-                ln = self._get_ports_by_link(link)
-                print(f"get_links_on_path: ln: {ln}")
+                ports = self._get_ports_by_link(link)
 
-                if ln:
-                    p1, p2 = ln
-                    print(f"get_links_on_path: p1: {p1}, p2: {p2}")
-                    link_ids.append({"uni_a": p1.get("id"), "uni_z": p2.get("id")})
-
-                result.append(link)
-
-        print(f"get_links_on_path: {result}")
-        print(f"get_links_on_path:ln: {link_ids}")
+                if ports:
+                    p1, p2 = ports
+                    result.append({"uni_a": p1.get("id"), "uni_z": p2.get("id")})
 
         return result
 
@@ -439,6 +431,7 @@ class TEManager:
 
         ports = self.topology_manager.get_topology().get_port_by_link(node1, node2)
 
+        # Avoid some possible crashes, but not all...
         if ports is None:
             return None
 
