@@ -298,7 +298,7 @@ class TEManager:
 
                 if ports:
                     p1, p2 = ports
-                    result.append({"uni_a": p1.get("id"), "uni_z": p2.get("id")})
+                    result.append({"source": p1.get("id"), "destination": p2.get("id")})
 
         return result
 
