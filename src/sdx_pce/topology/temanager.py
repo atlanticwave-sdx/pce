@@ -288,12 +288,13 @@ class TEManager:
                 dst_node = self.graph.nodes.get(link.destination)
                 assert dst_node is not None
 
+                ports = self._get_ports_by_link(link)
+
                 print(
                     f"get_links_on_path: src_node: {src_node} (#{link.source}), "
-                    f"dst_node: {dst_node} (#{link.destination})"
+                    f"dst_node: {dst_node} (#{link.destination}), "
+                    f"ports: {ports}"
                 )
-
-                ports = self._get_ports_by_link(link)
 
                 if ports:
                     p1, p2 = ports
