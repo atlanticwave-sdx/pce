@@ -16,17 +16,22 @@ class TEManagerTests(unittest.TestCase):
     Tests for topology related functions.
     """
 
+    def setUp(self):
+        topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT.read_text())
+        self.temanager = TEManager(topology)
+
+    def tearDown(self):
+        self.temanager = None
+
     def test_generate_solver_input(self):
         print("Test Convert Connection To Topology")
-        temanager = self._make_te_manager()
         request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
-        connection = self._make_traffic_matrix_from_request(temanager, request)
+        connection = self._make_traffic_matrix_from_request(request)
         self.assertIsNotNone(connection)
 
     def test_connection_breakdown_none_input(self):
         # Expect no breakdown when input is None.
-        temanager = self._make_te_manager()
-        self.assertIsNone(temanager.generate_connection_breakdown(None))
+        self.assertIsNone(self.temanager.generate_connection_breakdown(None))
 
     def test_connection_breakdown_tm(self):
         # Breaking down a traffic matrix.
@@ -37,14 +42,13 @@ class TEManagerTests(unittest.TestCase):
             1.0,
         ]
 
-        temanager = self._make_te_manager()
-        solution = self._make_tm_and_solve(temanager, request)
+        solution = self._make_tm_and_solve(request)
 
         # We must have found a solution.
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = temanager.generate_connection_breakdown(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution)
         print(f"Breakdown: {breakdown}")
         self.assertIsNotNone(breakdown)
         self.assertIsInstance(breakdown, dict)
@@ -66,13 +70,11 @@ class TEManagerTests(unittest.TestCase):
             1.0,
         ]
 
-        temanager = self._make_te_manager()
-        solution = self._make_tm_and_solve(temanager, request)
+        solution = self._make_tm_and_solve(request)
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        temanager = self._make_te_manager()
-        breakdown = temanager.generate_connection_breakdown(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution)
         print(f"Breakdown: {breakdown}")
 
         self.assertIsNotNone(breakdown)
@@ -83,18 +85,14 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(link, dict)
 
     def test_connection_breakdown_three_domains(self):
-        """
-        Test with three domains.
-        """
-        temanager = TEManager(topology_data=None)
+        # SDX already exists in the known topology from setUp
+        # step. Add SAX topology.
+        sax_topology = json.loads(TestData.TOPOLOGY_FILE_SAX.read_text())
+        self.temanager.add_topology(sax_topology)
 
-        for path in (
-            TestData.TOPOLOGY_FILE_AMLIGHT,
-            TestData.TOPOLOGY_FILE_SAX,
-            TestData.TOPOLOGY_FILE_ZAOXI,
-        ):
-            topology = json.loads(path.read_text())
-            temanager.add_topology(topology)
+        # Add ZAOXI topology as well.
+        zaoxi_topology = json.loads(TestData.TOPOLOGY_FILE_ZAOXI.read_text())
+        self.temanager.add_topology(zaoxi_topology)
 
         request = [
             {
@@ -105,11 +103,11 @@ class TEManagerTests(unittest.TestCase):
             1.0,
         ]
 
-        solution = self._make_tm_and_solve(temanager, request)
+        solution = self._make_tm_and_solve(request)
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = temanager.generate_connection_breakdown(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution)
         print(f"Breakdown: {breakdown}")
 
         self.assertIsNotNone(breakdown)
@@ -140,15 +138,12 @@ class TEManagerTests(unittest.TestCase):
         Test case added to investigate
         https://github.com/atlanticwave-sdx/sdx-controller/issues/146
         """
-        temanager = TEManager(topology_data=None)
+        sax_topology = json.loads(TestData.TOPOLOGY_FILE_SAX.read_text())
+        self.temanager.add_topology(sax_topology)
 
-        for path in (
-            TestData.TOPOLOGY_FILE_AMLIGHT,
-            TestData.TOPOLOGY_FILE_SAX,
-            TestData.TOPOLOGY_FILE_ZAOXI,
-        ):
-            topology = json.loads(path.read_text())
-            temanager.add_topology(topology)
+        # Add ZAOXI topology as well.
+        zaoxi_topology = json.loads(TestData.TOPOLOGY_FILE_ZAOXI.read_text())
+        self.temanager.add_topology(zaoxi_topology)
 
         request = [
             {
@@ -157,15 +152,15 @@ class TEManagerTests(unittest.TestCase):
             1.0,
         ]
 
-        solution = self._make_tm_and_solve(temanager, request)
+        solution = self._make_tm_and_solve(request)
 
-        print(f"topology: {temanager.topology_manager.get_topology()}")
+        print(f"topology: {self.temanager.topology_manager.get_topology()}")
         # print(f"topology_list: {self.temanager.topology_manager._topology_map}")
 
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = temanager.generate_connection_breakdown(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution)
         print(f"Breakdown: {breakdown}")
 
         sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
@@ -187,15 +182,12 @@ class TEManagerTests(unittest.TestCase):
             14195698.0,
         ]
 
-        temanager = self._make_te_manager()
-        solution = self._make_tm_and_solve(temanager, request)
+        solution = self._make_tm_and_solve(request)
         self.assertIsNone(solution.connection_map)
         self.assertEqual(solution.cost, 0)
 
         # If there's no solution, there should be no breakdown either.
-        topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT.read_text())
-        temanager = TEManager(topology)
-        breakdown = temanager.generate_connection_breakdown(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution)
         self.assertIsNone(breakdown)
 
     def test_generate_graph_and_connection_with_sax_2_invalid(self):
@@ -322,6 +314,9 @@ class TEManagerTests(unittest.TestCase):
         # check that we have the same number of links.
         values = sum([v for v in solution.connection_map.values()], [])
         self.assertEqual(len(links), len(values))
+
+        breakdown = temanager.generate_connection_breakdown(solution)
+        print(f"breakdown: {json.dumps(breakdown)}")
 
         breakdown = temanager.generate_connection_breakdown(solution)
         print(f"breakdown: {json.dumps(breakdown)}")
@@ -640,43 +635,35 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx"))
 
     def test_generate_graph_and_connection(self):
-        temanager = self._make_te_manager()
-        graph = temanager.generate_graph_te()
+        graph = self.temanager.generate_graph_te()
 
         print(f"graph: {graph}")
         self.assertIsNotNone(graph)
         self.assertIsInstance(graph, nx.Graph)
 
         request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
-        tm = temanager.generate_traffic_matrix(request)
+        tm = self.temanager.generate_traffic_matrix(request)
 
         print(f"tm: {tm}")
         self.assertIsNotNone(tm)
         self.assertIsInstance(tm, TrafficMatrix)
 
     def _make_traffic_matrix_from_request(
-        self, temanager: TEManager, connection_request: dict
+        self, connection_request: dict
     ) -> TrafficMatrix:
         """
         Make a traffic matrix out of a connection request dict.
         """
-        graph = temanager.graph
+        graph = self.temanager.graph
         print(f"Generated networkx graph of the topology: {graph}")
         print(f"Graph nodes: {graph.nodes[0]}, edges: {graph.edges}")
 
-        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+        traffic_matrix = self.temanager.generate_traffic_matrix(connection_request)
         print(f"traffic_matrix: {traffic_matrix}")
 
         return traffic_matrix
 
-    def _make_te_manager(self) -> TEManager:
-        """
-        Make a TEManager instance with a single topology.
-        """
-        topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT.read_text())
-        return TEManager(topology)
-
-    def _make_tm_and_solve(self, temanager, request) -> ConnectionSolution:
+    def _make_tm_and_solve(self, request) -> ConnectionSolution:
         """
         Make a traffic matrix from plain old style requests (used in
         the test methods below), and solve it.
@@ -686,7 +673,7 @@ class TEManagerTests(unittest.TestCase):
         tm = self._make_traffic_matrix_from_list(request)
         print(f"tm: {tm}")
 
-        graph = temanager.generate_graph_te()
+        graph = self.temanager.generate_graph_te()
         print(f"graph: {graph}")
         print(f"graph: {pprint.pformat(nx.to_dict_of_dicts(graph))}")
 
