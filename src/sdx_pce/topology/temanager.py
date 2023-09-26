@@ -436,7 +436,7 @@ class TEManager:
 
         ports = self.topology_manager.get_topology().get_port_by_link(node1, node2)
 
-        # Avoid some possible crashes, but not all...
+        # Avoid some possible crashes.
         if ports is None:
             return None
 
