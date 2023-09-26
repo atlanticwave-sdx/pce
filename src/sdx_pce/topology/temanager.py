@@ -332,8 +332,6 @@ class TEManager:
         breakdown = {}
         paths = solution.connection_map  # p2p for now
 
-        print(f"generate_connection_breakdown graph.nodes: {self.graph.nodes}")
-
         for domain, links in paths.items():
             print(f"domain: {domain}, links: {links}")
 
