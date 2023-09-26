@@ -279,23 +279,14 @@ class TEManager:
         result = []
 
         for domain, links in solution.connection_map.items():
-            print(f"domain: {domain}, links: {links}")
             for link in links:
-                print(f"domain: {domain}, link: {link}")
-
                 assert isinstance(link, ConnectionPath)
 
                 src_node = self.graph.nodes.get(link.source)
                 assert src_node is not None
-                print(
-                    f"get_links_on_path link.source={link.source} src_node={src_node}"
-                )
 
                 dst_node = self.graph.nodes.get(link.destination)
                 assert dst_node is not None
-                print(
-                    f"get_links_on_path link.destination={link.destination} src_node={dst_node}"
-                )
 
                 print(
                     f"get_links_on_path: src_node: {src_node} (#{link.source}), "
