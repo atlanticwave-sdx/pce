@@ -330,7 +330,6 @@ class TEManager:
             return None
 
         breakdown = {}
-        all_links = []
         paths = solution.connection_map  # p2p for now
 
         print(f"generate_connection_breakdown graph.nodes: {self.graph.nodes}")
@@ -344,7 +343,6 @@ class TEManager:
                 print(f"count: {count}, link: {link}")
 
                 assert isinstance(link, ConnectionPath)
-                all_links.append(link)
 
                 src_node = self.graph.nodes.get(link.source)
                 assert src_node is not None
@@ -373,7 +371,6 @@ class TEManager:
                     current_link_set = []
 
         print(f"[intermediate] breakdown: {breakdown}")
-        print(f"generate_connection_breakdown all_links: {all_links}")
 
         # now starting with the ingress_port
         first = True
