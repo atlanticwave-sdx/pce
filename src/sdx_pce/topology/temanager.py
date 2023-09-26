@@ -432,8 +432,6 @@ class TEManager:
         node1 = self.graph.nodes[link.source]["id"]
         node2 = self.graph.nodes[link.destination]["id"]
 
-        print(f"_get_ports_by_link: node1: {node1}, node2: {node2}")
-
         ports = self.topology_manager.get_topology().get_port_by_link(node1, node2)
 
         # Avoid some possible crashes.
