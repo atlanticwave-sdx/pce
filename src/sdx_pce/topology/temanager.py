@@ -271,6 +271,21 @@ class TEManager:
     def get_links_on_path(self, solution: ConnectionSolution) -> list:
         """
         Return all the links on a connection solution.
+
+        The result will be a list of dicts, like so:
+
+        .. code-block::
+           [{'source': 'urn:ogf:network:sdx:port:zaoxi:A1:1',
+              'destination': 'urn:ogf:network:sdx:port:zaoxi:B1:3'},
+            {'source': 'urn:ogf:network:sdx:port:zaoxi:B1:1',
+             'destination': 'urn:ogf:network:sdx:port:sax:B3:1'},
+            {'source': 'urn:ogf:network:sdx:port:sax:B3:3',
+             'destination': 'urn:ogf:network:sdx:port:sax:B1:4'},
+            {'source': 'urn:ogf:network:sdx:port:sax:B1:1',
+             'destination': 'urn:sdx:port:amlight:B1:1'},
+            {'source': 'urn:sdx:port:amlight.net:B1:3',
+             'destination': 'urn:sdx:port:amlight.net:A1:1'}]
+
         """
         if solution is None or solution.connection_map is None:
             print(f"Can't find paths for {solution}")
