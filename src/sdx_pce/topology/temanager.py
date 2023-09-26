@@ -424,6 +424,8 @@ class TEManager:
     def _get_ports_by_link(self, link: ConnectionPath):
         """
         Given a link, find the ports associated with it.
+
+        Returns a (Port, Port) tuple.
         """
         assert isinstance(link, ConnectionPath)
 
