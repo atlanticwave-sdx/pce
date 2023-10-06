@@ -75,7 +75,7 @@ class Demand:
         self.b_d = None
 
     def __repr__(self):
-        return f"({self.src}:{self.dst})"
+        return f"({self.src}:{self.dst}:{self.amount})"
 
     def add_tunnel(self, t):
         assert t.pathstr.split(':')[0] == self.src
@@ -196,6 +196,14 @@ class Network:
             self.edges[(mktA, mktB)] = edge
             
         return edge
+    
+    def print_edges(self):
+        for e in self.edges.values():
+            print(f"{e.e}:{e.capacity}:{e.distance}")
+        
+    def print_demands(self):
+        for d in self.demands.values():
+            print(f"{d.src}:{d.dst}:{d.amount}")
 
     def remove_zero_capacity_edges(self):
         edges_to_rm = []
@@ -298,6 +306,7 @@ class Network:
     def to_nx_simple(self):
         import networkx
         graph = networkx.Graph()
+        graph.name=self.name
         for n in self.nodes.keys():
             graph.add_node(int(n)-1)
         # Putting 100 km distance for all edges as of now, fix later.

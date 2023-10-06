@@ -1,6 +1,6 @@
 import argparse
 import json
-
+import os
 # importing the module
 from datetime import datetime
 
@@ -16,7 +16,7 @@ from sdx_pce.utils.random_topology_generator import RandomTopologyGenerator
 from sdx_pce.heuristic.csv_network_parser import *
 from sdx_pce.heuristic.path_te_solver import *
 
-from sdx_pce.utils.functions import bw_stat
+from sdx_pce.utils.functions import bw_stat, write_json
 
 
 l_lat=80
@@ -286,11 +286,15 @@ if __name__ == "__main__":
     parse.print_help()
     args = parse.parse_args()
     # result(args.te_file,args.node_name , args.result)
-    scale=2
+    scale=1
     if args.topology_file is not None:
         if args.te_file is not None:
             # graph, tm = dot_file(args.topology_file, args.te_file)
-            network = parse_topology(args.topology_file)
+            filename, file_extension = os.path.splitext(args.topology_file)
+            if (file_extension=='.txt') or (file_extension=='.csv'):
+                network = parse_topology(args.topology_file)
+            if file_extension=='.json':
+                network = parse_topology_json(args.topology_file)    
             parse_demands(network, args.te_file, scale)
             print("Supporting dot file later!")
         else:
@@ -354,8 +358,10 @@ if __name__ == "__main__":
             ordered_paths, result = path_solver.solve()
             edge_flow=path_solver.get_edge_flow_allocations()
             print(edge_flow)
+            demands_met=path_solver.get_demands_met()
+            print(f"Met Demands:{demands_met}")
             demands_unmet=path_solver.get_demands_unmet()
-            print(demands_unmet)
+            print(f"Unmet Demands:{demands_unmet}")
 
         if args.alg ==21:
             print("FCC with link failure resiliency")
@@ -397,3 +403,4 @@ if __name__ == "__main__":
     print(f"Optimal: {result}")
     util_dict = bw_stat(graph)
     print(f"link utility:\n{util_dict}")
+    write_json(util_dict,"scripts/results/b4_"+str(args.alg)+"_"+str(scale))

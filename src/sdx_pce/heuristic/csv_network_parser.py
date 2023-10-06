@@ -1,5 +1,7 @@
 import random
 import csv
+import json
+import networkx as nx
 
 from sdx_pce.heuristic.network_topology import *
 
@@ -15,7 +17,7 @@ def parse_topology(network_name):
             capacity = int(float(row[2])/1000.0)
             network.add_node(to_node, None, None)
             network.add_node(from_node, None, None)
-            network.add_edge(from_node, to_node, 200, capacity)            
+            network.add_edge(from_node, to_node, 200, capacity)      
     return network
 
 def parse_demands(network, demand_file,scale=1):
@@ -43,6 +45,7 @@ def parse_demands(network, demand_file,scale=1):
                 network.add_demand(str(from_node), str(to_node), max_demand, scale)
     if network.tunnels:
         remove_demands_without_tunnels(network)
+    return network.demands
 
 def parse_tunnels(network):
     # Parse tunnels
@@ -63,4 +66,17 @@ def remove_demands_without_tunnels(network):
 def initialize_weights(network):
     for tunnel in network.tunnels.values():
         tunnel.add_weight(random.randint(1, 10))
-        
+
+def parse_topology_json(network_name):
+    network = Network(network_name)
+    with open(network_name) as fi:
+        reader = json.load(fi)
+    graph=nx.node_link_graph(reader)
+    #node index starts from 0 -> +1
+    for u,v,p in graph.edges(data=True):
+        network.add_edge(str(u+1), str(v+1), 200, p['capacity']*1.6)  
+
+    return network
+
+def generate_demand_from_b4(b4_demand,network):
+    pass    

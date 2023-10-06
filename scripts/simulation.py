@@ -1,6 +1,5 @@
 import argparse
-
-import numpy as np
+import os
 
 from sdx_pce.heuristic.csv_network_parser import *
 from sdx_pce.heuristic.heur import TEGroupSolver, matrix_to_connection, demand_to_connection, random_graph
@@ -131,8 +130,16 @@ if __name__ == "__main__":
     if args.topology_file is not None:
         if args.te_file is not None:
             # graph, tm = dot_file(args.topology_file, args.te_file)
-            network = parse_topology(args.topology_file)
+            filename, file_extension = os.path.splitext(args.topology_file)
+            print(file_extension)
+            if file_extension=='.txt':
+                network = parse_topology(args.topology_file)
+            if file_extension=='.json':
+                network = parse_topology_json(args.topology_file)  
             parse_demands(network, args.te_file, scale)
+
+            network.print_edges()
+            network.print_demands()            
             graph = network.to_nx_simple()
             request = demand_to_connection(network.demands)
             print("This is csv file, Supporting dot file later!")

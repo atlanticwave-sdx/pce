@@ -7,6 +7,7 @@ Created on Wed Aug 11 16:40:56 2021
 
 import copy
 import random
+import json
 
 import networkx as nx
 import numpy as np
@@ -46,6 +47,12 @@ def bw_stat(g):
         f"total_weight={total_weight};total_util={total_util};" f"max_util={max_util}"
     )
     return util_dict
+
+def write_json(util_dict,n="0"):
+    name=n+"_utility.txt"
+    with open(name, 'w') as f: 
+        for key, value in util_dict.items(): 
+            f.write('%s:%s\n' % (key, value))
 
 class GraphFunction:
     def __init__(self, g=None) -> None:
