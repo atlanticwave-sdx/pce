@@ -167,6 +167,9 @@ class Network:
         self.edges = {}
         self.tunnels = {}
         self.demands = {}
+        self.total_demands=0.
+        self.max_demand=0.
+        self.min_demand=500.
         # shortcuts only used for shoofly
         self.shortcuts = {}
         self.graph = None
@@ -220,7 +223,13 @@ class Network:
         self.add_node(dst)
         
         if (src, dst) not in self.demands:
-            self.demands[(src, dst)] = Demand(src, dst, amount*scale)
+            demand = amount*scale
+            self.demands[(src, dst)] = Demand(src, dst, demand)
+            self.total_demands=+demand
+            if self.max_demand<demand:
+                self.max_demand = demand
+            if self.min_demand>demand:
+                self.min_demand=demand
 
         return self.demands[(src, dst)]
 

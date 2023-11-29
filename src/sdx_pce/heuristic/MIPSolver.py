@@ -23,6 +23,7 @@ class GORSolver(MIPSolver):
         self.constraints = []
         self.objective = None
         self.solver = pywraplp.Solver.CreateSolver("GLOP")
+        #self.solver = pywraplp.Solver.CreateSolver("PDLP")
 
     def variable(self, var):
         x = self.solver.Var(0, self.solver.infinity(), False, var)

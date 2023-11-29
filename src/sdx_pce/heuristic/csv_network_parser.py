@@ -47,16 +47,33 @@ def parse_demands(network, demand_file,scale=1):
         remove_demands_without_tunnels(network)
     return network.demands
 
-def parse_tunnels(network):
+def parse_tunnels(network, T=5, H_T=False):
     # Parse tunnels
+    print(f"Parse Tunnels\n")
+    N_T=T #heter num_tunnels
     for node1 in network.nodes:
         for node2 in network.nodes:
             if node1 == node2: continue
-            paths = network.k_shortest_paths(node1, node2, 5)
+            if H_T == True:
+                N_T=num_tunnnels(network,node1, node2,T)
+            #print(f"{(node1,node2)}:{network.demands[(node1,node2)].amount}:{N_T}")
+            paths = network.k_shortest_paths(node1, node2, N_T)
             for path in paths:
                 tunnel = network.add_tunnel(path)
     if network.demands:
         remove_demands_without_tunnels(network)
+
+# adjust the number of tunnels per demand according to demand distribution
+def num_tunnnels(network,node1, node2,T):
+    N_T=T
+    delta_demand = (network.max_demand-network.min_demand)/(T-1)
+    min_demand = network.min_demand - 0.5
+    demand=network.demands[(node1,node2)].amount
+    for i in range(T-1):
+        if demand > min_demand + i*delta_demand and demand <= network.min_demand + (i+1)*delta_demand:
+            N_T=i+2
+            break
+    return N_T
 
 def remove_demands_without_tunnels(network):
     removable_demands = [p for p, d in network.demands.items() if not d.tunnels]

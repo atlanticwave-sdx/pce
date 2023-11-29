@@ -68,12 +68,14 @@ class PathTESolver:
             constraint = self.solver.solver.RowConstraint(0, demand.amount, "")
             for tunnel in demand.tunnels:
                 constraint.SetCoefficient(tunnel.v_flow, 1.0)
+            #print(f"Constraint:{str(constraint)}")
 
     def _add_edge_capacity_constraints(self):
         """lhs: [L, E], rhs: [E]"""
         for edge_pair in self.network.edges:
             edge = self.network.edges[edge_pair]
             constraint = self.solver.solver.RowConstraint(0, edge.capacity, "")
+            #print(f"edge_capacity:{edge.capacity}")
             for tunnel in edge.tunnels:
                 constraint.SetCoefficient(tunnel.v_flow, 1.0)
         print(f"Edge Constraints:{len(self.solver.solver.constraints())}")
@@ -122,17 +124,55 @@ class PathTESolver:
 
         return ordered_paths
 
-    def criticality(self):
+    def criticality(self, flow_labels):
         """
         input:
-        demand: traffic matrix
-        solution: Solver solution
+            total demand: network.total_demand
+            tunnel.path: list of edges
+            solution: tunnel.v_flow.SolutionValue()
         function: 
             link criticality=
-            network reliability r = sum s*f
-        output: dict{link:criticality}, r
+            network criticality R = sum s*f
+        output: dict{link:criticality}, R
         """
-        pass
+        #link criticality
+        criticality_list={}
+        linknum = len(self.network.edges)
+        num_tunnels=len(self.network.tunnels)
+        used_tunnels=0
+        for demand in self.network.demands.values():
+            #print(f"demand:{demand}\n")
+            b_f=0.
+            u_max=0
+            e_max=None
+            for tunnel in demand.tunnels:
+                if tunnel.v_flow.SolutionValue() > 0.:
+                    used_tunnels=used_tunnels+1
+                    b_f=b_f+tunnel.v_flow.SolutionValue()
+
+                #print(f"Tunnel:{tunnel};b_f:{b_f};tunnel_flow:{tunnel.v_flow.SolutionValue()}")
+                for e in tunnel.path:
+                    allocation, utility=flow_labels[e]
+                    if u_max < utility:
+                        u_max=utility
+                        e_max=e
+                    #print(f"e_max:{e_max};e:{e}; utility:{utility}")
+            criticality=b_f/self.network.total_demands
+            #print(f"e_max:{e_max};criticality:{criticality}")
+            if e_max in criticality_list:
+                criticality_list[e_max]=+criticality
+            else:
+                criticality_list[e_max]=criticality
+
+        network_criticality=0.
+        for edge in self.network.edges.values():
+            if edge in criticality_list:
+                allocation, utility=flow_labels[edge]
+                criticality=criticality_list[edge]
+                network_criticality=network_criticality + criticality/utility
+        print(f"used tunnels:{used_tunnels};{used_tunnels/num_tunnels}")
+        print(f"criticality list:{len(criticality_list)};{len(criticality_list)/linknum}")
+        return criticality_list, network_criticality
 
     def get_edge_flow_allocations(self):
         """ 
@@ -151,17 +191,26 @@ class PathTESolver:
     def get_demands_met(self):
         demands_met = {}
         for demand in self.network.demands.values():
-            #print(f"d_b:{demand.b_d.SolutionValue()}")
+            #print(f"demand:{demand}")
             flow_on_tunnels = sum([tunnel.v_flow.SolutionValue() for tunnel in demand.tunnels])
+            #for tunnel in demand.tunnels:
+            #    print(f"tunnel_flow={tunnel.v_flow.SolutionValue()}")
             demands_met[(demand.src, demand.dst)] = flow_on_tunnels
         return demands_met
 
     def get_demands_unmet(self):
         demands_unmet = {}
+        total_demands=0.0
+        total_flows=0.0
         for demand in self.network.demands.values():
             flow_on_tunnels = sum([tunnel.v_flow.SolutionValue() for tunnel in demand.tunnels])
-            if demand.amount - flow_on_tunnels > 0:
-                demands_unmet[(demand.src, demand.dst)] = round(demand.amount - flow_on_tunnels)
+            total_demands=total_demands+demand.amount
+            total_flows=total_flows+flow_on_tunnels
+            if demand.amount - flow_on_tunnels > 0.1:
+                #demands_unmet[(demand.src, demand.dst)] = round(demand.amount - flow_on_tunnels)
+                demands_unmet[(demand.src, demand.dst)] = (demand.amount,(demand.amount-flow_on_tunnels)/demand.amount)
+        unmet_percentage=(total_demands-total_flows)/total_demands
+        print(f"Total_demands:{total_demands};total_flows:{total_flows};Overprovisioning percentage:{unmet_percentage}")
         return demands_unmet
 
 

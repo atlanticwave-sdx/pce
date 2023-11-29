@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import time 
 # importing the module
 from datetime import datetime
 
@@ -15,6 +16,8 @@ from sdx_pce.utils.random_topology_generator import RandomTopologyGenerator
 
 from sdx_pce.heuristic.csv_network_parser import *
 from sdx_pce.heuristic.path_te_solver import *
+from sdx_pce.heuristic.MIPSolver import *
+from sdx_pce.heuristic.ms_solver import *
 
 from sdx_pce.utils.functions import bw_stat, write_json
 
@@ -275,6 +278,7 @@ if __name__ == "__main__":
         type=int,
     )
     parse.add_argument("-g", dest="group", default=2, help="number of groups", type=int)
+    parse.add_argument("-p", dest="tunnel", default=5, help="number of tunnels per pair", type=int)
     parse.add_argument(
         "-o",
         dest="result",
@@ -288,28 +292,33 @@ if __name__ == "__main__":
     # result(args.te_file,args.node_name , args.result)
     scale=1
     if args.topology_file is not None:
-        if args.te_file is not None:
-            # graph, tm = dot_file(args.topology_file, args.te_file)
-            filename, file_extension = os.path.splitext(args.topology_file)
-            if (file_extension=='.txt') or (file_extension=='.csv'):
-                network = parse_topology(args.topology_file)
-            if file_extension=='.json':
-                network = parse_topology_json(args.topology_file)    
+        # graph, tm = dot_file(args.topology_file, args.te_file)
+        filename, file_extension = os.path.splitext(args.topology_file)
+        if (file_extension=='.txt') or (file_extension=='.csv'):
+            network = parse_topology(args.topology_file)
+        if file_extension=='.json':
+            network = parse_topology_json(args.topology_file) 
+        if args.te_file is not None:   
             parse_demands(network, args.te_file, scale)
             print("Supporting dot file later!")
         else:
             print("Missing the TE file!")
-            exit()
+            demands=generate_demand(network,scale,1.70641,0.0795022,52.6563)
     else:
         p = 0.2
         n = 25
 
         graph, tm = random_graph(n, p, args.m)
-
+    heter_tunnel = False
     if args.alg >=10:
-        parse_tunnels(network)
+        if args.group == 1:
+            heter_tunnel = True 
+        T=args.tunnel
+        parse_tunnels(network, T, heter_tunnel)
         initialize_weights(network)
 
+        t0 = time.time()
+        t1 = time.time()
         if args.alg ==10:    
             #Original tunnel-based  MS solver for flow maximization 
             mip = CvxSolver()
@@ -324,7 +333,14 @@ if __name__ == "__main__":
                 print("Optimal solution was found.")
                 print("Max flow:", result)   
                 solution=get_edge_flow_allocations(network)
-                print(solution)       
+                t1 = time.time()
+                print(solution)     
+                demands_met=get_demands_met(network)
+                print(f"Met Demands:{len(demands_met)}")  
+                demands_unmet=get_demands_unmet(network)
+                print(f"Unmet Demands:{len(demands_unmet)}")
+                criticality_list,network_criticality=criticality(network, solution)
+                print(f"n_c={network_criticality}")
         
         if args.alg ==11:    
             #Original tunnel-based MS solver for FCC flow maximization 
@@ -346,6 +362,15 @@ if __name__ == "__main__":
             if mip.problem.status == 'optimal':
                 print("Optimal solution was found.")
                 print("Optimal objective:", result)
+                solution=get_edge_flow_allocations(network)
+                t1 = time.time()
+                print(solution)     
+                demands_met=get_demands_met(network)
+                print(f"Met Demands:{len(demands_met)}")  
+                demands_unmet=get_demands_unmet(network)
+                print(f"Unmet Demands:{len(demands_unmet)}")
+                criticality_list,network_criticality=criticality(network, solution)
+                print(f"n_c={network_criticality}")  
             else:
                 print("Optimal solution was not found.")
 
@@ -357,11 +382,14 @@ if __name__ == "__main__":
             path_solver.Maximize()
             ordered_paths, result = path_solver.solve()
             edge_flow=path_solver.get_edge_flow_allocations()
-            print(edge_flow)
+            #print(edge_flow)
+            t1 = time.time()
             demands_met=path_solver.get_demands_met()
-            print(f"Met Demands:{demands_met}")
+            print(f"Met Demands:{len(demands_met)}")
             demands_unmet=path_solver.get_demands_unmet()
-            print(f"Unmet Demands:{demands_unmet}")
+            print(f"Unmet Demands:{len(demands_unmet)}")
+            criticality_list,network_criticality=path_solver.criticality(edge_flow)
+            print(f"n_c={network_criticality}")
 
         if args.alg ==21:
             print("FCC with link failure resiliency")
@@ -377,14 +405,16 @@ if __name__ == "__main__":
             fcc_solver.Maximize_FCC()
             ordered_paths, result = fcc_solver.solve()
             edge_flow=fcc_solver.get_edge_flow_allocations()
-            print(f"Edge flow:\n{edge_flow}")
+            #print(f"Edge flow:\n{edge_flow}")
+            t1 = time.time()
             demands_met=fcc_solver.get_demands_met()
-            print(f"Met Demands:{demands_met}")
+            print(f"Met Demands:{len(demands_met)}")
             demands_unmet=fcc_solver.get_demands_unmet()
-            print(f"Unmet Demands:{demands_unmet}")
+            print(f"Unmet Demands:{len(demands_unmet)}")
+            #print(demands_unmet)
+            criticality_list,network_criticality=fcc_solver.criticality(edge_flow)
+            print(f"n_c={network_criticality}")
 
-        #network.update_bw(edge_flow)
-        graph = network.update_graph_edge_flow()
     else:
         if args.group > args.m:
             print("Group cannot be greater the number of connections!")
@@ -399,8 +429,14 @@ if __name__ == "__main__":
 
         ordered_paths, result = te.solve(partition_tm)
 
-    #print(f"path: {ordered_paths}")
+    if args.alg >= 20: 
+        #network.update_bw(edge_flow)
+        graph = network.update_graph_edge_flow()
+    elif args.alg >= 10: 
+        #network.update_bw(edge_flow)
+        graph = update_graph_edge_flow(network)    
     print(f"Optimal: {result}")
+    print(f"time: {t1-t0}")
     util_dict = bw_stat(graph)
-    print(f"link utility:\n{util_dict}")
-    write_json(util_dict,"scripts/results/b4_"+str(args.alg)+"_"+str(scale))
+    #print(f"link utility:\n{util_dict}")
+    write_json(util_dict,"scripts/results/b4_"+str(args.alg)+"_"+str(scale)+"_"+str(T))
