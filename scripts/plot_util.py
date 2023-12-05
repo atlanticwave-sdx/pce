@@ -100,7 +100,7 @@ def plot_tunnel(g):
 
     title = {
         '10': 'TE(CVX)',
-        '11': 'FCC(CVX)',            
+        #'11': 'FCC(CVX)',            
         '20': 'TE(GLOP)',
         '21': 'FCC(GLOP)',
     }
@@ -118,7 +118,9 @@ def plot_tunnel(g):
 
     for a, alg in title.items():
         for g in (0, 1):
-            key=a+"_"+str(g)
+            if a=='10' and g==0:
+                continue
+            key=alg+"_"+str(g)
             time_list = []
             mean_util_list = []
             overprovisioning_list = []
@@ -147,66 +149,66 @@ def plot_tunnel(g):
     ax1.set_title(y_label[0])
     ax1.set_xlabel(x_label)
     for key in time_list_dict.keys():
-        ax1.plot(demand_scale_list, time_list_dict[key], label=str(time_list_dict(key)))
+        ax1.plot(demand_scale_list, time_list_dict[key], label=str(key))
 
     ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
-    plot_name = y_label[0] + "_" + name + "_" + key + ".png"
+    plot_name = y_label[0] + "_" + name + ".png"
     plt.savefig(plot_name, bbox_inches="tight")
 
     fig2, ax2 = plt.subplots()
     ax2.set_title(y_label[1])
     ax2.set_xlabel(x_label)
     for key in mean_util_list_dict.keys():
-        ax2.plot(demand_scale_list, mean_util_list_dict[key], label=str(time_list_dict(key)))
+        ax2.plot(demand_scale_list, mean_util_list_dict[key], label=str(key))
 
     ax2.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
-    plot_name = y_label[1] + "_" + name + "_" + key + ".png"
+    plot_name = y_label[1] + "_" + name + ".png"
     plt.savefig(plot_name, bbox_inches="tight")
 
     fig3, ax3 = plt.subplots()
     ax3.set_title(y_label[2])
     ax3.set_xlabel(x_label)
     for key in overprovisioning_list_dict.keys():
-        ax3.plot(demand_scale_list, overprovisioning_list_dict[key], label=str(time_list_dict(key)))
+        ax3.plot(demand_scale_list, overprovisioning_list_dict[key], label=str(key))
 
     ax3.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
-    plot_name = y_label[2] + "_" + name + "_" + key + ".png"
+    plot_name = y_label[2] + "_" + name + ".png"
     plt.savefig(plot_name, bbox_inches="tight")    
 
     fig4, ax4 = plt.subplots()
     ax4.set_title(y_label[3])
     ax4.set_xlabel(x_label)
     for key in unmet_flow_list_dict.keys():
-        ax4.plot(demand_scale_list, unmet_flow_list_dict[key], label=str(time_list_dict(key)))
+        ax4.plot(demand_scale_list, unmet_flow_list_dict[key], label=str(key))
 
     ax4.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
-    plot_name = y_label[3] + "_" + name + "_" + key + ".png"
+    plot_name = y_label[3] + "_" + name + ".png"
     plt.savefig(plot_name, bbox_inches="tight") 
 
     fig5, ax5 = plt.subplots()
     ax5.set_title(y_label[4])
     ax5.set_xlabel(x_label)
     for key in unmet_demands_list_dict.keys():
-        ax5.plot(demand_scale_list, unmet_demands_list_dict[key], label=str(time_list_dict(key)))
+        ax5.plot(demand_scale_list, unmet_demands_list_dict[key], label=str(key))
 
     ax5.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
-    plot_name = y_label[4] + "_" + name + "_" + key + ".png"
+    plot_name = y_label[4] + "_" + name + ".png"
     plt.savefig(plot_name, bbox_inches="tight") 
 
     fig6, ax6 = plt.subplots()
     ax6.set_title(y_label[5])
     ax6.set_xlabel(x_label)
     for key in nc_list_dict.keys():
-        ax6.plot(demand_scale_list, nc_list_dict[key], label=str(time_list_dict(key)))
+        ax6.plot(demand_scale_list, nc_list_dict[key], label=str(key))
 
     ax6.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
-    plot_name = y_label[5] + "_" + name + "_" + key + ".png"
+    plot_name = y_label[5] + "_" + name + ".png"
     plt.savefig(plot_name, bbox_inches="tight")     
 
 

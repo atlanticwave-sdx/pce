@@ -141,10 +141,11 @@ def criticality(network, flow_labels):
 #Generate demand following the lognorm distribution fitted from the B4 TM data
 def generate_demand(network,sca,s=S,loc=LOC,scale=SCALE):
     num_nodes=len(network.nodes.values())
+    num_edges=len(network.edges.values())
     size=num_nodes*(num_nodes-1)
     r = lognorm.rvs(s,loc,scale,size)
     i=0
-    print(f"num_node={num_nodes};demand_size={size}")
+    print(f"num_node={num_nodes};num_edge={num_edges};demand_size={size}")
     for from_node in network.nodes.values():
         for to_node in network.nodes.values():
             if from_node is not to_node:
