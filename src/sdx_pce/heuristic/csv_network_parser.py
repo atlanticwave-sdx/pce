@@ -65,13 +65,13 @@ def parse_tunnels(network, T=5, H_T=False):
 
 # adjust the number of tunnels per demand according to demand distribution
 def num_tunnnels(network,node1, node2,T):
-    N_T=T
-    delta_demand = (network.max_demand-network.min_demand)/(T-1)
+    N_T=T-2
+    delta_demand = (network.max_demand-network.min_demand)/(T-2)
     min_demand = network.min_demand - 0.5
     demand=network.demands[(node1,node2)].amount
-    for i in range(T-1):
+    for i in range(T-2):
         if demand > min_demand + i*delta_demand and demand <= network.min_demand + (i+1)*delta_demand:
-            N_T=i+2
+            N_T=i+3
             break
     return N_T
 
