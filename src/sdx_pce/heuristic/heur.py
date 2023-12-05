@@ -279,6 +279,7 @@ if __name__ == "__main__":
     )
     parse.add_argument("-g", dest="group", default=2, help="number of groups", type=int)
     parse.add_argument("-p", dest="tunnel", default=5, help="number of tunnels per pair", type=int)
+    parse.add_argument("-s", dest="scale", default=1, help="demand scale", type=float)
     parse.add_argument(
         "-o",
         dest="result",
@@ -290,7 +291,7 @@ if __name__ == "__main__":
     parse.print_help()
     args = parse.parse_args()
     # result(args.te_file,args.node_name , args.result)
-    scale=1
+    scale=args.scale
     if args.topology_file is not None:
         # graph, tm = dot_file(args.topology_file, args.te_file)
         filename, file_extension = os.path.splitext(args.topology_file)
@@ -317,6 +318,9 @@ if __name__ == "__main__":
         parse_tunnels(network, T, heter_tunnel)
         initialize_weights(network)
 
+        network_criticality=0.
+        unmet=0.
+        demands_unmet={}
         t0 = time.time()
         t1 = time.time()
         if args.alg ==10:    
@@ -338,7 +342,9 @@ if __name__ == "__main__":
                 demands_met=get_demands_met(network)
                 print(f"Met Demands:{len(demands_met)}")  
                 demands_unmet=get_demands_unmet(network)
-                print(f"Unmet Demands:{len(demands_unmet)}")
+                unmet=demands_unmet["num_unmet"]
+                print(f"Unmet Demands:{unmet}")
+                unmet=unmet/len(demands_met)
                 criticality_list,network_criticality=criticality(network, solution)
                 print(f"n_c={network_criticality}")
         
@@ -368,7 +374,9 @@ if __name__ == "__main__":
                 demands_met=get_demands_met(network)
                 print(f"Met Demands:{len(demands_met)}")  
                 demands_unmet=get_demands_unmet(network)
-                print(f"Unmet Demands:{len(demands_unmet)}")
+                unmet=demands_unmet["num_unmet"]
+                print(f"Unmet Demands:{unmet}")
+                unmet=unmet/len(demands_met)
                 criticality_list,network_criticality=criticality(network, solution)
                 print(f"n_c={network_criticality}")  
             else:
@@ -387,7 +395,9 @@ if __name__ == "__main__":
             demands_met=path_solver.get_demands_met()
             print(f"Met Demands:{len(demands_met)}")
             demands_unmet=path_solver.get_demands_unmet()
-            print(f"Unmet Demands:{len(demands_unmet)}")
+            unmet=demands_unmet["num_unmet"]
+            print(f"Unmet Demands:{unmet}")
+            unmet=unmet/len(demands_met)
             criticality_list,network_criticality=path_solver.criticality(edge_flow)
             print(f"n_c={network_criticality}")
 
@@ -410,7 +420,9 @@ if __name__ == "__main__":
             demands_met=fcc_solver.get_demands_met()
             print(f"Met Demands:{len(demands_met)}")
             demands_unmet=fcc_solver.get_demands_unmet()
-            print(f"Unmet Demands:{len(demands_unmet)}")
+            unmet=demands_unmet["num_unmet"]
+            print(f"Unmet Demands:{unmet}")
+            unmet=unmet/len(demands_met)
             #print(demands_unmet)
             criticality_list,network_criticality=fcc_solver.criticality(edge_flow)
             print(f"n_c={network_criticality}")
@@ -438,5 +450,12 @@ if __name__ == "__main__":
     print(f"Optimal: {result}")
     print(f"time: {t1-t0}")
     util_dict = bw_stat(graph)
-    #print(f"link utility:\n{util_dict}")
-    write_json(util_dict,"scripts/results/b4_"+str(args.alg)+"_"+str(scale)+"_"+str(T))
+    util_dict.update(demands_unmet)
+    util_dict["Optimal"] = result
+    util_dict["unmet_flow"] = (demands_unmet["total_demands"]-result)/demands_unmet["total_demands"]
+    util_dict["Time"]=t1-t0
+    util_dict["NC"]=network_criticality
+    util_dict["Unmet"]=unmet
+    name=filename.split('/')[-1]
+    print(f"filename:{name}")
+    write_json(util_dict,"./results/"+name+"_"+str(args.alg)+"_"+str(scale)+"_"+str(args.group))

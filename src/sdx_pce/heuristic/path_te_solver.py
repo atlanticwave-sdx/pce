@@ -209,9 +209,14 @@ class PathTESolver:
             if demand.amount - flow_on_tunnels > 0.1:
                 #demands_unmet[(demand.src, demand.dst)] = round(demand.amount - flow_on_tunnels)
                 demands_unmet[(demand.src, demand.dst)] = (demand.amount,(demand.amount-flow_on_tunnels)/demand.amount)
-        unmet_percentage=(total_demands-total_flows)/total_demands
+        unmet_percentage=(total_flows-total_demands)/total_demands
         print(f"Total_demands:{total_demands};total_flows:{total_flows};Overprovisioning percentage:{unmet_percentage}")
-        return demands_unmet
+        demands_stat={}
+        demands_stat["total_demands"]=total_demands
+        demands_stat["total_flows"]=total_flows
+        demands_stat["overprovisioning"]=unmet_percentage
+        demands_stat["num_unmet"]=len(demands_unmet)
+        return demands_stat
 
 
 class FCCPathTESolver(PathTESolver):

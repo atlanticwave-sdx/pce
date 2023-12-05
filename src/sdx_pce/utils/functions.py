@@ -8,6 +8,7 @@ Created on Wed Aug 11 16:40:56 2021
 import copy
 import random
 import json
+import re
 
 import networkx as nx
 import numpy as np
@@ -34,7 +35,7 @@ def bw_stat(g):
             max_util = util
         util_list.append(util)
         util_dict[(u,v)] = util
-    util_array = np.array(util_list)
+    util_array = np.array(util_list,'float32')
     mean_util = np.mean(util_array)
     std_util = np.std(util_array)
     ninetypercetile_util = np.percentile(util_array, 90)
@@ -46,6 +47,8 @@ def bw_stat(g):
     print(
         f"total_weight={total_weight};total_util={total_util};" f"max_util={max_util}"
     )
+    util_dict["mean_util"]=mean_util
+    util_dict["std_util"]=std_util
     return util_dict
 
 def write_json(util_dict,n="0"):
@@ -53,6 +56,31 @@ def write_json(util_dict,n="0"):
     with open(name, 'w') as f: 
         for key, value in util_dict.items(): 
             f.write('%s:%s\n' % (key, value))
+
+# Function to read
+# last N lines of the file
+def last_n_lines(fname, n):
+    # opening file using with() method
+    # so that file get closed
+    # after completing work
+    results = None
+    try:
+        with open(fname) as file:
+            # loop to read iterate
+            # last n lines and convert to a dict
+            results = {}
+            for line in file.readlines()[-n:]:
+                # print(line, end ='')
+                list = re.split(r", |=|;|:|\+", line.splitlines()[0])
+                it = iter(list)
+                res_dct = dict(zip(it, it))
+                results = {**results, **res_dct}
+            if "Script Execution Time" in results.keys():
+                results["Script Execution Time"] = results["Script Execution Time"].split()[0]
+            #print(results)
+    except IOError as e:
+        print(e)
+    return results
 
 class GraphFunction:
     def __init__(self, g=None) -> None:

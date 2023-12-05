@@ -1,4 +1,3 @@
-import re
 import argparse
 import json
 import os
@@ -13,6 +12,7 @@ from fitter import Fitter
 
 from sdx_pce.heuristic.csv_network_parser import *
 from sdx_pce.heuristic.network_topology import *
+from sdx_pce.utils.functions import *
 
 path = "results/"
 def plot_util(path, title, tag):
@@ -50,9 +50,6 @@ def plot_util(path, title, tag):
     name = "_".join(tag_list) + ".png"
     plt.savefig(path+name, bbox_inches="tight")
 
-def plot_unmet():
-    pass
-
 def plot_demands(network):
     n_bins=10
     print("Plot Demands Distribution!\n")
@@ -88,27 +85,131 @@ def plot_topology(g):
     plt.clf()    
 
 def plot_tunnel(g):
+    dir="./results/"
     filename, file_extension = os.path.splitext(g.name)
     name=filename.split('/')[-1]
-    x=[2,3,4,5]
-    #B4
-    y_time_te=[0.0032639503479003906,0.00529789924621582,0.006021022796630859,0.0063130855560302734]
-    y_time_fcc=[0.11051106452941895,0.12927484512329102,0.15407371520996094,0.1728222370147705]
-    y_time_te_cvx=[0.3454568386077881,0.42327284812927246,0.5293939113616943,0.7096188068389893]
-    y_time_fcc_cvx=[5.511837959289551,6.940320014953613,7.885976076126099,9.278906106948853]
 
-    plt.plot(x,y_time_te)
-    plt.plot(x,y_time_fcc)
-    plt.plot(x,y_time_te_cvx)
-    #plt.plot(x,y_time_fcc_cvx)
-    plt.savefig(path+name+"_tunnel"+".png")
-    plt.clf()   
+    n = 11
 
-    #uscarrier
-    y_time_te=[]
-    y_time_fcc=[]
-    y_time_te_cvx=[]
-    y_time_fcc_cvx=[]
+    time_list_dict = {}
+    mean_util_list_dict = {}
+    overprovisioning_list_dict = {}
+    unmet_flow_list_dict = {}
+    unmet_demands_list_dict = {}
+    nc_list_dict = {}
+
+    title = {
+        '10': 'TE(CVX)',
+        '11': 'FCC(CVX)',            
+        '20': 'TE(GLOP)',
+        '21': 'FCC(GLOP)',
+    }
+
+    y_label = [
+        "Computation Time (s)",
+        "Mean Utility",
+        "Overprovisioning",
+        "Unmet Flows",
+        "Unmet Demands",
+        "Network Criticality",
+    ]
+    x_label = "Demand Scale"
+    demand_scale_list=[0.5, 1.0, 1.5, 2.0]  
+
+    for a, alg in title.items():
+        for g in (0, 1):
+            key=a+"_"+str(g)
+            time_list = []
+            mean_util_list = []
+            overprovisioning_list = []
+            unmet_flow_list = []
+            unmet_demands_list = []
+            nc_list = []
+            for s in demand_scale_list:
+                file=dir+name+"_"+str(a)+"_"+str(s)+"_"+str(g)+"_utility.txt"
+                results = last_n_lines(file, n)
+                #print(results)
+                time_list.append(float(results["Time"]))
+                mean_util_list.append(float(results["mean_util"]))
+                overprovisioning_list.append(float(results["overprovisioning"]))
+                unmet_flow_list.append(float(results["unmet_flow"]))
+                unmet_demands_list.append(float(results["Unmet"]))
+                nc_list.append(float(results["NC"]))
+            
+            time_list_dict[key] = time_list
+            mean_util_list_dict[key] = mean_util_list
+            overprovisioning_list_dict[key] = overprovisioning_list
+            unmet_flow_list_dict[key] = unmet_flow_list
+            unmet_demands_list_dict[key] = unmet_demands_list
+            nc_list_dict[key] = nc_list
+
+    fig1, ax1 = plt.subplots()
+    ax1.set_title(y_label[0])
+    ax1.set_xlabel(x_label)
+    for key in time_list_dict.keys():
+        ax1.plot(demand_scale_list, time_list_dict[key], label=str(time_list_dict(key)))
+
+    ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend()
+    plot_name = y_label[0] + "_" + name + "_" + key + ".png"
+    plt.savefig(plot_name, bbox_inches="tight")
+
+    fig2, ax2 = plt.subplots()
+    ax2.set_title(y_label[1])
+    ax2.set_xlabel(x_label)
+    for key in mean_util_list_dict.keys():
+        ax2.plot(demand_scale_list, mean_util_list_dict[key], label=str(time_list_dict(key)))
+
+    ax2.xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend()
+    plot_name = y_label[1] + "_" + name + "_" + key + ".png"
+    plt.savefig(plot_name, bbox_inches="tight")
+
+    fig3, ax3 = plt.subplots()
+    ax3.set_title(y_label[2])
+    ax3.set_xlabel(x_label)
+    for key in overprovisioning_list_dict.keys():
+        ax3.plot(demand_scale_list, overprovisioning_list_dict[key], label=str(time_list_dict(key)))
+
+    ax3.xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend()
+    plot_name = y_label[2] + "_" + name + "_" + key + ".png"
+    plt.savefig(plot_name, bbox_inches="tight")    
+
+    fig4, ax4 = plt.subplots()
+    ax4.set_title(y_label[3])
+    ax4.set_xlabel(x_label)
+    for key in unmet_flow_list_dict.keys():
+        ax4.plot(demand_scale_list, unmet_flow_list_dict[key], label=str(time_list_dict(key)))
+
+    ax4.xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend()
+    plot_name = y_label[3] + "_" + name + "_" + key + ".png"
+    plt.savefig(plot_name, bbox_inches="tight") 
+
+    fig5, ax5 = plt.subplots()
+    ax5.set_title(y_label[4])
+    ax5.set_xlabel(x_label)
+    for key in unmet_demands_list_dict.keys():
+        ax5.plot(demand_scale_list, unmet_demands_list_dict[key], label=str(time_list_dict(key)))
+
+    ax5.xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend()
+    plot_name = y_label[4] + "_" + name + "_" + key + ".png"
+    plt.savefig(plot_name, bbox_inches="tight") 
+
+    fig6, ax6 = plt.subplots()
+    ax6.set_title(y_label[5])
+    ax6.set_xlabel(x_label)
+    for key in nc_list_dict.keys():
+        ax6.plot(demand_scale_list, nc_list_dict[key], label=str(time_list_dict(key)))
+
+    ax6.xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend()
+    plot_name = y_label[5] + "_" + name + "_" + key + ".png"
+    plt.savefig(plot_name, bbox_inches="tight")     
+
+
 
 if __name__ == "__main__":
     parse = argparse.ArgumentParser()
@@ -159,6 +260,7 @@ if __name__ == "__main__":
         #plot results
 
         title = {
+            
             '20': 'TE',
             '21': 'FCC',
             #'22': 'CAT',

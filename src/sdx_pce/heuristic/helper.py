@@ -60,12 +60,17 @@ def get_demands_unmet(network):
     for demand in network.demands.values():
         flow_on_tunnels = sum([tunnel.v_flow.value for tunnel in demand.tunnels])
         total_demands=total_demands+demand.amount
-        total_flows=total_flows+flow_on_tunnels
+        total_flows=total_flows+flow_on_tunnels[0]
         if demand.amount - flow_on_tunnels > 0.1:
             demands_unmet[(demand.src, demand.dst)] = (demand.amount,(demand.amount-flow_on_tunnels)/demand.amount)
-    unmet_percentage=(total_demands-total_flows)/total_demands
+    unmet_percentage=(total_flows-total_demands)/total_demands
     print(f"Total_demands:{total_demands};total_flows:{total_flows};Overprovisioning percentage:{unmet_percentage}")
-    return demands_unmet
+    demands_stat={}
+    demands_stat["total_demands"]=total_demands
+    demands_stat["total_flows"]=total_flows
+    demands_stat["overprovisioning"]=unmet_percentage
+    demands_stat["num_unmet"]=len(demands_unmet)    
+    return demands_stat
 
 #return a DiGraph with updated bandwidth.
 def update_graph_edge_flow(g):
@@ -131,7 +136,7 @@ def criticality(network, flow_labels):
             network_criticality=network_criticality + criticality/utility
     print(f"used tunnels:{used_tunnels};{used_tunnels/num_tunnels}")
     print(f"criticality list:{len(criticality_list)};{len(criticality_list)/linknum}")
-    return criticality_list, network_criticality
+    return criticality_list, network_criticality[0]
 
 #Generate demand following the lognorm distribution fitted from the B4 TM data
 def generate_demand(network,sca,s=S,loc=LOC,scale=SCALE):

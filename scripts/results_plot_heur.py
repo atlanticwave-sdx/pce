@@ -3,33 +3,7 @@ import re
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
-
-# Function to read
-# last N lines of the file
-def last_n_lines(fname, n):
-    # opening file using with() method
-    # so that file get closed
-    # after completing work
-    results = None
-    try:
-        with open(fname) as file:
-            # loop to read iterate
-            # last n lines and convert to a dict
-            results = {}
-            for line in file.readlines()[-n:]:
-                # print(line, end ='')
-                list = re.split(r", |=|;|:|\+", line.splitlines()[0])
-                it = iter(list)
-                res_dct = dict(zip(it, it))
-                results = {**results, **res_dct}
-            results["Script Execution Time"] = results["Script Execution Time"].split()[
-                0
-            ]
-            print(results)
-    except IOError as e:
-        print(e)
-    return results
-
+from sdx_pce.utils.functions import *
 
 def plot_heur(path, title, tag):
     n = 5

@@ -91,7 +91,7 @@ def parse_topology_json(network_name):
     graph=nx.node_link_graph(reader)
     #node index starts from 0 -> +1
     for u,v,p in graph.edges(data=True):
-        network.add_edge(str(u+1), str(v+1), 200, p['capacity']*1.6)  
+        network.add_edge(str(u+1), str(v+1), 200, p['capacity']*500.0)  
 
     return network
 
