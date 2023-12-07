@@ -35,4 +35,7 @@ scancel 5544939510
 --- batch run
 sbatch simulation_job.sh
 
+--- web access
+https://ondemand.rc.unc.edu
+
 

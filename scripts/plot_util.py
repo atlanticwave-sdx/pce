@@ -85,7 +85,7 @@ def plot_topology(g):
     plt.clf()    
 
 def plot_tunnel(g):
-    dir="./results/"
+    dir="./results_slurm/"
     filename, file_extension = os.path.splitext(g.name)
     name=filename.split('/')[-1]
 
@@ -100,7 +100,7 @@ def plot_tunnel(g):
 
     title = {
         '10': 'TE(CVX)',
-        #'11': 'FCC(CVX)',            
+        '11': 'FCC(CVX)',            
         '20': 'TE(GLOP)',
         '21': 'FCC(GLOP)',
     }
@@ -118,8 +118,8 @@ def plot_tunnel(g):
 
     for a, alg in title.items():
         for g in (0, 1):
-            if a=='10' and g==0:
-                continue
+            #if a=='10' and g==0:
+            #    continue
             key=alg+"_"+str(g)
             time_list = []
             mean_util_list = []
