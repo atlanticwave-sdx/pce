@@ -88,6 +88,8 @@ def plot_tunnel(g):
     dir="./results_slurm/"
     filename, file_extension = os.path.splitext(g.name)
     name=filename.split('/')[-1]
+    #"te", "fcc, "all" figures
+    sub="_fcc"
 
     n = 11
 
@@ -99,9 +101,9 @@ def plot_tunnel(g):
     nc_list_dict = {}
 
     title = {
-        '10': 'TE(CVX)',
-        '11': 'FCC(CVX)',            
-        '20': 'TE(GLOP)',
+        #'10': 'TE(CVX)',
+        #'11': 'FCC(CVX)',            
+        #'20': 'TE(GLOP)',
         '21': 'FCC(GLOP)',
     }
 
@@ -148,14 +150,16 @@ def plot_tunnel(g):
     fig1, ax1 = plt.subplots()
     ax1.set_title(y_label[0])
     ax1.set_xlabel(x_label)
+    plt.yscale("log")  
     for key in time_list_dict.keys():
         ax1.plot(demand_scale_list, time_list_dict[key], label=str(key))
 
     ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
-    plot_name = y_label[0] + "_" + name + ".png"
+    plot_name = y_label[0] + "_" + name + sub + ".png"
     plt.savefig(plot_name, bbox_inches="tight")
 
+    plt.yscale("linear")
     fig2, ax2 = plt.subplots()
     ax2.set_title(y_label[1])
     ax2.set_xlabel(x_label)
@@ -164,7 +168,7 @@ def plot_tunnel(g):
 
     ax2.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
-    plot_name = y_label[1] + "_" + name + ".png"
+    plot_name = y_label[1] + "_" + name + sub + ".png"
     plt.savefig(plot_name, bbox_inches="tight")
 
     fig3, ax3 = plt.subplots()
@@ -175,7 +179,7 @@ def plot_tunnel(g):
 
     ax3.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
-    plot_name = y_label[2] + "_" + name + ".png"
+    plot_name = y_label[2] + "_" + name + sub + ".png"
     plt.savefig(plot_name, bbox_inches="tight")    
 
     fig4, ax4 = plt.subplots()
@@ -186,7 +190,7 @@ def plot_tunnel(g):
 
     ax4.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
-    plot_name = y_label[3] + "_" + name + ".png"
+    plot_name = y_label[3] + "_" + name + sub + ".png"
     plt.savefig(plot_name, bbox_inches="tight") 
 
     fig5, ax5 = plt.subplots()
@@ -197,7 +201,7 @@ def plot_tunnel(g):
 
     ax5.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
-    plot_name = y_label[4] + "_" + name + ".png"
+    plot_name = y_label[4] + "_" + name + sub + ".png"
     plt.savefig(plot_name, bbox_inches="tight") 
 
     fig6, ax6 = plt.subplots()
@@ -208,7 +212,7 @@ def plot_tunnel(g):
 
     ax6.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
-    plot_name = y_label[5] + "_" + name + ".png"
+    plot_name = y_label[5] + "_" + name + sub + ".png"
     plt.savefig(plot_name, bbox_inches="tight")     
 
 
