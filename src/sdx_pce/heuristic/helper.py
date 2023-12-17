@@ -49,8 +49,8 @@ def get_demands_met(network):
         flow_on_tunnels = sum([tunnel.v_flow.value for tunnel in demand.tunnels])
         #for tunnel in demand.tunnels:
         #    print(f"tunnel_flow={tunnel.v_flow.value}")
-        if demand.amount<=flow_on_tunnels[0]:
-            demands_met[(demand.src, demand.dst)] = flow_on_tunnels[0]
+        #if demand.amount<=flow_on_tunnels[0]:
+        demands_met[(demand.src, demand.dst)] = flow_on_tunnels[0]
     return demands_met
 
 def get_demands_unmet(network):
