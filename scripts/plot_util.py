@@ -89,32 +89,35 @@ def plot_tunnel(g):
     filename, file_extension = os.path.splitext(g.name)
     name=filename.split('/')[-1]
     #"te", "fcc, "all" figures
-    sub="_fcc"
+    sub="_te"
 
     n = 11
 
     time_list_dict = {}
     mean_util_list_dict = {}
+    std_util_list_dict = {}
     overprovisioning_list_dict = {}
     unmet_flow_list_dict = {}
     unmet_demands_list_dict = {}
     nc_list_dict = {}
 
     title = {
-        #'10': 'TE(CVX)',
+        '10': 'TE(CVX)',
         #'11': 'FCC(CVX)',            
-        #'20': 'TE(GLOP)',
-        '21': 'FCC(GLOP)',
+        '20': 'TE(GLOP)',
+        #'21': 'FCC(GLOP)',
     }
 
     y_label = [
         "Computation Time (s)",
         "Mean Utility",
+        "STD Utility" ,
         "Overprovisioning",
         "Unmet Flows",
         "Unmet Demands",
-        "Network Criticality",
+        "Network Criticality"
     ]
+
     x_label = "Demand Scale"
     demand_scale_list=[0.5, 1.0, 1.5, 2.0]  
 
@@ -125,6 +128,7 @@ def plot_tunnel(g):
             key=alg+"_"+str(g)
             time_list = []
             mean_util_list = []
+            std_util_list = []
             overprovisioning_list = []
             unmet_flow_list = []
             unmet_demands_list = []
@@ -133,15 +137,20 @@ def plot_tunnel(g):
                 file=dir+name+"_"+str(a)+"_"+str(s)+"_"+str(g)+"_utility.txt"
                 results = last_n_lines(file, n)
                 #print(results)
+                Optimal=float(results["Optimal"])
+                total_flows=float(results["total_flows"])
+                overprovisioning = (total_flows-Optimal)/Optimal
                 time_list.append(float(results["Time"]))
                 mean_util_list.append(float(results["mean_util"]))
-                overprovisioning_list.append(float(results["overprovisioning"]))
+                std_util_list.append(float(results["std_util"]))
+                overprovisioning_list.append(overprovisioning)
                 unmet_flow_list.append(float(results["unmet_flow"]))
                 unmet_demands_list.append(float(results["Unmet"]))
                 nc_list.append(float(results["NC"]))
             
             time_list_dict[key] = time_list
             mean_util_list_dict[key] = mean_util_list
+            std_util_list_dict[key] = std_util_list
             overprovisioning_list_dict[key] = overprovisioning_list
             unmet_flow_list_dict[key] = unmet_flow_list
             unmet_demands_list_dict[key] = unmet_demands_list
@@ -171,33 +180,34 @@ def plot_tunnel(g):
     plot_name = y_label[1] + "_" + name + sub + ".png"
     plt.savefig(plot_name, bbox_inches="tight")
 
+    plt.yscale("linear")
     fig3, ax3 = plt.subplots()
     ax3.set_title(y_label[2])
     ax3.set_xlabel(x_label)
-    for key in overprovisioning_list_dict.keys():
-        ax3.plot(demand_scale_list, overprovisioning_list_dict[key], label=str(key))
+    for key in std_util_list_dict.keys():
+        ax3.plot(demand_scale_list, std_util_list_dict[key], label=str(key))
 
     ax3.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
     plot_name = y_label[2] + "_" + name + sub + ".png"
-    plt.savefig(plot_name, bbox_inches="tight")    
+    plt.savefig(plot_name, bbox_inches="tight")
 
     fig4, ax4 = plt.subplots()
     ax4.set_title(y_label[3])
     ax4.set_xlabel(x_label)
-    for key in unmet_flow_list_dict.keys():
-        ax4.plot(demand_scale_list, unmet_flow_list_dict[key], label=str(key))
+    for key in overprovisioning_list_dict.keys():
+        ax3.plot(demand_scale_list, overprovisioning_list_dict[key], label=str(key))
 
     ax4.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
     plot_name = y_label[3] + "_" + name + sub + ".png"
-    plt.savefig(plot_name, bbox_inches="tight") 
+    plt.savefig(plot_name, bbox_inches="tight")    
 
     fig5, ax5 = plt.subplots()
     ax5.set_title(y_label[4])
     ax5.set_xlabel(x_label)
-    for key in unmet_demands_list_dict.keys():
-        ax5.plot(demand_scale_list, unmet_demands_list_dict[key], label=str(key))
+    for key in unmet_flow_list_dict.keys():
+        ax5.plot(demand_scale_list, unmet_flow_list_dict[key], label=str(key))
 
     ax5.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
@@ -207,12 +217,23 @@ def plot_tunnel(g):
     fig6, ax6 = plt.subplots()
     ax6.set_title(y_label[5])
     ax6.set_xlabel(x_label)
-    for key in nc_list_dict.keys():
-        ax6.plot(demand_scale_list, nc_list_dict[key], label=str(key))
+    for key in unmet_demands_list_dict.keys():
+        ax6.plot(demand_scale_list, unmet_demands_list_dict[key], label=str(key))
 
     ax6.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.legend()
     plot_name = y_label[5] + "_" + name + sub + ".png"
+    plt.savefig(plot_name, bbox_inches="tight") 
+
+    fig7, ax7 = plt.subplots()
+    ax7.set_title(y_label[6])
+    ax7.set_xlabel(x_label)
+    for key in nc_list_dict.keys():
+        ax7.plot(demand_scale_list, nc_list_dict[key], label=str(key))
+
+    ax7.xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend()
+    plot_name = y_label[6] + "_" + name + sub + ".png"
     plt.savefig(plot_name, bbox_inches="tight")     
 
 

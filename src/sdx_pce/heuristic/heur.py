@@ -345,7 +345,7 @@ if __name__ == "__main__":
                 unmet=demands_unmet["num_unmet"]
                 print(f"Unmet Demands:{unmet}")
                 unmet=unmet/len(demands_met)
-                criticality_list,network_criticality=criticality(network, solution)
+                criticality_list,network_criticality,used_tunnels,used_tunnel_ratio=criticality(network, solution)
                 print(f"n_c={network_criticality}")
         
         if args.alg ==11:    
@@ -377,7 +377,7 @@ if __name__ == "__main__":
                 unmet=demands_unmet["num_unmet"]
                 print(f"Unmet Demands:{unmet}")
                 unmet=unmet/len(demands_met)
-                criticality_list,network_criticality=criticality(network, solution)
+                criticality_list,network_criticality,used_tunnels,used_tunnel_ratio=criticality(network, solution)
                 print(f"n_c={network_criticality}")  
             else:
                 print("Optimal solution was not found.")
@@ -398,7 +398,7 @@ if __name__ == "__main__":
             unmet=demands_unmet["num_unmet"]
             print(f"Unmet Demands:{unmet}")
             unmet=unmet/len(demands_met)
-            criticality_list,network_criticality=path_solver.criticality(edge_flow)
+            criticality_list,network_criticality,used_tunnels,used_tunnel_ratio=path_solver.criticality(edge_flow)
             print(f"n_c={network_criticality}")
 
         if args.alg ==21:
@@ -424,7 +424,7 @@ if __name__ == "__main__":
             print(f"Unmet Demands:{unmet}")
             unmet=unmet/len(demands_met)
             #print(demands_unmet)
-            criticality_list,network_criticality=fcc_solver.criticality(edge_flow)
+            criticality_list,network_criticality,used_tunnels,used_tunnel_ratio=fcc_solver.criticality(edge_flow)
             print(f"n_c={network_criticality}")
 
     else:
@@ -455,6 +455,8 @@ if __name__ == "__main__":
     util_dict["unmet_flow"] = (demands_unmet["total_demands"]-result)/demands_unmet["total_demands"]
     util_dict["Time"]=t1-t0
     util_dict["NC"]=network_criticality
+    util_dict["used_tunnels"]= used_tunnels
+    util_dict["used_tunnel_ratio"] = used_tunnel_ratio
     util_dict["Unmet"]=unmet
     name=filename.split('/')[-1]
     print(f"filename:{name}")

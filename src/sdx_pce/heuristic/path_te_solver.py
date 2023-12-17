@@ -170,9 +170,10 @@ class PathTESolver:
                 allocation, utility=flow_labels[edge]
                 criticality=criticality_list[edge]
                 network_criticality=network_criticality + criticality/utility
+        used_tunnel_ratio=used_tunnels/num_tunnels
         print(f"used tunnels:{used_tunnels};{used_tunnels/num_tunnels}")
         print(f"criticality list:{len(criticality_list)};{len(criticality_list)/linknum}")
-        return criticality_list, network_criticality
+        return criticality_list, network_criticality,used_tunnels,used_tunnel_ratio
 
     def get_edge_flow_allocations(self):
         """ 

@@ -134,9 +134,11 @@ def criticality(network, flow_labels):
             allocation, utility=flow_labels[edge.e]
             criticality=criticality_list[edge]
             network_criticality=network_criticality + criticality/utility
+    used_tunnel_ratio=used_tunnels/num_tunnels
+    print(f"used tunnels:{used_tunnels};{used_tunnels/num_tunnels}")
     print(f"used tunnels:{used_tunnels};{used_tunnels/num_tunnels}")
     print(f"criticality list:{len(criticality_list)};{len(criticality_list)/linknum}")
-    return criticality_list, network_criticality[0]
+    return criticality_list, network_criticality[0],used_tunnels,used_tunnel_ratio
 
 #Generate demand following the lognorm distribution fitted from the B4 TM data
 def generate_demand(network,sca,s=S,loc=LOC,scale=SCALE):
