@@ -91,7 +91,7 @@ def plot_tunnel(g):
     #"te", "fcc, "all" figures
     sub="_te"
 
-    n = 11
+    n = 15
 
     time_list_dict = {}
     mean_util_list_dict = {}
@@ -100,6 +100,7 @@ def plot_tunnel(g):
     unmet_flow_list_dict = {}
     unmet_demands_list_dict = {}
     nc_list_dict = {}
+    used_tunnel_list_dict = {}
 
     title = {
         '10': 'TE(CVX)',
@@ -115,7 +116,8 @@ def plot_tunnel(g):
         "Overprovisioning",
         "Unmet Flows",
         "Unmet Demands",
-        "Network Criticality"
+        "Network Criticality",
+        "Used Tunnel Ratio"
     ]
 
     x_label = "Demand Scale"
@@ -133,6 +135,7 @@ def plot_tunnel(g):
             unmet_flow_list = []
             unmet_demands_list = []
             nc_list = []
+            used_tunnel_list = []
             for s in demand_scale_list:
                 file=dir+name+"_"+str(a)+"_"+str(s)+"_"+str(g)+"_utility.txt"
                 results = last_n_lines(file, n)
@@ -147,7 +150,8 @@ def plot_tunnel(g):
                 unmet_flow_list.append(float(results["unmet_flow"]))
                 unmet_demands_list.append(float(results["Unmet"]))
                 nc_list.append(float(results["NC"]))
-            
+                used_tunnel_list.append(float(results["used_tunnel_ratio"]))
+
             time_list_dict[key] = time_list
             mean_util_list_dict[key] = mean_util_list
             std_util_list_dict[key] = std_util_list
@@ -155,6 +159,7 @@ def plot_tunnel(g):
             unmet_flow_list_dict[key] = unmet_flow_list
             unmet_demands_list_dict[key] = unmet_demands_list
             nc_list_dict[key] = nc_list
+            used_tunnel_list_dict[key] = used_tunnel_list
 
     fig1, ax1 = plt.subplots()
     ax1.set_title(y_label[0])
@@ -235,6 +240,17 @@ def plot_tunnel(g):
     plt.legend()
     plot_name = y_label[6] + "_" + name + sub + ".png"
     plt.savefig(plot_name, bbox_inches="tight")     
+
+    fig8, ax8 = plt.subplots()
+    ax8.set_title(y_label[7])
+    ax8.set_xlabel(x_label)
+    for key in nc_list_dict.keys():
+        ax8.plot(demand_scale_list, used_tunnel_list_dict[key], label=str(key))
+
+    ax8.xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend()
+    plot_name = y_label[7] + "_" + name + sub + ".png"
+    plt.savefig(plot_name, bbox_inches="tight")  
 
 
 
