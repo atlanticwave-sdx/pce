@@ -334,7 +334,7 @@ class TEManager:
         """
         Take a connection solution and generate a breakdown.
         """
-        if solution is None or solution.connection_map is None:        
+        if solution is None or solution.connection_map is None:
             self._logger.warning(f"Can't find a breakdown for {solution}")
             return None
 
