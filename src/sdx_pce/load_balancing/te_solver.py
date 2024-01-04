@@ -103,9 +103,6 @@ class TESolver:
             f"data.num_inequality: {data.num_inequality}"
         )
 
-        # print(data.bounds)
-        # print(data.constraint_coeffs)
-
         for i in range(
             data.num_constraints - data.num_inequality, data.num_constraints
         ):
