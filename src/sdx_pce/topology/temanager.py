@@ -124,7 +124,7 @@ class TEManager:
                 # TODO: why is label_range sometimes None, and what to
                 # do when that happens?
                 if label_range is None:
-                    print(f"label_range on {port.get('id')} is None")
+                    self._logger.info(f"label_range on {port.get('id')} is None")
                     continue
 
                 # label_range is of the form ['100-200', '1000']; let
@@ -173,11 +173,13 @@ class TEManager:
         set of requests, each of them specific to a domain.  We call
         such a domain-wise set of requests a traffic matrix.
         """
-        print(f"generate_traffic_matrix: connection_request: {connection_request}")
+        self._logger.info(
+            f"generate_traffic_matrix: connection_request: {connection_request}"
+        )
 
         request = ConnectionHandler().import_connection_data(connection_request)
 
-        print(f"generate_traffic_matrix: decoded request: {request}")
+        self._logger.info(f"generate_traffic_matrix: decoded request: {request}")
 
         ingress_port = request.ingress_port
         egress_port = request.egress_port
@@ -301,7 +303,7 @@ class TEManager:
 
         """
         if solution is None or solution.connection_map is None:
-            print(f"Can't find paths for {solution}")
+            self._logger.warning(f"Can't find paths for {solution}")
             return None
 
         result = []
@@ -318,7 +320,7 @@ class TEManager:
 
                 ports = self._get_ports_by_link(link)
 
-                print(
+                self._logger.info(
                     f"get_links_on_path: src_node: {src_node} (#{link.source}), "
                     f"dst_node: {dst_node} (#{link.destination}), "
                     f"ports: {ports}"
@@ -414,7 +416,8 @@ class TEManager:
             segment = {}
             segment["ingress_port"] = ingress_port
             segment["egress_port"] = egress_port
-            print(f"segment for {domain}: {segment}")
+
+            self._logger.info(f"segment for {domain}: {segment}")
 
             domain_breakdown[domain] = segment.copy()
             i = i + 1
@@ -654,7 +657,7 @@ class TEManager:
         # mark the tag as in-use.
         vlan_table[available_tag] = request_id
 
-        print(
+        self._logger.info(
             f"reserve_vlan domain {domain}, after reservation: "
             f"vlan_table: {vlan_table}, available_tag: {available_tag}"
         )
