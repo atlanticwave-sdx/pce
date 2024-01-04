@@ -63,14 +63,6 @@ class TEManager:
 
         self._logger = logging.getLogger(__name__)
 
-        self._logger.info(f"TEManager: connection_data: {connection_data}")
-
-        self.connection = self.connection_handler.import_connection_data(
-            connection_data
-        )
-
-        self._logger.info(f"TEManager: self.connection: {self.connection.to_dict()}")
-
     def add_topology(self, topology_data: dict):
         """
         Add a new topology to TEManager.
@@ -343,7 +335,8 @@ class TEManager:
         Take a connection solution and generate a breakdown.
         """
         if solution is None or solution.connection_map is None:        
-            self._logger.warning(f"Can't find a breakdown for {connection}")
+            self._logger.warning(f"Can't find a breakdown for {solution}")
+            return None
 
         breakdown = {}
         paths = solution.connection_map  # p2p for now

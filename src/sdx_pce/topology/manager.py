@@ -81,8 +81,8 @@ class TopologyManager:
                     self._port_map[port["id"]] = link
         else:
             # check the inter-domain links first.
-            self.num_interdomain_link += self.inter_domain_check(topology)
-            if self.num_interdomain_link == 0:
+            self._num_interdomain_link += self.inter_domain_check(topology)
+            if self._num_interdomain_link == 0:
                 self._logger.debug(
                     f"Warning: no interdomain links detected in {topology.id}!"
                 )
