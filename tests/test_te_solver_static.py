@@ -29,22 +29,20 @@ class TESolverTests(unittest.TestCase):
     ]
 
     def setUp(self):
-        with open(TestData.TOPOLOGY_FILE_SDX, "r", encoding="utf-8") as t:
-            topology_data = json.load(t)
-        with open(TestData.CONNECTION_REQ, "r", encoding="utf-8") as c:
-            connection_data = json.load(c)
+        topology_data = json.loads(TestData.TOPOLOGY_FILE_SDX.read_text())
+        self.temanager = TEManager(topology_data)
 
-        self.temanager = TEManager(topology_data, connection_data)
+        self.connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
 
     def test_computation_breakdown(self):
         graph = self.temanager.generate_graph_te()
-        connection_request = self.temanager.generate_connection_te()
+        tm = self.temanager.generate_traffic_matrix(self.connection_request)
 
         print(f"Number of nodes: {graph.number_of_nodes()}")
         print(f"Graph edges: {graph.edges}")
-        print(f"Traffic Matrix: {connection_request}")
+        print(f"Traffic Matrix: {tm}")
 
-        solution = TESolver(graph, connection_request).solve()
+        solution = TESolver(graph, tm).solve()
         print(f"TESolver result: {solution}")
 
         self.assertIsInstance(solution, ConnectionSolution)
@@ -57,20 +55,19 @@ class TESolverTests(unittest.TestCase):
     def test_computation_breakdown_many_topologies(self):
         for topology_file in self.TOPOLOGY_FILE_LIST:
             print(f"Adding Topology: {topology_file}")
-            with open(topology_file, "r", encoding="utf-8") as data_file:
-                data = json.load(data_file)
-                self.temanager.topology_manager.add_topology(data)
+            data = json.loads(topology_file.read_text())
+            self.temanager.topology_manager.add_topology(data)
 
         graph = self.temanager.generate_graph_te()
         print(f"Graph: {graph}")
 
-        connection_request = self.temanager.generate_connection_te()
-        print(f"Connection Request: {connection_request}")
+        tm = self.temanager.generate_traffic_matrix(self.connection_request)
+        print(f"Traffic matrix: {tm}")
 
-        conn = self.temanager.requests_connectivity(connection_request)
+        conn = self.temanager.requests_connectivity(tm)
         print(f"Graph connectivity: {conn}")
 
-        solution = TESolver(graph, connection_request).solve()
+        solution = TESolver(graph, tm).solve()
         print(f"TESolver result: {solution}")
 
         self.assertIsNotNone(solution.connection_map)
@@ -83,23 +80,21 @@ class TESolverTests(unittest.TestCase):
     def test_computation_update(self):
         for topology_file in self.TOPOLOGY_FILE_LIST:
             print(f"Adding Topology: {topology_file}")
-            with open(topology_file, "r", encoding="utf-8") as data_file:
-                data = json.load(data_file)
-                self.temanager.add_topology(data)
+            data = json.loads(topology_file.read_text())
+            self.temanager.add_topology(data)
 
         for topology_file in self.TOPOLOGY_FILE_LIST_UPDATE:
             print(f"Updating Topology: {topology_file}")
-            with open(topology_file, "r", encoding="utf-8") as data_file:
-                data = json.load(data_file)
-                self.temanager.update_topology(data)
+            data = json.loads(topology_file.read_text())
+            self.temanager.update_topology(data)
 
         graph = self.temanager.generate_graph_te()
-        connection_request = self.temanager.generate_connection_te()
+        tm = self.temanager.generate_traffic_matrix(self.connection_request)
 
-        conn = self.temanager.requests_connectivity(connection_request)
+        conn = self.temanager.requests_connectivity(tm)
         print(f"Graph connectivity: {conn}")
 
-        solution = TESolver(graph, connection_request).solve()
+        solution = TESolver(graph, tm).solve()
         print(f"TESolver result: {solution}")
 
         self.assertIsNotNone(solution.connection_map)

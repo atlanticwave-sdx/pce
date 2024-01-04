@@ -1,5 +1,6 @@
-import pathlib
 import unittest
+
+from sdx_datamodel.parsing.topologyhandler import TopologyHandler
 
 from sdx_pce.topology.grenmlconverter import GrenmlConverter
 from sdx_pce.topology.manager import TopologyManager
@@ -22,14 +23,12 @@ class GrenmlConverterTests(unittest.TestCase):
         pass
 
     def test_grenml_converter_amlight(self):
-        manager = TopologyManager()
+        TopologyManager()
 
         # TODO: this does not raise errors when it should (such as
         # when the input file is not present). Make the necessary
         # change in datamodel's TopologyHandler class.
-        topology = manager.topology_handler.import_topology(
-            TestData.TOPOLOGY_FILE_AMLIGHT
-        )
+        topology = TopologyHandler().import_topology(TestData.TOPOLOGY_FILE_AMLIGHT)
 
         print(f"Topology: {topology}")
         self.assertIsNotNone(topology, "No topology could be read")

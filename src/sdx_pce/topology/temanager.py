@@ -5,7 +5,7 @@ from typing import List, Optional
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
-from sdx.datamodel.parsing.connectionhandler import ConnectionHandler
+from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 
 from sdx_pce.models import (
     ConnectionPath,
@@ -18,6 +18,9 @@ from sdx_pce.models import (
     VlanTaggedPort,
 )
 from sdx_pce.topology.manager import TopologyManager
+from sdx_pce.utils.exceptions import ValidationError
+
+UNUSED_VLAN = None
 
 
 class TEManager:
@@ -34,11 +37,8 @@ class TEManager:
         - VLAN reservation and unreservation.
     """
 
-    def __init__(self, topology_data, connection_data):
-        super().__init__()
-
+    def __init__(self, topology_data):
         self.topology_manager = TopologyManager()
-        self.connection_handler = ConnectionHandler()
 
         # A lock to safely perform topology operations.
         self._topology_lock = threading.Lock()
@@ -50,13 +50,13 @@ class TEManager:
         # https://github.com/atlanticwave-sdx/sdx-controller/issues/145.
         #
         # TODO: a nicer thing to do would be to keep less state around.
-        # https://github.com/atlanticwave-sdx_pce/issues/122
+        # https://github.com/atlanticwave-sdx/pce/issues/122
         if topology_data:
             self.topology_manager.add_topology(topology_data)
             self.graph = self.generate_graph_te()
             self._update_vlan_tags_table(
                 domain_name=topology_data.get("id"),
-                port_list=self.topology_manager.port_list,
+                port_map=self.topology_manager.get_port_map(),
             )
         else:
             self.graph = None
@@ -85,7 +85,7 @@ class TEManager:
         # attached to links.
         self._update_vlan_tags_table(
             domain_name=topology_data.get("id"),
-            port_list=self.topology_manager.port_list,
+            port_map=self.topology_manager.get_port_map(),
         )
 
     def update_topology(self, topology_data: dict):
@@ -98,41 +98,42 @@ class TEManager:
 
         # TODO: careful here when updating VLAN tags table -- what do
         # we do when an in use VLAN tag becomes invalid in the update?
-        # See https://github.com/atlanticwave-sdx_pce/issues/123
+        # See https://github.com/atlanticwave-sdx/pce/issues/123
         #
         # self._update_vlan_tags_table_from_links(
         #     domain_name=topology_data.get("id"),
         #     port_list=self.topology_manager.port_list,
         # )
 
-    def _update_vlan_tags_table(self, domain_name, port_list):
+    def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
         Update VLAN tags table.
         """
         self._vlan_tags_table[domain_name] = {}
 
-        for port_id, link in port_list.items():
-            # TODO: port here seems to be a dict, not sdx.datamodel.models.Port
+        for port_id, link in port_map.items():
+            # TODO: port here seems to be a dict, not sdx_datamodel.models.Port
             for port in link.ports:
-                # TODO: sometimes port_id and "inner" port_id below
-                # can be different.  Why?  For example, port_id of
-                # urn:sdx:port:amlight.net:B1:2 and port_id_inner of
-                # urn:sdx:port:amlight.net:B2:2.
-                #
-                # See https://github.com/atlanticwave-sdx_pce/issues/124
-                #
-                # port_id_inner = port.get("id")
-                # print(f"port_id: {port_id}, port_id_inner: {port_id_inner}")
-                # assert port_id == port_id_inner
+                # Collect all port IDs in this link.  Each link should
+                # have two ports.
+                link_port_ids = [x.get("id") for x in link.ports]
+
+                # Do some error checks.
+                link_port_count = len(link_port_ids)
+
+                if link_port_count != 2:
+                    raise ValidationError(f"Link has {link_port_count} ports, not 2")
+
+                if port_id not in link_port_ids:
+                    raise ValidationError(f"port {port_id} not in {link_port_ids}")
 
                 label_range = port.get("label_range")
 
                 # TODO: why is label_range sometimes None, and what to
                 # do when that happens?
                 if label_range is None:
+                    print(f"label_range on {port.get('id')} is None")
                     continue
-
-                # assert label_range is not None, "label_range is None"
 
                 # label_range is of the form ['100-200', '1000']; let
                 # us expand it.  Would have been ideal if this was
@@ -140,8 +141,8 @@ class TEManager:
                 # is a work-around.
                 all_labels = self._expand_label_range(label_range)
 
-                # Make a map lik: `{tag1: True, tag2: True, tag3: True...}`
-                labels_available = {label: True for label in all_labels}
+                # Make a map like: `{label1: UNUSED_VLAN, label2: UNUSED_VLAN,...}`
+                labels_available = {label: UNUSED_VLAN for label in all_labels}
 
                 self._vlan_tags_table[domain_name][port_id] = labels_available
 
@@ -162,7 +163,7 @@ class TEManager:
         case, we return [100].
         """
         if not isinstance(label, str):
-            raise ValueError("Label must be a string.")
+            raise ValidationError("Label must be a string.")
 
         parts = label.split("-")
         start = int(parts[0])
@@ -170,21 +171,35 @@ class TEManager:
 
         return list(range(start, stop))
 
-    def generate_connection_te(self) -> TrafficMatrix:
+    def generate_traffic_matrix(self, connection_request: dict) -> TrafficMatrix:
         """
         Generate a Traffic Matrix from the connection request we have.
+
+        A connection request specifies an ingress port, an egress
+        port, and some other properties.  The ports may belong to
+        different domains.  We need to break that request down into a
+        set of requests, each of them specific to a domain.  We call
+        such a domain-wise set of requests a traffic matrix.
         """
-        ingress_port = self.connection.ingress_port
-        egress_port = self.connection.egress_port
+        print(f"generate_traffic_matrix: connection_request: {connection_request}")
+
+        request = ConnectionHandler().import_connection_data(connection_request)
+
+        print(f"generate_traffic_matrix: decoded request: {request}")
+
+        ingress_port = request.ingress_port
+        egress_port = request.egress_port
 
         self._logger.info(
-            f"generate_connection_te(), ports: "
+            f"generate_traffic_matrix, ports: "
             f"ingress_port.id: {ingress_port.id}, "
             f"egress_port.id: {egress_port.id}"
         )
 
-        ingress_node = self.topology_manager.topology.get_node_by_port(ingress_port.id)
-        egress_node = self.topology_manager.topology.get_node_by_port(egress_port.id)
+        topology = self.topology_manager.get_topology()
+
+        ingress_node = topology.get_node_by_port(ingress_port.id)
+        egress_node = topology.get_node_by_port(egress_port.id)
 
         if ingress_node is None:
             self._logger.warning(
@@ -218,8 +233,9 @@ class TEManager:
             )
             return None
 
-        required_bandwidth = self.connection.bandwidth or 0
-        required_latency = self.connection.latency or 0
+        required_bandwidth = request.bandwidth or 0
+        required_latency = request.latency or 0
+        request_id = request.id
 
         self._logger.info(
             f"Setting required_latency: {required_latency}, "
@@ -233,7 +249,7 @@ class TEManager:
             required_latency=required_latency,
         )
 
-        return TrafficMatrix(connection_requests=[request])
+        return TrafficMatrix(connection_requests=[request], request_id=request_id)
 
     def generate_graph_te(self) -> nx.Graph:
         """
@@ -272,16 +288,65 @@ class TEManager:
 
         return True
 
-    def generate_connection_breakdown(self, connection: ConnectionSolution) -> dict:
+    def get_links_on_path(self, solution: ConnectionSolution) -> list:
+        """
+        Return all the links on a connection solution.
+
+        The result will be a list of dicts, like so:
+
+        .. code-block::
+
+           [{'source': 'urn:ogf:network:sdx:port:zaoxi:A1:1',
+              'destination': 'urn:ogf:network:sdx:port:zaoxi:B1:3'},
+            {'source': 'urn:ogf:network:sdx:port:zaoxi:B1:1',
+             'destination': 'urn:ogf:network:sdx:port:sax:B3:1'},
+            {'source': 'urn:ogf:network:sdx:port:sax:B3:3',
+             'destination': 'urn:ogf:network:sdx:port:sax:B1:4'},
+            {'source': 'urn:ogf:network:sdx:port:sax:B1:1',
+             'destination': 'urn:sdx:port:amlight:B1:1'},
+            {'source': 'urn:sdx:port:amlight.net:B1:3',
+             'destination': 'urn:sdx:port:amlight.net:A1:1'}]
+
+        """
+        if solution is None or solution.connection_map is None:
+            print(f"Can't find paths for {solution}")
+            return None
+
+        result = []
+
+        for domain, links in solution.connection_map.items():
+            for link in links:
+                assert isinstance(link, ConnectionPath)
+
+                src_node = self.graph.nodes.get(link.source)
+                assert src_node is not None
+
+                dst_node = self.graph.nodes.get(link.destination)
+                assert dst_node is not None
+
+                ports = self._get_ports_by_link(link)
+
+                print(
+                    f"get_links_on_path: src_node: {src_node} (#{link.source}), "
+                    f"dst_node: {dst_node} (#{link.destination}), "
+                    f"ports: {ports}"
+                )
+
+                if ports:
+                    p1, p2 = ports
+                    result.append({"source": p1.get("id"), "destination": p2.get("id")})
+
+        return result
+
+    def generate_connection_breakdown(self, solution: ConnectionSolution) -> dict:
         """
         Take a connection solution and generate a breakdown.
         """
-        if connection is None or connection.connection_map is None:
+        if solution is None or solution.connection_map is None:        
             self._logger.warning(f"Can't find a breakdown for {connection}")
-            return None
 
         breakdown = {}
-        paths = connection.connection_map  # p2p for now
+        paths = solution.connection_map  # p2p for now
 
         for domain, links in paths.items():
             self._logger.info(f"domain: {domain}, links: {links}")
@@ -330,6 +395,11 @@ class TEManager:
         i = 0
         domain_breakdown = {}
 
+        # TODO: using dict to represent a breakdown is dubious, and
+        # may lead to incorrect results.  Dicts are lexically ordered,
+        # and that may break some assumptions about the order in which
+        # we form and traverse the breakdown.
+
         for domain, links in breakdown.items():
             self._logger.info(
                 f"Creating domain_breakdown: domain: {domain}, links: {links}"
@@ -337,26 +407,22 @@ class TEManager:
             segment = {}
             if first:
                 first = False
-                last_link = links[-1]
-                n1 = self.graph.nodes[last_link.source]["id"]
-                n2 = self.graph.nodes[last_link.destination]["id"]
-                n1, p1, n2, p2 = self.topology_manager.topology.get_port_by_link(n1, n2)
-                i_port = self.connection.ingress_port.to_dict()
-                e_port = p1
-                next_i = p2
+                # ingress port for this domain is on the first link.
+                ingress_port, _ = self._get_ports_by_link(links[0])
+                # egress port for this domain is on the last link.
+                egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
             elif i == len(breakdown) - 1:
-                i_port = next_i
-                e_port = self.connection.egress_port.to_dict()
+                ingress_port = next_ingress_port
+                _, egress_port = self._get_ports_by_link(links[-1])
             else:
-                last_link = links[-1]
-                n1 = self.graph.nodes[last_link.source]["id"]
-                n2 = self.graph.nodes[last_link.destination]["id"]
-                n1, p1, n2, p2 = self.topology_manager.topology.get_port_by_link(n1, n2)
-                i_port = next_i
-                e_port = p1
-                next_i = p2
-            segment["ingress_port"] = i_port
-            segment["egress_port"] = e_port
+                ingress_port = next_ingress_port
+                egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
+
+            segment = {}
+            segment["ingress_port"] = ingress_port
+            segment["egress_port"] = egress_port
+            print(f"segment for {domain}: {segment}")
+
             domain_breakdown[domain] = segment.copy()
             i = i + 1
 
@@ -364,7 +430,9 @@ class TEManager:
             f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}"
         )
 
-        tagged_breakdown = self._reserve_vlan_breakdown(domain_breakdown)
+        tagged_breakdown = self._reserve_vlan_breakdown(
+            domain_breakdown=domain_breakdown, request_id=solution.request_id
+        )
         self._logger.info(
             f"generate_connection_breakdown(): tagged_breakdown: {tagged_breakdown}"
         )
@@ -378,6 +446,30 @@ class TEManager:
         # Return a dict containing VLAN-tagged breakdown in the
         # expected format.
         return tagged_breakdown.to_dict().get("breakdowns")
+
+    def _get_ports_by_link(self, link: ConnectionPath):
+        """
+        Given a link, find the ports associated with it.
+
+        Returns a (Port, Port) tuple.
+        """
+        assert isinstance(link, ConnectionPath)
+
+        node1 = self.graph.nodes[link.source]["id"]
+        node2 = self.graph.nodes[link.destination]["id"]
+
+        ports = self.topology_manager.get_topology().get_port_by_link(node1, node2)
+
+        # Avoid some possible crashes.
+        if ports is None:
+            return None
+
+        n1, p1, n2, p2 = ports
+
+        assert n1 == node1
+        assert n2 == node2
+
+        return p1, p2
 
     """
     functions for vlan reservation.
@@ -397,7 +489,9 @@ class TEManager:
     """
 
     def _reserve_vlan_breakdown(
-        self, domain_breakdown: dict
+        self,
+        domain_breakdown: dict,
+        request_id: str,
     ) -> Optional[VlanTaggedBreakdowns]:
         """
         Upate domain breakdown with VLAN reservation information.
@@ -448,8 +542,8 @@ class TEManager:
             if ingress_port is None or egress_port is None:
                 return None
 
-            ingress_vlan = self._reserve_vlan(domain, ingress_port)
-            egress_vlan = self._reserve_vlan(domain, egress_port)
+            ingress_vlan = self._reserve_vlan(domain, ingress_port, request_id)
+            egress_vlan = self._reserve_vlan(domain, egress_port, request_id)
 
             ingress_port_id = ingress_port.get("id")
             egress_port_id = egress_port.get("id")
@@ -509,7 +603,7 @@ class TEManager:
         """
 
         # TODO: implement this
-        # https://github.com/atlanticwave-sdx_pce/issues/126
+        # https://github.com/atlanticwave-sdx/pce/issues/126
 
         assert False, "Not implemented"
 
@@ -518,12 +612,12 @@ class TEManager:
         # reserve_vlan_on_path?
 
         # TODO: implement this
-        # https://github.com/atlanticwave-sdx_pce/issues/126
+        # https://github.com/atlanticwave-sdx/pce/issues/126
 
         # return domain_breakdown
         assert False, "Not implemented"
 
-    def _reserve_vlan(self, domain: str, port: dict, tag=None):
+    def _reserve_vlan(self, domain: str, port: dict, request_id: str, tag=None):
         # with self._topology_lock:
         #     pass
 
@@ -555,26 +649,39 @@ class TEManager:
 
         if tag is None:
             # Find the first available VLAN tag from the table.
-            for vlan_tag, vlan_available in vlan_table.items():
-                if vlan_available:
+            for vlan_tag, vlan_usage in vlan_table.items():
+                if vlan_usage is UNUSED_VLAN:
                     available_tag = vlan_tag
         else:
-            if vlan_table[tag] is True:
+            if vlan_table[tag] is UNUSED_VLAN:
                 available_tag = tag
             else:
                 return None
 
-        if available_tag is not None:
-            # mark the tag as in-use.
-            vlan_table[available_tag] = False
+        # mark the tag as in-use.
+        vlan_table[available_tag] = request_id
 
-        # available_tag = 200
+        print(
+            f"reserve_vlan domain {domain}, after reservation: "
+            f"vlan_table: {vlan_table}, available_tag: {available_tag}"
+        )
+
         return available_tag
+
+    def unreserve_vlan(self, request_id: str):
+        """
+        Return previously reserved VLANs back to the pool.
+        """
+        for domain, port_table in self._vlan_tags_table.items():
+            for port, vlan_table in port_table.items():
+                for vlan, assignment in vlan_table.items():
+                    if assignment == request_id:
+                        vlan_table[vlan] = UNUSED_VLAN
 
     # to be called by delete_connection()
     def _unreserve_vlan_breakdown(self, break_down):
         # TODO: implement this.
-        # https://github.com/atlanticwave-sdx_pce/issues/127
+        # https://github.com/atlanticwave-sdx/pce/issues/127
         # with self._topology_lock:
         #     pass
         assert False, "Not implemented"
@@ -584,7 +691,7 @@ class TEManager:
         Mark a VLAN tag as not in use.
         """
         # TODO: implement this.
-        # https://github.com/atlanticwave-sdx_pce/issues/127
+        # https://github.com/atlanticwave-sdx/pce/issues/127
 
         # with self._topology_lock:
         #     pass

@@ -20,14 +20,18 @@ details, the general usage is like this:
 from sdx_pce.load_balancing.te_solver import TESolver
 from sdx_pce.topology.temanager import TEManager
 
-temanager = TEManager(initial_topology, connection_request)
+temanager = TEManager(initial_topology)
 for topology in topologies:
     temanager.add_topology(topology)
     
 graph = temanager.generate_graph_te()
-traffic_matrix = temanager.generate_connection_te()
+traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
 solution = TESolver(graph, traffic_matrix).solve()
+
+breakdown = temanager.generate_connection_breakdown(solution)
+for domain, link in breakdown.items():
+    # publish(domain, link)
 ```
 
 Note that PCE requires two inputs: network topology and connection
@@ -123,6 +127,13 @@ $ tox -e extras
 
 Test data is stored in [tests/data](./tests/data) as JSON files.
 
+There are also some code checks (ruff, black, and isort) that you can
+run with:
+
+```console
+$ tox -e lint
+```
+
 
 <!-- URLs -->
 
@@ -141,3 +152,7 @@ Test data is stored in [tests/data](./tests/data) as JSON files.
 [tox]: https://tox.wiki/en/latest/index.html
 
 [test_request.json]: ./src/sdx/pce/data/requests/test_request.json
+
+[ruff]: https://pypi.org/project/ruff/
+[black]: https://pypi.org/project/black/
+[isort]: https://pypi.org/project/isort/

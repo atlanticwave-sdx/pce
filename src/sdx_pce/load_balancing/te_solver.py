@@ -10,18 +10,13 @@ import copy
 import logging
 from dataclasses import dataclass
 from itertools import chain, cycle
-from typing import List, Mapping, Tuple, Union
+from typing import List, Tuple, Union
 
 import networkx as nx
 import numpy as np
 from ortools.linear_solver import pywraplp
 
-from sdx_pce.models import (
-    ConnectionPath,
-    ConnectionRequest,
-    ConnectionSolution,
-    TrafficMatrix,
-)
+from sdx_pce.models import ConnectionPath, ConnectionSolution, TrafficMatrix
 from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.functions import GraphFunction
 
@@ -79,7 +74,9 @@ class TESolver:
         data = self._create_data_model()
         if data is None:
             self._logger.warning("Could not create a data model")
-            return ConnectionSolution(connection_map=None, cost=0)
+            return ConnectionSolution(
+                connection_map=None, cost=0, request_id=self.tm.request_id
+            )
 
         # Create the mip solver with the SCIP backend.
         solver = pywraplp.Solver.CreateSolver("SCIP")
@@ -153,7 +150,9 @@ class TESolver:
         real_paths = []
         if paths is None:
             self._logger.warning("No solution: empty input")
-            return ConnectionSolution(connection_map=None, cost=cost)
+            return ConnectionSolution(
+                connection_map=None, cost=cost, request_id=self.tm.request_id
+            )
         for path in paths:
             real_path = []
             i = 0
@@ -165,14 +164,14 @@ class TESolver:
 
         # associate with the TM requests
         id_connection = 0
-        ordered_paths = {}
 
-        result = ConnectionSolution(connection_map={}, cost=cost)
+        result = ConnectionSolution(
+            connection_map={}, cost=cost, request_id=self.tm.request_id
+        )
 
         for request in self.tm.connection_requests:
             src = request.source
             dest = request.destination
-            bw = request.required_bandwidth
             # latency = connection[3]  # latency is unused
 
             # Add request as the key to solution map
@@ -440,7 +439,7 @@ class TESolver:
         Form bandwidth constraints.
 
         To learn what this means, see the formulation diagram at
-        https://github.com/atlanticwave-sdx_pce/tree/main/Documentation.
+        https://github.com/atlanticwave-sdx/pce/tree/main/Documentation.
 
         The yellow portion of the diagram is the "inputmatrix" input
         to this function.  The return value should represent the green
