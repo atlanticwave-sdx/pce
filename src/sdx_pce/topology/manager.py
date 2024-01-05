@@ -224,6 +224,11 @@ class TopologyManager:
     # adjacent matrix of the graph, in jason?
     def generate_graph(self):
         graph = nx.Graph()
+
+        if self._topology is None:
+            self._logger.warning("We do not have a topology yet")
+            return None
+
         links = self._topology.links
         for link in links:
             inter_domain_link = False

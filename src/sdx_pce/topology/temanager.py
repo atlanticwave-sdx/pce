@@ -245,11 +245,16 @@ class TEManager:
 
         return TrafficMatrix(connection_requests=[request], request_id=request_id)
 
-    def generate_graph_te(self) -> nx.Graph:
+    def generate_graph_te(self) -> Optional[nx.Graph]:
         """
         Return the topology graph that we have.
         """
         graph = self.topology_manager.generate_graph()
+
+        if graph is None:
+            self._logger.warning("No graph could be generated")
+            return None
+
         graph = nx.convert_node_labels_to_integers(graph, label_attribute="id")
 
         # TODO: why is this needed?
