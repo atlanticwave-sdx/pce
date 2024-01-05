@@ -99,7 +99,7 @@ If you want to print console and logging messages when running a test,
 do:
 
 ```
-$ pytest --log-cli-level=all [-s|--capture=no] \
+$ pytest --log-cli-level=info [-s|--capture=no] \
     tests/test_te_manager.py::TEManagerTests::test_generate_solver_input
 ```
 
@@ -113,7 +113,7 @@ $ tox
 With tox, you can run a single test verbosely like so:
 
 ```
-$ tox -e py311 -- --log-cli-level=all [-s|--capture=no] \
+$ tox -e py311 -- --log-cli-level=info [-s|--capture=no] \
     tests/test_te_manager.py::TEManagerTests::test_generate_solver_input
 ```
 
