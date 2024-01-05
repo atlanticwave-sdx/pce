@@ -43,6 +43,8 @@ class TEManager:
         # A lock to safely perform topology operations.
         self._topology_lock = threading.Lock()
 
+        self._logger = logging.getLogger(__name__)
+
         # A {domain, {port, {vlan, in_use}}} mapping.
         self._vlan_tags_table = {}
 
@@ -60,8 +62,6 @@ class TEManager:
             )
         else:
             self.graph = None
-
-        self._logger = logging.getLogger(__name__)
 
     def add_topology(self, topology_data: dict):
         """
