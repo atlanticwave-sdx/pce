@@ -1,3 +1,4 @@
+import logging
 import threading
 from itertools import chain
 from typing import List, Optional
@@ -41,6 +42,8 @@ class TEManager:
 
         # A lock to safely perform topology operations.
         self._topology_lock = threading.Lock()
+
+        self._logger = logging.getLogger(__name__)
 
         # A {domain, {port, {vlan, in_use}}} mapping.
         self._vlan_tags_table = {}
@@ -121,7 +124,7 @@ class TEManager:
                 # TODO: why is label_range sometimes None, and what to
                 # do when that happens?
                 if label_range is None:
-                    print(f"label_range on {port.get('id')} is None")
+                    self._logger.info(f"label_range on {port.get('id')} is None")
                     continue
 
                 # label_range is of the form ['100-200', '1000']; let
@@ -170,16 +173,18 @@ class TEManager:
         set of requests, each of them specific to a domain.  We call
         such a domain-wise set of requests a traffic matrix.
         """
-        print(f"generate_traffic_matrix: connection_request: {connection_request}")
+        self._logger.info(
+            f"generate_traffic_matrix: connection_request: {connection_request}"
+        )
 
         request = ConnectionHandler().import_connection_data(connection_request)
 
-        print(f"generate_traffic_matrix: decoded request: {request}")
+        self._logger.info(f"generate_traffic_matrix: decoded request: {request}")
 
         ingress_port = request.ingress_port
         egress_port = request.egress_port
 
-        print(
+        self._logger.info(
             f"generate_traffic_matrix, ports: "
             f"ingress_port.id: {ingress_port.id}, "
             f"egress_port.id: {egress_port.id}"
@@ -191,11 +196,15 @@ class TEManager:
         egress_node = topology.get_node_by_port(egress_port.id)
 
         if ingress_node is None:
-            print(f"No ingress node was found for ingress port ID '{ingress_port.id}'")
+            self._logger.warning(
+                f"No ingress node was found for ingress port ID '{ingress_port.id}'"
+            )
             return None
 
         if egress_node is None:
-            print(f"No egress node is found for egress port ID '{egress_port.id}'")
+            self._logger.warning(
+                f"No egress node is found for egress port ID '{egress_port.id}'"
+            )
             return None
 
         ingress_nodes = [
@@ -207,18 +216,22 @@ class TEManager:
         ]
 
         if len(ingress_nodes) <= 0:
-            print(f"No ingress node '{ingress_node.id}' found in the graph")
+            self._logger.warning(
+                f"No ingress node '{ingress_node.id}' found in the graph"
+            )
             return None
 
         if len(egress_nodes) <= 0:
-            print(f"No egress node '{egress_node.id}' found in the graph")
+            self._logger.warning(
+                f"No egress node '{egress_node.id}' found in the graph"
+            )
             return None
 
         required_bandwidth = request.bandwidth or 0
         required_latency = request.latency or 0
         request_id = request.id
 
-        print(
+        self._logger.info(
             f"Setting required_latency: {required_latency}, "
             f"required_bandwidth: {required_bandwidth}"
         )
@@ -232,11 +245,16 @@ class TEManager:
 
         return TrafficMatrix(connection_requests=[request], request_id=request_id)
 
-    def generate_graph_te(self) -> nx.Graph:
+    def generate_graph_te(self) -> Optional[nx.Graph]:
         """
         Return the topology graph that we have.
         """
         graph = self.topology_manager.generate_graph()
+
+        if graph is None:
+            self._logger.warning("No graph could be generated")
+            return None
+
         graph = nx.convert_node_labels_to_integers(graph, label_attribute="id")
 
         # TODO: why is this needed?
@@ -260,8 +278,9 @@ class TEManager:
         # TODO: write some tests for this method.
         for request in tm.connection_requests:
             conn = self.graph_node_connectivity(request.source, request.destination)
-            print(
-                f"Request connectivity: source {request.source}, destination: {request.destination} = {conn}"
+            self._logger.info(
+                f"Request connectivity: source {request.source}, "
+                f"destination: {request.destination} = {conn}"
             )
             if conn is False:
                 return False
@@ -289,7 +308,7 @@ class TEManager:
 
         """
         if solution is None or solution.connection_map is None:
-            print(f"Can't find paths for {solution}")
+            self._logger.warning(f"Can't find paths for {solution}")
             return None
 
         result = []
@@ -306,7 +325,7 @@ class TEManager:
 
                 ports = self._get_ports_by_link(link)
 
-                print(
+                self._logger.info(
                     f"get_links_on_path: src_node: {src_node} (#{link.source}), "
                     f"dst_node: {dst_node} (#{link.destination}), "
                     f"ports: {ports}"
@@ -321,24 +340,21 @@ class TEManager:
     def generate_connection_breakdown(self, solution: ConnectionSolution) -> dict:
         """
         Take a connection solution and generate a breakdown.
-
-        This is an alternative to generate_connection_breakdown()
-        below which uses the newly defined types from sdx_pce.models.
         """
         if solution is None or solution.connection_map is None:
-            print(f"Can't find a breakdown for {solution}")
+            self._logger.warning(f"Can't find a breakdown for {solution}")
             return None
 
         breakdown = {}
         paths = solution.connection_map  # p2p for now
 
         for domain, links in paths.items():
-            print(f"domain: {domain}, links: {links}")
+            self._logger.info(f"domain: {domain}, links: {links}")
 
             current_link_set = []
 
             for count, link in enumerate(links):
-                print(f"count: {count}, link: {link}")
+                self._logger.info(f"count: {count}, link: {link}")
 
                 assert isinstance(link, ConnectionPath)
 
@@ -348,14 +364,18 @@ class TEManager:
                 dst_node = self.graph.nodes.get(link.destination)
                 assert dst_node is not None
 
-                print(f"source node: {src_node}, destination node: {dst_node}")
+                self._logger.info(
+                    f"source node: {src_node}, destination node: {dst_node}"
+                )
 
                 src_domain = self.topology_manager.get_domain_name(src_node.get("id"))
                 dst_domain = self.topology_manager.get_domain_name(dst_node.get("id"))
 
                 # TODO: what do we do when a domain can't be
                 # determined? Can a domain be `None`?
-                print(f"source domain: {src_domain}, destination domain: {dst_domain}")
+                self._logger.info(
+                    f"source domain: {src_domain}, destination domain: {dst_domain}"
+                )
 
                 current_link_set.append(link)
                 current_domain = src_domain
@@ -368,7 +388,7 @@ class TEManager:
                     current_domain = None
                     current_link_set = []
 
-        print(f"[intermediate] breakdown: {breakdown}")
+        self._logger.info(f"[intermediate] breakdown: {breakdown}")
 
         # now starting with the ingress_port
         first = True
@@ -381,8 +401,10 @@ class TEManager:
         # we form and traverse the breakdown.
 
         for domain, links in breakdown.items():
-            print(f"Creating domain_breakdown: domain: {domain}, links: {links}")
-
+            self._logger.info(
+                f"Creating domain_breakdown: domain: {domain}, links: {links}"
+            )
+            segment = {}
             if first:
                 first = False
                 # ingress port for this domain is on the first link.
@@ -399,17 +421,22 @@ class TEManager:
             segment = {}
             segment["ingress_port"] = ingress_port
             segment["egress_port"] = egress_port
-            print(f"segment for {domain}: {segment}")
+
+            self._logger.info(f"segment for {domain}: {segment}")
 
             domain_breakdown[domain] = segment.copy()
             i = i + 1
 
-        print(f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}")
+        self._logger.info(
+            f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}"
+        )
 
         tagged_breakdown = self._reserve_vlan_breakdown(
             domain_breakdown=domain_breakdown, request_id=solution.request_id
         )
-        print(f"generate_connection_breakdown(): tagged_breakdown: {tagged_breakdown}")
+        self._logger.info(
+            f"generate_connection_breakdown(): tagged_breakdown: {tagged_breakdown}"
+        )
 
         # Make tests pass, temporarily.
         if tagged_breakdown is None:
@@ -497,7 +524,9 @@ class TEManager:
 
         # if not, assuming vlan translation on the domain border port
 
-        print(f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}")
+        self._logger.info(
+            f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}"
+        )
 
         breakdowns = {}
 
@@ -506,7 +535,7 @@ class TEManager:
             ingress_port = segment.get("ingress_port")
             egress_port = segment.get("egress_port")
 
-            print(
+            self._logger.info(
                 f"VLAN reservation: domain: {domain}, "
                 f"ingress_port: {ingress_port}, egress_port: {egress_port}"
             )
@@ -520,7 +549,7 @@ class TEManager:
             ingress_port_id = ingress_port.get("id")
             egress_port_id = egress_port.get("id")
 
-            print(
+            self._logger.info(
                 f"VLAN reservation: domain: {domain}, "
                 f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}"
             )
@@ -594,7 +623,7 @@ class TEManager:
         #     pass
 
         port_id = port.get("id")
-        print(f"reserve_vlan domain: {domain} port_id: {port_id}")
+        self._logger.info(f"reserve_vlan domain: {domain} port_id: {port_id}")
 
         if port_id is None:
             return None
@@ -603,16 +632,18 @@ class TEManager:
         domain_table = self._vlan_tags_table.get(domain)
 
         if domain_table is None:
-            print(f"reserve_vlan: Can't find domain: {domain} entry: {domain_table}")
+            self._logger.warning(f"reserve_vlan domain: {domain} entry: {domain_table}")
             return None
 
         vlan_table = domain_table.get(port_id)
 
-        print(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
+        self._logger.info(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
 
         # TODO: figure out when vlan_table can be None
         if vlan_table is None:
-            print(f"Can't find a mapping for domain:{domain} port:{port_id}")
+            self._logger.warning(
+                f"Can't find a mapping for domain:{domain} port:{port_id}"
+            )
             return None
 
         available_tag = None
@@ -631,7 +662,7 @@ class TEManager:
         # mark the tag as in-use.
         vlan_table[available_tag] = request_id
 
-        print(
+        self._logger.info(
             f"reserve_vlan domain {domain}, after reservation: "
             f"vlan_table: {vlan_table}, available_tag: {available_tag}"
         )
@@ -670,6 +701,6 @@ class TEManager:
     def _print_vlan_tags_table(self):
         import pprint
 
-        print("------ VLAN TAGS TABLE -------")
-        pprint.pprint(self._vlan_tags_table)
-        print("------------------------------")
+        self._logger.info("------ VLAN TAGS TABLE -------")
+        self._logger.info(pprint.pformat(self._vlan_tags_table))
+        self._logger.info("------------------------------")

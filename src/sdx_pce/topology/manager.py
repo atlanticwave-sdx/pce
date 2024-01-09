@@ -1,5 +1,6 @@
 import copy
 import datetime
+import logging
 from typing import Mapping
 
 import networkx as nx
@@ -37,6 +38,11 @@ class TopologyManager:
 
         # Number of interdomain links we computed.
         self._num_interdomain_link = 0
+
+        self._logger = logging.getLogger(__name__)
+
+    def get_handler(self):
+        return self.topology_handler
 
     def topology_id(self, id):
         self._topology._id(id)
@@ -77,7 +83,9 @@ class TopologyManager:
             # check the inter-domain links first.
             self._num_interdomain_link += self.inter_domain_check(topology)
             if self._num_interdomain_link == 0:
-                print(f"Warning: no interdomain links detected in {topology.id}!")
+                self._logger.debug(
+                    f"Warning: no interdomain links detected in {topology.id}!"
+                )
 
             # Nodes
             nodes = topology.get_nodes()
@@ -144,7 +152,7 @@ class TopologyManager:
         # Check the inter-domain links first.
         num_interdomain_link = self.inter_domain_check(topology)
         if num_interdomain_link == 0:
-            print("Warning: no interdomain links detected!")
+            self._logger.warning("Warning: no interdomain links detected!")
 
         # Nodes.
         nodes = topology.get_nodes()
@@ -195,7 +203,7 @@ class TopologyManager:
 
         # ToDo: raise an warning or exception
         if len(interdomain_port_dict) == 0:
-            print("interdomain_port_dict==0")
+            self._logger.info("interdomain_port_dict==0")
             return False
 
         # match any ports in the existing topology
@@ -216,6 +224,11 @@ class TopologyManager:
     # adjacent matrix of the graph, in jason?
     def generate_graph(self):
         graph = nx.Graph()
+
+        if self._topology is None:
+            self._logger.warning("We do not have a topology yet")
+            return None
+
         links = self._topology.links
         for link in links:
             inter_domain_link = False
@@ -224,9 +237,9 @@ class TopologyManager:
             for port in ports:
                 node = self._topology.get_node_by_port(port["id"])
                 if node is None:
-                    print(
-                        "This port doesn't belong to any node in the topology, likely a Non-SDX port!"
-                        + port["id"]
+                    self._logger.warning(
+                        f"This port (id: {port.get('id')}) does not belong to "
+                        f"any node in the topology, likely a Non-SDX port!"
                     )
                     inter_domain_link = True
                     break
@@ -264,10 +277,10 @@ class TopologyManager:
         for id, topology in self._topology_map.items():
             links = topology.get_links()
             for link in links:
-                print(link.id + ";" + id)
+                self._logger.info(f"link.id={link.id}; id={id}")
                 if link.id == link_id:
                     setattr(link, property, value)
-                    print("updated the link.")
+                    self._logger.info("updated the link.")
                     # 1.2 need to change the sub_ver of the topology?
 
         # 2. check on the inter-domain link?
@@ -276,7 +289,7 @@ class TopologyManager:
         for link in links:
             if link.id == link_id:
                 setattr(link, property, value)
-                print("updated the link.")
+                self._logger.info("updated the link.")
                 # 2.2 need to change the sub_ver of the topology?
 
         self.update_version(True)
