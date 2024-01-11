@@ -97,6 +97,12 @@ class TEManager:
         #     port_list=self.topology_manager.port_list,
         # )
 
+    def get_topology_map(self) -> dict:
+        """
+        Get {topology_id: topology, ..} map.
+        """
+        return self.topology_manager.get_topology_map()
+
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
         Update VLAN tags table.
