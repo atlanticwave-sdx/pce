@@ -53,6 +53,9 @@ class TopologyManager:
     def get_topology(self):
         return self._topology
 
+    def get_topology_map(self) -> dict:
+        return self._topology_map
+
     def get_port_map(self) -> Mapping[str, dict]:
         """
         Return a mapping between port IDs and links.

@@ -94,6 +94,12 @@ class TEManagerTests(unittest.TestCase):
         zaoxi_topology = json.loads(TestData.TOPOLOGY_FILE_ZAOXI.read_text())
         self.temanager.add_topology(zaoxi_topology)
 
+        topology_map = self.temanager.get_topology_map()
+        self.assertIsInstance(topology_map, dict)
+
+        for num, val in enumerate(topology_map.values()):
+            print(f"TE topology #{num}: {val}")
+
         request = [
             {
                 "1": [[1, 2], [3, 4]],
