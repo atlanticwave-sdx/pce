@@ -19,7 +19,8 @@
             "location": {
                 "address": "SaoPaulo",
                 "latitude": -46.650271781410524,
-                "longitude": -23.5311561958366
+                "longitude": -23.5311561958366,
+                "iso3166_2_lvl4": "BR-SP"
             },
             "ports": [
                 {
@@ -84,7 +85,8 @@
             "location": {
                 "address": "PanamaCity",
                 "latitude": -79.4947050137491,
-                "longitude": 8.993040465928525
+                "longitude": 8.993040465928525,
+                "iso3166_2_lvl4": "US-PN"
             },
             "ports": [
                 {
@@ -149,7 +151,8 @@
             "location": {
                 "address": "Fortaleza",
                 "latitude": -38.52443289673026,
-                "longitude": -3.73163824920348
+                "longitude": -3.73163824920348,
+                "iso3166_2_lvl4": "BR-FR"
             },
             "ports": [
                 {
@@ -201,7 +204,8 @@
             "location": {
                 "address": "Santiago",
                 "latitude": -70.64634765264213,
-                "longitude": -33.4507049233331
+                "longitude": -33.4507049233331,
+                "iso3166_2_lvl4": "CL-SN"
             },
             "ports": [
                 {

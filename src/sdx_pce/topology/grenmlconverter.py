@@ -36,6 +36,7 @@ class GrenmlConverter(object):
                 node.short_name,
                 longitude=location.longitude,
                 latitude=location.latitude,
+                iso3166_2_lvl4=location.iso3166_2_lvl4,
                 address=location.address,
             )
 
@@ -54,6 +55,7 @@ class GrenmlConverter(object):
                         node.short_name,
                         longitude=location.longitude,
                         latitude=location.latitude,
+                        iso3166_2_lvl4=location.iso3166_2_lvl4,
                         address=location.address,
                     )
                     end_nodes.append(grenml_node)
