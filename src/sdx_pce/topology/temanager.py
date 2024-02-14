@@ -343,7 +343,7 @@ class TEManager:
 
         return result
 
-    def generate_connection_breakdown(self, solution: ConnectionSolution) -> dict:
+    def generate_connection_breakdown(self, solution: ConnectionSolution, connection_request: dict) -> dict:
         """
         Take a connection solution and generate a breakdown.
         """
@@ -414,12 +414,12 @@ class TEManager:
             if first:
                 first = False
                 # ingress port for this domain is on the first link.
-                ingress_port, _ = self._get_ports_by_link(links[0])
+                ingress_port = self._get_port_by_id(connection_request["ingress_port"]["id"])
                 # egress port for this domain is on the last link.
                 egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
             elif i == len(breakdown) - 1:
                 ingress_port = next_ingress_port
-                _, egress_port = self._get_ports_by_link(links[-1])
+                egress_port = self._get_port_by_id(connection_request["egress_port"]["id"])
             else:
                 ingress_port = next_ingress_port
                 egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
@@ -453,6 +453,16 @@ class TEManager:
         # Return a dict containing VLAN-tagged breakdown in the
         # expected format.
         return tagged_breakdown.to_dict().get("breakdowns")
+
+    def _get_port_by_id(self, port_id: str):
+        """
+        Given port id, returns a Port.
+        """
+        for node in self.topology_manager.get_topology().get_nodes():
+            for port in node.ports:
+                if port.id == port_id:
+                    return port.to_dict()
+        raise ValidationError(f"Invalid port id ({port_id}).")
 
     def _get_ports_by_link(self, link: ConnectionPath):
         """
