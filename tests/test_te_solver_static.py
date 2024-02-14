@@ -49,7 +49,9 @@ class TESolverTests(unittest.TestCase):
         self.assertIsInstance(solution, ConnectionSolution)
         self.assertEqual(solution.cost, 5.0)
 
-        breakdown = self.temanager.generate_connection_breakdown(solution, self.connection_request)
+        breakdown = self.temanager.generate_connection_breakdown(
+            solution, self.connection_request
+        )
         print(f"Breakdown: {breakdown}")
         self.assertIsNotNone(breakdown)
 
@@ -74,7 +76,9 @@ class TESolverTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertEqual(solution.cost, 5.0)
 
-        breakdown = self.temanager.generate_connection_breakdown(solution, self.connection_request)
+        breakdown = self.temanager.generate_connection_breakdown(
+            solution, self.connection_request
+        )
         print(f"Breakdown: {breakdown}")
         self.assertIsNotNone(breakdown)
 
@@ -101,7 +105,9 @@ class TESolverTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertEqual(solution.cost, 5.0)
 
-        breakdown = self.temanager.generate_connection_breakdown(solution, self.connection_request)
+        breakdown = self.temanager.generate_connection_breakdown(
+            solution, self.connection_request
+        )
         print(f"Breakdown: {breakdown}")
         self.assertIsNotNone(breakdown)
 

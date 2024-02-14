@@ -321,7 +321,9 @@ class TEManagerTests(unittest.TestCase):
         values = sum([v for v in solution.connection_map.values()], [])
         self.assertEqual(len(links), len(values))
 
-        breakdown = temanager.generate_connection_breakdown(solution, connection_request)
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown: {json.dumps(breakdown)}")
 
         # Note that the "domain" key is correct in the breakdown
@@ -400,7 +402,9 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        breakdown = temanager.generate_connection_breakdown(solution, connection_request)
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown: {json.dumps(breakdown)}")
 
         zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
@@ -416,7 +420,9 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        breakdown2 = temanager.generate_connection_breakdown(solution, connection_request)
+        breakdown2 = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown2: {json.dumps(breakdown2)}")
 
         self.assertNotEqual(breakdown, breakdown2)
@@ -474,7 +480,9 @@ class TEManagerTests(unittest.TestCase):
 
             self.assertIsNotNone(solution.connection_map)
 
-            breakdown = json.dumps(temanager.generate_connection_breakdown(solution, connection_request))
+            breakdown = json.dumps(
+                temanager.generate_connection_breakdown(solution, connection_request)
+            )
 
             print(f"breakdown: {breakdown}")
             self.assertIsNotNone(breakdown)
@@ -520,7 +528,9 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(solution1, ConnectionSolution)
         self.assertIsNotNone(solution1.connection_map)
 
-        breakdown1 = temanager.generate_connection_breakdown(solution1, connection_request1)
+        breakdown1 = temanager.generate_connection_breakdown(
+            solution1, connection_request1
+        )
         print(f"Breakdown #1: {json.dumps(breakdown1)}")
 
         # Use another connection request that spans just one domain.
@@ -537,7 +547,9 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(solution2, ConnectionSolution)
         self.assertIsNotNone(solution2.connection_map)
 
-        breakdown2 = temanager.generate_connection_breakdown(solution2, connection_request2)
+        breakdown2 = temanager.generate_connection_breakdown(
+            solution2, connection_request2
+        )
         print(f"Breakdown #2: {json.dumps(breakdown2)}")
 
         self.assertNotEqual(connection_request1, connection_request2)
@@ -578,21 +590,27 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        breakdown1 = temanager.generate_connection_breakdown(solution, connection_request)
+        breakdown1 = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown1: {json.dumps(breakdown1)}")
 
         # Return all used VLANs.
         temanager.unreserve_vlan(request_id=connection_request.get("id"))
 
         # Can we get the same breakdown for the same request now?
-        breakdown2 = temanager.generate_connection_breakdown(solution, connection_request)
+        breakdown2 = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown2: {json.dumps(breakdown2)}")
 
         self.assertEqual(breakdown1, breakdown2)
 
         # If we generate another breakdown without un-reserving any
         # VLANs, the result should be distinct from the previous ones.
-        breakdown3 = temanager.generate_connection_breakdown(solution, connection_request)
+        breakdown3 = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown3: {json.dumps(breakdown3)}")
         self.assertNotEqual(breakdown1, breakdown3)
         self.assertNotEqual(breakdown2, breakdown3)
@@ -630,7 +648,9 @@ class TEManagerTests(unittest.TestCase):
         # This hopefully should find a solution.
         self.assertIsNotNone(solution.connection_map)
 
-        breakdown = temanager.generate_connection_breakdown(solution, connection_request)
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown: {json.dumps(breakdown)}")
 
         # Note that the "domain" key is wrong in the results when we
