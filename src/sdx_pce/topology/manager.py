@@ -14,7 +14,6 @@ from .grenmlconverter import GrenmlConverter
 
 
 class TopologyManager:
-
     """
     Manager for topology operations.
 
