@@ -24,7 +24,6 @@ UNUSED_VLAN = None
 
 
 class TEManager:
-
     """
     TE Manager for connection - topology operations.
 
@@ -343,7 +342,9 @@ class TEManager:
 
         return result
 
-    def generate_connection_breakdown(self, solution: ConnectionSolution, connection_request: dict) -> dict:
+    def generate_connection_breakdown(
+        self, solution: ConnectionSolution, connection_request: dict
+    ) -> dict:
         """
         Take a connection solution and generate a breakdown.
         """
@@ -414,12 +415,16 @@ class TEManager:
             if first:
                 first = False
                 # ingress port for this domain is on the first link.
-                ingress_port = self._get_port_by_id(connection_request["ingress_port"]["id"])
+                ingress_port = self._get_port_by_id(
+                    connection_request["ingress_port"]["id"]
+                )
                 # egress port for this domain is on the last link.
                 egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
             elif i == len(breakdown) - 1:
                 ingress_port = next_ingress_port
-                egress_port = self._get_port_by_id(connection_request["egress_port"]["id"])
+                egress_port = self._get_port_by_id(
+                    connection_request["egress_port"]["id"]
+                )
             else:
                 ingress_port = next_ingress_port
                 egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
