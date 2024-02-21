@@ -234,7 +234,7 @@ class TEManager:
             return None
 
         required_bandwidth = request.bandwidth or 0
-        required_latency = request.latency or 0
+        required_latency = request.latency or float('inf')
         request_id = request.id
 
         self._logger.info(
