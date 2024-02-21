@@ -24,7 +24,6 @@ UNUSED_VLAN = None
 
 
 class TEManager:
-
     """
     TE Manager for connection - topology operations.
 
@@ -234,7 +233,7 @@ class TEManager:
             return None
 
         required_bandwidth = request.bandwidth or 0
-        required_latency = request.latency or float('inf')
+        required_latency = request.latency or float("inf")
         request_id = request.id
 
         self._logger.info(
