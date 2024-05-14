@@ -5,7 +5,6 @@ from typing import List, Optional
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
-from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 
 from sdx_pce.models import (
