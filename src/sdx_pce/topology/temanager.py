@@ -468,7 +468,7 @@ class TEManager:
 
         # Avoid some possible crashes.
         if ports is None:
-            return None
+            return None, None
 
         n1, p1, n2, p2 = ports
 
