@@ -315,7 +315,6 @@ class TopologyManager:
         data["version"] = self.new_version(ver, sub_ver, True)
         data["timestamp"] = datetime.datetime.now().isoformat()
 
-
     def get_port_by_id(self, port_id: str):
         """
         Given port id, returns a Port.
@@ -325,7 +324,7 @@ class TopologyManager:
                 if port.id == port_id:
                     return port.to_dict()
         return None
-    
+
     def are_two_ports_same_domain(self, port1_id: str, port2_id: str):
         """
         Check if two ports are in the same domain.

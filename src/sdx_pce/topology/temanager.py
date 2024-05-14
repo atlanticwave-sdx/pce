@@ -5,8 +5,8 @@ from typing import List, Optional
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
-from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 from sdx_datamodel.models.port import Port
+from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 
 from sdx_pce.models import (
     ConnectionPath,
@@ -408,47 +408,74 @@ class TEManager:
         # and that may break some assumptions about the order in which
         # we form and traverse the breakdown.
 
-        self._logger.info(f'connection_requst ingress_port: {connection_request["ingress_port"]["id"]}')
-        self._logger.info(f'connection_requst egress_port: {connection_request["egress_port"]["id"]}')
-         # flag to indicate if the request ingress and egress ports belong to the same domain
-        same_domain_user_port_flag = self.topology_manager.are_two_ports_same_domain(connection_request["ingress_port"]["id"],connection_request["egress_port"]["id"])
+        self._logger.info(
+            f'connection_requst ingress_port: {connection_request["ingress_port"]["id"]}'
+        )
+        self._logger.info(
+            f'connection_requst egress_port: {connection_request["egress_port"]["id"]}'
+        )
+        # flag to indicate if the request ingress and egress ports belong to the same domain
+        same_domain_user_port_flag = self.topology_manager.are_two_ports_same_domain(
+            connection_request["ingress_port"]["id"],
+            connection_request["egress_port"]["id"],
+        )
         for domain, links in breakdown.items():
             self._logger.info(
                 f"Creating domain_breakdown: domain: {domain}, links: {links}"
             )
             segment = {}
-            
+
             if first:
                 first = False
                 # ingress port for this domain is on the first link.
-                if connection_request["ingress_port"]["id"] not in self.topology_manager.get_port_map():
-                    self._logger.warning(f"Port {connection_request['ingress_port']['id']} not found in port map, it's a user port")
-                    ingress_port_id = connection_request['ingress_port']['id']
+                if (
+                    connection_request["ingress_port"]["id"]
+                    not in self.topology_manager.get_port_map()
+                ):
+                    self._logger.warning(
+                        f"Port {connection_request['ingress_port']['id']} not found in port map, it's a user port"
+                    )
+                    ingress_port_id = connection_request["ingress_port"]["id"]
                     ingress_port = self.topology_manager.get_port_by_id(ingress_port_id)
-                else:  
+                else:
                     ingress_port, _ = self._get_ports_by_link(links[0])
-                
+
                 # egress port for this domain is on the last link.
-                if same_domain_user_port_flag and connection_request["egress_port"]["id"] not in self.topology_manager.get_port_map():
-                    self._logger.warning(f"Port {connection_request['egress_port']['id']} not found in port map, it's a user port")
-                    egress_port_id = connection_request['egress_port']['id']
+                if (
+                    same_domain_user_port_flag
+                    and connection_request["egress_port"]["id"]
+                    not in self.topology_manager.get_port_map()
+                ):
+                    self._logger.warning(
+                        f"Port {connection_request['egress_port']['id']} not found in port map, it's a user port"
+                    )
+                    egress_port_id = connection_request["egress_port"]["id"]
                     egress_port = self.topology_manager.get_port_by_id(egress_port_id)
                     _, next_ingress_port = self._get_ports_by_link(links[-1])
-                else:                 
+                else:
                     egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
-                self._logger.info(f'ingress_port:{ingress_port}, egress_port:{egress_port},next_ingress_port:{next_ingress_port}')
+                self._logger.info(
+                    f"ingress_port:{ingress_port}, egress_port:{egress_port},next_ingress_port:{next_ingress_port}"
+                )
             elif i == len(breakdown) - 1:
                 ingress_port = next_ingress_port
                 self._logger.info(connection_request["egress_port"]["id"])
-                if connection_request["egress_port"]["id"] not in self.topology_manager.get_port_map():
-                    self._logger.warning(f"Port {connection_request['egress_port']['id']} not found in port map, it's a user port")
-                    egress_port_id = connection_request['egress_port']['id']
+                if (
+                    connection_request["egress_port"]["id"]
+                    not in self.topology_manager.get_port_map()
+                ):
+                    self._logger.warning(
+                        f"Port {connection_request['egress_port']['id']} not found in port map, it's a user port"
+                    )
+                    egress_port_id = connection_request["egress_port"]["id"]
                     egress_port = self.topology_manager.get_port_by_id(egress_port_id)
                 else:
                     _, egress_port = self._get_ports_by_link(links[-1])
 
-                self._logger.info(f'links[-1]: {links[-1]}')
-                self._logger.info(f'ingress_port:{ingress_port}, egress_port:{egress_port}')
+                self._logger.info(f"links[-1]: {links[-1]}")
+                self._logger.info(
+                    f"ingress_port:{ingress_port}, egress_port:{egress_port}"
+                )
             else:
                 ingress_port = next_ingress_port
                 egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
@@ -584,15 +611,25 @@ class TEManager:
             ingress_port_id = ingress_port.get("id")
             egress_port_id = egress_port.get("id")
 
-            #TODO: what to do when a port is not in the port map which only has all the ports on links?
+            # TODO: what to do when a port is not in the port map which only has all the ports on links?
             # User facing ports need clarification from the custermers.
-            if ingress_port_id not in self.topology_manager.get_port_map() and ingress_vlan is None:
-                self._logger.warning(f"Port {ingress_port_id} not found in port map, it's a user port, by default uses the OXP vlan")
+            if (
+                ingress_port_id not in self.topology_manager.get_port_map()
+                and ingress_vlan is None
+            ):
+                self._logger.warning(
+                    f"Port {ingress_port_id} not found in port map, it's a user port, by default uses the OXP vlan"
+                )
                 ingress_vlan = egress_vlan
 
-            if egress_port_id not in self.topology_manager.get_port_map() and egress_vlan is None:
-                self._logger.warning(f"Port {egress_port_id} not found in port map, it's a user port, by default uses the OXP vlan")
-                egress_vlan = ingress_vlan 
+            if (
+                egress_port_id not in self.topology_manager.get_port_map()
+                and egress_vlan is None
+            ):
+                self._logger.warning(
+                    f"Port {egress_port_id} not found in port map, it's a user port, by default uses the OXP vlan"
+                )
+                egress_vlan = ingress_vlan
 
             self._logger.info(
                 f"VLAN reservation: domain: {domain}, "

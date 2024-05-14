@@ -292,7 +292,9 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsInstance(graph, nx.Graph)
 
-        connection_request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_USER_PORT.read_text())
+        connection_request = json.loads(
+            TestData.CONNECTION_REQ_AMLIGHT_USER_PORT.read_text()
+        )
         print(f"connection request: {connection_request}")
 
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
@@ -300,7 +302,7 @@ class TEManagerTests(unittest.TestCase):
 
         solution = TESolver(graph, traffic_matrix).solve()
         print(f"TESolver result: {solution}")
-        self.assertIsInstance(solution, ConnectionSolution)  
+        self.assertIsInstance(solution, ConnectionSolution)
 
         links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
@@ -420,7 +422,9 @@ class TEManagerTests(unittest.TestCase):
 
         graph = temanager.generate_graph_te()
 
-        connection_request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT.read_text())
+        connection_request = json.loads(
+            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT.read_text()
+        )
         print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
@@ -492,6 +496,7 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
             self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
+
     def test_connection_amlight_to_zaoxi_two_identical_requests(self):
         """
         Exercise two identical connection requests.
