@@ -247,16 +247,16 @@ class TEManagerTests(unittest.TestCase):
             self.assertEqual(request.source, 1)
             self.assertEqual(request.destination, 0)
             self.assertEqual(request.required_bandwidth, 0)
-            self.assertEqual(request.required_latency, 0)
+            self.assertEqual(request.required_latency, float("inf"))
 
         solver = TESolver(graph, tm)
         self.assertIsNotNone(solver)
 
-        # Solver will fail to find a solution here.
+        # Solver will find a solution here.
         solution = solver.solve()
         print(f"Solution to tm {tm}: {solution}")
-        self.assertIsNone(solution.connection_map, None)
-        self.assertEqual(solution.cost, 0.0)
+        self.assertIsNotNone(solution.connection_map, None)
+        self.assertEqual(solution.cost, 1.0)
 
     def test_connection_amlight(self):
         """
