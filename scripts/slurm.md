@@ -9,7 +9,7 @@ ssh longleaf.unc.edu
 module load anaconda
 
 conda env list
-conda create -n my_env python=3.8
+conda create -n my_env python=3.11
 conda activate my_env
 
 git clone https://github.com/atlanticwave-sdx/pce.git
