@@ -408,7 +408,7 @@ class TEManager:
         # we form and traverse the breakdown.
         request_format_is_tm = isinstance(connection_request, list)
         self._logger.info(
-            f'connection_requst: {connection_request}; type:{type(request_format_is_tm)}'
+            f"connection_requst: {connection_request}; type:{type(request_format_is_tm)}"
         )
         if not request_format_is_tm:
             self._logger.info(
@@ -418,9 +418,11 @@ class TEManager:
                 f'connection_requst egress_port: {connection_request["egress_port"]["id"]}'
             )
             # flag to indicate if the request ingress and egress ports belong to the same domain
-            same_domain_user_port_flag = self.topology_manager.are_two_ports_same_domain(
-                connection_request["ingress_port"]["id"],
-                connection_request["egress_port"]["id"],
+            same_domain_user_port_flag = (
+                self.topology_manager.are_two_ports_same_domain(
+                    connection_request["ingress_port"]["id"],
+                    connection_request["egress_port"]["id"],
+                )
             )
         for domain, links in breakdown.items():
             self._logger.info(
@@ -433,8 +435,7 @@ class TEManager:
                 # ingress port for this domain is on the first link.
                 if (
                     not request_format_is_tm
-                    and
-                    connection_request["ingress_port"]["id"]
+                    and connection_request["ingress_port"]["id"]
                     not in self.topology_manager.get_port_map()
                 ):
                     self._logger.warning(
@@ -468,8 +469,7 @@ class TEManager:
                 self._logger.info(connection_request["egress_port"]["id"])
                 if (
                     not request_format_is_tm
-                    and
-                    connection_request["egress_port"]["id"]
+                    and connection_request["egress_port"]["id"]
                     not in self.topology_manager.get_port_map()
                 ):
                     self._logger.warning(
