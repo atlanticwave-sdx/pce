@@ -466,7 +466,6 @@ class TEManager:
                 )
             elif i == len(breakdown) - 1:
                 ingress_port = next_ingress_port
-                self._logger.info(connection_request["egress_port"]["id"])
                 if (
                     not request_format_is_tm
                     and connection_request["egress_port"]["id"]
