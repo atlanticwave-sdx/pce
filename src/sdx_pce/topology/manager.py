@@ -14,7 +14,6 @@ from .grenmlconverter import GrenmlConverter
 
 
 class TopologyManager:
-
     """
     Manager for topology operations.
 
@@ -315,6 +314,29 @@ class TopologyManager:
 
         data["version"] = self.new_version(ver, sub_ver, True)
         data["timestamp"] = datetime.datetime.now().isoformat()
+
+    def get_port_by_id(self, port_id: str):
+        """
+        Given port id, returns a Port.
+        """
+        for node in self.get_topology().get_nodes():
+            for port in node.ports:
+                if port.id == port_id:
+                    return port.to_dict()
+        return None
+
+    def are_two_ports_same_domain(self, port1_id: str, port2_id: str):
+        """
+        Check if two ports are in the same domain.
+        """
+        node1 = self.get_topology().get_node_by_port(port1_id)
+        node2 = self.get_topology().get_node_by_port(port2_id)
+        if node1 is None or node2 is None:
+            return False
+
+        domain1 = self.get_domain_name(node1.id)
+        domain2 = self.get_domain_name(node2.id)
+        return domain1 == domain2
 
     def update_node_property(self):
         pass

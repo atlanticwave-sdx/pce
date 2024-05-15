@@ -31,7 +31,7 @@ class TEManagerTests(unittest.TestCase):
 
     def test_connection_breakdown_none_input(self):
         # Expect no breakdown when input is None.
-        self.assertIsNone(self.temanager.generate_connection_breakdown(None))
+        self.assertIsNone(self.temanager.generate_connection_breakdown(None, None))
 
     def test_connection_breakdown_tm(self):
         # Breaking down a traffic matrix.
@@ -48,7 +48,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = self.temanager.generate_connection_breakdown(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution, request)
         print(f"Breakdown: {breakdown}")
         self.assertIsNotNone(breakdown)
         self.assertIsInstance(breakdown, dict)
@@ -74,7 +74,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = self.temanager.generate_connection_breakdown(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution, request)
         print(f"Breakdown: {breakdown}")
 
         self.assertIsNotNone(breakdown)
@@ -113,7 +113,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = self.temanager.generate_connection_breakdown(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution, request)
         print(f"Breakdown: {breakdown}")
 
         self.assertIsNotNone(breakdown)
@@ -166,7 +166,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = self.temanager.generate_connection_breakdown(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution, request)
         print(f"Breakdown: {breakdown}")
 
         sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
@@ -193,7 +193,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertEqual(solution.cost, 0)
 
         # If there's no solution, there should be no breakdown either.
-        breakdown = self.temanager.generate_connection_breakdown(solution)
+        breakdown = self.temanager.generate_connection_breakdown(solution, request)
         self.assertIsNone(breakdown)
 
     def test_generate_graph_and_connection_with_sax_2_invalid(self):
@@ -280,6 +280,43 @@ class TEManagerTests(unittest.TestCase):
         print(f"TESolver result: {solution}")
         self.assertIsInstance(solution, ConnectionSolution)
 
+    def test_connection_amlight_user_port(self):
+        """
+        Test with just one topology/domain.
+        """
+        temanager = TEManager(topology_data=None)
+
+        topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_USER_PORT.read_text())
+        temanager.add_topology(topology)
+        graph = temanager.generate_graph_te()
+
+        self.assertIsInstance(graph, nx.Graph)
+
+        connection_request = json.loads(
+            TestData.CONNECTION_REQ_AMLIGHT_USER_PORT.read_text()
+        )
+        print(f"connection request: {connection_request}")
+
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+        self.assertIsInstance(traffic_matrix, TrafficMatrix)
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+        self.assertIsInstance(solution, ConnectionSolution)
+
+        links = temanager.get_links_on_path(solution)
+        print(f"Links on path: {links}")
+
+        # Make a flat list of links in connection solution dict, and
+        # check that we have the same number of links.
+        values = sum([v for v in solution.connection_map.values()], [])
+        self.assertEqual(len(links), len(values))
+
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
+        print(f"breakdown: {json.dumps(breakdown)}")
+
     def test_connection_amlight_to_zaoxi(self):
         """
         Exercise a connection request between Amlight and Zaoxi.
@@ -321,7 +358,100 @@ class TEManagerTests(unittest.TestCase):
         values = sum([v for v in solution.connection_map.values()], [])
         self.assertEqual(len(links), len(values))
 
-        breakdown = temanager.generate_connection_breakdown(solution)
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
+        print(f"breakdown: {json.dumps(breakdown)}")
+
+        # Note that the "domain" key is correct in the breakdown
+        # result when we initialize TEManager with None for topology,
+        # and later add individual topologies with add_topology().
+        zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
+        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
+        amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
+
+        # Per https://github.com/atlanticwave-sdx/pce/issues/101, each
+        # breakdown should be of the below form:
+        #
+        # {
+        #     "name": "TENET_vlan_201_203_Ampath_Tenet",
+        #     "dynamic_backup_path": true,
+        #     "uni_a": {
+        #         "tag": {
+        #             "value": 203,
+        #             "tag_type": 1
+        #         },
+        #         "interface_id": "cc:00:00:00:00:00:00:07:41"
+        #     },
+        #     "uni_z": {
+        #         "tag": {
+        #             "value": 201,
+        #             "tag_type": 1
+        #         },
+        #         "interface_id": "cc:00:00:00:00:00:00:08:50"
+        #     }
+        # }
+        for segment in [zaoxi, sax, amlight]:
+            self.assertIsInstance(segment, dict)
+            self.assertIsInstance(segment.get("name"), str)
+            self.assertIsInstance(segment.get("dynamic_backup_path"), bool)
+            self.assertIsInstance(segment.get("uni_a"), dict)
+            self.assertIsInstance(segment.get("uni_a").get("tag"), dict)
+            self.assertIsInstance(segment.get("uni_a").get("tag").get("value"), int)
+            self.assertIsInstance(segment.get("uni_a").get("tag").get("tag_type"), int)
+            self.assertIsInstance(segment.get("uni_a").get("port_id"), str)
+            self.assertIsInstance(segment.get("uni_z"), dict)
+            self.assertIsInstance(segment.get("uni_z").get("tag"), dict)
+            self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
+            self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
+            self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
+
+    def test_connection_amlight_to_zaoxi_user_port(self):
+        """
+        Exercise a connection request between Amlight and Zaoxi.
+        """
+        temanager = TEManager(topology_data=None)
+
+        for path in (
+            TestData.TOPOLOGY_FILE_AMLIGHT_USER_PORT,
+            TestData.TOPOLOGY_FILE_SAX,
+            TestData.TOPOLOGY_FILE_ZAOXI,
+        ):
+            topology = json.loads(path.read_text())
+            temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+
+        connection_request = json.loads(
+            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT.read_text()
+        )
+        print(f"connection_request: {connection_request}")
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        conn = temanager.requests_connectivity(traffic_matrix)
+        print(f"Graph connectivity: {conn}")
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        self.assertIsNotNone(solution.connection_map)
+
+        links = temanager.get_links_on_path(solution)
+        print(f"Links on path: {links}")
+
+        # Make a flat list of links in connection solution dict, and
+        # check that we have the same number of links.
+        values = sum([v for v in solution.connection_map.values()], [])
+        self.assertEqual(len(links), len(values))
+
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown: {json.dumps(breakdown)}")
 
         # Note that the "domain" key is correct in the breakdown
@@ -400,7 +530,9 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        breakdown = temanager.generate_connection_breakdown(solution)
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown: {json.dumps(breakdown)}")
 
         zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
@@ -416,7 +548,9 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        breakdown2 = temanager.generate_connection_breakdown(solution)
+        breakdown2 = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown2: {json.dumps(breakdown2)}")
 
         self.assertNotEqual(breakdown, breakdown2)
@@ -474,7 +608,9 @@ class TEManagerTests(unittest.TestCase):
 
             self.assertIsNotNone(solution.connection_map)
 
-            breakdown = json.dumps(temanager.generate_connection_breakdown(solution))
+            breakdown = json.dumps(
+                temanager.generate_connection_breakdown(solution, connection_request)
+            )
 
             print(f"breakdown: {breakdown}")
             self.assertIsNotNone(breakdown)
@@ -520,7 +656,9 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(solution1, ConnectionSolution)
         self.assertIsNotNone(solution1.connection_map)
 
-        breakdown1 = temanager.generate_connection_breakdown(solution1)
+        breakdown1 = temanager.generate_connection_breakdown(
+            solution1, connection_request1
+        )
         print(f"Breakdown #1: {json.dumps(breakdown1)}")
 
         # Use another connection request that spans just one domain.
@@ -537,7 +675,9 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(solution2, ConnectionSolution)
         self.assertIsNotNone(solution2.connection_map)
 
-        breakdown2 = temanager.generate_connection_breakdown(solution2)
+        breakdown2 = temanager.generate_connection_breakdown(
+            solution2, connection_request2
+        )
         print(f"Breakdown #2: {json.dumps(breakdown2)}")
 
         self.assertNotEqual(connection_request1, connection_request2)
@@ -578,21 +718,27 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        breakdown1 = temanager.generate_connection_breakdown(solution)
+        breakdown1 = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown1: {json.dumps(breakdown1)}")
 
         # Return all used VLANs.
         temanager.unreserve_vlan(request_id=connection_request.get("id"))
 
         # Can we get the same breakdown for the same request now?
-        breakdown2 = temanager.generate_connection_breakdown(solution)
+        breakdown2 = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown2: {json.dumps(breakdown2)}")
 
         self.assertEqual(breakdown1, breakdown2)
 
         # If we generate another breakdown without un-reserving any
         # VLANs, the result should be distinct from the previous ones.
-        breakdown3 = temanager.generate_connection_breakdown(solution)
+        breakdown3 = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown3: {json.dumps(breakdown3)}")
         self.assertNotEqual(breakdown1, breakdown3)
         self.assertNotEqual(breakdown2, breakdown3)
@@ -630,7 +776,9 @@ class TEManagerTests(unittest.TestCase):
         # This hopefully should find a solution.
         self.assertIsNotNone(solution.connection_map)
 
-        breakdown = temanager.generate_connection_breakdown(solution)
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
         print(f"breakdown: {json.dumps(breakdown)}")
 
         # Note that the "domain" key is wrong in the results when we
