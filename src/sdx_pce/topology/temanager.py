@@ -131,7 +131,12 @@ class TEManager:
                 if port_id not in link_port_ids:
                     raise ValidationError(f"port {port_id} not in {link_port_ids}")
 
+                # Get the label range for this port: either from the
+                # port itself (v1), or from the services attached to it (v2).
+
                 label_range = self.get_port_services_label_range(port)
+                if label_range is None:
+                    label_range = port.get("label_range")
 
                 # TODO: why is label_range sometimes None, and what to
                 # do when that happens?
@@ -413,10 +418,15 @@ class TEManager:
         # may lead to incorrect results.  Dicts are lexically ordered,
         # and that may break some assumptions about the order in which
         # we form and traverse the breakdown.
+
+        # Note:Extra flag to indicate if the connection request is in the format of TrafficMatrix or not
+        # If the connection request is in the format of TrafficMatrix, then the ingress_port and egress_port 
+        # are not present in the connection_request 
         request_format_is_tm = isinstance(connection_request, list)
         self._logger.info(
             f"connection_requst: {connection_request}; type:{type(request_format_is_tm)}"
         )
+        same_domain_port_flag = False
         if not request_format_is_tm:
             self._logger.info(
                 f'connection_requst ingress_port: {connection_request["ingress_port"]["id"]}'
@@ -425,14 +435,17 @@ class TEManager:
                 f'connection_requst egress_port: {connection_request["egress_port"]["id"]}'
             )
             # flag to indicate if the request ingress and egress ports belong to the same domain
-            same_domain_user_port_flag = (
+            same_domain_port_flag = (
                 self.topology_manager.are_two_ports_same_domain(
                     connection_request["ingress_port"]["id"],
                     connection_request["egress_port"]["id"],
                 )
             )
-        for domain, links in breakdown.items():
             self._logger.info(
+                f"same_domain_user_port_flag: {same_domain_port_flag}"
+            )
+        for domain, links in breakdown.items():
+            self._logger.debug(
                 f"Creating domain_breakdown: domain: {domain}, links: {links}"
             )
             segment = {}
@@ -451,12 +464,17 @@ class TEManager:
                     ingress_port_id = connection_request["ingress_port"]["id"]
                     ingress_port = self.topology_manager.get_port_by_id(ingress_port_id)
                 else:
-                    ingress_port, _ = self._get_ports_by_link(links[0])
+                    if request_format_is_tm:
+                        ingress_port, _ = self._get_ports_by_link(links[0])
+                    else:
+                        ingress_port = self.topology_manager.get_port_by_id(
+                            connection_request["ingress_port"]["id"]
+                        )
 
                 # egress port for this domain is on the last link.
                 if (
                     not request_format_is_tm
-                    and same_domain_user_port_flag
+                    and same_domain_port_flag
                     and connection_request["egress_port"]["id"]
                     not in self.topology_manager.get_port_map()
                 ):
@@ -468,6 +486,8 @@ class TEManager:
                     _, next_ingress_port = self._get_ports_by_link(links[-1])
                 else:
                     egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
+                    if same_domain_port_flag:
+                        egress_port = next_ingress_port
                 self._logger.info(
                     f"ingress_port:{ingress_port}, egress_port:{egress_port},next_ingress_port:{next_ingress_port}"
                 )
@@ -726,7 +746,9 @@ class TEManager:
             return None
 
         # Look up available VLAN tags by domain and port ID.
+        self._logger.debug(f"vlan tags table: {self._vlan_tags_table}")
         domain_table = self._vlan_tags_table.get(domain)
+        self._logger.debug(f"domain vlan table: {domain} domain_table: {domain_table}")
 
         if domain_table is None:
             self._logger.warning(f"reserve_vlan domain: {domain} entry: {domain_table}")
