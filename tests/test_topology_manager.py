@@ -141,9 +141,7 @@ class TopologyManagerTests(unittest.TestCase):
                 "urn:sdx:node:amlight.net:B1",
                 "urn:sdx:node:amlight.net:B2",
             ):
-                self.assertEqual(
-                    topology_id, "urn:sdx:topology:amlight.net"
-                )
+                self.assertEqual(topology_id, "urn:sdx:topology:amlight.net")
 
             if node.id in (
                 "urn:sdx:node:sax:A1",

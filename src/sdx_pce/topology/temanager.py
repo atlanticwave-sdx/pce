@@ -103,8 +103,8 @@ class TEManager:
         return self.topology_manager.get_topology_map()
 
     def get_port_services_label_range(self, port: dict) -> List[str]:
-        vlan_range=None
-        services=port.get("services")
+        vlan_range = None
+        services = port.get("services")
         if services and services.get("l2vpn-ptp"):
             vlan_range = services.get("l2vpn-ptp").get("vlan_range")
         return vlan_range
@@ -120,7 +120,7 @@ class TEManager:
             for port in link.ports:
                 # Collect all port IDs in this link.  Each link should
                 # have two ports.
-                link_port_ids = [x['id'] for x in link.ports]
+                link_port_ids = [x["id"] for x in link.ports]
 
                 # Do some error checks.
                 link_port_count = len(link_port_ids)
@@ -133,7 +133,6 @@ class TEManager:
 
                 # Get the label range for this port: either from the
                 # port itself (v1), or from the services attached to it (v2).
-
                 label_range = self.get_port_services_label_range(port)
                 if label_range is None:
                     label_range = port.get("label_range")
@@ -350,7 +349,7 @@ class TEManager:
 
                 if ports:
                     p1, p2 = ports
-                    result.append({"source": p1['id'], "destination": p2['id']})
+                    result.append({"source": p1["id"], "destination": p2["id"]})
 
         return result
 
@@ -387,8 +386,8 @@ class TEManager:
                     f"source node: {src_node}, destination node: {dst_node}"
                 )
 
-                src_domain = self.topology_manager.get_domain_name(src_node['id'])
-                dst_domain = self.topology_manager.get_domain_name(dst_node['id'])
+                src_domain = self.topology_manager.get_domain_name(src_node["id"])
+                dst_domain = self.topology_manager.get_domain_name(dst_node["id"])
 
                 # TODO: what do we do when a domain can't be
                 # determined? Can a domain be `None`?
@@ -420,8 +419,8 @@ class TEManager:
         # we form and traverse the breakdown.
 
         # Note:Extra flag to indicate if the connection request is in the format of TrafficMatrix or not
-        # If the connection request is in the format of TrafficMatrix, then the ingress_port and egress_port 
-        # are not present in the connection_request 
+        # If the connection request is in the format of TrafficMatrix, then the ingress_port and egress_port
+        # are not present in the connection_request
         request_format_is_tm = isinstance(connection_request, list)
         self._logger.info(
             f"connection_requst: {connection_request}; type:{type(request_format_is_tm)}"
@@ -435,15 +434,11 @@ class TEManager:
                 f'connection_requst egress_port: {connection_request["egress_port"]["id"]}'
             )
             # flag to indicate if the request ingress and egress ports belong to the same domain
-            same_domain_port_flag = (
-                self.topology_manager.are_two_ports_same_domain(
-                    connection_request["ingress_port"]["id"],
-                    connection_request["egress_port"]["id"],
-                )
+            same_domain_port_flag = self.topology_manager.are_two_ports_same_domain(
+                connection_request["ingress_port"]["id"],
+                connection_request["egress_port"]["id"],
             )
-            self._logger.info(
-                f"same_domain_user_port_flag: {same_domain_port_flag}"
-            )
+            self._logger.info(f"same_domain_user_port_flag: {same_domain_port_flag}")
         for domain, links in breakdown.items():
             self._logger.debug(
                 f"Creating domain_breakdown: domain: {domain}, links: {links}"
@@ -638,13 +633,13 @@ class TEManager:
 
             if ingress_port is None or egress_port is None:
                 return None
-                
-            tag=None
-            ingress_vlan = self._reserve_vlan(domain, ingress_port, request_id,tag)
-            egress_vlan = self._reserve_vlan(domain, egress_port, request_id,tag)
 
-            ingress_port_id = ingress_port['id']
-            egress_port_id = egress_port['id']
+            tag = None
+            ingress_vlan = self._reserve_vlan(domain, ingress_port, request_id, tag)
+            egress_vlan = self._reserve_vlan(domain, egress_port, request_id, tag)
+
+            ingress_port_id = ingress_port["id"]
+            egress_port_id = egress_port["id"]
 
             # TODO: what to do when a port is not in the port map which only has all the ports on links?
             # User facing ports need clarification from the custermers.
@@ -674,11 +669,11 @@ class TEManager:
             # if one has empty vlan range, first resume reserved vlans
             # in the previous domain, then return false.
             if ingress_vlan is None:
-                self._unreserve_vlan(domain,ingress_port, ingress_vlan)
+                self._unreserve_vlan(domain, ingress_port, ingress_vlan)
                 return None
 
             if egress_vlan is None:
-                self._unreserve_vlan(domain,egress_port, egress_vlan)
+                self._unreserve_vlan(domain, egress_port, egress_vlan)
                 return None
 
             # # vlan translation from upstream_o_vlan to i_vlan
@@ -739,7 +734,7 @@ class TEManager:
         # with self._topology_lock:
         #     pass
 
-        port_id = port['id']
+        port_id = port["id"]
         self._logger.debug(f"reserve_vlan domain: {domain} port_id: {port_id}")
 
         if port_id is None:

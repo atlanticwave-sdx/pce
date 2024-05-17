@@ -136,7 +136,7 @@ class TopologyManager:
         Check if a link is an interdomain link.
         """
         for port in link.ports:
-            if port['id'] not in self._port_map:
+            if port["id"] not in self._port_map:
                 return True
         return False
 
@@ -154,7 +154,7 @@ class TopologyManager:
         # Links.
         links = topology.links
         for link in links:
-            if not self.is_link_interdomain(link,topology):
+            if not self.is_link_interdomain(link, topology):
                 # print(link.id+";......."+str(link.nni))
                 self._topology.remove_link(link.id)
                 for port in link.ports:
