@@ -102,6 +102,13 @@ class TEManager:
         """
         return self.topology_manager.get_topology_map()
 
+    def get_port_services_label_range(self, port: dict) -> List[str]:
+        vlan_range=None
+        services=port.get("services")
+        if services and services.get("l2vpn-ptp"):
+            vlan_range = services.get("l2vpn-ptp").get("vlan_range")
+        return vlan_range
+
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
         Update VLAN tags table.
@@ -113,7 +120,7 @@ class TEManager:
             for port in link.ports:
                 # Collect all port IDs in this link.  Each link should
                 # have two ports.
-                link_port_ids = [x.get("id") for x in link.ports]
+                link_port_ids = [x['id'] for x in link.ports]
 
                 # Do some error checks.
                 link_port_count = len(link_port_ids)
@@ -124,12 +131,12 @@ class TEManager:
                 if port_id not in link_port_ids:
                     raise ValidationError(f"port {port_id} not in {link_port_ids}")
 
-                label_range = port.get("label_range")
+                label_range = self.get_port_services_label_range(port)
 
                 # TODO: why is label_range sometimes None, and what to
                 # do when that happens?
                 if label_range is None:
-                    self._logger.info(f"label_range on {port.get('id')} is None")
+                    self._logger.info(f"label_range on {port['id']} is None")
                     continue
 
                 # label_range is of the form ['100-200', '1000']; let
@@ -232,8 +239,8 @@ class TEManager:
             )
             return None
 
-        required_bandwidth = request.bandwidth or 0
-        required_latency = request.latency or float("inf")
+        required_bandwidth = request.bandwidth_required or 0
+        required_latency = request.latency_required or float("inf")
         request_id = request.id
 
         self._logger.info(
@@ -338,7 +345,7 @@ class TEManager:
 
                 if ports:
                     p1, p2 = ports
-                    result.append({"source": p1.get("id"), "destination": p2.get("id")})
+                    result.append({"source": p1['id'], "destination": p2['id']})
 
         return result
 
@@ -375,8 +382,8 @@ class TEManager:
                     f"source node: {src_node}, destination node: {dst_node}"
                 )
 
-                src_domain = self.topology_manager.get_domain_name(src_node.get("id"))
-                dst_domain = self.topology_manager.get_domain_name(dst_node.get("id"))
+                src_domain = self.topology_manager.get_domain_name(src_node['id'])
+                dst_domain = self.topology_manager.get_domain_name(dst_node['id'])
 
                 # TODO: what do we do when a domain can't be
                 # determined? Can a domain be `None`?
@@ -611,12 +618,13 @@ class TEManager:
 
             if ingress_port is None or egress_port is None:
                 return None
+                
+            tag=None
+            ingress_vlan = self._reserve_vlan(domain, ingress_port, request_id,tag)
+            egress_vlan = self._reserve_vlan(domain, egress_port, request_id,tag)
 
-            ingress_vlan = self._reserve_vlan(domain, ingress_port, request_id)
-            egress_vlan = self._reserve_vlan(domain, egress_port, request_id)
-
-            ingress_port_id = ingress_port.get("id")
-            egress_port_id = egress_port.get("id")
+            ingress_port_id = ingress_port['id']
+            egress_port_id = egress_port['id']
 
             # TODO: what to do when a port is not in the port map which only has all the ports on links?
             # User facing ports need clarification from the custermers.
@@ -711,7 +719,7 @@ class TEManager:
         # with self._topology_lock:
         #     pass
 
-        port_id = port.get("id")
+        port_id = port['id']
         self._logger.debug(f"reserve_vlan domain: {domain} port_id: {port_id}")
 
         if port_id is None:

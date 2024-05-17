@@ -133,7 +133,7 @@ class TopologyManagerTests(unittest.TestCase):
 
         topology = self.topology_manager.get_topology()
 
-        for node in topology.get_nodes():
+        for node in topology.nodes:
             topology_id = self.topology_manager.get_domain_name(node.id)
 
             if node.id in (
@@ -142,7 +142,7 @@ class TopologyManagerTests(unittest.TestCase):
                 "urn:sdx:node:amlight.net:B2",
             ):
                 self.assertEqual(
-                    topology_id, "urn:ogf:network:sdx:topology:amlight.net"
+                    topology_id, "urn:sdx:topology:amlight.net"
                 )
 
             if node.id in (
@@ -151,14 +151,14 @@ class TopologyManagerTests(unittest.TestCase):
                 "urn:ogf:network:sdx:node:sax:B2",
                 "urn:ogf:network:sdx:node:sax:B3",
             ):
-                self.assertEqual(topology_id, "urn:ogf:network:sdx:topology:sax.net")
+                self.assertEqual(topology_id, "urn:sdx:topology:sax.net")
 
             if node.id in (
                 "urn:ogf:network:sdx:node:zaoxi:A1",
                 "urn:ogf:network:sdx:node:zaoxi:B1",
                 "urn:ogf:network:sdx:node:zaoxi:B2",
             ):
-                self.assertEqual(topology_id, "urn:ogf:network:sdx:topology:zaoxi.net")
+                self.assertEqual(topology_id, "urn:sdx:topology:zaoxi.net")
 
 
 if __name__ == "__main__":
