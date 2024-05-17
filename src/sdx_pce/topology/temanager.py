@@ -653,12 +653,12 @@ class TEManager:
 
             # if one has empty vlan range, first resume reserved vlans
             # in the previous domain, then return false.
-            if egress_vlan is None:
-                self._unreserve_vlan(ingress_vlan)
+            if ingress_vlan is None:
+                self._unreserve_vlan(domain,ingress_port, ingress_vlan)
                 return None
 
-            if ingress_vlan is None:
-                self._unreserve_vlan(egress_vlan)
+            if egress_vlan is None:
+                self._unreserve_vlan(domain,egress_port, egress_vlan)
                 return None
 
             # # vlan translation from upstream_o_vlan to i_vlan
