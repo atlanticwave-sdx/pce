@@ -107,7 +107,7 @@ class TopologyManager:
         Find the topology ID associated with the given node ID.
 
         A topology ID is expected to be of the format
-        "urn:ogf:network:sdx:topology:amlight.net", and from this, we
+        "urn:sdx:topology:amlight.net", and from this, we
         can find the domain name associated with the topology.
 
         TODO: This function name may be a misnomer?

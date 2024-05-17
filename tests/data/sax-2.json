@@ -1,5 +1,5 @@
 {
-    "id": "urn:ogf:network:sdx",
+    "id": "urn:sdx",
     "name": "SAX-OXP",
     "domain_service": {
         "monitoring_capability": null,
@@ -13,7 +13,7 @@
     "timestamp": "2023-05-04T21:01:51.954870",
     "nodes": [
         {
-            "id": "urn:ogf:network:sdx:node:sax:B1",
+            "id": "urn:sdx:node:sax:B1",
             "name": "sax:Novi01",
             "short_name": "B1",
             "location": {
@@ -24,7 +24,7 @@
             },
             "ports": [
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B1:1",
+                    "id": "urn:sdx:port:sax:B1:1",
                     "name": "Novi01:1",
                     "short_name": null,
                     "node": "B1:1",
@@ -37,7 +37,7 @@
                     "private_attributes": null
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B1:2",
+                    "id": "urn:sdx:port:sax:B1:2",
                     "name": "Novi01:2",
                     "short_name": null,
                     "node": "B1:2",
@@ -50,7 +50,7 @@
                     "private_attributes": null
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B1:3",
+                    "id": "urn:sdx:port:sax:B1:3",
                     "name": "Novi01:3",
                     "short_name": null,
                     "node": "B1:3",
@@ -63,7 +63,7 @@
                     "private_attributes": null
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B1:4",
+                    "id": "urn:sdx:port:sax:B1:4",
                     "name": "Novi01:3",
                     "short_name": null,
                     "node": "B1:4",
@@ -79,7 +79,7 @@
             "private_attributes": null
         },
         {
-            "id": "urn:ogf:network:sdx:node:sax:B2",
+            "id": "urn:sdx:node:sax:B2",
             "name": "sax:Novi02",
             "short_name": "B2",
             "location": {
@@ -90,7 +90,7 @@
             },
             "ports": [
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B2:1",
+                    "id": "urn:sdx:port:sax:B2:1",
                     "name": "Novi02:1",
                     "short_name": null,
                     "node": "B2:1",
@@ -103,7 +103,7 @@
                     "private_attributes": null
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B2:2",
+                    "id": "urn:sdx:port:sax:B2:2",
                     "name": "Novi02:2",
                     "short_name": null,
                     "node": "B2:2",
@@ -116,7 +116,7 @@
                     "private_attributes": null
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B2:3",
+                    "id": "urn:sdx:port:sax:B2:3",
                     "name": "Novi02:3",
                     "short_name": null,
                     "node": "B2:3",
@@ -129,7 +129,7 @@
                     "private_attributes": null
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B2:4",
+                    "id": "urn:sdx:port:sax:B2:4",
                     "name": "Novi02:4",
                     "short_name": null,
                     "node": "B2:3",
@@ -145,7 +145,7 @@
             "private_attributes": null
         },
         {
-            "id": "urn:ogf:network:sdx:node:sax:B3",
+            "id": "urn:sdx:node:sax:B3",
             "name": "sax:Novi03",
             "short_name": "B3",
             "location": {
@@ -156,7 +156,7 @@
             },
             "ports": [
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B3:1",
+                    "id": "urn:sdx:port:sax:B3:1",
                     "name": "Novi02:3",
                     "short_name": null,
                     "node": "B3:1",
@@ -169,7 +169,7 @@
                     "private_attributes": null
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B3:2",
+                    "id": "urn:sdx:port:sax:B3:2",
                     "name": "Novi02:3",
                     "short_name": null,
                     "node": "B3:2",
@@ -182,7 +182,7 @@
                     "private_attributes": null
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B3:3",
+                    "id": "urn:sdx:port:sax:B3:3",
                     "name": "Novi03:3",
                     "short_name": null,
                     "node": "B3:3",
@@ -198,7 +198,7 @@
             "private_attributes": null
         },
         {
-            "id": "urn:ogf:network:sdx:node:sax:A1",
+            "id": "urn:sdx:node:sax:A1",
             "name": "sax:Novi100",
             "short_name": "A1",
             "location": {
@@ -209,7 +209,7 @@
             },
             "ports": [
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:A1:1",
+                    "id": "urn:sdx:port:sax:A1:1",
                     "name": "Novi100:1",
                     "short_name": null,
                     "node": "A1:1",
@@ -222,7 +222,7 @@
                     "private_attributes": null
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:A1:2",
+                    "id": "urn:sdx:port:sax:A1:2",
                     "name": "Novi100:2",
                     "short_name": null,
                     "node": "A1:2",
@@ -240,15 +240,15 @@
     ],
     "links": [
         {
-            "id": "urn:ogf:network:sdx:link:sax:B1-B2",
+            "id": "urn:sdx:link:sax:B1-B2",
             "name": "sax:B1-B2",
             "short_name": "SaoPaulo-Fortaleza",
             "nni": null,
             "ports": [
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B1:2",
+                    "id": "urn:sdx:port:sax:B1:2",
                     "name": "Novi01:2",
-                    "node": "urn:ogf:network:sdx:node:sax:B1",
+                    "node": "urn:sdx:node:sax:B1",
                     "short_name": "B1:2",
                     "label_range": [
                         "100-200",
@@ -257,13 +257,13 @@
                     "status": "up"
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B2:2",
+                    "id": "urn:sdx:port:sax:B2:2",
                     "label_range": [
                         "100-200",
                         "10001"
                     ],
                     "name": "Novi02:2",
-                    "node": "urn:ogf:network:sdx:node:sax:B2",
+                    "node": "urn:sdx:node:sax:B2",
                     "short_name": "B2:2",
                     "status": "up"
                 }
@@ -280,30 +280,30 @@
             "measurement_period": null
         },
         {
-            "id": "urn:ogf:network:sdx:link:sax:Panama-Fortaleza",
+            "id": "urn:sdx:link:sax:Panama-Fortaleza",
             "name": "sax:Panama-Fortaleza",
             "short_name": "Panama-Fortaleza",
             "nni": null,
             "ports": [
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B3:2",
+                    "id": "urn:sdx:port:sax:B3:2",
                     "label_range": [
                         "100-200",
                         "10001"
                     ],
                     "name": "Novi02:3",
-                    "node": "urn:ogf:network:sdx:node:sax:B3",
+                    "node": "urn:sdx:node:sax:B3",
                     "short_name": "B3:2",
                     "status": "up"
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B2:4",
+                    "id": "urn:sdx:port:sax:B2:4",
                     "label_range": [
                         "100-200",
                         "10001"
                     ],
                     "name": "Novi02:4",
-                    "node": "urn:ogf:network:sdx:node:sax:B2",
+                    "node": "urn:sdx:node:sax:B2",
                     "short_name": "B2:3",
                     "status": "up"
                 }
@@ -320,26 +320,26 @@
             "measurement_period": null
         },
         {
-            "id": "urn:ogf:network:sdx:link:sax:SanPaolo-Fortaleza",
+            "id": "urn:sdx:link:sax:SanPaolo-Fortaleza",
             "name": "nni:SanPaolo-Fortaleza",
             "short_name": "BocaRaton-Fortaleza",
             "nni": null,
             "ports": [
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B3:3",
+                    "id": "urn:sdx:port:sax:B3:3",
                     "label_range": [
                         "100-200",
                         "10001"
                     ],
                     "name": "Novi03:3",
-                    "node": "urn:ogf:network:sdx:node:sax:B3",
+                    "node": "urn:sdx:node:sax:B3",
                     "short_name": "B3:3",
                     "status": "up"
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B1:4",
+                    "id": "urn:sdx:port:sax:B1:4",
                     "name": "Novi01:3",
-                    "node": "urn:ogf:network:sdx:node:sax:B1",
+                    "node": "urn:sdx:node:sax:B1",
                     "short_name": "B1:4",
                     "label_range": [
                         "100-200",
@@ -360,26 +360,26 @@
             "measurement_period": null
         },
         {
-            "id": "urn:ogf:network:sdx:link:sax:A1-B1",
+            "id": "urn:sdx:link:sax:A1-B1",
             "name": "sax:A1-B1",
             "short_name": "redclara-SaoPaulo",
             "nni": null,
             "ports": [
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:A1:1",
+                    "id": "urn:sdx:port:sax:A1:1",
                     "label_range": [
                         "100-200",
                         "1000"
                     ],
                     "name": "Novi100:1",
-                    "node": "urn:ogf:network:sdx:node:sax:A1",
+                    "node": "urn:sdx:node:sax:A1",
                     "short_name": "A1:1",
                     "status": "up"
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B1:3",
+                    "id": "urn:sdx:port:sax:B1:3",
                     "name": "Novi01:3",
-                    "node": "urn:ogf:network:sdx:node:sax:B1",
+                    "node": "urn:sdx:node:sax:B1",
                     "short_name": "B1:3",
                     "label_range": [
                         "100-200",
@@ -400,30 +400,30 @@
             "measurement_period": null
         },
         {
-            "id": "urn:ogf:network:sdx:link:sax:A1-B2",
+            "id": "urn:sdx:link:sax:A1-B2",
             "name": "sax:A1-B2",
             "short_name": "redclara-Fortaleza",
             "nni": null,
             "ports": [
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:A1:2",
+                    "id": "urn:sdx:port:sax:A1:2",
                     "label_range": [
                         "100-200",
                         "1000"
                     ],
                     "name": "Novi100:2",
-                    "node": "urn:ogf:network:sdx:node:sax:A1",
+                    "node": "urn:sdx:node:sax:A1",
                     "short_name": "A1:2",
                     "status": "up"
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B2:3",
+                    "id": "urn:sdx:port:sax:B2:3",
                     "label_range": [
                         "100-200",
                         "10001"
                     ],
                     "name": "Novi02:3",
-                    "node": "urn:ogf:network:sdx:node:sax:B2",
+                    "node": "urn:sdx:node:sax:B2",
                     "short_name": "B2:3",
                     "status": "up"
                 }
@@ -440,7 +440,7 @@
             "measurement_period": null
         },
         {
-            "id": "urn:ogf:network:sdx:link:nni:Miami-Sanpaolo",
+            "id": "urn:sdx:link:nni:Miami-Sanpaolo",
             "name": "nni:Miami-Sanpaolo",
             "short_name": "Miami-Sanpaolo",
             "nni": null,
@@ -457,9 +457,9 @@
                     "status": "up"
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B1:1",
+                    "id": "urn:sdx:port:sax:B1:1",
                     "name": "Novi01:1",
-                    "node": "urn:ogf:network:sdx:node:sax:B1",
+                    "node": "urn:sdx:node:sax:B1",
                     "short_name": "B1:1",
                     "label_range": [
                         "100-200",
@@ -480,7 +480,7 @@
             "measurement_period": null
         },
         {
-            "id": "urn:ogf:network:sdx:link:nni:BocaRaton-Fortaleza",
+            "id": "urn:sdx:link:nni:BocaRaton-Fortaleza",
             "name": "nni:BocaRaton-Fortaleza",
             "short_name": "BocaRaton-Fortaleza",
             "nni": true,
@@ -497,13 +497,13 @@
                     "status": "up"
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B2:1",
+                    "id": "urn:sdx:port:sax:B2:1",
                     "label_range": [
                         "100-200",
                         "1000"
                     ],
                     "name": "Novi02:1",
-                    "node": "urn:ogf:network:sdx:node:sax:B2",
+                    "node": "urn:sdx:node:sax:B2",
                     "short_name": "B2:1",
                     "status": "up"
                 }
@@ -520,26 +520,26 @@
             "measurement_period": null
         },
         {
-            "id": "urn:ogf:network:sdx:link:nni:Fortaleza-Sangano",
+            "id": "urn:sdx:link:nni:Fortaleza-Sangano",
             "name": "nni:Fortaleza-Sangano",
             "short_name": "Fortaleza-Sangano",
             "nni": true,
             "ports": [
                 {
-                    "id": "urn:ogf:network:sdx:port:sax:B3:1",
+                    "id": "urn:sdx:port:sax:B3:1",
                     "label_range": [
                         "100-200",
                         "1000"
                     ],
                     "name": "Novi02:3",
-                    "node": "urn:ogf:network:sdx:node:sax:B3",
+                    "node": "urn:sdx:node:sax:B3",
                     "short_name": "B3:1",
                     "status": "up"
                 },
                 {
-                    "id": "urn:ogf:network:sdx:port:zaoxi:B1:1",
+                    "id": "urn:sdx:port:zaoxi:B1:1",
                     "name": "Novi01:1",
-                    "node": "urn:ogf:network:sdx:node:zaoxi:B1",
+                    "node": "urn:sdx:node:zaoxi:B1",
                     "short_name": "B1:1",
                     "label_range": [
                         "100-200",

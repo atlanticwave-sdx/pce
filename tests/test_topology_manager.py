@@ -27,8 +27,8 @@ class TopologyManagerTests(unittest.TestCase):
     ]
     TOPOLOGY_FILE_LIST_UPDATE = [TestData.TOPOLOGY_FILE_ZAOXI]
 
-    LINK_ID = "urn:ogf:network:sdx:link:amlight:A1-B2"
-    INTER_LINK_ID = "urn:ogf:network:sdx:link:nni:Miami-Sanpaolo"
+    LINK_ID = "urn:sdx:link:amlight:A1-B2"
+    INTER_LINK_ID = "urn:sdx:link:nni:Miami-Sanpaolo"
 
     def setUp(self):
         self.topology_manager = TopologyManager()
@@ -146,17 +146,17 @@ class TopologyManagerTests(unittest.TestCase):
                 )
 
             if node.id in (
-                "urn:ogf:network:sdx:node:sax:A1",
-                "urn:ogf:network:sdx:node:sax:B1",
-                "urn:ogf:network:sdx:node:sax:B2",
-                "urn:ogf:network:sdx:node:sax:B3",
+                "urn:sdx:node:sax:A1",
+                "urn:sdx:node:sax:B1",
+                "urn:sdx:node:sax:B2",
+                "urn:sdx:node:sax:B3",
             ):
                 self.assertEqual(topology_id, "urn:sdx:topology:sax.net")
 
             if node.id in (
-                "urn:ogf:network:sdx:node:zaoxi:A1",
-                "urn:ogf:network:sdx:node:zaoxi:B1",
-                "urn:ogf:network:sdx:node:zaoxi:B2",
+                "urn:sdx:node:zaoxi:A1",
+                "urn:sdx:node:zaoxi:B1",
+                "urn:sdx:node:zaoxi:B2",
             ):
                 self.assertEqual(topology_id, "urn:sdx:topology:zaoxi.net")
 

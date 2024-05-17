@@ -120,9 +120,9 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(breakdown, dict)
         self.assertEqual(len(breakdown), 3)
 
-        amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
-        zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
-        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
+        amlight = breakdown.get("urn:sdx:topology:amlight.net")
+        zaoxi = breakdown.get("urn:sdx:topology:zaoxi.net")
+        sax = breakdown.get("urn:sdx:topology:sax.net")
 
         for segment in [zaoxi, sax, amlight]:
             self.assertIsInstance(segment, dict)
@@ -169,10 +169,10 @@ class TEManagerTests(unittest.TestCase):
         breakdown = self.temanager.generate_connection_breakdown(solution, request)
         print(f"Breakdown: {breakdown}")
 
-        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
+        sax = breakdown.get("urn:sdx:topology:sax.net")
         print(f"Breakdown, SAX: {sax}")
 
-        zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
+        zaoxi = breakdown.get("urn:sdx:topology:zaoxi.net")
         print(f"Breakdown, ZAOXI: {zaoxi}")
 
     def test_connection_breakdown_some_input(self):
@@ -366,9 +366,9 @@ class TEManagerTests(unittest.TestCase):
         # Note that the "domain" key is correct in the breakdown
         # result when we initialize TEManager with None for topology,
         # and later add individual topologies with add_topology().
-        zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
-        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
-        amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
+        zaoxi = breakdown.get("urn:sdx:topology:zaoxi.net")
+        sax = breakdown.get("urn:sdx:topology:sax.net")
+        amlight = breakdown.get("urn:sdx:topology:amlight.net")
 
         # Per https://github.com/atlanticwave-sdx/pce/issues/101, each
         # breakdown should be of the below form:
@@ -457,9 +457,9 @@ class TEManagerTests(unittest.TestCase):
         # Note that the "domain" key is correct in the breakdown
         # result when we initialize TEManager with None for topology,
         # and later add individual topologies with add_topology().
-        zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
-        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
-        amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
+        zaoxi = breakdown.get("urn:sdx:topology:zaoxi.net")
+        sax = breakdown.get("urn:sdx:topology:sax.net")
+        amlight = breakdown.get("urn:sdx:topology:amlight.net")
 
         # Per https://github.com/atlanticwave-sdx/pce/issues/101, each
         # breakdown should be of the below form:
@@ -535,9 +535,9 @@ class TEManagerTests(unittest.TestCase):
         )
         print(f"breakdown: {json.dumps(breakdown)}")
 
-        zaoxi = breakdown.get("urn:ogf:network:sdx:topology:zaoxi.net")
-        sax = breakdown.get("urn:ogf:network:sdx:topology:sax.net")
-        amlight = breakdown.get("urn:ogf:network:sdx:topology:amlight.net")
+        zaoxi = breakdown.get("urn:sdx:topology:zaoxi.net")
+        sax = breakdown.get("urn:sdx:topology:sax.net")
+        amlight = breakdown.get("urn:sdx:topology:amlight.net")
 
         # Find solution for another identical connection request, and
         # compare solutions.  They should be different.
@@ -555,9 +555,9 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertNotEqual(breakdown, breakdown2)
 
-        zaoxi2 = breakdown2.get("urn:ogf:network:sdx:topology:zaoxi.net")
-        sax2 = breakdown2.get("urn:ogf:network:sdx:topology:sax.net")
-        amlight2 = breakdown2.get("urn:ogf:network:sdx:topology:amlight.net")
+        zaoxi2 = breakdown2.get("urn:sdx:topology:zaoxi.net")
+        sax2 = breakdown2.get("urn:sdx:topology:sax.net")
+        amlight2 = breakdown2.get("urn:sdx:topology:amlight.net")
 
         self.assertNotEqual(zaoxi, zaoxi2)
         self.assertNotEqual(sax, sax2)
@@ -783,7 +783,7 @@ class TEManagerTests(unittest.TestCase):
 
         # Note that the "domain" key is wrong in the results when we
         # initialize TEManager with a merged topology.
-        self.assertIsNotNone(breakdown.get("urn:ogf:network:sdx"))
+        self.assertIsNotNone(breakdown.get("urn:sdx"))
 
     def test_generate_graph_and_connection(self):
         graph = self.temanager.generate_graph_te()
