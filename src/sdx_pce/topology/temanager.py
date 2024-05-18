@@ -494,6 +494,10 @@ class TEManager:
                 connection_request["egress_port"]["id"],
             )
             self._logger.info(f"same_domain_user_port_flag: {same_domain_port_flag}")
+
+        # Now generate the breakdown with potential user specified tags
+        ingress_user_port = None
+        egress_user_port = None
         for domain, links in breakdown.items():
             self._logger.debug(
                 f"Creating domain_breakdown: domain: {domain}, links: {links}"
@@ -512,6 +516,7 @@ class TEManager:
                         f"Port {connection_request['ingress_port']['id']} not found in port map, it's a user port"
                     )
                     ingress_port_id = connection_request["ingress_port"]["id"]
+                    ingress_user_port = connection_request["ingress_port"]
                     ingress_port = self.topology_manager.get_port_by_id(ingress_port_id)
                 else:
                     if request_format_is_tm:
@@ -532,6 +537,7 @@ class TEManager:
                         f"Port {connection_request['egress_port']['id']} not found in port map, it's a user port"
                     )
                     egress_port_id = connection_request["egress_port"]["id"]
+                    egress_user_port = connection_request["egress_port"]
                     egress_port = self.topology_manager.get_port_by_id(egress_port_id)
                     _, next_ingress_port = self._get_ports_by_link(links[-1])
                 else:
@@ -539,7 +545,7 @@ class TEManager:
                     if same_domain_port_flag:
                         egress_port = next_ingress_port
                 self._logger.info(
-                    f"ingress_port:{ingress_port}, egress_port:{egress_port},next_ingress_port:{next_ingress_port}"
+                    f"ingress_port:{ingress_port}, egress_port:{egress_port}, next_ingress_port:{next_ingress_port}"
                 )
             elif i == len(breakdown) - 1:
                 ingress_port = next_ingress_port
@@ -552,6 +558,7 @@ class TEManager:
                         f"Port {connection_request['egress_port']['id']} not found in port map, it's a user port"
                     )
                     egress_port_id = connection_request["egress_port"]["id"]
+                    egress_user_port = connection_request["egress_port"]
                     egress_port = self.topology_manager.get_port_by_id(egress_port_id)
                 else:
                     _, egress_port = self._get_ports_by_link(links[-1])
@@ -578,7 +585,10 @@ class TEManager:
         )
 
         tagged_breakdown = self._reserve_vlan_breakdown(
-            domain_breakdown=domain_breakdown, request_id=solution.request_id
+            domain_breakdown=domain_breakdown,
+            request_id=solution.request_id,
+            ingress_user_port=ingress_user_port,
+            egress_user_port=egress_user_port,
         )
         self._logger.info(
             f"generate_connection_breakdown(): tagged_breakdown: {tagged_breakdown}"
@@ -639,6 +649,8 @@ class TEManager:
         self,
         domain_breakdown: dict,
         request_id: str,
+        ingress_user_port=None,
+        egress_user_port=None,
     ) -> Optional[VlanTaggedBreakdowns]:
         """
         Upate domain breakdown with VLAN reservation information.
@@ -678,6 +690,7 @@ class TEManager:
 
         # upstream_o_vlan = ""
         for domain, segment in domain_breakdown.items():
+            # These are topology ports
             ingress_port = segment.get("ingress_port")
             egress_port = segment.get("egress_port")
 
@@ -689,15 +702,34 @@ class TEManager:
             if ingress_port is None or egress_port is None:
                 return None
 
-            tag = None
-            ingress_vlan = self._reserve_vlan(domain, ingress_port, request_id, tag)
-            egress_vlan = self._reserve_vlan(domain, egress_port, request_id, tag)
+            ingress_user_port_tag = None
+            egress_user_port_tag = None
+            if (
+                ingress_user_port is not None
+                and ingress_port["id"] == ingress_user_port["id"]
+            ):
+                ingress_user_port_tag = ingress_user_port.get("vlan_range")
+            if (
+                egress_user_port is not None
+                and egress_port["id"] == egress_user_port["id"]
+            ):
+                egress_user_port_tag = egress_user_port.get("vlan_range")
+
+            ingress_vlan = self._reserve_vlan(
+                domain, ingress_port, request_id, ingress_user_port_tag
+            )
+            egress_vlan = self._reserve_vlan(
+                domain, egress_port, request_id, egress_user_port_tag
+            )
 
             ingress_port_id = ingress_port["id"]
             egress_port_id = egress_port["id"]
 
             # TODO: what to do when a port is not in the port map which only has all the ports on links?
             # User facing ports need clarification from the custermers.
+            # For now, we are assuming that the user facing port either (1) provides the vlan
+            # or (2) uses the OXP vlan if (2.1) not provided or provided (2.2) is not in the vlan range in the topology port.
+            # And we do't allow user specified vlan on a OXP port.
             if (
                 ingress_port_id not in self.topology_manager.get_port_map()
                 and ingress_vlan is None
@@ -796,9 +828,9 @@ class TEManager:
             return None
 
         # Look up available VLAN tags by domain and port ID.
-        self._logger.debug(f"vlan tags table: {self._vlan_tags_table}")
+        # self._logger.debug(f"vlan tags table: {self._vlan_tags_table}")
         domain_table = self._vlan_tags_table.get(domain)
-        self._logger.debug(f"domain vlan table: {domain} domain_table: {domain_table}")
+        # self._logger.debug(f"domain vlan table: {domain} domain_table: {domain_table}")
 
         if domain_table is None:
             self._logger.warning(f"reserve_vlan domain: {domain} entry: {domain_table}")
