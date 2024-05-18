@@ -113,8 +113,8 @@ class TEManager:
     def get_port_obj_services_label_range(self, port: Port) -> List[str]:
         vlan_range = None
         services = port.services
-        if services and services.l2vpn - ptp:
-            vlan_range = services.l2vpn - ptp.get("vlan_range")
+        if services and services.l2vpn_ptp:
+            vlan_range = services.l2vpn_ptp.get("vlan_range")
         return vlan_range
 
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
