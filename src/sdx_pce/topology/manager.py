@@ -35,6 +35,9 @@ class TopologyManager:
         # Mapping from port ID to link.
         self._port_map = {}
 
+        # Mapping from port ID to node.
+        self._port_node_map = {}
+
         # Number of interdomain links we computed.
         self._num_interdomain_link = 0
 
@@ -61,6 +64,12 @@ class TopologyManager:
         """
         return self._port_map
 
+    def get_port_node_map(self) -> Mapping[str, dict]:
+        """
+        Return a mapping between port IDs and nodes.
+        """
+        return self._port_node_map
+
     def clear_topology(self):
         self._topology = None
         self._topology_map = {}
@@ -77,10 +86,10 @@ class TopologyManager:
             self.generate_id()
 
             # Addding to the port list
-            links = topology.links
-            for link in links:
-                for port in link.ports:
-                    self._port_map[port["id"]] = link
+            # links = topology.links
+            # for link in links:
+            #    for port in link.ports:
+            #        self._port_map[port["id"]] = link
         else:
             # check the inter-domain links first.
             self._num_interdomain_link += self.inter_domain_check(topology)
@@ -99,6 +108,18 @@ class TopologyManager:
 
             # version
             self.update_version(False)
+
+        # Addding to the port list
+        links = topology.links
+        for link in links:
+            for port in link.ports:
+                self._port_map[port["id"]] = link
+
+        # Addding to the port node
+        nodes = topology.nodes
+        for node in nodes:
+            for port in node.ports:
+                self._port_node_map[port.id] = node
 
         self.update_timestamp()
 

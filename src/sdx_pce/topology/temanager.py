@@ -5,6 +5,7 @@ from typing import List, Optional
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
+from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 
 from sdx_pce.models import (
@@ -57,7 +58,7 @@ class TEManager:
             self.graph = self.generate_graph_te()
             self._update_vlan_tags_table(
                 domain_name=topology_data.get("id"),
-                port_map=self.topology_manager.get_port_map(),
+                port_map=self.topology_manager.get_port_node_map(),
             )
         else:
             self.graph = None
@@ -76,7 +77,7 @@ class TEManager:
         # attached to links.
         self._update_vlan_tags_table(
             domain_name=topology_data.get("id"),
-            port_map=self.topology_manager.get_port_map(),
+            port_map=self.topology_manager.get_port_node_map(),
         )
 
     def update_topology(self, topology_data: dict):
@@ -109,7 +110,61 @@ class TEManager:
             vlan_range = services.get("l2vpn-ptp").get("vlan_range")
         return vlan_range
 
+    def get_port_obj_services_label_range(self, port: Port) -> List[str]:
+        vlan_range = None
+        services = port.services
+        if services and services.l2vpn - ptp:
+            vlan_range = services.l2vpn - ptp.get("vlan_range")
+        return vlan_range
+
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
+        """
+        Update VLAN tags table.
+        """
+        self._vlan_tags_table[domain_name] = {}
+
+        for port_id, node in port_map.items():
+            # TODO: port here seems to be a dict, not sdx_datamodel.models.Port
+            for port in node.ports:
+                # Collect all port IDs in this link.  Each link should
+                # have two ports.
+                node_port_ids = [x.id for x in node.ports]
+
+                # Do some error checks.
+                node_port_count = len(node_port_ids)
+
+                if node_port_count < 1:
+                    raise ValidationError(
+                        f"Node has {node_port_count} ports, not greater than 0"
+                    )
+
+                if port_id not in node_port_ids:
+                    raise ValidationError(f"port {port_id} not in {node_port_ids}")
+
+                # Get the label range for this port: either from the
+                # port itself (v1), or from the services attached to it (v2).
+                label_range = self.get_port_obj_services_label_range(port)
+                if label_range is None:
+                    label_range = port.label_range
+
+                # TODO: why is label_range sometimes None, and what to
+                # do when that happens?
+                if label_range is None:
+                    self._logger.info(f"label_range on {port.id} is None")
+                    continue
+
+                # label_range is of the form ['100-200', '1000']; let
+                # us expand it.  Would have been ideal if this was
+                # already in some parsed form, but it is not, so this
+                # is a work-around.
+                all_labels = self._expand_label_range(label_range)
+
+                # Make a map like: `{label1: UNUSED_VLAN, label2: UNUSED_VLAN,...}`
+                labels_available = {label: UNUSED_VLAN for label in all_labels}
+
+                self._vlan_tags_table[domain_name][port_id] = labels_available
+
+    def _update_vlan_tags_table_from_links(self, domain_name: str, port_map: dict):
         """
         Update VLAN tags table.
         """
