@@ -9,12 +9,14 @@
         "id": "urn:sdx:port:amlight.net:A1:3",
         "name": "Novi100:1",
         "node": "urn:sdx:node:amlight.net:A1",
-        "status": "up"
+        "status": "up",
+        "vlan_range": 150
     },
     "ingress_port": {
-        "id": "urn:ogf:network:sdx:port:zaoxi:B2:1",
+        "id": "urn:sdx:port:zaoxi:B2:1",
         "name": "Novi100:2",
-        "node": "urn:ogf:network:sdx:node:zaoxi:B2",
-        "status": "up"
+        "node": "urn:sdx:node:zaoxi:B2",
+        "status": "up",
+        "vlan_range": 160
     }
 }

@@ -27,8 +27,8 @@ class TopologyManagerTests(unittest.TestCase):
     ]
     TOPOLOGY_FILE_LIST_UPDATE = [TestData.TOPOLOGY_FILE_ZAOXI]
 
-    LINK_ID = "urn:ogf:network:sdx:link:amlight:A1-B2"
-    INTER_LINK_ID = "urn:ogf:network:sdx:link:nni:Miami-Sanpaolo"
+    LINK_ID = "urn:sdx:link:amlight:A1-B2"
+    INTER_LINK_ID = "urn:sdx:link:nni:Miami-Sanpaolo"
 
     def setUp(self):
         self.topology_manager = TopologyManager()
@@ -133,7 +133,7 @@ class TopologyManagerTests(unittest.TestCase):
 
         topology = self.topology_manager.get_topology()
 
-        for node in topology.get_nodes():
+        for node in topology.nodes:
             topology_id = self.topology_manager.get_domain_name(node.id)
 
             if node.id in (
@@ -141,24 +141,22 @@ class TopologyManagerTests(unittest.TestCase):
                 "urn:sdx:node:amlight.net:B1",
                 "urn:sdx:node:amlight.net:B2",
             ):
-                self.assertEqual(
-                    topology_id, "urn:ogf:network:sdx:topology:amlight.net"
-                )
+                self.assertEqual(topology_id, "urn:sdx:topology:amlight.net")
 
             if node.id in (
-                "urn:ogf:network:sdx:node:sax:A1",
-                "urn:ogf:network:sdx:node:sax:B1",
-                "urn:ogf:network:sdx:node:sax:B2",
-                "urn:ogf:network:sdx:node:sax:B3",
+                "urn:sdx:node:sax:A1",
+                "urn:sdx:node:sax:B1",
+                "urn:sdx:node:sax:B2",
+                "urn:sdx:node:sax:B3",
             ):
-                self.assertEqual(topology_id, "urn:ogf:network:sdx:topology:sax.net")
+                self.assertEqual(topology_id, "urn:sdx:topology:sax.net")
 
             if node.id in (
-                "urn:ogf:network:sdx:node:zaoxi:A1",
-                "urn:ogf:network:sdx:node:zaoxi:B1",
-                "urn:ogf:network:sdx:node:zaoxi:B2",
+                "urn:sdx:node:zaoxi:A1",
+                "urn:sdx:node:zaoxi:B1",
+                "urn:sdx:node:zaoxi:B2",
             ):
-                self.assertEqual(topology_id, "urn:ogf:network:sdx:topology:zaoxi.net")
+                self.assertEqual(topology_id, "urn:sdx:topology:zaoxi.net")
 
 
 if __name__ == "__main__":

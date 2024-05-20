@@ -25,3 +25,5 @@ class Constants:
     MAX_L_LAT = 25
 
     ALPHA = 10 ^ 6
+
+    DEFAULT_OWNER = "AmLight"

@@ -4,6 +4,8 @@ from grenml import GRENMLManager
 from grenml.models.nodes import Node
 from sdx_datamodel.models.topology import Topology
 
+from sdx_pce.utils.constants import Constants
+
 
 class GrenmlConverter(object):
     def __init__(self, topology: Topology):
@@ -14,21 +16,23 @@ class GrenmlConverter(object):
         self.topology = topology
 
     def read_topology(self):
-        domain_service = self.topology.get_domain_service()
-        owner = domain_service.owner
+        domain_service = self.topology.services
+        if domain_service is not None:
+            owner = domain_service.owner
+        else:
+            owner = Constants.DEFAULT_OWNER
         self.grenml_manager.set_primary_owner(owner)
-
         self.grenml_manager.add_institution(owner, owner)
 
-        self.add_nodes(self.topology.get_nodes())
+        self.add_nodes(self.topology.nodes)
 
-        self.add_links(self.topology.get_links())
+        self.add_links(self.topology.links)
 
         self.topology_str = self.grenml_manager.write_to_string()
 
     def add_nodes(self, nodes):
         for node in nodes:
-            location = node.get_location()
+            location = node.location
             logging.info(f"adding node: {node.id}")
             self.grenml_manager.add_node(
                 node.id,
@@ -48,7 +52,7 @@ class GrenmlConverter(object):
             for port in ports:
                 node = self.topology.get_node_by_port(port["id"])
                 if node is not None:
-                    location = node.get_location()
+                    location = node.location
                     grenml_node = Node(
                         node.id,
                         node.name,

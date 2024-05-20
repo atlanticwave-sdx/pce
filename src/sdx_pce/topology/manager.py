@@ -35,6 +35,9 @@ class TopologyManager:
         # Mapping from port ID to link.
         self._port_map = {}
 
+        # Mapping from port ID to node.
+        self._port_node_map = {}
+
         # Number of interdomain links we computed.
         self._num_interdomain_link = 0
 
@@ -61,6 +64,12 @@ class TopologyManager:
         """
         return self._port_map
 
+    def get_port_node_map(self) -> Mapping[str, dict]:
+        """
+        Return a mapping between port IDs and nodes.
+        """
+        return self._port_node_map
+
     def clear_topology(self):
         self._topology = None
         self._topology_map = {}
@@ -77,10 +86,10 @@ class TopologyManager:
             self.generate_id()
 
             # Addding to the port list
-            links = topology.get_links()
-            for link in links:
-                for port in link.ports:
-                    self._port_map[port["id"]] = link
+            # links = topology.links
+            # for link in links:
+            #    for port in link.ports:
+            #        self._port_map[port["id"]] = link
         else:
             # check the inter-domain links first.
             self._num_interdomain_link += self.inter_domain_check(topology)
@@ -90,15 +99,27 @@ class TopologyManager:
                 )
 
             # Nodes
-            nodes = topology.get_nodes()
+            nodes = topology.nodes
             self._topology.add_nodes(nodes)
 
             # links
-            links = topology.get_links()
+            links = topology.links
             self._topology.add_links(links)
 
             # version
             self.update_version(False)
+
+        # Addding to the port list
+        links = topology.links
+        for link in links:
+            for port in link.ports:
+                self._port_map[port["id"]] = link
+
+        # Addding to the port node
+        nodes = topology.nodes
+        for node in nodes:
+            for port in node.ports:
+                self._port_node_map[port.id] = node
 
         self.update_timestamp()
 
@@ -107,7 +128,7 @@ class TopologyManager:
         Find the topology ID associated with the given node ID.
 
         A topology ID is expected to be of the format
-        "urn:ogf:network:sdx:topology:amlight.net", and from this, we
+        "urn:sdx:topology:amlight.net", and from this, we
         can find the domain name associated with the topology.
 
         TODO: This function name may be a misnomer?
@@ -122,7 +143,7 @@ class TopologyManager:
         return domain_id
 
     def generate_id(self):
-        self._topology.set_id(SDX_TOPOLOGY_ID_prefix)
+        self._topology.id = SDX_TOPOLOGY_ID_prefix
         self._topology.version = TOPOLOGY_INITIAL_VERSION
         return id
 
@@ -131,6 +152,15 @@ class TopologyManager:
         self.update_version(False)
         self.update_timestamp()
 
+    def is_link_interdomain(self, link, topology):
+        """
+        Check if a link is an interdomain link.
+        """
+        for port in link.ports:
+            if port["id"] not in self._port_map:
+                return True
+        return False
+
     def update_topology(self, data):
         # likely adding new inter-domain links
         update_handler = TopologyHandler()
@@ -138,14 +168,14 @@ class TopologyManager:
         self._topology_map[topology.id] = topology
 
         # Nodes.
-        nodes = topology.get_nodes()
+        nodes = topology.nodes
         for node in nodes:
             self._topology.remove_node(node.id)
 
         # Links.
-        links = topology.get_links()
+        links = topology.links
         for link in links:
-            if not link.nni:
+            if not self.is_link_interdomain(link, topology):
                 # print(link.id+";......."+str(link.nni))
                 self._topology.remove_link(link.id)
                 for port in link.ports:
@@ -157,11 +187,11 @@ class TopologyManager:
             self._logger.warning("Warning: no interdomain links detected!")
 
         # Nodes.
-        nodes = topology.get_nodes()
+        nodes = topology.nodes
         self._topology.add_nodes(nodes)
 
         # Links.
-        links = topology.get_links()
+        links = topology.links
         self._topology.add_links(links)
 
         self.update_version(True)
@@ -196,7 +226,7 @@ class TopologyManager:
     def inter_domain_check(self, topology):
         interdomain_port_dict = {}
         num_interdomain_link = 0
-        links = topology.get_links()
+        links = topology.links
         link_dict = {}
         for link in links:
             link_dict[link.id] = link
@@ -240,7 +270,7 @@ class TopologyManager:
                 node = self._topology.get_node_by_port(port["id"])
                 if node is None:
                     self._logger.warning(
-                        f"This port (id: {port.get('id')}) does not belong to "
+                        f"This port (id: {port['id']}) does not belong to "
                         f"any node in the topology, likely a Non-SDX port!"
                     )
                     inter_domain_link = True
@@ -277,7 +307,7 @@ class TopologyManager:
     def update_link_property(self, link_id, property, value):
         # 1. update the individual topology
         for id, topology in self._topology_map.items():
-            links = topology.get_links()
+            links = topology.links
             for link in links:
                 self._logger.info(f"link.id={link.id}; id={id}")
                 if link.id == link_id:
@@ -287,7 +317,7 @@ class TopologyManager:
 
         # 2. check on the inter-domain link?
         # 3. update the interodamin topology
-        links = self._topology.get_links()
+        links = self._topology.links
         for link in links:
             if link.id == link_id:
                 setattr(link, property, value)
@@ -319,7 +349,7 @@ class TopologyManager:
         """
         Given port id, returns a Port.
         """
-        for node in self.get_topology().get_nodes():
+        for node in self.get_topology().nodes:
             for port in node.ports:
                 if port.id == port_id:
                     return port.to_dict()
