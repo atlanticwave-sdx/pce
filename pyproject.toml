@@ -48,7 +48,7 @@ pygraphviz = [
 ]
 lint = [
     "ruff == 0.0.285",
-    "black == 23.*",
+    "black == 24.*",
     "isort == 5.*",
 ]
 
