@@ -363,6 +363,14 @@ class TEManagerTests(unittest.TestCase):
         )
         print(f"breakdown: {json.dumps(breakdown)}")
 
+        connection_request = temanager.add_breakdowns_to_connection(
+            connection_request, breakdown
+        )
+
+        temanager._logger.info(
+            f"connection_request with breakdowns: {connection_request}"
+        )
+
         # Note that the "domain" key is correct in the breakdown
         # result when we initialize TEManager with None for topology,
         # and later add individual topologies with add_topology().
