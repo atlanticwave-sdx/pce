@@ -409,6 +409,9 @@ class TEManager:
         return result
 
     def add_breakdowns_to_connection(self, connection_request: dict, breakdowns: dict):
+        """
+        add breakdowns to connection request for the sdx-controller to process.
+        """
         connection_request["breakdowns"] = breakdowns
 
         return connection_request
