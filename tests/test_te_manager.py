@@ -23,6 +23,44 @@ class TEManagerTests(unittest.TestCase):
     def tearDown(self):
         self.temanager = None
 
+    def test_expand_label_range(self):
+        """
+        Test the _expand_label_range() method.
+        """
+        # Test case 1: Single label range
+        label_range = [[100, 105], 110]
+        expanded_range = self.temanager._expand_label_range(label_range)
+        expected_range = [100, 101, 102, 103, 104, 105, 110]
+        self.assertEqual(expanded_range, expected_range)
+
+        # Test case 2: Multiple label ranges
+        label_ranges = [[200, 205], (300, 305), "310-312"]
+        expanded_ranges = self.temanager._expand_label_range(label_ranges)
+        expected_ranges = [
+            200,
+            201,
+            202,
+            203,
+            204,
+            205,
+            300,
+            301,
+            302,
+            303,
+            304,
+            305,
+            310,
+            311,
+            312,
+        ]
+        self.assertEqual(expanded_ranges, expected_ranges)
+
+        # Test case 3: Empty label range
+        label_range = []
+        expanded_range = self.temanager._expand_label_range(label_range)
+        expected_range = []
+        self.assertEqual(expanded_range, expected_range)
+
     def test_generate_solver_input(self):
         print("Test Convert Connection To Topology")
         request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())

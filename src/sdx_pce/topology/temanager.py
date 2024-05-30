@@ -209,7 +209,7 @@ class TEManager:
 
                 self._vlan_tags_table[domain_name][port_id] = labels_available
 
-    def _expand_label_range(self, label_range: List[str]) -> List[int]:
+    def _expand_label_range(self, label_range: []) -> List[int]:
         """
         Expand the label range to a list of numbers.
         """
@@ -217,7 +217,9 @@ class TEManager:
         # flatten result and return it.
         return list(chain.from_iterable(labels))
 
-    def _expand_label(self, label: str) -> List[int]:
+    def _expand_label(self, label) -> List[int]:
+
+        start = stop = 0
         """
         Expand items in label range to a list of numbers.
 
@@ -225,12 +227,33 @@ class TEManager:
         For the first case, we return [100,101,...200]; for the second
         case, we return [100].
         """
-        if not isinstance(label, str):
-            raise ValidationError("Label must be a string.")
+        if isinstance(label, str):
+            parts = label.split("-")
+            start = int(parts[0])
+            stop = int(parts[-1]) + 1
 
-        parts = label.split("-")
-        start = int(parts[0])
-        stop = int(parts[-1]) + 1
+        if isinstance(label, int):
+            start = label
+            stop = label + 1
+        """
+        Items in label ranges can be of the form [100, 200].
+        For the first case, we return [100,101,...200].
+        """
+        if isinstance(label, list):
+            start = label[0]
+            stop = label[1] + 1
+
+        """
+        Items in label ranges can be of the form (100, 200).
+        For the first case, we return [100,101,...200].
+        """
+
+        if isinstance(label, tuple):
+            start = label[0]
+            stop = label[1] + 1
+
+        if start == 0 or stop == 0 or start > stop:
+            raise ValidationError(f"Invalid label range: {label}")
 
         return list(range(start, stop))
 
