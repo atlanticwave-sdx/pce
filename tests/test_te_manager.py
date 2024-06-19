@@ -34,7 +34,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertEqual(expanded_range, expected_range)
 
         # Test case 2: Multiple label ranges
-        label_ranges = [[200, 205], (300, 305), "310-312"]
+        label_ranges = [[200, 205], 309, "310-312"]
         expanded_ranges = self.temanager._expand_label_range(label_ranges)
         expected_ranges = [
             200,
@@ -43,12 +43,7 @@ class TEManagerTests(unittest.TestCase):
             203,
             204,
             205,
-            300,
-            301,
-            302,
-            303,
-            304,
-            305,
+            309,
             310,
             311,
             312,

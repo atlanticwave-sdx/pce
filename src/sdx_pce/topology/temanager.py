@@ -244,13 +244,8 @@ class TEManager:
             stop = label[1] + 1
 
         """
-        Items in label ranges can be of the form (100, 200).
-        For the first case, we return [100,101,...200].
+        Items in label ranges can not be of the tuple form (100, 200), per JSON schema.
         """
-
-        if isinstance(label, tuple):
-            start = label[0]
-            stop = label[1] + 1
 
         if start == 0 or stop == 0 or start > stop:
             raise ValidationError(f"Invalid label range: {label}")
