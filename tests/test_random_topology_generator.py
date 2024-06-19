@@ -33,5 +33,6 @@ class RandomTopologyGeneratorTest(unittest.TestCase):
         graph = self.generator.generate_graph(plot=False)
         self.assertGreaterEqual(self.generator.get_connectivity(), 2)
 
+
 if __name__ == "__main__":
     unittest.main()
