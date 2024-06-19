@@ -30,7 +30,7 @@ class RandomTopologyGeneratorTest(unittest.TestCase):
         self.assertFalse(self.generator.nodes_connected(graph, 1, 3))
 
     def test_get_connectivity(self):
-        graph = self.generator.generate_graph(plot=False)
+        self.generator.generate_graph(plot=False)
         self.assertGreaterEqual(self.generator.get_connectivity(), 2)
 
 
