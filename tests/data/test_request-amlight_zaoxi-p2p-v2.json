@@ -1,0 +1,38 @@
+{
+    "name": "new-connection",
+    "id": "urn:sdx:connection:ampath.net:Ampath3:50-sax.net:Sax01:41",
+    "endpoints": [
+      {
+        "port_id": "urn:sdx:port:amlight.net:A1:3",
+        "vlan": "777"
+      },
+      {
+        "port_id": "urn:sdx:port:zaoxi:B2:1",
+        "vlan": "55:90"
+      }
+    ],
+    "description": "a test circuit",
+    "scheduling": {
+      "start_time": "2024-06-24T01:00:00.000Z",
+      "end_time": "2024-06-26T01:00:00.000Z"
+    },
+    "qos_metrics": {
+      "min_bw": {
+        "value": 12,
+        "strict": true
+      },
+      "max_delay": {
+        "value": 4,
+        "strict": false
+      },
+      "max_number_oxps": {
+        "value": 7,
+        "strict": true
+      }
+    },
+    "notifications": [
+      {
+        "email": "muhaziz@fiu.edu"
+      }
+    ]
+  }
