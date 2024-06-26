@@ -508,6 +508,9 @@ class TEManager:
         )
         same_domain_port_flag = False
         if not request_format_is_tm:
+            connection_request = (
+                ConnectionHandler().import_connection_data(connection_request).to_dict()
+            )
             self._logger.info(
                 f'connection_requst ingress_port: {connection_request["ingress_port"]["id"]}'
             )
