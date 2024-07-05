@@ -30,7 +30,7 @@ dependencies = [
     "prtpy",
     "pydot",
     "dataclasses-json",
-    "sdx-datamodel @ git+https://github.com/atlanticwave-sdx/datamodel@2.0.6.rc2"
+    "sdx-datamodel @ git+https://github.com/atlanticwave-sdx/datamodel@2.0.6.rc4",
 ]
 
 [project.urls]
