@@ -175,10 +175,10 @@ class TopologyManager:
         """
         # Sanity checks
         if (
-            not isinstance(port_id, str) or
-            not port_id.startswith("urn:sdx:port:") or
-            not isinstance(topology_id, str) or
-            not topology_id.startswith("urn:sdx:topology:")
+            not isinstance(port_id, str)
+            or not port_id.startswith("urn:sdx:port:")
+            or not isinstance(topology_id, str)
+            or not topology_id.startswith("urn:sdx:topology:")
         ):
             return False
         return port_id.split(":")[3] != topology_id.split(":")[3]
