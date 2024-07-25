@@ -15,6 +15,9 @@ class TestData:
     TOPOLOGY_FILE_ZAOXI = TOPOLOGY_DIR / "zaoxi.json"
     TOPOLOGY_FILE_SAX = TOPOLOGY_DIR / "sax.json"
     TOPOLOGY_FILE_AMLIGHT = TOPOLOGY_DIR / "amlight.json"
+    TOPOLOGY_FILE_ZAOXI_v2 = TOPOLOGY_DIR / "zaoxi_v2.json"
+    TOPOLOGY_FILE_SAX_v2 = TOPOLOGY_DIR / "sax_v2.json"
+    TOPOLOGY_FILE_AMLIGHT_v2 = TOPOLOGY_DIR / "ampath_v2.json"
     TOPOLOGY_FILE_SDX = TOPOLOGY_DIR / "sdx.json"
     TOPOLOGY_FILE_AMLIGHT_USER_PORT = TOPOLOGY_DIR / "amlight_user_port.json"
 

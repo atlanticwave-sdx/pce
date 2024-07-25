@@ -261,11 +261,6 @@ class TopologyManager:
                 port_id = port if isinstance(port, str) else port["id"]
                 interdomain_port_dict[port_id] = link
 
-        # ToDo: raise an warning or exception
-        if len(interdomain_port_dict) == 0:
-            self._logger.info("interdomain_port_dict==0")
-            return False
-
         # match any ports in the existing topology
         for port_id in interdomain_port_dict:
             # print("interdomain_port:")
