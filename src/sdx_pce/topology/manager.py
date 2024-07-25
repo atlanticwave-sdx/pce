@@ -200,7 +200,8 @@ class TopologyManager:
             if not self.is_link_interdomain(link, topology):
                 # print(link.id+";......."+str(link.nni))
                 self._topology.remove_link(link.id)
-                for port_id in link.ports:
+                for port in link.ports:
+                    port_id = port if isinstance(port, str) else port["id"]
                     self._port_map.pop(port_id)
 
         # Check the inter-domain links first.
