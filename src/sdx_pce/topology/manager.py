@@ -4,11 +4,11 @@ import logging
 from typing import Mapping
 
 import networkx as nx
+from sdx_datamodel.models.link import Link
 from sdx_datamodel.models.topology import (
     TOPOLOGY_INITIAL_VERSION,
     SDX_TOPOLOGY_ID_prefix,
 )
-from sdx_datamodel.models.link import Link
 from sdx_datamodel.parsing.topologyhandler import TopologyHandler
 
 from .grenmlconverter import GrenmlConverter
