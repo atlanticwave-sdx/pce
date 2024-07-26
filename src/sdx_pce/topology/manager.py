@@ -4,6 +4,7 @@ import logging
 from typing import Mapping
 
 import networkx as nx
+from sdx_datamodel.models.link import Link
 from sdx_datamodel.models.topology import (
     TOPOLOGY_INITIAL_VERSION,
     SDX_TOPOLOGY_ID_prefix,
@@ -81,6 +82,7 @@ class TopologyManager:
 
         if self._topology is None:
             self._topology = copy.deepcopy(topology)
+            interdomain_ports = []
 
             # Generate a new topology id
             self.generate_id()
@@ -92,7 +94,8 @@ class TopologyManager:
             #        self._port_map[port["id"]] = link
         else:
             # check the inter-domain links first.
-            self._num_interdomain_link += self.inter_domain_check(topology)
+            interdomain_ports = self.inter_domain_check(topology)
+            self._num_interdomain_link += len(interdomain_ports)
             if self._num_interdomain_link == 0:
                 self._logger.debug(
                     f"Warning: no interdomain links detected in {topology.id}!"
@@ -113,13 +116,17 @@ class TopologyManager:
         links = topology.links
         for link in links:
             for port in link.ports:
-                self._port_map[port["id"]] = link
+                port_id = port if isinstance(port, str) else port["id"]
+                self._port_map[port_id] = link
 
         # Addding to the port node
         nodes = topology.nodes
         for node in nodes:
             for port in node.ports:
                 self._port_node_map[port.id] = node
+
+        # inter-domain links
+        self.add_inter_domain_links(topology, interdomain_ports)
 
         self.update_timestamp()
 
@@ -157,9 +164,24 @@ class TopologyManager:
         Check if a link is an interdomain link.
         """
         for port in link.ports:
-            if port["id"] not in self._port_map:
+            port_id = port if isinstance(port, str) else port["id"]
+            if port_id not in self._port_map:
                 return True
         return False
+
+    def is_interdomain_port(self, port_id, topology_id):
+        """
+        Check if a Port ID is interdomain
+        """
+        # Sanity checks
+        if (
+            not isinstance(port_id, str)
+            or not port_id.startswith("urn:sdx:port:")
+            or not isinstance(topology_id, str)
+            or not topology_id.startswith("urn:sdx:topology:")
+        ):
+            return False
+        return port_id.split(":")[3] != topology_id.split(":")[3]
 
     def update_topology(self, data):
         # likely adding new inter-domain links
@@ -179,11 +201,12 @@ class TopologyManager:
                 # print(link.id+";......."+str(link.nni))
                 self._topology.remove_link(link.id)
                 for port in link.ports:
-                    self._port_map.pop(port["id"])
+                    port_id = port if isinstance(port, str) else port["id"]
+                    self._port_map.pop(port_id)
 
         # Check the inter-domain links first.
-        num_interdomain_link = self.inter_domain_check(topology)
-        if num_interdomain_link == 0:
+        interdomain_ports = self.inter_domain_check(topology)
+        if len(interdomain_ports) == 0:
             self._logger.warning("Warning: no interdomain links detected!")
 
         # Nodes.
@@ -193,6 +216,9 @@ class TopologyManager:
         # Links.
         links = topology.links
         self._topology.add_links(links)
+
+        # inter-domain links
+        self.add_inter_domain_links(topology, interdomain_ports)
 
         self.update_version(True)
         self.update_timestamp()
@@ -225,18 +251,15 @@ class TopologyManager:
 
     def inter_domain_check(self, topology):
         interdomain_port_dict = {}
-        num_interdomain_link = 0
+        interdomain_ports = []
+        interdomain_port_ids = []
         links = topology.links
         link_dict = {}
         for link in links:
             link_dict[link.id] = link
             for port in link.ports:
-                interdomain_port_dict[port["id"]] = link
-
-        # ToDo: raise an warning or exception
-        if len(interdomain_port_dict) == 0:
-            self._logger.info("interdomain_port_dict==0")
-            return False
+                port_id = port if isinstance(port, str) else port["id"]
+                interdomain_port_dict[port_id] = link
 
         # match any ports in the existing topology
         for port_id in interdomain_port_dict:
@@ -248,10 +271,57 @@ class TopologyManager:
                     # print("Interdomain port:" + port_id)
                     # remove redundant link between two domains
                     self._topology.remove_link(existing_link.id)
-                    num_interdomain_link = +1
+                    interdomain_port_ids.append(port_id)
             self._port_map[port_id] = interdomain_port_dict[port_id]
 
-        return num_interdomain_link
+        # count for inter-domain links according to topo spec 2.0.x
+        for node in topology.nodes:
+            for port in node.ports:
+                # interdomain ports based on previous methodology
+                if port.id in interdomain_port_ids:
+                    interdomain_ports.append(port)
+                # interdomain ports based on new methodology (spec 2.0)
+                if self.is_interdomain_port(port.nni, topology.id):
+                    interdomain_ports.append(port)
+
+        return interdomain_ports
+
+    def create_inter_domain_link(self, port1, port2):
+        """Creates an interdomain link from two ports."""
+        if port2.id < port1.id:
+            port1, port2 = port2, port1
+
+        port1_id = port1.id.replace("urn:sdx:port:", "", 1)
+        port2_id = port2.id.replace("urn:sdx:port:", "", 1)
+        link_id = f"urn:sdx:link:interdomain:{port1_id}:{port2_id}"
+
+        return Link(
+            id=link_id,
+            name=f"{port1.name}--{port2.name}",
+            ports=[port1.id, port2.id],
+            bandwidth=100,
+            residual_bandwidth=100,
+            latency=0,
+            packet_loss=0,
+            availability=100,
+        )
+
+    def add_inter_domain_links(self, topology, interdomain_ports):
+        """Add inter-domain links (whenever possible)."""
+        for port in interdomain_ports:
+            other_node = self._port_node_map.get(port.nni)
+            other_ports = other_node.ports if other_node else []
+            for other_port in other_ports:
+                if other_port.id == port.nni and other_port.nni == port.id:
+                    break
+            else:
+                self._logger.warning(
+                    "Interdomin link not added now - didnt find other port:"
+                    f" port={port.id} other_port={port.nni}"
+                )
+                continue
+            link = self.create_inter_domain_link(port, other_port)
+            self._topology.add_links([link])
 
     # adjacent matrix of the graph, in jason?
     def generate_graph(self):
@@ -267,10 +337,11 @@ class TopologyManager:
             ports = link.ports
             end_nodes = []
             for port in ports:
-                node = self._topology.get_node_by_port(port["id"])
+                port_id = port if isinstance(port, str) else port["id"]
+                node = self._topology.get_node_by_port(port_id)
                 if node is None:
                     self._logger.warning(
-                        f"This port (id: {port['id']}) does not belong to "
+                        f"This port (id: {port_id}) does not belong to "
                         f"any node in the topology, likely a Non-SDX port!"
                     )
                     inter_domain_link = True
@@ -316,7 +387,7 @@ class TopologyManager:
                     # 1.2 need to change the sub_ver of the topology?
 
         # 2. check on the inter-domain link?
-        # 3. update the interodamin topology
+        # 3. update the interdomain topology
         links = self._topology.links
         for link in links:
             if link.id == link_id:

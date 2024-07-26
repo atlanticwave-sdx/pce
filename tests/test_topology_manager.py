@@ -25,6 +25,11 @@ class TopologyManagerTests(unittest.TestCase):
         TestData.TOPOLOGY_FILE_ZAOXI,
         TestData.TOPOLOGY_FILE_SAX,
     ]
+    TOPOLOGY_FILE_LIST_v2 = [
+        TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+        TestData.TOPOLOGY_FILE_ZAOXI_v2,
+        TestData.TOPOLOGY_FILE_SAX_v2,
+    ]
     TOPOLOGY_FILE_LIST_UPDATE = [TestData.TOPOLOGY_FILE_ZAOXI]
 
     LINK_ID = "urn:sdx:link:amlight:A1-B2"
@@ -52,6 +57,24 @@ class TopologyManagerTests(unittest.TestCase):
         pathlib.Path(self.TOPOLOGY_OUT).write_text(
             json.dumps(topology.to_dict(), indent=4)
         )
+
+    def test_merge_topology_v2(self):
+        for topology_file in self.TOPOLOGY_FILE_LIST_v2:
+            topology_data = json.loads(pathlib.Path(topology_file).read_text())
+            self.topology_manager.add_topology(topology_data)
+
+        topology = self.topology_manager.get_topology()
+
+        self.assertIsInstance(topology.to_dict(), dict)
+
+        self.assertEqual(len(topology.nodes), 8)
+
+        self.assertEqual(len(topology.links), 10)
+
+        interdomain_links = [
+            link for link in topology.links if "urn:sdx:link:interdomain:" in link.id
+        ]
+        self.assertEqual(len(interdomain_links), 4)
 
     def test_update_topology(self):
         print("Test Topology Update!")
