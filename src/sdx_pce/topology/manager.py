@@ -44,6 +44,24 @@ class TopologyManager:
 
         self._logger = logging.getLogger(__name__)
 
+        # mapping attributes for interdomain links
+        self.status_map = {
+            ("up", "up"): "up",
+            ("up", "error"): "error",
+            ("error", "up"): "error",
+            ("error", "error"): "error",
+            # defaults to down
+        }
+        self.state_map = {
+            ("enabled", "enabled"): "enabled",
+            ("maintenance", "maintenance"): "maintenance",
+            ("maintenance", "enabled"): "maintenance",
+            ("maintenance", "disabled"): "maintenance",
+            ("enabled", "maintenance"): "maintenance",
+            ("disabled", "maintenance"): "maintenance",
+            # defults to disabled
+        }
+
     def get_handler(self):
         return self.topology_handler
 
@@ -286,8 +304,8 @@ class TopologyManager:
 
         return interdomain_ports
 
-    def create_inter_domain_link(self, port1, port2):
-        """Creates an interdomain link from two ports."""
+    def create_update_interdomain_link(self, port1, port2):
+        """Create or update an interdomain link from two ports."""
         if port2.id < port1.id:
             port1, port2 = port2, port1
 
@@ -295,16 +313,24 @@ class TopologyManager:
         port2_id = port2.id.replace("urn:sdx:port:", "", 1)
         link_id = f"urn:sdx:link:interdomain:{port1_id}:{port2_id}"
 
-        return Link(
-            id=link_id,
-            name=f"{port1.name}--{port2.name}",
-            ports=[port1.id, port2.id],
-            bandwidth=100,
-            residual_bandwidth=100,
-            latency=0,
-            packet_loss=0,
-            availability=100,
-        )
+        for link in self._topology.links:
+            if link_id == link.id:
+                break
+        else:
+            link = Link(
+                id=link_id,
+                name=f"{port1.name}--{port2.name}",
+                ports=[port1.id, port2.id],
+                bandwidth=100,
+                residual_bandwidth=100,
+                latency=0,
+                packet_loss=0,
+                availability=100,
+            )
+            self._topology.add_links([link])
+
+        link.status = self.status_map.get((port1.status, port2.status), "down")
+        link.state = self.state_map.get((port1.state, port2.state), "disabled")
 
     def add_inter_domain_links(self, topology, interdomain_ports):
         """Add inter-domain links (whenever possible)."""
@@ -316,12 +342,11 @@ class TopologyManager:
                     break
             else:
                 self._logger.warning(
-                    "Interdomin link not added now - didnt find other port:"
+                    "Interdomain link not added now - didnt find other port:"
                     f" port={port.id} other_port={port.nni}"
                 )
                 continue
-            link = self.create_inter_domain_link(port, other_port)
-            self._topology.add_links([link])
+            self.create_update_interdomain_link(port, other_port)
 
     # adjacent matrix of the graph, in jason?
     def generate_graph(self):

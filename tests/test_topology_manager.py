@@ -76,6 +76,25 @@ class TopologyManagerTests(unittest.TestCase):
         ]
         self.assertEqual(len(interdomain_links), 4)
 
+        # test update topology
+        for topology_file in self.TOPOLOGY_FILE_LIST_v2:
+            topology_data = json.loads(pathlib.Path(topology_file).read_text())
+            topology_data["version"] += 1
+            self.topology_manager.update_topology(topology_data)
+
+        topology = self.topology_manager.get_topology()
+
+        self.assertIsInstance(topology.to_dict(), dict)
+
+        self.assertEqual(len(topology.nodes), 8)
+
+        self.assertEqual(len(topology.links), 10)
+
+        interdomain_links = [
+            link for link in topology.links if "urn:sdx:link:interdomain:" in link.id
+        ]
+        self.assertEqual(len(interdomain_links), 4)
+
     def test_update_topology(self):
         print("Test Topology Update!")
 
