@@ -1,12 +1,8 @@
 # Background
 
-<!-- TODO: add an introduction -->
-
-## google OR-Tools
-
-Solver in this OR-Tools is used to solve for the optimal solution. It
-takes in the formulation matrix with defined objective functions and
-relationships with RHS.
+PCE uses [Google OR-Tools][or-tools] to solve for the optimal
+solution. It takes in a formulation matrix with defined objective
+functions and relationships with RHS.
 
 In this project, links are set to be binary variables which means if a
 link is selected, the corresponding variable is 1, if a link is not
@@ -53,3 +49,7 @@ algorithms, network connectivity check, etc.
 Benchmark results are also provided. Computation time and cost
 difference std are being tested between solver formulation and
 heurtistic sorting methods (by latency and by cost).
+
+<!-- URLs -->
+
+[or-tools]: https://developers.google.com/optimization/
