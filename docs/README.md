@@ -35,7 +35,7 @@ network will have three attributes: cost, latency and bandwidth.
   connectivity check before the final creation of the topology, new
   topology will be created if the current one is not connected.
 
-Formualtion:
+Formulation:
 
 ![CSP Formulation](./csp_formulation.png)
 
