@@ -1,10 +1,10 @@
-import pathlib
 import unittest
 
 import matplotlib.pyplot as plt
 import networkx as nx
+from sdx_datamodel.parsing.topologyhandler import TopologyHandler
 
-from sdx.pce.topology.manager import TopologyManager
+from sdx_pce.topology.manager import TopologyManager
 
 from . import TestData
 
@@ -18,10 +18,9 @@ class TopologyGrpahTests(unittest.TestCase):
         """
         Write graph images of a given topology file.
         """
-        topology_manager = TopologyManager()
-        topology_handler = topology_manager.topology_handler
+        topology = TopologyHandler().import_topology(infile)
 
-        topology = topology_handler.import_topology(infile)
+        topology_manager = TopologyManager()
         topology_manager.set_topology(topology)
 
         graph = topology_manager.generate_graph()

@@ -17,7 +17,6 @@ Pydot is "pure" Python, and pygraphviz is implemented as bindings to
 graphviz C library, so installing the latter is a little more work.
 """
 
-import json
 import re
 from pathlib import Path
 from typing import Union
@@ -25,7 +24,7 @@ from typing import Union
 import networkx as nx
 from networkx.algorithms import approximation as approx
 
-from sdx.pce.utils.constants import Constants
+from sdx_pce.utils.constants import Constants
 
 __all__ = ["can_read_dot_file", "read_dot_file"]
 

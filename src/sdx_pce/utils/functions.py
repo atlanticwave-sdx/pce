@@ -10,7 +10,7 @@ import random
 
 from networkx.algorithms import approximation as approx
 
-from sdx.pce.utils.constants import Constants
+from sdx_pce.utils.constants import Constants
 
 
 class GraphFunction:
@@ -112,7 +112,7 @@ def dijnew(graph, start_node, end_node):
             current_node = predecessor[current_node]
         except KeyError:
             print("Path not reachable")
-            break
+            return []
     path.insert(0, start_node)
     if (
         shortest_distance[end_node] != infinity
@@ -167,7 +167,7 @@ def backup_path(graph, start_node, end_node):
                 continue
 
     print("The back up path: ")
-    dijnew(graph_original, backupstart_node, backupend_node)
+    return dijnew(graph_original, backupstart_node, backupend_node)
 
 
 def create_unvisited_list(link_list):

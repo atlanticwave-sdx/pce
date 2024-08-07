@@ -19,17 +19,21 @@ PCE's API is still evolving.  With that caveat, and omitting some
 details, the general usage is like this:
 
 ```python
-from sdx.pce.load_balancing.te_solver import TESolver
-from sdx.pce.topology.temanager import TEManager
+from sdx_pce.load_balancing.te_solver import TESolver
+from sdx_pce.topology.temanager import TEManager
 
-temanager = TEManager(initial_topology, connection_request)
+temanager = TEManager(initial_topology)
 for topology in topologies:
     temanager.add_topology(topology)
     
 graph = temanager.generate_graph_te()
-traffic_matrix = temanager.generate_connection_te()
+traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
 solution = TESolver(graph, traffic_matrix).solve()
+
+breakdown = temanager.generate_connection_breakdown(solution)
+for domain, link in breakdown.items():
+    # publish(domain, link)
 ```
 
 Note that PCE requires two inputs: network topology and connection
@@ -86,27 +90,51 @@ compiler and development libraries and headers of graphviz installed.
 
 ### Running tests
 
-To run tests, using [tox] is recommended:
+Use [pytest] to run all tests:
 
-```console
+```
+$ pip install --editable .[test]
+$ pytest
+```
+
+If you want to print console and logging messages when running a test,
+do:
+
+```
+$ pytest --log-cli-level=info [-s|--capture=no] \
+    tests/test_te_manager.py::TEManagerTests::test_generate_solver_input
+```
+
+Use [tox] to run tests using several versions of Python in isolated
+virtual environments:
+
+```
 $ tox
 ```
 
-With tox, you can run single tests like so:
+With tox, you can run a single test verbosely like so:
 
-```console
-$ tox -- [-s] tests/test_te_manager.py::TestTEManager::test_generate_solver_input
+```
+$ tox -e py311 -- --log-cli-level=info [-s|--capture=no] \
+    tests/test_te_manager.py::TEManagerTests::test_generate_solver_input
 ```
 
 The test that depend on pygraphviz are skipped by default.  If you are
 able to install pygraphviz in your setup, you can run that test too
 with:
 
-```console
+```
 $ tox -e extras
 ```
 
 Test data is stored in [tests/data](./tests/data) as JSON files.
+
+There are also some code checks (ruff, black, and isort) that you can
+run with:
+
+```console
+$ tox -e lint
+```
 
 
 <!-- URLs -->
@@ -124,6 +152,11 @@ Test data is stored in [tests/data](./tests/data) as JSON files.
 [NetworkX]: https://networkx.org/
 [OR-Tools]: https://developers.google.com/optimization/
 
+[pytest]: https://docs.pytest.org/
 [tox]: https://tox.wiki/en/latest/index.html
 
 [test_request.json]: ./src/sdx/pce/data/requests/test_request.json
+
+[ruff]: https://pypi.org/project/ruff/
+[black]: https://pypi.org/project/black/
+[isort]: https://pypi.org/project/isort/

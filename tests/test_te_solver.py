@@ -1,15 +1,14 @@
 import json
-import pathlib
 import unittest
 
 import networkx as nx
 
-from sdx.pce.load_balancing.te_solver import TESolver
-from sdx.pce.models import ConnectionPath, ConnectionSolution, TrafficMatrix
-from sdx.pce.utils.constants import Constants
-from sdx.pce.utils.graphviz import can_read_dot_file, read_dot_file
-from sdx.pce.utils.random_connection_generator import RandomConnectionGenerator
-from sdx.pce.utils.random_topology_generator import RandomTopologyGenerator
+from sdx_pce.load_balancing.te_solver import TESolver
+from sdx_pce.models import ConnectionPath, ConnectionSolution, TrafficMatrix
+from sdx_pce.utils.constants import Constants
+from sdx_pce.utils.graphviz import can_read_dot_file, read_dot_file
+from sdx_pce.utils.random_connection_generator import RandomConnectionGenerator
+from sdx_pce.utils.random_topology_generator import RandomTopologyGenerator
 
 from . import TestData
 
@@ -112,8 +111,9 @@ class TESolverTests(unittest.TestCase):
             ),
         )
 
-        with open(traffic_matrix_file) as fp:
-            tm = TrafficMatrix.from_dict(json.load(fp))
+        tm_dict = json.loads(traffic_matrix_file.read_text())
+        tm_dict["request_id"] = self.id()
+        tm = TrafficMatrix.from_dict(tm_dict)
 
         solution = TESolver(graph, tm, Constants.COST_FLAG_HOP).solve()
         print(f"Solution: {solution}")
@@ -139,8 +139,9 @@ class TESolverTests(unittest.TestCase):
         self.assertNotEqual(graph, None, "Could not read dot file")
 
         connection_file = TestData.TEST_DATA_DIR / "test_connection.json"
-        with open(connection_file) as fp:
-            tm = TrafficMatrix.from_dict(json.load(fp))
+        tm_dict = json.loads(connection_file.read_text())
+        tm_dict["request_id"] = self.id()
+        tm = TrafficMatrix.from_dict(tm_dict)
 
         self.assertNotEqual(tm, None, "Could not read connection file")
 

@@ -1,19 +1,19 @@
 import copy
 import datetime
+import logging
+from typing import Mapping
 
 import networkx as nx
-
-from sdx.datamodel.models.topology import (
+from sdx_datamodel.models.topology import (
     TOPOLOGY_INITIAL_VERSION,
     SDX_TOPOLOGY_ID_prefix,
 )
-from sdx.datamodel.parsing.topologyhandler import TopologyHandler
+from sdx_datamodel.parsing.topologyhandler import TopologyHandler
 
 from .grenmlconverter import GrenmlConverter
 
 
 class TopologyManager:
-
     """
     Manager for topology operations.
 
@@ -25,64 +25,101 @@ class TopologyManager:
     """
 
     def __init__(self):
-        super().__init__()
+        # The merged "super" topology of topologies of different
+        # domains, with inter-domain links between them computed.
+        self._topology = None
 
-        self.topology_handler = TopologyHandler()
+        # Mapping from topology ID to topology.
+        self._topology_map = {}
 
-        self.topology = None
-        self.topology_list = {}
-        self.port_list = {}  # {port, link}
+        # Mapping from port ID to link.
+        self._port_map = {}
 
-        self.num_interdomain_link = 0
+        # Mapping from port ID to node.
+        self._port_node_map = {}
+
+        # Number of interdomain links we computed.
+        self._num_interdomain_link = 0
+
+        self._logger = logging.getLogger(__name__)
 
     def get_handler(self):
         return self.topology_handler
 
     def topology_id(self, id):
-        self.topology._id(id)
+        self._topology._id(id)
 
     def set_topology(self, topology):
-        self.topology = topology
+        self._topology = topology
 
     def get_topology(self):
-        return self.topology
+        return self._topology
+
+    def get_topology_map(self) -> dict:
+        return self._topology_map
+
+    def get_port_map(self) -> Mapping[str, dict]:
+        """
+        Return a mapping between port IDs and links.
+        """
+        return self._port_map
+
+    def get_port_node_map(self) -> Mapping[str, dict]:
+        """
+        Return a mapping between port IDs and nodes.
+        """
+        return self._port_node_map
 
     def clear_topology(self):
-        self.topology = None
-        self.topology_list = {}
-        self.port_list = {}
+        self._topology = None
+        self._topology_map = {}
+        self._port_map = {}
 
     def add_topology(self, data):
-        topology = self.topology_handler.import_topology_data(data)
-        self.topology_list[topology.id] = topology
+        topology = TopologyHandler().import_topology_data(data)
+        self._topology_map[topology.id] = topology
 
-        if self.topology is None:
-            self.topology = copy.deepcopy(topology)
+        if self._topology is None:
+            self._topology = copy.deepcopy(topology)
 
             # Generate a new topology id
             self.generate_id()
 
             # Addding to the port list
-            links = topology.get_links()
-            for link in links:
-                for port in link.ports:
-                    self.port_list[port["id"]] = link
+            # links = topology.links
+            # for link in links:
+            #    for port in link.ports:
+            #        self._port_map[port["id"]] = link
         else:
             # check the inter-domain links first.
-            self.num_interdomain_link += self.inter_domain_check(topology)
-            if self.num_interdomain_link == 0:
-                print(f"Warning: no interdomain links detected in {topology.id}!")
+            self._num_interdomain_link += self.inter_domain_check(topology)
+            if self._num_interdomain_link == 0:
+                self._logger.debug(
+                    f"Warning: no interdomain links detected in {topology.id}!"
+                )
 
             # Nodes
-            nodes = topology.get_nodes()
-            self.topology.add_nodes(nodes)
+            nodes = topology.nodes
+            self._topology.add_nodes(nodes)
 
             # links
-            links = topology.get_links()
-            self.topology.add_links(links)
+            links = topology.links
+            self._topology.add_links(links)
 
             # version
             self.update_version(False)
+
+        # Addding to the port list
+        links = topology.links
+        for link in links:
+            for port in link.ports:
+                self._port_map[port["id"]] = link
+
+        # Addding to the port node
+        nodes = topology.nodes
+        for node in nodes:
+            for port in node.ports:
+                self._port_node_map[port.id] = node
 
         self.update_timestamp()
 
@@ -91,14 +128,14 @@ class TopologyManager:
         Find the topology ID associated with the given node ID.
 
         A topology ID is expected to be of the format
-        "urn:ogf:network:sdx:topology:amlight.net", and from this, we
+        "urn:sdx:topology:amlight.net", and from this, we
         can find the domain name associated with the topology.
 
         TODO: This function name may be a misnomer?
         """
         domain_id = None
-        # print(f"len of topology_list: {len(self.topology_list)}")
-        for topology_id, topology in self.topology_list.items():
+        # print(f"len of topology_list: {len(self._topology_map)}")
+        for topology_id, topology in self._topology_map.items():
             if topology.has_node_by_id(node_id):
                 domain_id = topology_id
                 break
@@ -106,61 +143,70 @@ class TopologyManager:
         return domain_id
 
     def generate_id(self):
-        self.topology.set_id(SDX_TOPOLOGY_ID_prefix)
-        self.topology.version = TOPOLOGY_INITIAL_VERSION
+        self._topology.id = SDX_TOPOLOGY_ID_prefix
+        self._topology.version = TOPOLOGY_INITIAL_VERSION
         return id
 
     def remove_topology(self, topology_id):
-        self.topology_list.pop(topology_id, None)
+        self._topology_map.pop(topology_id, None)
         self.update_version(False)
         self.update_timestamp()
+
+    def is_link_interdomain(self, link, topology):
+        """
+        Check if a link is an interdomain link.
+        """
+        for port in link.ports:
+            if port["id"] not in self._port_map:
+                return True
+        return False
 
     def update_topology(self, data):
         # likely adding new inter-domain links
         update_handler = TopologyHandler()
         topology = update_handler.import_topology_data(data)
-        self.topology_list[topology.id] = topology
+        self._topology_map[topology.id] = topology
 
         # Nodes.
-        nodes = topology.get_nodes()
+        nodes = topology.nodes
         for node in nodes:
-            self.topology.remove_node(node.id)
+            self._topology.remove_node(node.id)
 
         # Links.
-        links = topology.get_links()
+        links = topology.links
         for link in links:
-            if not link.nni:
+            if not self.is_link_interdomain(link, topology):
                 # print(link.id+";......."+str(link.nni))
-                self.topology.remove_link(link.id)
+                self._topology.remove_link(link.id)
                 for port in link.ports:
-                    self.port_list.pop(port["id"])
+                    self._port_map.pop(port["id"])
 
         # Check the inter-domain links first.
         num_interdomain_link = self.inter_domain_check(topology)
         if num_interdomain_link == 0:
-            print("Warning: no interdomain links detected!")
+            self._logger.warning("Warning: no interdomain links detected!")
 
         # Nodes.
-        nodes = topology.get_nodes()
-        self.topology.add_nodes(nodes)
+        nodes = topology.nodes
+        self._topology.add_nodes(nodes)
 
         # Links.
-        links = topology.get_links()
-        self.topology.add_links(links)
+        links = topology.links
+        self._topology.add_links(links)
 
         self.update_version(True)
         self.update_timestamp()
 
     def update_version(self, sub: bool):
         try:
-            [ver, sub_ver] = self.topology.version.split(".")
+            [ver, sub_ver] = self._topology.version.split(".")
         except ValueError:
-            ver = self.topology.version
+            ver = self._topology.version
             sub_ver = "0"
 
-        self.topology.version = self.new_version(ver, sub_ver, sub)
+        self._topology.version = self.new_version(ver, sub_ver, sub)
 
-        return self.topology.version
+        return self._topology.version
 
     def new_version(self, ver, sub_ver, sub: bool):
         if not sub:
@@ -173,14 +219,14 @@ class TopologyManager:
 
     def update_timestamp(self):
         ct = datetime.datetime.now().isoformat()
-        self.topology.time_stamp = ct
+        self._topology.timestamp = ct
 
         return ct
 
     def inter_domain_check(self, topology):
         interdomain_port_dict = {}
         num_interdomain_link = 0
-        links = topology.get_links()
+        links = topology.links
         link_dict = {}
         for link in links:
             link_dict[link.id] = link
@@ -189,38 +235,43 @@ class TopologyManager:
 
         # ToDo: raise an warning or exception
         if len(interdomain_port_dict) == 0:
-            print("interdomain_port_dict==0")
+            self._logger.info("interdomain_port_dict==0")
             return False
 
         # match any ports in the existing topology
         for port_id in interdomain_port_dict:
             # print("interdomain_port:")
             # print(port_id)
-            for existing_port, existing_link in self.port_list.items():
+            for existing_port, existing_link in self._port_map.items():
                 # print(existing_port)
                 if port_id == existing_port:
                     # print("Interdomain port:" + port_id)
                     # remove redundant link between two domains
-                    self.topology.remove_link(existing_link.id)
+                    self._topology.remove_link(existing_link.id)
                     num_interdomain_link = +1
-            self.port_list[port_id] = interdomain_port_dict[port_id]
+            self._port_map[port_id] = interdomain_port_dict[port_id]
 
         return num_interdomain_link
 
     # adjacent matrix of the graph, in jason?
     def generate_graph(self):
         graph = nx.Graph()
-        links = self.topology.links
+
+        if self._topology is None:
+            self._logger.warning("We do not have a topology yet")
+            return None
+
+        links = self._topology.links
         for link in links:
             inter_domain_link = False
             ports = link.ports
             end_nodes = []
             for port in ports:
-                node = self.topology.get_node_by_port(port["id"])
+                node = self._topology.get_node_by_port(port["id"])
                 if node is None:
-                    print(
-                        "This port doesn't belong to any node in the topology, likely a Non-SDX port!"
-                        + port["id"]
+                    self._logger.warning(
+                        f"This port (id: {port['id']}) does not belong to "
+                        f"any node in the topology, likely a Non-SDX port!"
                     )
                     inter_domain_link = True
                     break
@@ -241,7 +292,7 @@ class TopologyManager:
         return graph
 
     def generate_grenml(self):
-        self.converter = GrenmlConverter(self.topology)
+        self.converter = GrenmlConverter(self._topology)
 
         return self.converter.read_topology()
 
@@ -255,22 +306,22 @@ class TopologyManager:
     # on performance properties for now
     def update_link_property(self, link_id, property, value):
         # 1. update the individual topology
-        for id, topology in self.topology_list.items():
-            links = topology.get_links()
+        for id, topology in self._topology_map.items():
+            links = topology.links
             for link in links:
-                print(link.id + ";" + id)
+                self._logger.info(f"link.id={link.id}; id={id}")
                 if link.id == link_id:
                     setattr(link, property, value)
-                    print("updated the link.")
+                    self._logger.info("updated the link.")
                     # 1.2 need to change the sub_ver of the topology?
 
         # 2. check on the inter-domain link?
         # 3. update the interodamin topology
-        links = self.topology.get_links()
+        links = self._topology.links
         for link in links:
             if link.id == link_id:
                 setattr(link, property, value)
-                print("updated the link.")
+                self._logger.info("updated the link.")
                 # 2.2 need to change the sub_ver of the topology?
 
         self.update_version(True)
@@ -292,7 +343,30 @@ class TopologyManager:
             sub_ver = "0"
 
         data["version"] = self.new_version(ver, sub_ver, True)
-        data["time_stamp"] = datetime.datetime.now().isoformat()
+        data["timestamp"] = datetime.datetime.now().isoformat()
+
+    def get_port_by_id(self, port_id: str):
+        """
+        Given port id, returns a Port.
+        """
+        for node in self.get_topology().nodes:
+            for port in node.ports:
+                if port.id == port_id:
+                    return port.to_dict()
+        return None
+
+    def are_two_ports_same_domain(self, port1_id: str, port2_id: str):
+        """
+        Check if two ports are in the same domain.
+        """
+        node1 = self.get_topology().get_node_by_port(port1_id)
+        node2 = self.get_topology().get_node_by_port(port2_id)
+        if node1 is None or node2 is None:
+            return False
+
+        domain1 = self.get_domain_name(node1.id)
+        domain2 = self.get_domain_name(node2.id)
+        return domain1 == domain2
 
     def update_node_property(self):
         pass
