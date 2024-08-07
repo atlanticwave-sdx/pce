@@ -5,6 +5,16 @@ some constraints such as bandwidth and latency requirements. It takes
 in a formulation matrix with defined objective functions and
 relationships with RHS.
 
+The "load balancing" solver in PCE is developed based on the
+Constrained Shortest Path (CSP) problem. From an input of a list of
+queries, we try to find an overall optimal solution.
+
+Here's an example formualtion:
+
+<!-- TODO: expand discussion on this image -->
+
+![Load Balancing](./load_balancing.png)
+
 In this project, links are set to be binary variables which means if a
 link is selected, the corresponding variable is 1, if a link is not
 selected, the variable is 0.
@@ -29,16 +39,6 @@ Formualtion:
 
 ![CSP Formulation](./csp_formulation.png)
 
-## Load Balancing
-
-Load Balancing is developed based on the CSP problem. User can input a
-list of queries and get the overall optimal solutions.
-
-Example Formualtion:
-
-![Load Balancing](./load_balancing.png)
-
-<!-- TODO: expand discussion on this image -->
 
 ## Utility and Benchmark
 
