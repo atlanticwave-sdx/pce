@@ -1,23 +1,23 @@
 # Background
 
-PCE uses [Google OR-Tools][or-tools] to solve routing problem with
-some constraints such as bandwidth and latency requirements. It takes
-in a formulation matrix with defined objective functions and
+PCE uses [Google OR-Tools][or-tools] to solve routing problems with
+some given constraints such as bandwidth and latency requirements. It
+takes in a formulation matrix with defined objective functions and
 relationships with RHS.
 
 The "load balancing" solver in PCE is developed based on the
-Constrained Shortest Path (CSP) problem. From an input of a list of
+Constrained Shortest Path (CSP) problem.  Given an input of a list of
 queries, we try to find an overall optimal solution.
 
-Here's an example formualtion:
+Here's an example of how it is done:
 
 <!-- TODO: expand discussion on this image -->
 
 ![Load Balancing](./load_balancing.png)
 
-In this project, links are set to be binary variables which means if a
-link is selected, the corresponding variable is 1, if a link is not
-selected, the variable is 0.
+In PCE, links are set to be binary variables: if a link is selected,
+the corresponding variable is 1, if a link is not selected, the
+variable is 0.
 
 
 ## Constrained Shortest Path (CSP)
