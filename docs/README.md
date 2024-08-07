@@ -1,8 +1,9 @@
 # Background
 
-PCE uses [Google OR-Tools][or-tools] to solve for the optimal
-solution. It takes in a formulation matrix with defined objective
-functions and relationships with RHS.
+PCE uses [Google OR-Tools][or-tools] to solve routing problem with
+some constraints such as bandwidth and latency requirements. It takes
+in a formulation matrix with defined objective functions and
+relationships with RHS.
 
 In this project, links are set to be binary variables which means if a
 link is selected, the corresponding variable is 1, if a link is not
