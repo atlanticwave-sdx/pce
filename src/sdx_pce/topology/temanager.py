@@ -884,7 +884,7 @@ class TEManager:
                 if vlan_usage is UNUSED_VLAN:
                     available_tag = vlan_tag
         else:
-            if vlan_table[tag] is UNUSED_VLAN:
+            if tag in vlan_table and vlan_table[tag] is UNUSED_VLAN:
                 available_tag = tag
             else:
                 return None
