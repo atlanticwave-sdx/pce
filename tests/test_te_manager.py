@@ -313,6 +313,46 @@ class TEManagerTests(unittest.TestCase):
         print(f"TESolver result: {solution}")
         self.assertIsInstance(solution, ConnectionSolution)
 
+    def test_connection_amlight_v2(self):
+        """
+        Test with just one topology/domain.
+        """
+
+        topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_v2.read_text())
+        temanager = TEManager(topology)
+        graph = temanager.generate_graph_te()
+
+        self.assertIsInstance(graph, nx.Graph)
+
+        request = {
+            "name": "new-connection",
+            "id": "123",
+            "endpoints": [
+                {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "777"},
+                {"port_id": "urn:sdx:port:ampath.net:Ampath2:50", "vlan": "777"},
+            ],
+            "qos_metrics": {},
+            "scheduling": {},
+        }
+
+        traffic_matrix = temanager.generate_traffic_matrix(request)
+        self.assertIsInstance(traffic_matrix, TrafficMatrix)
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        self.assertIsInstance(solution, ConnectionSolution)
+        # all links are up and enable, so path length should be 1
+        self.assertEqual(len(next(iter(solution.connection_map.values()))), 1)
+
+        topology["links"][2]["state"] = "disabled"
+        temanager.update_topology(topology)
+
+        graph = temanager.generate_graph_te()
+        solution = TESolver(graph, traffic_matrix).solve()
+        self.assertIsInstance(solution, ConnectionSolution)
+        # now direct link is disabled, path size should be 2:
+        #   (ampath1, ampath3), (ampath3, ampath2)
+        self.assertEqual(len(next(iter(solution.connection_map.values()))), 2)
+
     def test_connection_amlight_user_port(self):
         """
         Test with just one topology/domain.
