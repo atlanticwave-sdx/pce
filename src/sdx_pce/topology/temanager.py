@@ -117,6 +117,10 @@ class TEManager:
             vlan_range = services.l2vpn_ptp.get("vlan_range")
         return vlan_range
 
+    def get_failed_links(self) -> List[dict]:
+        """Get failed links on the topology (ie., Links not up and enabled)."""
+        return self.topology_manager.get_failed_links()
+
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
         Update VLAN tags table.
