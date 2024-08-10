@@ -366,6 +366,15 @@ class TopologyManager:
                 continue
             self.create_update_interdomain_link(port, other_port)
 
+    def get_failed_links(self) -> dict:
+        """Get failed links on the topology (ie., Links not up and enabled)."""
+        failed_links = []
+        for link in self._topology.links:
+            if link.status in ("up", None) and link.state in ("enabled", None):
+                continue
+            failed_links.append({"id": link.id, "ports": link.ports})
+        return failed_links
+
     # adjacent matrix of the graph, in jason?
     def generate_graph(self):
         graph = nx.Graph()
