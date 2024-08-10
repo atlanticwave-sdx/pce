@@ -1074,3 +1074,27 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
             self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
+
+    def test_get_failed_links(self):
+        """Test get_failed_links()."""
+
+        topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_v2.read_text())
+        temanager = TEManager(topology)
+        graph = temanager.generate_graph_te()
+
+        topology["links"][2]["status"] = "down"
+        temanager.update_topology(topology)
+
+        expected_failed_links = [
+            {
+                "id": "urn:sdx:link:ampath.net:Ampath1/1_Ampath2/1",
+                "ports": [
+                    "urn:sdx:port:ampath.net:Ampath1:1",
+                    "urn:sdx:port:ampath.net:Ampath2:1",
+                ],
+            }
+        ]
+
+        failed_links = temanager.get_failed_links()
+
+        self.assertEqual(failed_links, expected_failed_links)
