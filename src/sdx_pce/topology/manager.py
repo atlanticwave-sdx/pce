@@ -61,6 +61,21 @@ class TopologyManager:
             ("disabled", "maintenance"): "maintenance",
             # defults to disabled
         }
+        # bandwidth: the bandwidth attribute will be created based on both port
+        # speeds (the minimum of them). Port speed is stored on Port.type and
+        # can be 100FE, 1GE, 10GE, 25GE, 40GE, 50GE, 100GE, 400GE, and Other
+        # When the value Other is chosen, no bandwidth guaranteed services will
+        # be supported, so that we map that value to bandwidth=0
+        self.bandwidth_map = {
+            "100FE": 0.1,
+            "1GE": 1,
+            "10GE": 10,
+            "25GE": 25,
+            "40GE": 40,
+            "100GE": 100,
+            "400GE": 400,
+            "Other": 0,
+        }
 
     def get_handler(self):
         return self.topology_handler
@@ -321,7 +336,10 @@ class TopologyManager:
                 id=link_id,
                 name=f"{port1.name}--{port2.name}",
                 ports=[port1.id, port2.id],
-                bandwidth=100,
+                bandwidth=min(
+                    self.bandwidth_map.get(port1.type, 100),
+                    self.bandwidth_map.get(port2.type, 100),
+                ),
                 residual_bandwidth=100,
                 latency=0,
                 packet_loss=0,
