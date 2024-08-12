@@ -145,7 +145,7 @@ class TEManager:
                 # port itself (v1), or from the services attached to it (v2).
                 label_range = self.get_port_obj_services_label_range(port)
                 if label_range is None:
-                    label_range = port.label_range
+                    label_range = port.vlan_range
 
                 # TODO: why is label_range sometimes None, and what to
                 # do when that happens?
@@ -884,7 +884,7 @@ class TEManager:
                 if vlan_usage is UNUSED_VLAN:
                     available_tag = vlan_tag
         else:
-            if vlan_table[tag] is UNUSED_VLAN:
+            if tag in vlan_table and vlan_table[tag] is UNUSED_VLAN:
                 available_tag = tag
             else:
                 return None
