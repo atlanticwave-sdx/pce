@@ -1080,7 +1080,6 @@ class TEManagerTests(unittest.TestCase):
 
         topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_v2.read_text())
         temanager = TEManager(topology)
-        graph = temanager.generate_graph_te()
 
         topology["links"][2]["status"] = "down"
         temanager.update_topology(topology)
