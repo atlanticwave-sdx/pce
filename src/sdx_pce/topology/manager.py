@@ -377,6 +377,8 @@ class TopologyManager:
         links = self._topology.links
         for link in links:
             inter_domain_link = False
+            if link.status not in ("up", None) or link.state not in ("enabled", None):
+                continue
             ports = link.ports
             end_nodes = []
             for port in ports:
