@@ -253,6 +253,11 @@ class TopologyManager:
         # inter-domain links
         self.add_inter_domain_links(topology, interdomain_ports)
 
+        # Update the port node map
+        for node in topology.nodes:
+            for port in node.ports:
+                self._port_node_map[port.id] = node
+
         self.update_version(True)
         self.update_timestamp()
 
