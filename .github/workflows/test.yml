@@ -26,10 +26,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
 
     steps:
       - name: Check out code
@@ -51,7 +51,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install .[test,pygraphviz,lint]
+          pip install .[test,pygraphviz,lint] flit
 
       - name: Lint with ruff
         run: ruff check $(git ls-files "*.py")
@@ -63,6 +63,10 @@ jobs:
           # Generate LCOV format coverage data for coveralls.
           python -m coverage lcov -o coverage.lcov
 
+      - name: Build packages
+        run: |
+          python -m flit build
+
       - name: Send coverage data to coveralls.io
         uses: coverallsapp/github-action@v2
         with:
@@ -73,7 +77,7 @@ jobs:
   finalize:
     name: finalize
     needs: test
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
     if: ${{ always() }}
     steps:
       - name: Indicate completion to coveralls.io
