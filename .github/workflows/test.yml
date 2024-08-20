@@ -73,7 +73,7 @@ jobs:
   finalize:
     name: finalize
     needs: test
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
     if: ${{ always() }}
     steps:
       - name: Indicate completion to coveralls.io
