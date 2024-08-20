@@ -8,7 +8,10 @@ version = "3.0.0.dev0"
 description = "Heuristic and Optimal Algorithms for CSP and TE Computation"
 authors = [
     { name = "Yufeng Xin", email = "yxin@renci.org" },
-    { name = "Yifei Wang", email = "ywang13@renci.org" }
+    { name = "Yifei Wang", email = "ywang13@renci.org" },
+    { name = "Cong Wang", email = "cwang@renci.org" },
+    { name = "Italo Valcy", email = "italo@ampath.net" },
+    { name = "Sajith Sasidharan", email = "sajith@hcoop.net" },
 ]
 readme = "README.md"
 requires-python = ">=3.8"
