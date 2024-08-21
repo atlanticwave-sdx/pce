@@ -1097,7 +1097,7 @@ class TEManagerTests(unittest.TestCase):
         failed_links = temanager.get_failed_links()
 
         self.assertEqual(failed_links, expected_failed_links)
- 
+
     def test_connection_amlight_to_zaoxi_user_port_any(self):
         """
         Exercise a connection request between Amlight and Zaoxi, with
@@ -1122,9 +1122,9 @@ class TEManagerTests(unittest.TestCase):
         # Rewrite the request to have VLAN of "any".
         connection_request["endpoints"][0]["vlan"] = "any"
         connection_request["endpoints"][1]["vlan"] = "any"
-        
+
         print(f"connection_request: {connection_request}")
-        
+
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
         print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
@@ -1172,4 +1172,3 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
             self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
-        
