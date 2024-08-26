@@ -11,6 +11,8 @@ must satisfy some requirements (regarding bandwidth, latency, number
 of hops, packet loss, etc.) how do we find the right path between the
 given nodes?
 
+See [background](./docs/README.md) for a description of the approach.
+
 ## Using PCE
 
 PCE's API is still evolving.  With that caveat, and omitting some
@@ -133,6 +135,8 @@ $ tox -e lint
 
 
 <!-- URLs -->
+
+[background]: ./docs/README.md
 
 [aw-sdx]: https://www.atlanticwave-sdx.net/ (Atlanticwave-SDX)
 
