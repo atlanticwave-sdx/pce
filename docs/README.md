@@ -70,11 +70,15 @@ A topology will be represented in a JSON format. Each link in the
 network could have three optional attributes: cost, latency and
 bandwidth.
 
-A traffic matrix is defined in a JSON format to represent a set of
-connection requests.
+A traffic matrix is a Python object that represents a set of
+connection requests. 
 
-The output is in a JSON format that represents the computed path
-segments with assigned VLANs.
+The format of topologies and connection requests can be found in the
+specifications available at SDX [documentation][sdx-docs] site.
+
+The output is a Python object that represents the computed path
+segments with assigned VLANs, and it could be serialized to JSON
+format.
 
 # Utility and Benchmark
 
@@ -95,3 +99,4 @@ Some benchmark results are also provided.
 
 [or-tools]: https://developers.google.com/optimization/
 [ictc]: https://doi.org/10.1109/ICTC58733.2023.10392422
+[sdx-docs]: https://sdx-docs.readthedocs.io/en/latest/
