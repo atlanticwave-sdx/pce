@@ -25,7 +25,9 @@ PCE solves the optimal traffic engineering problem with a node-arc
 based integer linear programming (ILP) model with flexible objective
 function definitions (for example, load balancing). It uses the
 popular [Google OR-Tools][or-tools] solver to find the optimal
-solution of the ILP problem [ictc].
+solution of the ILP problem (see ["Partitioning Traffic Engineering in
+Software Defined Wide Area Networks", Y. Xin and Y. Wang,
+ICTC'23][ictc]).
 
 In this model, a network is modeled as a bi-directional graph G(V, E)
 with a set of nodes V connected by a set of links E. Each link e(u, v)
@@ -92,4 +94,4 @@ Some benchmark results are also provided.
 <!-- URLs -->
 
 [or-tools]: https://developers.google.com/optimization/
-[ictc]: Y. Xin and Y. Wang, "Partitioning Traffic Engineering in Software Defined Wide Area Networks", ICTC'23.
+[ictc]: https://doi.org/10.1109/ICTC58733.2023.10392422
