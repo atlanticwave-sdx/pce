@@ -222,7 +222,6 @@ class TEManager:
         return list(chain.from_iterable(labels))
 
     def _expand_label(self, label) -> List[int]:
-
         start = stop = 0
         """
         Expand items in label range to a list of numbers.

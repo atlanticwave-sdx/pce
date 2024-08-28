@@ -765,7 +765,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertNotEqual(traffic_matrix1, traffic_matrix2)
         self.assertNotEqual(solution1, solution2)
         self.assertNotEqual(breakdown1, breakdown2)
-    
+
     def test_connection_amlight_to_zaoxi_two_distinct_requests_concurrent(self):
         """
         Test with two distinct connection requests.
@@ -801,7 +801,9 @@ class TEManagerTests(unittest.TestCase):
         print(f"Traffic matrix #2: '{traffic_matrix2}'")
         self.assertIsInstance(traffic_matrix2, TrafficMatrix)
 
-        traffic_matrix.connection_requests.append(traffic_matrix2.connection_requests[0])
+        traffic_matrix.connection_requests.append(
+            traffic_matrix2.connection_requests[0]
+        )
 
         solution = TESolver(graph, traffic_matrix).solve()
         print(f"TESolver result: {solution}")
@@ -809,7 +811,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(solution, ConnectionSolution)
         self.assertIsNotNone(solution.connection_map)
 
-        for  connection_request, solution in solution.connection_map:
+        for connection_request, solution in solution.connection_map:
             breakdown = temanager.generate_connection_breakdown(
                 solution, connection_request
             )
