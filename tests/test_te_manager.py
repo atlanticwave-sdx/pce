@@ -815,9 +815,9 @@ class TEManagerTests(unittest.TestCase):
             breakdown = temanager.generate_connection_breakdown(
                 solution, connection_request
             )
-            print(f"Breakdown: {json.dumps(breakdown1)}")
+            print(f"Breakdown: {json.dumps(breakdown)}")
 
-        self.assertIsNotNone(breakdown)
+            self.assertIsNotNone(breakdown)
 
     def test_connection_amlight_to_zaoxi_unreserve(self):
         """
