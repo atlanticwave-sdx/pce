@@ -765,6 +765,57 @@ class TEManagerTests(unittest.TestCase):
         self.assertNotEqual(traffic_matrix1, traffic_matrix2)
         self.assertNotEqual(solution1, solution2)
         self.assertNotEqual(breakdown1, breakdown2)
+    
+    def test_connection_amlight_to_zaoxi_two_distinct_requests_concurrent(self):
+        """
+        Test with two distinct connection requests.
+        """
+        temanager = TEManager(topology_data=None)
+
+        for path in (
+            TestData.TOPOLOGY_FILE_AMLIGHT,
+            TestData.TOPOLOGY_FILE_SAX,
+            TestData.TOPOLOGY_FILE_ZAOXI,
+        ):
+            topology = json.loads(path.read_text())
+            temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+        print(f"Generated graph: '{graph}'")
+
+        self.assertIsInstance(graph, nx.Graph)
+
+        # Use a connection request that should span all three domains.
+        connection_request1 = json.loads(TestData.CONNECTION_REQ.read_text())
+        print(f"Connection request #1: {connection_request1}")
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request1)
+
+        print(f"Traffic matrix #1: '{traffic_matrix}'")
+        self.assertIsInstance(traffic_matrix, TrafficMatrix)
+
+        # Use another connection request that spans just one domain.
+        connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        print(f"Connection request #2: {connection_request2}")
+
+        traffic_matrix2 = temanager.generate_traffic_matrix(connection_request2)
+        print(f"Traffic matrix #2: '{traffic_matrix2}'")
+        self.assertIsInstance(traffic_matrix2, TrafficMatrix)
+
+        traffic_matrix.connection_requests.append(traffic_matrix2.connection_requests[0])
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        self.assertIsInstance(solution, ConnectionSolution)
+        self.assertIsNotNone(solution.connection_map)
+
+        for  connection_request, solution in solution.connection_map:
+            breakdown = temanager.generate_connection_breakdown(
+                solution, connection_request
+            )
+            print(f"Breakdown: {json.dumps(breakdown1)}")
+
+        self.assertIsNotNone(breakdown)
 
     def test_connection_amlight_to_zaoxi_unreserve(self):
         """
