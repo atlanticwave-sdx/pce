@@ -1,6 +1,6 @@
 class ValidationError(Exception):
     """
-    A custom exception class to indicate errors.
+    A custom exception to represent validation errors.
     """
 
     def __init__(self, message):
@@ -9,7 +9,7 @@ class ValidationError(Exception):
 
 class UnknownRequestError(Exception):
     """
-    Indicates unknown requests.
+    A custom exception to represent unknown requests.
     """
 
     def __init__(self, message: str, request_id: str):
