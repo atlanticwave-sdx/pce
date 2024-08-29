@@ -19,7 +19,7 @@ from sdx_pce.models import (
     VlanTaggedPort,
 )
 from sdx_pce.topology.manager import TopologyManager
-from sdx_pce.utils.exceptions import ValidationError
+from sdx_pce.utils.exceptions import ValidationError, UnknownRequestError
 
 UNUSED_VLAN = None
 
@@ -849,7 +849,7 @@ class TEManager:
 
         # We should let the invoker know that we could not find the
         # request ID.
-        raise Exception(f"Unknown connection request (ID: {request_id})")
+        raise UnknownRequestError("Unknown connection request", request_id=request_id)
 
     # to be called by delete_connection()
     def _unreserve_vlan_breakdown(self, break_down):
