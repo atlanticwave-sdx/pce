@@ -19,7 +19,7 @@ from sdx_pce.models import (
     VlanTaggedPort,
 )
 from sdx_pce.topology.manager import TopologyManager
-from sdx_pce.utils.exceptions import ValidationError, UnknownRequestError
+from sdx_pce.utils.exceptions import UnknownRequestError, ValidationError
 
 UNUSED_VLAN = None
 
