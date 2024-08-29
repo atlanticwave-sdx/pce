@@ -842,7 +842,7 @@ class TEManager:
         Return previously reserved VLANs back to the pool.
         """
         found_assignment = False
-        
+
         for domain, port_table in self._vlan_tags_table.items():
             for port, vlan_table in port_table.items():
                 for vlan, assignment in vlan_table.items():
@@ -853,7 +853,9 @@ class TEManager:
         # We should let the invoker know that we could not find the
         # request ID.
         if not found_assignment:
-            raise UnknownRequestError("Unknown connection request", request_id=request_id)
+            raise UnknownRequestError(
+                "Unknown connection request", request_id=request_id
+            )
 
     # to be called by delete_connection()
     def _unreserve_vlan_breakdown(self, break_down):
