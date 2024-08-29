@@ -33,11 +33,11 @@ class TopologyManager:
         # Mapping from topology ID to topology.
         self._topology_map = {}
 
-        # Mapping from port ID to link.
+        # Mapping from port ID to port.
         self._port_map = {}
 
-        # Mapping from port ID to node.
-        self._port_node_map = {}
+        # Mapping from port ID to link.
+        self._port_link_map = {}
 
         # Number of interdomain links we computed.
         self._num_interdomain_link = 0
@@ -92,22 +92,22 @@ class TopologyManager:
     def get_topology_map(self) -> dict:
         return self._topology_map
 
-    def get_port_map(self) -> Mapping[str, dict]:
+    def get_port_link_map(self) -> Mapping[str, dict]:
         """
         Return a mapping between port IDs and links.
         """
-        return self._port_map
+        return self._port_link_map
 
-    def get_port_node_map(self) -> Mapping[str, dict]:
+    def get_port_map(self) -> Mapping[str, dict]:
         """
-        Return a mapping between port IDs and nodes.
+        Return a mapping between port IDs and ports.
         """
-        return self._port_node_map
+        return self._port_map
 
     def clear_topology(self):
         self._topology = None
         self._topology_map = {}
-        self._port_map = {}
+        self._port_link_map = {}
 
     def add_topology(self, data):
         topology = TopologyHandler().import_topology_data(data)
@@ -124,7 +124,7 @@ class TopologyManager:
             # links = topology.links
             # for link in links:
             #    for port in link.ports:
-            #        self._port_map[port["id"]] = link
+            #        self._port_link_map[port["id"]] = link
         else:
             # check the inter-domain links first.
             interdomain_ports = self.inter_domain_check(topology)
@@ -150,13 +150,13 @@ class TopologyManager:
         for link in links:
             for port in link.ports:
                 port_id = port if isinstance(port, str) else port["id"]
-                self._port_map[port_id] = link
+                self._port_link_map[port_id] = link
 
         # Addding to the port node
         nodes = topology.nodes
         for node in nodes:
             for port in node.ports:
-                self._port_node_map[port.id] = node
+                self._port_map[port.id] = port
 
         # inter-domain links
         self.add_inter_domain_links(topology, interdomain_ports)
@@ -198,7 +198,7 @@ class TopologyManager:
         """
         for port in link.ports:
             port_id = port if isinstance(port, str) else port["id"]
-            if port_id not in self._port_map:
+            if port_id not in self._port_link_map:
                 return True
         return False
 
@@ -235,7 +235,7 @@ class TopologyManager:
                 self._topology.remove_link(link.id)
                 for port in link.ports:
                     port_id = port if isinstance(port, str) else port["id"]
-                    self._port_map.pop(port_id)
+                    self._port_link_map.pop(port_id)
 
         # Check the inter-domain links first.
         interdomain_ports = self.inter_domain_check(topology)
@@ -256,7 +256,7 @@ class TopologyManager:
         # Update the port node map
         for node in topology.nodes:
             for port in node.ports:
-                self._port_node_map[port.id] = node
+                self._port_map[port.id] = port
 
         self.update_version(True)
         self.update_timestamp()
@@ -303,14 +303,14 @@ class TopologyManager:
         for port_id in interdomain_port_dict:
             # print("interdomain_port:")
             # print(port_id)
-            for existing_port, existing_link in self._port_map.items():
+            for existing_port, existing_link in self._port_link_map.items():
                 # print(existing_port)
                 if port_id == existing_port:
                     # print("Interdomain port:" + port_id)
                     # remove redundant link between two domains
                     self._topology.remove_link(existing_link.id)
                     interdomain_port_ids.append(port_id)
-            self._port_map[port_id] = interdomain_port_dict[port_id]
+            self._port_link_map[port_id] = interdomain_port_dict[port_id]
 
         # count for inter-domain links according to topo spec 2.0.x
         for node in topology.nodes:
@@ -358,15 +358,11 @@ class TopologyManager:
     def add_inter_domain_links(self, topology, interdomain_ports):
         """Add inter-domain links (whenever possible)."""
         for port in interdomain_ports:
-            other_node = self._port_node_map.get(port.nni)
-            other_ports = other_node.ports if other_node else []
-            for other_port in other_ports:
-                if other_port.id == port.nni and other_port.nni == port.id:
-                    break
-            else:
+            other_port = self._port_map.get(port.nni)
+            if not other_port or other_port.nni != port.id:
                 self._logger.warning(
                     "Interdomain link not added now - didnt find other port:"
-                    f" port={port.id} other_port={port.nni}"
+                    f" port={port.id} other_port={port.nni} ({other_port})"
                 )
                 continue
             self.create_update_interdomain_link(port, other_port)
