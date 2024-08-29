@@ -58,7 +58,7 @@ class TEManager:
             self.graph = self.generate_graph_te()
             self._update_vlan_tags_table(
                 domain_name=topology_data.get("id"),
-                port_map=self.topology_manager.get_port_node_map(),
+                port_map=self.topology_manager.get_port_map(),
             )
         else:
             self.graph = None
@@ -77,7 +77,7 @@ class TEManager:
         # attached to links.
         self._update_vlan_tags_table(
             domain_name=topology_data.get("id"),
-            port_map=self.topology_manager.get_port_node_map(),
+            port_map=self.topology_manager.get_port_map(),
         )
 
     def update_topology(self, topology_data: dict):
@@ -88,27 +88,21 @@ class TEManager:
         """
         self.topology_manager.update_topology(topology_data)
 
+        # Update vlan_tags_table in a non-disruptive way. Previous concerned
+        # still applies:
         # TODO: careful here when updating VLAN tags table -- what do
         # we do when an in use VLAN tag becomes invalid in the update?
         # See https://github.com/atlanticwave-sdx/pce/issues/123
-        #
-        # self._update_vlan_tags_table_from_links(
-        #     domain_name=topology_data.get("id"),
-        #     port_list=self.topology_manager.port_list,
-        # )
+        self._update_vlan_tags_table(
+            domain_name=topology_data.get("id"),
+            port_map=self.topology_manager.get_port_map(),
+        )
 
     def get_topology_map(self) -> dict:
         """
         Get {topology_id: topology, ..} map.
         """
         return self.topology_manager.get_topology_map()
-
-    def get_port_services_label_range(self, port: dict) -> List[str]:
-        vlan_range = None
-        services = port.get("services")
-        if services and services.get("l2vpn-ptp"):
-            vlan_range = services.get("l2vpn-ptp").get("vlan_range")
-        return vlan_range
 
     def get_port_obj_services_label_range(self, port: Port) -> List[str]:
         vlan_range = None
@@ -123,95 +117,36 @@ class TEManager:
 
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
-        Update VLAN tags table.
+        Update VLAN tags table in a non-disruptive way, meaning: only add new
+        VLANs to the table. Removed VLANs will need further discussion (see
+        https://github.com/atlanticwave-sdx/pce/issues/123)
         """
-        self._vlan_tags_table[domain_name] = {}
+        self._vlan_tags_table.setdefault(domain_name, {})
 
-        for port_id, node in port_map.items():
-            # TODO: port here seems to be a dict, not sdx_datamodel.models.Port
-            for port in node.ports:
-                # Collect all port IDs in this link.  Each link should
-                # have two ports.
-                node_port_ids = [x.id for x in node.ports]
+        for port_id, port in port_map.items():
+            # Get the label range for this port: either from the
+            # port itself (v1), or from the services attached to it (v2).
+            label_range = self.get_port_obj_services_label_range(port)
+            if label_range is None:
+                label_range = port.vlan_range
 
-                # Do some error checks.
-                node_port_count = len(node_port_ids)
+            # TODO: why is label_range sometimes None, and what to
+            # do when that happens?
+            if label_range is None:
+                self._logger.info(f"label_range on {port.id} is None")
+                continue
 
-                if node_port_count < 1:
-                    raise ValidationError(
-                        f"Node has {node_port_count} ports, not greater than 0"
-                    )
+            # label_range is of the form ['100-200', '1000']; let
+            # us expand it.  Would have been ideal if this was
+            # already in some parsed form, but it is not, so this
+            # is a work-around.
+            all_labels = self._expand_label_range(label_range)
 
-                if port_id not in node_port_ids:
-                    raise ValidationError(f"port {port_id} not in {node_port_ids}")
-
-                # Get the label range for this port: either from the
-                # port itself (v1), or from the services attached to it (v2).
-                label_range = self.get_port_obj_services_label_range(port)
-                if label_range is None:
-                    label_range = port.vlan_range
-
-                # TODO: why is label_range sometimes None, and what to
-                # do when that happens?
-                if label_range is None:
-                    self._logger.info(f"label_range on {port.id} is None")
-                    continue
-
-                # label_range is of the form ['100-200', '1000']; let
-                # us expand it.  Would have been ideal if this was
-                # already in some parsed form, but it is not, so this
-                # is a work-around.
-                all_labels = self._expand_label_range(label_range)
-
-                # Make a map like: `{label1: UNUSED_VLAN, label2: UNUSED_VLAN,...}`
-                labels_available = {label: UNUSED_VLAN for label in all_labels}
-
-                self._vlan_tags_table[domain_name][port_id] = labels_available
-
-    def _update_vlan_tags_table_from_links(self, domain_name: str, port_map: dict):
-        """
-        Update VLAN tags table.
-        """
-        self._vlan_tags_table[domain_name] = {}
-
-        for port_id, link in port_map.items():
-            # TODO: port here seems to be a dict, not sdx_datamodel.models.Port
-            for port in link.ports:
-                # Collect all port IDs in this link.  Each link should
-                # have two ports.
-                link_port_ids = [x["id"] for x in link.ports]
-
-                # Do some error checks.
-                link_port_count = len(link_port_ids)
-
-                if link_port_count != 2:
-                    raise ValidationError(f"Link has {link_port_count} ports, not 2")
-
-                if port_id not in link_port_ids:
-                    raise ValidationError(f"port {port_id} not in {link_port_ids}")
-
-                # Get the label range for this port: either from the
-                # port itself (v1), or from the services attached to it (v2).
-                label_range = self.get_port_services_label_range(port)
-                if label_range is None:
-                    label_range = port.get("label_range")
-
-                # TODO: why is label_range sometimes None, and what to
-                # do when that happens?
-                if label_range is None:
-                    self._logger.info(f"label_range on {port['id']} is None")
-                    continue
-
-                # label_range is of the form ['100-200', '1000']; let
-                # us expand it.  Would have been ideal if this was
-                # already in some parsed form, but it is not, so this
-                # is a work-around.
-                all_labels = self._expand_label_range(label_range)
-
-                # Make a map like: `{label1: UNUSED_VLAN, label2: UNUSED_VLAN,...}`
-                labels_available = {label: UNUSED_VLAN for label in all_labels}
-
-                self._vlan_tags_table[domain_name][port_id] = labels_available
+            self._vlan_tags_table[domain_name].setdefault(port_id, {})
+            for label in all_labels:
+                self._vlan_tags_table[domain_name][port_id].setdefault(
+                    label, UNUSED_VLAN
+                )
 
     def _expand_label_range(self, label_range: []) -> List[int]:
         """
@@ -543,7 +478,7 @@ class TEManager:
                 if (
                     not request_format_is_tm
                     and connection_request["ingress_port"]["id"]
-                    not in self.topology_manager.get_port_map()
+                    not in self.topology_manager.get_port_link_map()
                 ):
                     self._logger.warning(
                         f"Port {connection_request['ingress_port']['id']} not found in port map, it's a user port"
@@ -564,7 +499,7 @@ class TEManager:
                     not request_format_is_tm
                     and same_domain_port_flag
                     and connection_request["egress_port"]["id"]
-                    not in self.topology_manager.get_port_map()
+                    not in self.topology_manager.get_port_link_map()
                 ):
                     self._logger.warning(
                         f"Port {connection_request['egress_port']['id']} not found in port map, it's a user port"
@@ -585,7 +520,7 @@ class TEManager:
                 if (
                     not request_format_is_tm
                     and connection_request["egress_port"]["id"]
-                    not in self.topology_manager.get_port_map()
+                    not in self.topology_manager.get_port_link_map()
                 ):
                     self._logger.warning(
                         f"Port {connection_request['egress_port']['id']} not found in port map, it's a user port"
@@ -764,7 +699,7 @@ class TEManager:
             # or (2) uses the OXP vlan if (2.1) not provided or provided (2.2) is not in the vlan range in the topology port.
             # And we do't allow user specified vlan on a OXP port.
             if (
-                ingress_port_id not in self.topology_manager.get_port_map()
+                ingress_port_id not in self.topology_manager.get_port_link_map()
                 and ingress_vlan is None
             ):
                 self._logger.warning(
@@ -773,7 +708,7 @@ class TEManager:
                 ingress_vlan = egress_vlan
 
             if (
-                egress_port_id not in self.topology_manager.get_port_map()
+                egress_port_id not in self.topology_manager.get_port_link_map()
                 and egress_vlan is None
             ):
                 self._logger.warning(
