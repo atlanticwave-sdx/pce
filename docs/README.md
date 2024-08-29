@@ -42,10 +42,17 @@ l_d. Together these demands are represented in a traffic matrix
 node t in the network where a binary variable x_(e,d) is defined to
 represent if the edge e is on the path d in the TE solution.
 
-Here's an example of how the ILP model is defined to route three
-connection requests (commodities) in a 5-node capacited network.
-
 <!-- TODO: expand discussion on this image -->
+Here's an example of how the ILP model is defined to route three
+connection requests (commodities) in a 5-node capacited network. 
+Each link in the network has two attributes: the first one 
+is the link cost and second is the available bandwidth. 
+Each of the three connections is represented by a tuple <src, dst, bw>.
+The colored matrix table on the left represents the constrained TE 
+optimization formulation. The yellow block represents the network 
+flow constraints that make sure a solution being a path in the network.
+The green block enforces capacity constraints on each link. 
+The blue block forms the objective function that is to be minimized. 
 
 ![Load Balancing](./load_balancing.png)
 
