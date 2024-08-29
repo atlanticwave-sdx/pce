@@ -847,6 +847,10 @@ class TEManager:
                     if assignment == request_id:
                         vlan_table[vlan] = UNUSED_VLAN
 
+        # We should let the invoker know that we could not find the
+        # request ID.
+        raise Exception(f"Unknown connection request (ID: {request_id})")
+
     # to be called by delete_connection()
     def _unreserve_vlan_breakdown(self, break_down):
         # TODO: implement this.
