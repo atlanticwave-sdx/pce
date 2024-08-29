@@ -768,8 +768,15 @@ class TEManagerTests(unittest.TestCase):
 
     def test_connection_amlight_to_zaoxi_two_distinct_requests_concurrent(self):
         """
-        Test with two distinct connection requests.
+        Test with two distinct connections in one request. The process includes Four steps:
+        Step 1: Get the topology
+        Step 2: Pack all connections in a list
+        Step 3: Call the TESolver to get the solution: <connection, path>
+        Step 4: Iterate over the solution to call the temanager.generate_connection_breakdown()
+        to the get the breakdowns for each connection in the request
         """
+
+        # Step 1: topology
         temanager = TEManager(topology_data=None)
 
         for path in (
@@ -785,6 +792,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsInstance(graph, nx.Graph)
 
+        # Step 2: connections
         connection_object_map = {}
         # Use a connection request that should span all three domains.
         connection_request1 = json.loads(TestData.CONNECTION_REQ.read_text())
@@ -812,12 +820,14 @@ class TEManagerTests(unittest.TestCase):
             connection_request2
         )
 
+        # Step 3: solve the TE for all connections
         solution = TESolver(graph, traffic_matrix).solve()
         print(f"TESolver result: {solution}")
 
         self.assertIsInstance(solution, ConnectionSolution)
         self.assertIsNotNone(solution.connection_map)
 
+        # Step 4: obtain the breakdowns for each connection
         for connection_request, connection_solution in solution.connection_map.items():
             result = ConnectionSolution(
                 connection_map={}, cost=None, request_id=traffic_matrix.request_id
