@@ -1262,3 +1262,60 @@ class TEManagerTests(unittest.TestCase):
         with self.assertRaises(UnknownRequestError) as e:
             TEManager(topology_data=None).unreserve_vlan(request_id)
             self.assertEqual(e.request_id, request_id)
+
+    def test_disallowed_vlans(self):
+        """
+        A test for the issue reported at
+        https://github.com/atlanticwave-sdx/pce/issues/208
+        """
+        temanager = TEManager(topology_data=None)
+
+        path = TestData.TOPOLOGY_FILE_AMLIGHT_USER_PORT
+        topology = json.loads(path.read_text())
+        temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+
+        # Port 777 is not in the range allowed by the port.
+        connection_request = json.loads(
+            """
+            {
+                "name": "new-connection",
+                "description": "a test circuit",        
+                "id": "test-connection-id",
+                "endpoints": [
+                    {
+                        "port_id": "urn:sdx:port:amlight.net:A1:1",
+                        "vlan": "777"
+                    },
+                    {
+                        "port_id": "urn:sdx:port:amlight:B1:1",
+                        "vlan": "55:90"
+                    }
+                ]
+            }
+            """
+        )
+
+        pprint.pprint(connection_request)
+
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        conn = temanager.requests_connectivity(traffic_matrix)
+        print(f"Graph connectivity: {conn}")
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
+        print(f"breakdown: {json.dumps(breakdown)}")
+
+        # TODO: Because of the disallowed port, the above request
+        # should not result in a solution, but we do have a solution!
