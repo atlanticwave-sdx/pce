@@ -7,6 +7,7 @@ import networkx as nx
 from sdx_pce.load_balancing.te_solver import TESolver
 from sdx_pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
 from sdx_pce.topology.temanager import TEManager
+from sdx_pce.utils.exceptions import UnknownRequestError
 
 from . import TestData
 
@@ -1250,3 +1251,14 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
             self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
+
+    def test_unreserve_unknown_connection_requests(self):
+        """
+        TEManager should raise an error if we attempt to unreserve a
+        non-existent connection request.
+        """
+        request_id = "non-existent-request-id"
+
+        with self.assertRaises(UnknownRequestError) as e:
+            TEManager(topology_data=None).unreserve_vlan(request_id)
+            self.assertEqual(e.request_id, request_id)
