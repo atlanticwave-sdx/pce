@@ -1351,14 +1351,6 @@ class TEManagerTests(unittest.TestCase):
                 f"Requested VLAN: {requested_uni_z_vlan}, assigned: {uni_z_vlan_tag}",
             )
 
-        # TODO: Because of the disallowed port, the above request
-        # should not result in a solution, but we do have a solution!
-
-        # uni_a = connection_request["endpoints"][0]
-        # uni_z = connection_request["endpoints"][1]
-
-        # print(f"2 {uni_a}, {uni_z}")
-
     def _vlan_meets_request(self, requested_vlan, assigned_vlan) -> bool:
         """
         A helper to compare requested VLAN against the VLAN assignment
