@@ -441,9 +441,12 @@ class TEManager:
         # and that may break some assumptions about the order in which
         # we form and traverse the breakdown.
 
-        # Note:Extra flag to indicate if the connection request is in the format of TrafficMatrix or not
-        # If the connection request is in the format of TrafficMatrix, then the ingress_port and egress_port
-        # are not present in the connection_request
+        # Note: Extra flag to indicate if the connection request is in
+        # the format of TrafficMatrix or not.
+        #
+        # If the connection request is in the format of TrafficMatrix,
+        # then the ingress_port and egress_port are not present in the
+        # connection_request
         request_format_is_tm = isinstance(connection_request, list)
         self._logger.info(
             f"connection_requst: {connection_request}; type:{type(request_format_is_tm)}"
@@ -459,7 +462,8 @@ class TEManager:
             self._logger.info(
                 f'connection_requst egress_port: {connection_request["egress_port"]["id"]}'
             )
-            # flag to indicate if the request ingress and egress ports belong to the same domain
+            # flag to indicate if the request ingress and egress ports
+            # belong to the same domain.
             same_domain_port_flag = self.topology_manager.are_two_ports_same_domain(
                 connection_request["ingress_port"]["id"],
                 connection_request["egress_port"]["id"],
@@ -696,11 +700,15 @@ class TEManager:
             ingress_port_id = ingress_port["id"]
             egress_port_id = egress_port["id"]
 
-            # TODO: what to do when a port is not in the port map which only has all the ports on links?
-            # User facing ports need clarification from the custermers.
-            # For now, we are assuming that the user facing port either (1) provides the vlan
-            # or (2) uses the OXP vlan if (2.1) not provided or provided (2.2) is not in the vlan range in the topology port.
-            # And we do't allow user specified vlan on a OXP port.
+            # TODO: what to do when a port is not in the port map
+            # which only has all the ports on links?
+            #
+            # User facing ports need clarification from the
+            # custermers.  For now, we are assuming that the user
+            # facing port either (1) provides the vlan or (2) uses the
+            # OXP vlan if (2.1) not provided or provided (2.2) is not
+            # in the vlan range in the topology port.  And we do't
+            # allow user specified vlan on a OXP port.
             if (
                 ingress_port_id not in self.topology_manager.get_port_link_map()
                 and ingress_vlan is None
