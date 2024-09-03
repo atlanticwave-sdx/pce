@@ -1281,7 +1281,7 @@ class TEManagerTests(unittest.TestCase):
             """
             {
                 "name": "new-connection",
-                "description": "a test circuit",        
+                "description": "a test circuit",
                 "id": "test-connection-id",
                 "endpoints": [
                     {
