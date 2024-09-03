@@ -1263,7 +1263,7 @@ class TEManagerTests(unittest.TestCase):
             TEManager(topology_data=None).unreserve_vlan(request_id)
             self.assertEqual(e.request_id, request_id)
 
-    def test_disallowed_vlans(self):
+    def test_disallowed_vlan(self):
         """
         A test for the issue reported at
         https://github.com/atlanticwave-sdx/pce/issues/208
@@ -1299,6 +1299,15 @@ class TEManagerTests(unittest.TestCase):
 
         pprint.pprint(connection_request)
 
+        # Keep track of the VLANs requested.
+        requested_uni_a_vlan = connection_request["endpoints"][0]["vlan"]
+        requested_uni_z_vlan = connection_request["endpoints"][1]["vlan"]
+
+        print(
+            f"requested_uni_a_vlan: {requested_uni_a_vlan}, "
+            f"requested_uni_z_vlan: {requested_uni_z_vlan}"
+        )
+
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
         print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
@@ -1315,7 +1324,63 @@ class TEManagerTests(unittest.TestCase):
         breakdown = temanager.generate_connection_breakdown(
             solution, connection_request
         )
+
         print(f"breakdown: {json.dumps(breakdown)}")
+
+        pprint.pprint(breakdown)
+
+        for domain, path in breakdown.items():
+            print(f"domain: {domain}, path: {path}")
+            uni_a_port_id = path.get("uni_a").get("port_id")
+            uni_a_vlan_tag = path.get("uni_a").get("tag").get("value")
+            uni_z_port_id = path.get("uni_z").get("port_id")
+            uni_z_vlan_tag = path.get("uni_z").get("tag").get("value")
+            print(
+                f"domain: {domain}, uni_a_port_id: {uni_a_port_id}, uni_z_port_id: {uni_z_port_id}"
+            )
+            print(
+                f"domain: {domain}, uni_a_vlan_tag: {uni_a_vlan_tag}, uni_z_vlan_tag: {uni_z_vlan_tag}"
+            )
+
+            self.assertTrue(
+                self._vlan_meets_request(requested_uni_a_vlan, uni_a_vlan_tag),
+                f"Requested VLAN: {requested_uni_a_vlan}, assigned: {uni_a_vlan_tag}",
+            )
+            self.assertTrue(
+                self._vlan_meets_request(requested_uni_z_vlan, uni_z_vlan_tag),
+                f"Requested VLAN: {requested_uni_z_vlan}, assigned: {uni_z_vlan_tag}",
+            )
 
         # TODO: Because of the disallowed port, the above request
         # should not result in a solution, but we do have a solution!
+
+        # uni_a = connection_request["endpoints"][0]
+        # uni_z = connection_request["endpoints"][1]
+
+        # print(f"2 {uni_a}, {uni_z}")
+
+    def _vlan_meets_request(self, requested_vlan, assigned_vlan) -> bool:
+        """
+        A helper to compare requested VLAN against the VLAN assignment
+        made by PCE.
+        """
+
+        if requested_vlan == "any":
+            return True
+
+        # TODO: these have not been implemented yet.
+        if requested_vlan in ["untagged", "all"]:
+            return False
+
+        try:
+            # Here we count on the fact that attempting integer
+            # conversion of a non-number should raise an error.
+            if int(requested_vlan) == assigned_vlan:
+                return True
+            else:
+                return False
+        except ValueError:
+            requested_range = [int(n) for n in requested_vlan.split(":")]
+            return requested_vlan in requested_range
+
+        raise Exception("invalid state!")
