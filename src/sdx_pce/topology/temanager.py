@@ -377,6 +377,10 @@ class TEManager:
     ) -> dict:
         """
         Take a connection solution and generate a breakdown.
+
+        A connection solution has a possible path between the
+        requested source and destination nodes, but no ports have been
+        assigned yet.  We assign ports in this step.
         """
         if solution is None or solution.connection_map is None:
             self._logger.warning(f"Can't find a breakdown for {solution}")
