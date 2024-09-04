@@ -556,7 +556,9 @@ class TEManager:
             i = i + 1
 
         self._logger.info(
-            f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}"
+            f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown} "
+            f"ingress_user_port: {ingress_user_port}, "
+            f"egress_user_port: {egress_user_port}"
         )
 
         tagged_breakdown = self._reserve_vlan_breakdown(
