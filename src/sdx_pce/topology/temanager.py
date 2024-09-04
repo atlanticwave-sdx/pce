@@ -472,8 +472,12 @@ class TEManager:
             self._logger.info(f"same_domain_user_port_flag: {same_domain_port_flag}")
 
         # Now generate the breakdown with potential user specified tags
-        ingress_user_port = connection_request.get("ingress_port")
-        egress_user_port = connection_request.get("egress_port")
+        ingress_user_port = None
+        egress_user_port = None
+
+        if not request_format_is_tm:
+            ingress_user_port = connection_request.get("ingress_port")
+            egress_user_port = connection_request.get("egress_port")
 
         for domain, links in breakdown.items():
             self._logger.debug(
