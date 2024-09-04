@@ -449,7 +449,8 @@ class TEManager:
         # connection_request
         request_format_is_tm = isinstance(connection_request, list)
         self._logger.info(
-            f"connection_request: {connection_request}; type:{type(request_format_is_tm)}"
+            f"connection_request: {connection_request}; "
+            f"type: {'tm' if request_format_is_tm else 'not tm'}"
         )
         same_domain_port_flag = False
         if not request_format_is_tm:
