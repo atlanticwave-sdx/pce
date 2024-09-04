@@ -699,6 +699,14 @@ class TEManager:
                 domain, egress_port, request_id, egress_user_port_tag
             )
 
+            if ingress_vlan is None or egress_vlan is None:
+                self._logger.error(
+                    f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}. "
+                    f"Can't proceed. Rolling back reservations."
+                )
+                self.unreserve_vlan(request_id=request_id)
+                return None
+
             ingress_port_id = ingress_port["id"]
             egress_port_id = egress_port["id"]
 
