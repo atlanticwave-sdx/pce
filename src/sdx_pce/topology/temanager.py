@@ -449,7 +449,7 @@ class TEManager:
         # connection_request
         request_format_is_tm = isinstance(connection_request, list)
         self._logger.info(
-            f"connection_requst: {connection_request}; type:{type(request_format_is_tm)}"
+            f"connection_request: {connection_request}; type:{type(request_format_is_tm)}"
         )
         same_domain_port_flag = False
         if not request_format_is_tm:
@@ -457,10 +457,10 @@ class TEManager:
                 ConnectionHandler().import_connection_data(connection_request).to_dict()
             )
             self._logger.info(
-                f'connection_requst ingress_port: {connection_request["ingress_port"]["id"]}'
+                f'connection_request ingress_port: {connection_request["ingress_port"]["id"]}'
             )
             self._logger.info(
-                f'connection_requst egress_port: {connection_request["egress_port"]["id"]}'
+                f'connection_request egress_port: {connection_request["egress_port"]["id"]}'
             )
             # flag to indicate if the request ingress and egress ports
             # belong to the same domain.
