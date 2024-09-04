@@ -827,17 +827,21 @@ class TEManager:
             )
             return None
 
-        available_tag = None
-
         if tag is None:
             # Find the first available VLAN tag from the table.
             for vlan_tag, vlan_usage in vlan_table.items():
                 if vlan_usage is UNUSED_VLAN:
                     available_tag = vlan_tag
         else:
-            if tag in vlan_table and vlan_table[tag] is UNUSED_VLAN:
-                available_tag = tag
+            if tag in vlan_table:
+                if vlan_table[tag] is UNUSED_VLAN:
+                    self._logger.debug(f"VLAN {tag} is available; marking")
+                    available_tag = tag
+                else:
+                    self._logger.error(f"VLAN {tag} is in use by {vlan_table[tag]}")
+                    return None
             else:
+                self._logger.error(f"VLAN {tag} is not present in the table")
                 return None
 
         # mark the tag as in-use.
