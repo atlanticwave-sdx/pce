@@ -839,7 +839,7 @@ class TEManager:
             )
             return None
 
-        if tag is None:
+        if tag in (None, "any"):
             # Find the first available VLAN tag from the table.
             for vlan_tag, vlan_usage in vlan_table.items():
                 if vlan_usage is UNUSED_VLAN:
