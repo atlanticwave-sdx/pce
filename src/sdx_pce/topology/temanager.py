@@ -472,8 +472,9 @@ class TEManager:
             self._logger.info(f"same_domain_user_port_flag: {same_domain_port_flag}")
 
         # Now generate the breakdown with potential user specified tags
-        ingress_user_port = None
-        egress_user_port = None
+        ingress_user_port = connection_request.get("ingress_port")
+        egress_user_port = connection_request.get("egress_port")
+
         for domain, links in breakdown.items():
             self._logger.debug(
                 f"Creating domain_breakdown: domain: {domain}, links: {links}"
@@ -492,7 +493,6 @@ class TEManager:
                         f"Port {connection_request['ingress_port']['id']} not found in port map, it's a user port"
                     )
                     ingress_port_id = connection_request["ingress_port"]["id"]
-                    ingress_user_port = connection_request["ingress_port"]
                     ingress_port = self.topology_manager.get_port_by_id(ingress_port_id)
                 else:
                     if request_format_is_tm:
@@ -513,7 +513,6 @@ class TEManager:
                         f"Port {connection_request['egress_port']['id']} not found in port map, it's a user port"
                     )
                     egress_port_id = connection_request["egress_port"]["id"]
-                    egress_user_port = connection_request["egress_port"]
                     egress_port = self.topology_manager.get_port_by_id(egress_port_id)
                     _, next_ingress_port = self._get_ports_by_link(links[-1])
                 else:
