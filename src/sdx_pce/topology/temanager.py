@@ -800,19 +800,22 @@ class TEManager:
         # with self._topology_lock:
         #     pass
 
-        port_id = port["id"]
-        self._logger.debug(f"reserve_vlan domain: {domain} port_id: {port_id}")
-
-        if port_id is None:
-            return None
+        self._logger.debug(
+            f"Reserving VLAN for domain: {domain}, port: {port}, "
+            f"request_id: {request_id}, tag:{tag}"
+        )
 
         # Look up available VLAN tags by domain and port ID.
         # self._logger.debug(f"vlan tags table: {self._vlan_tags_table}")
         domain_table = self._vlan_tags_table.get(domain)
-        # self._logger.debug(f"domain vlan table: {domain} domain_table: {domain_table}")
 
         if domain_table is None:
-            self._logger.warning(f"reserve_vlan domain: {domain} entry: {domain_table}")
+            self._logger.error(f"reserve_vlan domain: {domain} entry: {domain_table}")
+            return None
+
+        port_id = port.get("id")
+        if port_id is None:
+            self._logger.error("port_id is None; giving up")
             return None
 
         vlan_table = domain_table.get(port_id)
