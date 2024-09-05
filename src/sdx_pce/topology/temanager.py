@@ -800,7 +800,24 @@ class TEManager:
         # return domain_breakdown
         assert False, "Not implemented"
 
-    def _reserve_vlan(self, domain: str, port: dict, request_id: str, tag=None):
+    def _reserve_vlan(self, domain: str, port: dict, request_id: str, tag: str = None):
+        """
+        Find unused VLANs for given domain/port and mark them in-use.
+
+        :param domain: a string that contains the domain.
+        :param port: a `dict` that represents a port.
+        :param request_id: a string that contains the request ID.
+        :param tag: a string that is used to specify VLAN tag
+            preferences.  None or "any" means that any available VLAN
+            will do.  A number or range will indicate a specific
+            demand; "all" and "untagged" will indicate other
+            preferences.  See the description of "vlan" under
+            "Mandatory Attributes" section of the Service Provisioning
+            Data Model Specification 1.0 for details.
+
+            https://sdx-docs.readthedocs.io/en/latest/specs/provisioning-api-1.0.html#mandatory-attributes
+        """
+
         # with self._topology_lock:
         #     pass
 
