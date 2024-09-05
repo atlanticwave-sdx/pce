@@ -1082,6 +1082,16 @@ class TEManagerTests(unittest.TestCase):
         connection_request = json.loads(
             TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v2.read_text()
         )
+
+        # Modify the connection request for this test so that we have
+        # a solvable one. The original one asks for (1) a VLAN that is
+        # not present on the ingress port (777), and (2) a range
+        # ("55:90") on the egress port.  This is an unsolvable request
+        # because of (1), and an invalid one because of (2) since both
+        # ports have to use a range.
+        connection_request["endpoints"][0]["vlan"] = "100"
+        connection_request["endpoints"][1]["vlan"] = "100"
+
         print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
@@ -1262,3 +1272,104 @@ class TEManagerTests(unittest.TestCase):
         with self.assertRaises(UnknownRequestError) as e:
             TEManager(topology_data=None).unreserve_vlan(request_id)
             self.assertEqual(e.request_id, request_id)
+
+    def test_disallowed_vlan(self):
+        """
+        A test for the issue reported at
+        https://github.com/atlanticwave-sdx/pce/issues/208
+        """
+        temanager = TEManager(topology_data=None)
+
+        path = TestData.TOPOLOGY_FILE_AMLIGHT_USER_PORT
+        topology = json.loads(path.read_text())
+        temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+
+        # Port 777 is not in the range allowed by the port.
+        connection_request = json.loads(
+            """
+            {
+                "name": "new-connection",
+                "description": "a test circuit",
+                "id": "test-connection-id",
+                "endpoints": [
+                    {
+                        "port_id": "urn:sdx:port:amlight.net:A1:1",
+                        "vlan": "777"
+                    },
+                    {
+                        "port_id": "urn:sdx:port:amlight:B1:1",
+                        "vlan": "55:90"
+                    }
+                ]
+            }
+            """
+        )
+
+        pprint.pprint(connection_request)
+
+        # Keep track of the VLANs requested.
+        requested_uni_a_vlan = connection_request["endpoints"][0]["vlan"]
+        requested_uni_z_vlan = connection_request["endpoints"][1]["vlan"]
+
+        print(
+            f"requested_uni_a_vlan: {requested_uni_a_vlan}, "
+            f"requested_uni_z_vlan: {requested_uni_z_vlan}"
+        )
+
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        conn = temanager.requests_connectivity(traffic_matrix)
+        print(f"Graph connectivity: {conn}")
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        self.assertIsNotNone(solution)
+
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
+
+        print(f"breakdown: {json.dumps(breakdown)}")
+
+        # Although we have a solution (in terms of connectivity
+        # between ports), we should not have a breakdown at this
+        # point, because we asked for a port that is not present on
+        # the port.
+        self.assertIsNone(breakdown)
+
+    def _vlan_meets_request(self, requested_vlan: str, assigned_vlan: int) -> bool:
+        """
+        A helper to compare requested VLAN against the VLAN assignment
+        made by PCE.
+        """
+
+        if assigned_vlan < 1 or assigned_vlan > 4095:
+            raise ValueError(f"Invalid assigned_vlan: {assigned_vlan}")
+
+        if requested_vlan == "any":
+            return True
+
+        # TODO: these have not been implemented yet.
+        if requested_vlan in ["untagged", "all"]:
+            return False
+
+        try:
+            # Here we count on the fact that attempting integer
+            # conversion of a non-number should raise an error.
+            if int(requested_vlan) == assigned_vlan:
+                return True
+            else:
+                return False
+        except ValueError:
+            requested_range = [int(n) for n in requested_vlan.split(":")]
+            return requested_vlan in requested_range
+
+        raise Exception("invalid state!")

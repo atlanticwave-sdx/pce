@@ -377,6 +377,10 @@ class TEManager:
     ) -> dict:
         """
         Take a connection solution and generate a breakdown.
+
+        A connection solution has a possible path between the
+        requested source and destination ports, but no VLANs have been
+        assigned yet.  We assign ports in this step.
         """
         if solution is None or solution.connection_map is None:
             self._logger.warning(f"Can't find a breakdown for {solution}")
@@ -437,12 +441,16 @@ class TEManager:
         # and that may break some assumptions about the order in which
         # we form and traverse the breakdown.
 
-        # Note:Extra flag to indicate if the connection request is in the format of TrafficMatrix or not
-        # If the connection request is in the format of TrafficMatrix, then the ingress_port and egress_port
-        # are not present in the connection_request
+        # Note: Extra flag to indicate if the connection request is in
+        # the format of TrafficMatrix or not.
+        #
+        # If the connection request is in the format of TrafficMatrix,
+        # then the ingress_port and egress_port are not present in the
+        # connection_request
         request_format_is_tm = isinstance(connection_request, list)
         self._logger.info(
-            f"connection_requst: {connection_request}; type:{type(request_format_is_tm)}"
+            f"connection_request: {connection_request}; "
+            f"type: {'tm' if request_format_is_tm else 'not tm'}"
         )
         same_domain_port_flag = False
         if not request_format_is_tm:
@@ -450,12 +458,13 @@ class TEManager:
                 ConnectionHandler().import_connection_data(connection_request).to_dict()
             )
             self._logger.info(
-                f'connection_requst ingress_port: {connection_request["ingress_port"]["id"]}'
+                f'connection_request ingress_port: {connection_request["ingress_port"]["id"]}'
             )
             self._logger.info(
-                f'connection_requst egress_port: {connection_request["egress_port"]["id"]}'
+                f'connection_request egress_port: {connection_request["egress_port"]["id"]}'
             )
-            # flag to indicate if the request ingress and egress ports belong to the same domain
+            # flag to indicate if the request ingress and egress ports
+            # belong to the same domain.
             same_domain_port_flag = self.topology_manager.are_two_ports_same_domain(
                 connection_request["ingress_port"]["id"],
                 connection_request["egress_port"]["id"],
@@ -465,6 +474,11 @@ class TEManager:
         # Now generate the breakdown with potential user specified tags
         ingress_user_port = None
         egress_user_port = None
+
+        if not request_format_is_tm:
+            ingress_user_port = connection_request.get("ingress_port")
+            egress_user_port = connection_request.get("egress_port")
+
         for domain, links in breakdown.items():
             self._logger.debug(
                 f"Creating domain_breakdown: domain: {domain}, links: {links}"
@@ -483,7 +497,6 @@ class TEManager:
                         f"Port {connection_request['ingress_port']['id']} not found in port map, it's a user port"
                     )
                     ingress_port_id = connection_request["ingress_port"]["id"]
-                    ingress_user_port = connection_request["ingress_port"]
                     ingress_port = self.topology_manager.get_port_by_id(ingress_port_id)
                 else:
                     if request_format_is_tm:
@@ -504,7 +517,6 @@ class TEManager:
                         f"Port {connection_request['egress_port']['id']} not found in port map, it's a user port"
                     )
                     egress_port_id = connection_request["egress_port"]["id"]
-                    egress_user_port = connection_request["egress_port"]
                     egress_port = self.topology_manager.get_port_by_id(egress_port_id)
                     _, next_ingress_port = self._get_ports_by_link(links[-1])
                 else:
@@ -548,7 +560,9 @@ class TEManager:
             i = i + 1
 
         self._logger.info(
-            f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown}"
+            f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown} "
+            f"ingress_user_port: {ingress_user_port}, "
+            f"egress_user_port: {egress_user_port}"
         )
 
         tagged_breakdown = self._reserve_vlan_breakdown(
@@ -689,14 +703,26 @@ class TEManager:
                 domain, egress_port, request_id, egress_user_port_tag
             )
 
+            if ingress_vlan is None or egress_vlan is None:
+                self._logger.error(
+                    f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}. "
+                    f"Can't proceed. Rolling back reservations."
+                )
+                self.unreserve_vlan(request_id=request_id)
+                return None
+
             ingress_port_id = ingress_port["id"]
             egress_port_id = egress_port["id"]
 
-            # TODO: what to do when a port is not in the port map which only has all the ports on links?
-            # User facing ports need clarification from the custermers.
-            # For now, we are assuming that the user facing port either (1) provides the vlan
-            # or (2) uses the OXP vlan if (2.1) not provided or provided (2.2) is not in the vlan range in the topology port.
-            # And we do't allow user specified vlan on a OXP port.
+            # TODO: what to do when a port is not in the port map
+            # which only has all the ports on links?
+            #
+            # User facing ports need clarification from the
+            # custermers.  For now, we are assuming that the user
+            # facing port either (1) provides the vlan or (2) uses the
+            # OXP vlan if (2.1) not provided or provided (2.2) is not
+            # in the vlan range in the topology port.  And we do't
+            # allow user specified vlan on a OXP port.
             if (
                 ingress_port_id not in self.topology_manager.get_port_link_map()
                 and ingress_vlan is None
@@ -719,16 +745,6 @@ class TEManager:
                 f"VLAN reservation: domain: {domain}, "
                 f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}"
             )
-
-            # if one has empty vlan range, first resume reserved vlans
-            # in the previous domain, then return false.
-            if ingress_vlan is None:
-                self._unreserve_vlan(domain, ingress_port, ingress_vlan)
-                return None
-
-            if egress_vlan is None:
-                self._unreserve_vlan(domain, egress_port, egress_vlan)
-                return None
 
             # # vlan translation from upstream_o_vlan to i_vlan
             # segment["ingress_upstream_vlan"] = upstream_o_vlan
@@ -784,47 +800,70 @@ class TEManager:
         # return domain_breakdown
         assert False, "Not implemented"
 
-    def _reserve_vlan(self, domain: str, port: dict, request_id: str, tag=None):
+    def _reserve_vlan(self, domain: str, port: dict, request_id: str, tag: str = None):
+        """
+        Find unused VLANs for given domain/port and mark them in-use.
+
+        :param domain: a string that contains the domain.
+        :param port: a `dict` that represents a port.
+        :param request_id: a string that contains the request ID.
+        :param tag: a string that is used to specify VLAN tag
+            preferences.  None or "any" means that any available VLAN
+            will do.  A number or range will indicate a specific
+            demand; "all" and "untagged" will indicate other
+            preferences.  See the description of "vlan" under
+            "Mandatory Attributes" section of the Service Provisioning
+            Data Model Specification 1.0 for details.
+
+            https://sdx-docs.readthedocs.io/en/latest/specs/provisioning-api-1.0.html#mandatory-attributes
+        """
+
         # with self._topology_lock:
         #     pass
 
-        port_id = port["id"]
-        self._logger.debug(f"reserve_vlan domain: {domain} port_id: {port_id}")
-
-        if port_id is None:
-            return None
+        self._logger.debug(
+            f"Reserving VLAN for domain: {domain}, port: {port}, "
+            f"request_id: {request_id}, tag:{tag}"
+        )
 
         # Look up available VLAN tags by domain and port ID.
         # self._logger.debug(f"vlan tags table: {self._vlan_tags_table}")
         domain_table = self._vlan_tags_table.get(domain)
-        # self._logger.debug(f"domain vlan table: {domain} domain_table: {domain_table}")
 
         if domain_table is None:
-            self._logger.warning(f"reserve_vlan domain: {domain} entry: {domain_table}")
+            self._logger.error(f"reserve_vlan domain: {domain} entry: {domain_table}")
+            return None
+
+        port_id = port.get("id")
+        if port_id is None:
+            self._logger.error("port_id is None; giving up")
             return None
 
         vlan_table = domain_table.get(port_id)
 
         self._logger.debug(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
 
-        # TODO: figure out when vlan_table can be None
         if vlan_table is None:
             self._logger.warning(
-                f"Can't find a mapping for domain:{domain} port:{port_id}"
+                f"Can't find a VLAN table for domain: {domain} port: {port_id}"
             )
             return None
 
-        available_tag = None
-
-        if tag is None:
+        if tag in (None, "any"):
             # Find the first available VLAN tag from the table.
             for vlan_tag, vlan_usage in vlan_table.items():
                 if vlan_usage is UNUSED_VLAN:
                     available_tag = vlan_tag
         else:
-            if tag in vlan_table and vlan_table[tag] is UNUSED_VLAN:
-                available_tag = tag
+            if tag in vlan_table:
+                if vlan_table[tag] is UNUSED_VLAN:
+                    self._logger.debug(f"VLAN {tag} is available; marking as in-use")
+                    available_tag = tag
+                else:
+                    self._logger.error(f"VLAN {tag} is in use by {vlan_table[tag]}")
+                    return None
             else:
+                self._logger.error(f"VLAN {tag} is not present in the table")
                 return None
 
         # mark the tag as in-use.
@@ -857,26 +896,10 @@ class TEManager:
                 "Unknown connection request", request_id=request_id
             )
 
-    # to be called by delete_connection()
-    def _unreserve_vlan_breakdown(self, break_down):
-        # TODO: implement this.
-        # https://github.com/atlanticwave-sdx/pce/issues/127
-        # with self._topology_lock:
-        #     pass
-        assert False, "Not implemented"
-
-    def _unreserve_vlan(self, domain: str, port: dict, tag=None):
-        """
-        Mark a VLAN tag as not in use.
-        """
-        # TODO: implement this.
-        # https://github.com/atlanticwave-sdx/pce/issues/127
-
-        # with self._topology_lock:
-        #     pass
-        assert False, "Not implemented"
-
     def _print_vlan_tags_table(self):
+        """
+        Occasionally useful when debugguing.
+        """
         import pprint
 
         self._logger.info("------ VLAN TAGS TABLE -------")
