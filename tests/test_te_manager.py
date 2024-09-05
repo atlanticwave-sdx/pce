@@ -1082,6 +1082,16 @@ class TEManagerTests(unittest.TestCase):
         connection_request = json.loads(
             TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v2.read_text()
         )
+
+        # Modify the connection request for this test so that we have
+        # a solvable one. The original one asks for (1) a VLAN that is
+        # not present on the ingress port (777), and (2) a range
+        # ("55:90") on the egress port.  This is an unsolvable request
+        # because of (1), and an invalid one because of (2) since both
+        # ports have to use a range.
+        connection_request["endpoints"][0]["vlan"] = "100"
+        connection_request["endpoints"][1]["vlan"] = "100"
+
         print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
