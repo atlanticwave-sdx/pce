@@ -1345,11 +1345,14 @@ class TEManagerTests(unittest.TestCase):
         # the port.
         self.assertIsNone(breakdown)
 
-    def _vlan_meets_request(self, requested_vlan, assigned_vlan) -> bool:
+    def _vlan_meets_request(self, requested_vlan: str, assigned_vlan: int) -> bool:
         """
         A helper to compare requested VLAN against the VLAN assignment
         made by PCE.
         """
+
+        if assigned_vlan < 1 or assigned_vlan > 4095:
+            raise ValueError(f"Invalid assigned_vlan: {assigned_vlan}")
 
         if requested_vlan == "any":
             return True
