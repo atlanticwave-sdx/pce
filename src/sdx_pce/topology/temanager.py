@@ -843,10 +843,9 @@ class TEManager:
 
         self._logger.debug(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
 
-        # TODO: figure out when vlan_table can be None
         if vlan_table is None:
             self._logger.warning(
-                f"Can't find a mapping for domain:{domain} port:{port_id}"
+                f"Can't find a VLAN table for domain: {domain} port: {port_id}"
             )
             return None
 
@@ -858,7 +857,7 @@ class TEManager:
         else:
             if tag in vlan_table:
                 if vlan_table[tag] is UNUSED_VLAN:
-                    self._logger.debug(f"VLAN {tag} is available; marking")
+                    self._logger.debug(f"VLAN {tag} is available; marking as in-use")
                     available_tag = tag
                 else:
                     self._logger.error(f"VLAN {tag} is in use by {vlan_table[tag]}")
