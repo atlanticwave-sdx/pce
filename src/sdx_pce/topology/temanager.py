@@ -746,16 +746,6 @@ class TEManager:
                 f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}"
             )
 
-            # if one has empty vlan range, first resume reserved vlans
-            # in the previous domain, then return false.
-            if ingress_vlan is None:
-                self._unreserve_vlan(domain, ingress_port, ingress_vlan)
-                return None
-
-            if egress_vlan is None:
-                self._unreserve_vlan(domain, egress_port, egress_vlan)
-                return None
-
             # # vlan translation from upstream_o_vlan to i_vlan
             # segment["ingress_upstream_vlan"] = upstream_o_vlan
             # segment["ingress_vlan"] = ingress_vlan
@@ -889,25 +879,6 @@ class TEManager:
             raise UnknownRequestError(
                 "Unknown connection request", request_id=request_id
             )
-
-    # to be called by delete_connection()
-    def _unreserve_vlan_breakdown(self, break_down):
-        # TODO: implement this.
-        # https://github.com/atlanticwave-sdx/pce/issues/127
-        # with self._topology_lock:
-        #     pass
-        assert False, "Not implemented"
-
-    def _unreserve_vlan(self, domain: str, port: dict, tag=None):
-        """
-        Mark a VLAN tag as not in use.
-        """
-        # TODO: implement this.
-        # https://github.com/atlanticwave-sdx/pce/issues/127
-
-        # with self._topology_lock:
-        #     pass
-        assert False, "Not implemented"
 
     def _print_vlan_tags_table(self):
         import pprint
