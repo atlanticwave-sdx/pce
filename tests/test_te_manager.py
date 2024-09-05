@@ -1331,35 +1331,19 @@ class TEManagerTests(unittest.TestCase):
         solution = TESolver(graph, traffic_matrix).solve()
         print(f"TESolver result: {solution}")
 
+        self.assertIsNotNone(solution)
+
         breakdown = temanager.generate_connection_breakdown(
             solution, connection_request
         )
 
         print(f"breakdown: {json.dumps(breakdown)}")
 
-        pprint.pprint(breakdown)
-
-        for domain, path in breakdown.items():
-            print(f"domain: {domain}, path: {path}")
-            uni_a_port_id = path.get("uni_a").get("port_id")
-            uni_a_vlan_tag = path.get("uni_a").get("tag").get("value")
-            uni_z_port_id = path.get("uni_z").get("port_id")
-            uni_z_vlan_tag = path.get("uni_z").get("tag").get("value")
-            print(
-                f"domain: {domain}, uni_a_port_id: {uni_a_port_id}, uni_z_port_id: {uni_z_port_id}"
-            )
-            print(
-                f"domain: {domain}, uni_a_vlan_tag: {uni_a_vlan_tag}, uni_z_vlan_tag: {uni_z_vlan_tag}"
-            )
-
-            self.assertTrue(
-                self._vlan_meets_request(requested_uni_a_vlan, uni_a_vlan_tag),
-                f"Requested VLAN: {requested_uni_a_vlan}, assigned: {uni_a_vlan_tag}",
-            )
-            self.assertTrue(
-                self._vlan_meets_request(requested_uni_z_vlan, uni_z_vlan_tag),
-                f"Requested VLAN: {requested_uni_z_vlan}, assigned: {uni_z_vlan_tag}",
-            )
+        # Although we have a solution (in terms of connectivity
+        # between ports), we should not have a breakdown at this
+        # point, because we asked for a port that is not present on
+        # the port.
+        self.assertIsNone(breakdown)
 
     def _vlan_meets_request(self, requested_vlan, assigned_vlan) -> bool:
         """
