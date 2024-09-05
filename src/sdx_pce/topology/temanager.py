@@ -379,7 +379,7 @@ class TEManager:
         Take a connection solution and generate a breakdown.
 
         A connection solution has a possible path between the
-        requested source and destination nodes, but no ports have been
+        requested source and destination ports, but no VLANs have been
         assigned yet.  We assign ports in this step.
         """
         if solution is None or solution.connection_map is None:
