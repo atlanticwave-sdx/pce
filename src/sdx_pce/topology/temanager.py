@@ -897,6 +897,9 @@ class TEManager:
             )
 
     def _print_vlan_tags_table(self):
+        """
+        Occasionally useful when debugguing.
+        """
         import pprint
 
         self._logger.info("------ VLAN TAGS TABLE -------")
