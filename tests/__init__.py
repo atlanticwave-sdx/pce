@@ -23,8 +23,8 @@ class TestData:
 
     REQUESTS_DIR = files("sdx_datamodel") / "data" / "requests"
     CONNECTION_REQ = REQUESTS_DIR / "test_request.json"
-    CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v2 = (
-        REQUESTS_DIR / "test_request-amlight_zaoxi-p2p-v2.json"
+    CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_V1 = (
+        REQUESTS_DIR / "v1.0" / "test-request-amlight-zaoxi-p2p.json"
     )
 
     # Write test output files in OS temporary directory.

@@ -1080,7 +1080,7 @@ class TEManagerTests(unittest.TestCase):
         graph = temanager.generate_graph_te()
 
         connection_request = json.loads(
-            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v2.read_text()
+            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_V1.read_text()
         )
 
         # Modify the connection request for this test so that we have
@@ -1205,7 +1205,7 @@ class TEManagerTests(unittest.TestCase):
         graph = temanager.generate_graph_te()
 
         connection_request = json.loads(
-            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v2.read_text()
+            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_V1.read_text()
         )
 
         # Rewrite the request to have VLAN of "any".
