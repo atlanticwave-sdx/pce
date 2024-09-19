@@ -1291,7 +1291,7 @@ class TEManagerTests(unittest.TestCase):
                     },
                     {
                         "port_id": "urn:sdx:port:amlight:B1:1",
-                        "vlan": "55:90"
+                        "vlan": "777"
                     }
                 ]
             }
