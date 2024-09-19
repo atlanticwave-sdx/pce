@@ -3,10 +3,16 @@ import threading
 from itertools import chain
 from typing import List, Optional
 
+from pydantic import ValidationError
+
 import networkx as nx
 from networkx.algorithms import approximation as approx
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
+from sdx_datamodel.models.connection_request import (
+    ConnectionRequestV0,
+    ConnectionRequestV1,
+)
 
 from sdx_pce.models import (
     ConnectionPath,
@@ -204,7 +210,16 @@ class TEManager:
             f"generate_traffic_matrix: connection_request: {connection_request}"
         )
 
-        request = ConnectionHandler().import_connection_data(connection_request)
+        try:
+            #     request = ConnectionRequestV0(**connection_request)
+            # except ValidationError:
+            print("TRYING V1")
+            request = ConnectionRequestV1(**connection_request)
+        except Exception as e:
+            print(f"COULD NOT USE {connection_request}: {e}")
+            return None
+
+        # request = ConnectionHandler().import_connection_data(connection_request)
 
         self._logger.info(f"generate_traffic_matrix: decoded request: {request}")
 
