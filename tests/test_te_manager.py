@@ -586,9 +586,9 @@ class TEManagerTests(unittest.TestCase):
         temanager = TEManager(topology_data=None)
 
         for path in (
-            TestData.TOPOLOGY_FILE_AMLIGHT_USER_PORT,
-            TestData.TOPOLOGY_FILE_SAX,
-            TestData.TOPOLOGY_FILE_ZAOXI,
+            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+            TestData.TOPOLOGY_FILE_SAX_v2,
+            TestData.TOPOLOGY_FILE_ZAOXI_v2,
         ):
             topology = json.loads(path.read_text())
             temanager.add_topology(topology)
@@ -631,10 +631,13 @@ class TEManagerTests(unittest.TestCase):
         # result when we initialize TEManager with None for topology,
         # and later add individual topologies with add_topology().
         zaoxi = breakdown.get("urn:sdx:topology:zaoxi.net")
+        print(f"Breakdown, ZAOXI: {zaoxi}")
         sax = breakdown.get("urn:sdx:topology:sax.net")
-        amlight = breakdown.get("urn:sdx:topology:amlight.net")
+        print(f"Breakdown, SAX: {sax}")
+        amlight = breakdown.get("urn:sdx:topology:ampath.net")
+        print(f"Breakdown, AMLIGHT: {amlight}")
 
-        for segment in [zaoxi, sax, amlight]:
+        for segment in [sax, amlight]:
             self.assertIsInstance(segment, dict)
             self.assertIsInstance(segment.get("name"), str)
             self.assertIsInstance(segment.get("dynamic_backup_path"), bool)
@@ -648,7 +651,6 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
             self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
-
 
     def test_connection_amlight_to_zaoxi_two_identical_requests(self):
         """

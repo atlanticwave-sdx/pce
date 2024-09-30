@@ -426,6 +426,10 @@ class TEManager:
                         breakdown[current_domain] = current_link_set.copy()
                 else:
                     breakdown[current_domain] = current_link_set.copy()
+                    if count == len(links) - 1:
+                        current_link_set = []
+                        current_link_set.append(link)
+                        breakdown[dst_domain] = current_link_set.copy()
                     current_domain = None
                     current_link_set = []
 
