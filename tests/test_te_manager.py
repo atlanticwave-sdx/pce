@@ -579,6 +579,77 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
 
+    def test_connection_amlight_to_sax_v2(self):
+        """
+        Exercise a connection request between Amlight and Zaoxi.
+        """
+        temanager = TEManager(topology_data=None)
+
+        for path in (
+            TestData.TOPOLOGY_FILE_AMLIGHT_USER_PORT,
+            TestData.TOPOLOGY_FILE_SAX,
+            TestData.TOPOLOGY_FILE_ZAOXI,
+        ):
+            topology = json.loads(path.read_text())
+            temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+
+        connection_request = json.loads(
+            TestData.CONNECTION_REQ_AMLIGHT_SAX_v2.read_text()
+        )
+        print(f"connection_request: {connection_request}")
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        conn = temanager.requests_connectivity(traffic_matrix)
+        print(f"Graph connectivity: {conn}")
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        self.assertIsNotNone(solution.connection_map)
+
+        links = temanager.get_links_on_path(solution)
+        print(f"Links on path: {links}")
+
+        # Make a flat list of links in connection solution dict, and
+        # check that we have the same number of links.
+        values = sum([v for v in solution.connection_map.values()], [])
+        self.assertEqual(len(links), len(values))
+
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
+        print(f"breakdown: {json.dumps(breakdown)}")
+
+        # Note that the "domain" key is correct in the breakdown
+        # result when we initialize TEManager with None for topology,
+        # and later add individual topologies with add_topology().
+        zaoxi = breakdown.get("urn:sdx:topology:zaoxi.net")
+        sax = breakdown.get("urn:sdx:topology:sax.net")
+        amlight = breakdown.get("urn:sdx:topology:amlight.net")
+
+        for segment in [zaoxi, sax, amlight]:
+            self.assertIsInstance(segment, dict)
+            self.assertIsInstance(segment.get("name"), str)
+            self.assertIsInstance(segment.get("dynamic_backup_path"), bool)
+            self.assertIsInstance(segment.get("uni_a"), dict)
+            self.assertIsInstance(segment.get("uni_a").get("tag"), dict)
+            self.assertIsInstance(segment.get("uni_a").get("tag").get("value"), int)
+            self.assertIsInstance(segment.get("uni_a").get("tag").get("tag_type"), int)
+            self.assertIsInstance(segment.get("uni_a").get("port_id"), str)
+            self.assertIsInstance(segment.get("uni_z"), dict)
+            self.assertIsInstance(segment.get("uni_z").get("tag"), dict)
+            self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
+            self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
+            self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
+
+
     def test_connection_amlight_to_zaoxi_two_identical_requests(self):
         """
         Exercise two identical connection requests.
