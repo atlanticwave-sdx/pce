@@ -95,6 +95,11 @@ class TopologyManagerTests(unittest.TestCase):
         ]
         self.assertEqual(len(interdomain_links), 4)
 
+        print(f"Writing result to {self.TOPOLOGY_OUT}")
+        pathlib.Path(self.TOPOLOGY_OUT).write_text(
+            json.dumps(topology.to_dict(), indent=4)
+        )
+
     def test_update_topology(self):
         print("Test Topology Update!")
 
@@ -127,9 +132,9 @@ class TopologyManagerTests(unittest.TestCase):
         print(f"xml: {xml}")
         self.assertIsNotNone(xml)
 
-    def test_generate_graph(self):
+    def test_generate_graph_v2(self):
         print("Test Topology Graph")
-        self.test_merge_topology()
+        self.test_merge_topology_v2()
         graph = self.topology_manager.generate_graph()
 
         # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout

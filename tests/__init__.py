@@ -26,6 +26,9 @@ class TestData:
     CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v2 = (
         REQUESTS_DIR / "test_request-amlight_zaoxi-p2p-v2.json"
     )
+    CONNECTION_REQ_AMLIGHT_SAX_v2 = (
+        REQUESTS_DIR / "test-request-amlight_sax-p2p-v2.json"
+    )
 
     # Write test output files in OS temporary directory.
     TEST_OUTPUT_DIR = pathlib.Path(tempfile.gettempdir())
