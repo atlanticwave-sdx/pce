@@ -8,6 +8,7 @@ from networkx.algorithms import approximation as approx
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 
+from sdx_pce.load_balancing.te_solver import TESolver
 from sdx_pce.models import (
     ConnectionPath,
     ConnectionRequest,
@@ -55,7 +56,7 @@ class TEManager:
         # https://github.com/atlanticwave-sdx/pce/issues/122
         if topology_data:
             self.topology_manager.add_topology(topology_data)
-            self._graph = self.generate_graph_te()
+            self.graph = self.generate_graph_te()
             self._update_vlan_tags_table(
                 domain_name=topology_data.get("id"),
                 port_map=self.topology_manager.get_port_map(),
@@ -285,7 +286,7 @@ class TEManager:
         graph = nx.convert_node_labels_to_integers(graph, label_attribute="id")
 
         # TODO: why is this needed?
-        self._graph = graph
+        self.graph = graph
         # print(list(graph.nodes(data=True)))
 
         return graph
@@ -293,7 +294,7 @@ class TEManager:
     def graph_node_connectivity(self, source=None, dest=None):
         """
         Check that a source and destination node have connectivity.
-        No need to continue if there is no connectiviy between source and destination 
+        No need to continue if there is no connectiviy between source and destination
         """
 
         return approx.node_connectivity(self.graph, source, dest)
@@ -363,24 +364,28 @@ class TEManager:
                     p1, p2 = ports
                     result.append({"source": p1["id"], "destination": p2["id"]})
 
-        return result
+        return connectionRequest, result
 
-    def update_link_bandwidth(self, solution: ConnectionSolution, connection_request: dict):
+    def update_link_bandwidth(self, solution: ConnectionSolution):
         """
         Update the topology properties, typically the link bandwidth property after a place_connection call succeeds
         """
         connectionRequest, links = self.get_links_on_path(solution)
+        self._logger.info(f"connectionRequest: {connectionRequest}, links: {links}")
         bandwidth = connectionRequest.required_bandwidth
         for link in links:
-            p1=link["source"]
-            p2=link["destination"]
-            #ToDo:implement to update(1) topology object (2) graph object (3) json to DB
-            #(1) topology object
-            self.topology_manager.change_link_property_by_value(p1, p2,"bandwidth", bandwidth) 
-            #(2) graph object
-            self.graph[p1][p2]["bandwidth"] = self.graph[p1][p2]["bandwidth"] - bandwidth
-            #(3) json to DB
-            
+            p1 = link["source"]
+            p2 = link["destination"]
+            # ToDo:implement to update(1) topology object (2) graph object (3) json to DB
+            # (1) topology object
+            self.topology_manager.change_link_property_by_value(
+                p1, p2, "bandwidth", bandwidth
+            )
+
+        # (2) graph object
+        # self.graph = TESolver.update_graph(self.graph, solution)
+        # (3) json to DB
+
     def add_breakdowns_to_connection(self, connection_request: dict, breakdowns: dict):
         """
         add breakdowns to connection request for the sdx-controller to process.
@@ -597,14 +602,14 @@ class TEManager:
         )
 
         # Make tests pass, temporarily.
-        #ToDo: need to throw an exception if tagged_breakdown is None
+        # ToDo: need to throw an exception if tagged_breakdown is None
         if tagged_breakdown is None:
             return None
 
         assert isinstance(tagged_breakdown, VlanTaggedBreakdowns)
 
-        #Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
-        self.update_link_bandwidth(solution, connection_request)
+        # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
+        self.update_link_bandwidth(solution)
 
         # Return a dict containing VLAN-tagged breakdown in the
         # expected format.

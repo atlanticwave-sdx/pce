@@ -690,6 +690,8 @@ class TEManagerTests(unittest.TestCase):
         )
         print(f"breakdown: {json.dumps(breakdown)}")
 
+        graph = TESolver(graph, traffic_matrix).update_graph(graph, solution)
+
         zaoxi = breakdown.get("urn:sdx:topology:zaoxi.net")
         sax = breakdown.get("urn:sdx:topology:sax.net")
         amlight = breakdown.get("urn:sdx:topology:amlight.net")
@@ -772,6 +774,8 @@ class TEManagerTests(unittest.TestCase):
 
             breakdowns.add(breakdown)
 
+            graph = TESolver(graph, traffic_matrix).update_graph(graph, solution)
+
         print(f"breakdowns: {breakdowns}")
 
         # Check that we have the same number of unique breakdowns as
@@ -815,6 +819,8 @@ class TEManagerTests(unittest.TestCase):
             solution1, connection_request1
         )
         print(f"Breakdown #1: {json.dumps(breakdown1)}")
+        # update the available bandwdith on the graph
+        graph = TESolver(graph, traffic_matrix1).update_graph(graph, solution1)
 
         # Use another connection request that spans just one domain.
         connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())

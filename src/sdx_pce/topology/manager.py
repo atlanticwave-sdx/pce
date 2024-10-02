@@ -11,6 +11,8 @@ from sdx_datamodel.models.topology import (
 )
 from sdx_datamodel.parsing.topologyhandler import TopologyHandler
 
+from sdx_pce.utils.constants import Constants
+
 from .grenmlconverter import GrenmlConverter
 
 
@@ -408,12 +410,12 @@ class TopologyManager:
                 graph.add_edge(end_nodes[0].id, end_nodes[1].id)
                 edge = graph.edges[end_nodes[0].id, end_nodes[1].id]
                 edge["id"] = link.id
-                edge["latency"] = link.latency
-                edge["bandwidth"] = link.bandwidth
-                edge["residual_bandwidth"] = link.residual_bandwidth
+                edge[Constants.LATENCY] = link.latency
+                edge[Constants.BANDWIDTH] = link.bandwidth
+                edge[Constants.ORIGINAL_BANDWIDTH] = link.residual_bandwidth
                 edge["weight"] = 1000.0 * (1.0 / link.residual_bandwidth)
-                edge["packet_loss"] = link.packet_loss
-                edge["availability"] = link.availability
+                edge[Constants.PACKET_LOSS] = link.packet_loss
+                edge[Constants.AVAILABILITY] = link.availability
 
         return graph
 
@@ -454,10 +456,10 @@ class TopologyManager:
         # 5. signal Reoptimization of TE?
 
     # on performance properties for now
-    def change_link_property_by_value(self, port_id_0,port_id_1, property, value):
+    def change_link_property_by_value(self, port_id_0, port_id_1, property, value):
         # 1. update the individual topology
         for id, topology in self._topology_map.items():
-            link = topology.get_link_by_ports(port_id_0,port_id_1)
+            link = topology.get_link_by_port_id(port_id_0, port_id_1)
             if link is not None:
                 old_value = link.__getattribute__(property)
                 setattr(link, property, old_value - value)
@@ -466,7 +468,7 @@ class TopologyManager:
 
         # 2. check on the inter-domain link?
         # update the interdomain topology
-        link = self._topology.get_link_by_ports(port_id_0,port_id_1)
+        link = self._topology.get_link_by_port_id(port_id_0, port_id_1)
         if link is not None:
             old_value = link.__getattribute__(property)
             setattr(link, property, old_value - value)
