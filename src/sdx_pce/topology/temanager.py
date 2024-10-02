@@ -8,7 +8,6 @@ from networkx.algorithms import approximation as approx
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 
-from sdx_pce.load_balancing.te_solver import TESolver
 from sdx_pce.models import (
     ConnectionPath,
     ConnectionRequest,
