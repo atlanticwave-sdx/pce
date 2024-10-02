@@ -378,7 +378,7 @@ class TEManagerTests(unittest.TestCase):
         print(f"TESolver result: {solution}")
         self.assertIsInstance(solution, ConnectionSolution)
 
-        links = temanager.get_links_on_path(solution)
+        _, links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
 
         # Make a flat list of links in connection solution dict, and
@@ -424,7 +424,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        links = temanager.get_links_on_path(solution)
+        _, links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
 
         # Make a flat list of links in connection solution dict, and
@@ -523,7 +523,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        links = temanager.get_links_on_path(solution)
+        _, links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
 
         # Make a flat list of links in connection solution dict, and
@@ -614,7 +614,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        links = temanager.get_links_on_path(solution)
+        _, links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
 
         # Make a flat list of links in connection solution dict, and
@@ -1187,7 +1187,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        links = temanager.get_links_on_path(solution)
+        _, links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
 
         # Make a flat list of links in connection solution dict, and
@@ -1308,7 +1308,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        links = temanager.get_links_on_path(solution)
+        _, links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
 
         # Make a flat list of links in connection solution dict, and
