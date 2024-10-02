@@ -433,28 +433,45 @@ class TopologyManager:
     def update_link_property(self, link_id, property, value):
         # 1. update the individual topology
         for id, topology in self._topology_map.items():
-            links = topology.links
-            for link in links:
-                self._logger.info(f"link.id={link.id}; id={id}")
-                if link.id == link_id:
-                    setattr(link, property, value)
-                    self._logger.info("updated the link.")
-                    # 1.2 need to change the sub_ver of the topology?
-
-        # 2. check on the inter-domain link?
-        # 3. update the interdomain topology
-        links = self._topology.links
-        for link in links:
-            if link.id == link_id:
+            link = topology.get_link_by_id(link_id)
+            if link is not None:
                 setattr(link, property, value)
                 self._logger.info("updated the link.")
-                # 2.2 need to change the sub_ver of the topology?
+                # 1.2 need to change the sub_ver of the topology?
+
+        # 2. check on the inter-domain link?
+        # update the interdomain topology
+        link = self._topology.get_link_by_id(link_id)
+        if link is not None:
+            setattr(link, property, value)
+            self._logger.info("updated the link.")
+            # 2.2 need to change the sub_ver of the topology?
 
         self.update_version(True)
         self.update_timestamp()
         # 4. Signal update the (networkx) graph
 
         # 5. signal Reoptimization of TE?
+
+    # on performance properties for now
+    def change_link_property_by_value(self, port_id_0,port_id_1, property, value):
+        # 1. update the individual topology
+        for id, topology in self._topology_map.items():
+            link = topology.get_link_by_ports(port_id_0,port_id_1)
+            if link is not None:
+                old_value = link.__getattribute__(property)
+                setattr(link, property, old_value - value)
+                self._logger.info("updated the link.")
+                # 1.2 need to change the sub_ver of the topology?
+
+        # 2. check on the inter-domain link?
+        # update the interdomain topology
+        link = self._topology.get_link_by_ports(port_id_0,port_id_1)
+        if link is not None:
+            old_value = link.__getattribute__(property)
+            setattr(link, property, old_value - value)
+            self._logger.info("updated the link.")
+            # 2.2 need to change the sub_ver of the topology?
 
     def update_element_property_json(self, data, element, element_id, property, value):
         elements = data[element]
