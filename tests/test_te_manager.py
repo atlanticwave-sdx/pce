@@ -579,6 +579,48 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
 
+    def test_delete_connection(self):
+        """
+        Test the deletion of a connection.
+        """
+        temanager = TEManager(topology_data=None)
+
+        # Add topologies
+        for path in (
+            TestData.TOPOLOGY_FILE_AMLIGHT,
+            TestData.TOPOLOGY_FILE_SAX,
+            TestData.TOPOLOGY_FILE_ZAOXI,
+        ):
+            topology = json.loads(path.read_text())
+            temanager.add_topology(topology)
+
+        # Generate graph
+        graph = temanager.generate_graph_te()
+        self.assertIsInstance(graph, nx.Graph)
+
+        # Create a connection request
+        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+        self.assertIsInstance(traffic_matrix, TrafficMatrix)
+
+        # Solve the connection request
+        solution = TESolver(graph, traffic_matrix).solve()
+        self.assertIsNotNone(solution.connection_map)
+
+        # Add the connection to the TEManager
+        temanager.generate_connection_breakdown(solution, connection_request)
+
+        # Verify the connection exists
+        connections = temanager.get_connections()
+        self.assertIn(connection_request["id"], connections)
+
+        # Delete the connection
+        temanager.delete_connection(connection_request["id"])
+
+        # Verify the connection has been deleted
+        connections = temanager.get_connections()
+        self.assertNotIn(connection_request["id"], connections)
+
     def test_connection_amlight_to_sax_v2(self):
         """
         Exercise a connection request between Amlight and Zaoxi.

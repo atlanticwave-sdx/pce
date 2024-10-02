@@ -462,7 +462,7 @@ class TopologyManager:
             link = topology.get_link_by_port_id(port_id_0, port_id_1)
             if link is not None:
                 old_value = link.__getattribute__(property)
-                setattr(link, property, old_value - value)
+                setattr(link, property, old_value + value)
                 self._logger.info("updated the link.")
                 # 1.2 need to change the sub_ver of the topology?
 
@@ -471,7 +471,7 @@ class TopologyManager:
         link = self._topology.get_link_by_port_id(port_id_0, port_id_1)
         if link is not None:
             old_value = link.__getattribute__(property)
-            setattr(link, property, old_value - value)
+            setattr(link, property, old_value + value)
             self._logger.info("updated the link.")
             # 2.2 need to change the sub_ver of the topology?
 
