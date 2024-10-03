@@ -587,9 +587,9 @@ class TEManagerTests(unittest.TestCase):
 
         # Add topologies
         for path in (
-            TestData.TOPOLOGY_FILE_AMLIGHT,
-            TestData.TOPOLOGY_FILE_SAX,
-            TestData.TOPOLOGY_FILE_ZAOXI,
+            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+            TestData.TOPOLOGY_FILE_SAX_v2,
+            TestData.TOPOLOGY_FILE_ZAOXI_v2,
         ):
             topology = json.loads(path.read_text())
             temanager.add_topology(topology)
@@ -599,7 +599,9 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(graph, nx.Graph)
 
         # Create a connection request
-        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        connection_request = json.loads(
+            TestData.CONNECTION_REQ_AMLIGHT_SAX_v2.read_text()
+        )
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
         self.assertIsInstance(traffic_matrix, TrafficMatrix)
 

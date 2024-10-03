@@ -19,6 +19,7 @@ from sdx_pce.models import (
     VlanTaggedPort,
 )
 from sdx_pce.topology.manager import TopologyManager
+from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.exceptions import UnknownRequestError, ValidationError
 
 UNUSED_VLAN = None
@@ -387,15 +388,15 @@ class TEManager:
         for link in links:
             p1 = link["source"]
             p2 = link["destination"]
-            # ToDo:implement to update(1) topology object (2) graph object (3) json to DB
+            # update in three places: (1) topology object (2) graph object (3) json to DB
             # (1) topology object
             self.topology_manager.change_link_property_by_value(
-                p1, p2, "bandwidth", bandwidth
+                p1, p2, Constants.RESIDUAL_BANDWIDTH, bandwidth
             )
 
-        # (2) graph object
+        # (2) graph object, called by sdx-controller
         # self.graph = TESolver.update_graph(self.graph, solution)
-        # (3) json to DB
+        # (3) json to DB, in sdx-controller
 
     def add_breakdowns_to_connection(self, connection_request: dict, breakdowns: dict):
         """

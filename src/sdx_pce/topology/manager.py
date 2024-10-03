@@ -411,8 +411,12 @@ class TopologyManager:
                 edge = graph.edges[end_nodes[0].id, end_nodes[1].id]
                 edge["id"] = link.id
                 edge[Constants.LATENCY] = link.latency
-                edge[Constants.BANDWIDTH] = link.bandwidth
-                edge[Constants.ORIGINAL_BANDWIDTH] = link.residual_bandwidth
+                edge[Constants.BANDWIDTH] = (
+                    link.bandwidth * link.residual_bandwidth * 0.01
+                )
+                edge[Constants.RESIDUAL_BANDWIDTH] = (
+                    link.residual_bandwidth
+                )  # this is a percentage
                 edge["weight"] = 1000.0 * (1.0 / link.residual_bandwidth)
                 edge[Constants.PACKET_LOSS] = link.packet_loss
                 edge[Constants.AVAILABILITY] = link.availability
@@ -457,22 +461,60 @@ class TopologyManager:
 
     # on performance properties for now
     def change_link_property_by_value(self, port_id_0, port_id_1, property, value):
+        # If it's bandwdith, we need to update the residual bandwidth as a percentage
+        # "bandwidth" remains to keep the original port bandwidth in topology json.
+        # in the graph model, linkd bandwidth is computed as bandwidth*residual_bandwidth*0.01
         # 1. update the individual topology
         for id, topology in self._topology_map.items():
             link = topology.get_link_by_port_id(port_id_0, port_id_1)
             if link is not None:
-                old_value = link.__getattribute__(property)
-                setattr(link, property, old_value + value)
-                self._logger.info("updated the link.")
+                orignial_bw = link.__getattribute__(Constants.BANDWIDTH)
+                residual = link.__getattribute__(property)
+                if property == Constants.RESIDUAL_BANDWIDTH:
+                    residual_bw = (
+                        link.__getattribute__(Constants.BANDWIDTH) * residual * 0.01
+                    )
+                    self._logger.info(
+                        "updated the link:" + str(residual_bw) + " value:" + str(value)
+                    )
+                    new_residual = max((residual_bw + value) * 100 / orignial_bw, 0.001)
+                else:
+                    new_residual = value
+                setattr(link, property, new_residual)
+                self._logger.info(
+                    "updated the link:"
+                    + link._id
+                    + property
+                    + " from "
+                    + str(residual)
+                    + " to "
+                    + str(new_residual)
+                )
                 # 1.2 need to change the sub_ver of the topology?
 
         # 2. check on the inter-domain link?
         # update the interdomain topology
         link = self._topology.get_link_by_port_id(port_id_0, port_id_1)
         if link is not None:
-            old_value = link.__getattribute__(property)
-            setattr(link, property, old_value + value)
-            self._logger.info("updated the link.")
+            orignial_bw = link.__getattribute__(Constants.BANDWIDTH)
+            residual = link.__getattribute__(property)
+            if property == Constants.RESIDUAL_BANDWIDTH:
+                residual_bw = (
+                    link.__getattribute__(Constants.BANDWIDTH) * residual * 0.01
+                )
+                new_residual = max((residual_bw + value) * 100 / orignial_bw, 0.001)
+            else:
+                new_residual = value
+            setattr(link, property, new_residual)
+            self._logger.info(
+                "updated the link:"
+                + link._id
+                + property
+                + " from "
+                + str(residual)
+                + " to "
+                + str(new_residual)
+            )
             # 2.2 need to change the sub_ver of the topology?
 
     def update_element_property_json(self, data, element, element_id, property, value):
