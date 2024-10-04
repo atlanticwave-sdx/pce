@@ -66,7 +66,7 @@ def read_dot_file(topology_file: Union[str, Path]) -> nx.Graph:
             if bw[1].startswith("G"):
                 bandwidth = float(bw[0]) * 1000
 
-        w[Constants.ORIGINAL_BANDWIDTH] = float(bandwidth)
+        w[Constants.RESIDUAL_BANDWIDTH] = float(bandwidth)
         w[Constants.BANDWIDTH] = float(bandwidth)
         w[Constants.WEIGHT] = float(w["cost"])
         if Constants.LATENCY not in w.keys():

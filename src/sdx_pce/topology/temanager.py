@@ -19,6 +19,7 @@ from sdx_pce.models import (
     VlanTaggedPort,
 )
 from sdx_pce.topology.manager import TopologyManager
+from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.exceptions import UnknownRequestError, ValidationError
 
 UNUSED_VLAN = None
@@ -44,6 +45,9 @@ class TEManager:
         self._topology_lock = threading.Lock()
 
         self._logger = logging.getLogger(__name__)
+
+        # Keep a list of solved solution ConnectionSolution:connectionSolution.
+        self._connectionSolution_list = []
 
         # A {domain, {port, {vlan, in_use}}} mapping.
         self._vlan_tags_table = {}
@@ -114,6 +118,13 @@ class TEManager:
     def get_failed_links(self) -> List[dict]:
         """Get failed links on the topology (ie., Links not up and enabled)."""
         return self.topology_manager.get_failed_links()
+
+    def get_connections(self) -> List[ConnectionRequest]:
+        """Get all the connections in the _connectionSolution_list."""
+        connections = []
+        for solution in self._connectionSolution_list:
+            connections.append(solution.request_id)
+        return connections
 
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
@@ -293,8 +304,9 @@ class TEManager:
     def graph_node_connectivity(self, source=None, dest=None):
         """
         Check that a source and destination node have connectivity.
+        No need to continue if there is no connectiviy between source and destination
         """
-        # TODO: is this method really needed?
+
         return approx.node_connectivity(self.graph, source, dest)
 
     def requests_connectivity(self, tm: TrafficMatrix) -> bool:
@@ -340,7 +352,7 @@ class TEManager:
 
         result = []
 
-        for domain, links in solution.connection_map.items():
+        for connectionRequest, links in solution.connection_map.items():
             for link in links:
                 assert isinstance(link, ConnectionPath)
 
@@ -362,7 +374,29 @@ class TEManager:
                     p1, p2 = ports
                     result.append({"source": p1["id"], "destination": p2["id"]})
 
-        return result
+        return connectionRequest, result
+
+    def update_link_bandwidth(self, solution: ConnectionSolution, reduce=True):
+        """
+        Update the topology properties, typically the link bandwidth property after a place_connection call succeeds
+        """
+        connectionRequest, links = self.get_links_on_path(solution)
+        self._logger.info(f"connectionRequest: {connectionRequest}, links: {links}")
+        bandwidth = connectionRequest.required_bandwidth
+        if reduce:
+            bandwidth = (-1) * bandwidth
+        for link in links:
+            p1 = link["source"]
+            p2 = link["destination"]
+            # update in three places: (1) topology object (2) graph object (3) json to DB
+            # (1) topology object
+            self.topology_manager.change_link_property_by_value(
+                p1, p2, Constants.RESIDUAL_BANDWIDTH, bandwidth
+            )
+
+        # (2) graph object, called by sdx-controller
+        # self.graph = TESolver.update_graph(self.graph, solution)
+        # (3) json to DB, in sdx-controller
 
     def add_breakdowns_to_connection(self, connection_request: dict, breakdowns: dict):
         """
@@ -580,10 +614,17 @@ class TEManager:
         )
 
         # Make tests pass, temporarily.
+        # ToDo: need to throw an exception if tagged_breakdown is None
         if tagged_breakdown is None:
             return None
 
         assert isinstance(tagged_breakdown, VlanTaggedBreakdowns)
+
+        # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
+        self.update_link_bandwidth(solution, reduce=True)
+
+        # keep the connection solution for future reference
+        self._connectionSolution_list.append(solution)
 
         # Return a dict containing VLAN-tagged breakdown in the
         # expected format.
@@ -899,6 +940,34 @@ class TEManager:
             raise UnknownRequestError(
                 "Unknown connection request", request_id=request_id
             )
+
+    def delete_connection(self, request_id: str):
+        """
+        Delete a connection.
+
+        This function is used to delete a connection.  It will
+        unreserve the VLANs that were reserved for the connection.
+        """
+        self.unreserve_vlan(request_id)
+        solution = self.get_connection_solution(request_id)
+        if solution is None:
+            self._logger.warning(f"Can't find a solution for request ID {request_id}")
+            return None
+
+        # Remove the solution from the list.
+        self._connectionSolution_list.remove(solution)
+        # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
+        self.update_link_bandwidth(solution, reduce=False)
+
+    def get_connection_solution(self, request_id: str) -> ConnectionSolution:
+        """
+        Get a connection solution by request ID.
+        """
+        for solution in self._connectionSolution_list:
+            if solution.request_id == request_id:
+                return solution
+
+        return None
 
     def _print_vlan_tags_table(self):
         """

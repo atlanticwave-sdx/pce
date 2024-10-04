@@ -378,7 +378,7 @@ class TEManagerTests(unittest.TestCase):
         print(f"TESolver result: {solution}")
         self.assertIsInstance(solution, ConnectionSolution)
 
-        links = temanager.get_links_on_path(solution)
+        _, links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
 
         # Make a flat list of links in connection solution dict, and
@@ -424,7 +424,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        links = temanager.get_links_on_path(solution)
+        _, links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
 
         # Make a flat list of links in connection solution dict, and
@@ -523,7 +523,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        links = temanager.get_links_on_path(solution)
+        _, links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
 
         # Make a flat list of links in connection solution dict, and
@@ -579,6 +579,50 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
 
+    def test_delete_connection(self):
+        """
+        Test the deletion of a connection.
+        """
+        temanager = TEManager(topology_data=None)
+
+        # Add topologies
+        for path in (
+            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+            TestData.TOPOLOGY_FILE_SAX_v2,
+            TestData.TOPOLOGY_FILE_ZAOXI_v2,
+        ):
+            topology = json.loads(path.read_text())
+            temanager.add_topology(topology)
+
+        # Generate graph
+        graph = temanager.generate_graph_te()
+        self.assertIsInstance(graph, nx.Graph)
+
+        # Create a connection request
+        connection_request = json.loads(
+            TestData.CONNECTION_REQ_AMLIGHT_SAX_v2.read_text()
+        )
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+        self.assertIsInstance(traffic_matrix, TrafficMatrix)
+
+        # Solve the connection request
+        solution = TESolver(graph, traffic_matrix).solve()
+        self.assertIsNotNone(solution.connection_map)
+
+        # Add the connection to the TEManager
+        temanager.generate_connection_breakdown(solution, connection_request)
+
+        # Verify the connection exists
+        connections = temanager.get_connections()
+        self.assertIn(connection_request["id"], connections)
+
+        # Delete the connection
+        temanager.delete_connection(connection_request["id"])
+
+        # Verify the connection has been deleted
+        connections = temanager.get_connections()
+        self.assertNotIn(connection_request["id"], connections)
+
     def test_connection_amlight_to_sax_v2(self):
         """
         Exercise a connection request between Amlight and Zaoxi.
@@ -614,7 +658,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        links = temanager.get_links_on_path(solution)
+        _, links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
 
         # Make a flat list of links in connection solution dict, and
@@ -689,6 +733,8 @@ class TEManagerTests(unittest.TestCase):
             solution, connection_request
         )
         print(f"breakdown: {json.dumps(breakdown)}")
+
+        graph = TESolver(graph, traffic_matrix).update_graph(graph, solution)
 
         zaoxi = breakdown.get("urn:sdx:topology:zaoxi.net")
         sax = breakdown.get("urn:sdx:topology:sax.net")
@@ -772,6 +818,8 @@ class TEManagerTests(unittest.TestCase):
 
             breakdowns.add(breakdown)
 
+            graph = TESolver(graph, traffic_matrix).update_graph(graph, solution)
+
         print(f"breakdowns: {breakdowns}")
 
         # Check that we have the same number of unique breakdowns as
@@ -815,6 +863,8 @@ class TEManagerTests(unittest.TestCase):
             solution1, connection_request1
         )
         print(f"Breakdown #1: {json.dumps(breakdown1)}")
+        # update the available bandwdith on the graph
+        graph = TESolver(graph, traffic_matrix1).update_graph(graph, solution1)
 
         # Use another connection request that spans just one domain.
         connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
@@ -1181,7 +1231,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        links = temanager.get_links_on_path(solution)
+        _, links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
 
         # Make a flat list of links in connection solution dict, and
@@ -1302,7 +1352,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        links = temanager.get_links_on_path(solution)
+        _, links = temanager.get_links_on_path(solution)
         print(f"Links on path: {links}")
 
         # Make a flat list of links in connection solution dict, and

@@ -1,6 +1,6 @@
 class Constants:
-    BANDWIDTH = "bandwidth"
-    ORIGINAL_BANDWIDTH = "original_bandwidth"
+    BANDWIDTH = "bandwidth"  # used to store the current bandwidth of the link
+    RESIDUAL_BANDWIDTH = "residual_bandwidth"  # used to store the original bandwidth of the link["bandwidth"]
     LATENCY = "latency"
     PACKET_LOSS = "packet_loss"
     AVAILABILITY = "availability"
