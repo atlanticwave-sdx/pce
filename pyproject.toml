@@ -40,7 +40,7 @@ Issues = "https://github.com/atlanticwave-sdx/pce/issues"
 test = [
     "pytest >= 7.1.2",
     "pytest-cov >= 3.0.0",
-    "importlib-resources; python_version < '3.9'",
+    "pytest-sugar >= 1.0.0",
 ]
 pygraphviz = [
     "pygraphviz"
@@ -59,6 +59,14 @@ addopts = "--cov=sdx_pce --cov-report html --cov-report term-missing"
 testpaths = [
     "tests"
 ]
+filterwarnings = [
+    # Ignore this warning from grenml: grenml/models/topologies.py:55:
+    # DeprecationWarning: Type has been deprecated in version 0.1.5
+    # and will be removed in the next major version. Use the argument
+    # "tag" to avoid this warning.
+    "ignore:Type has been deprecated in version 0.1.5 and will be removed:DeprecationWarning",
+]
+
 
 [tool.setuptools_scm]
 # Write version info collected from git to a file.  This happens when
