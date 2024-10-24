@@ -813,9 +813,9 @@ class TEManagerTests(unittest.TestCase):
             breakdown, msg = temanager.generate_connection_breakdown(
                 solution, connection_request
             )
-            json.dumps(breakdown)
+            breakdown_json = json.dumps(breakdown)
 
-            print(f"breakdown: {breakdown}")
+            print(f"breakdown: {breakdown_json}")
             self.assertIsNotNone(breakdown)
 
             breakdowns.add(breakdown)
