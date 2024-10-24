@@ -813,12 +813,13 @@ class TEManagerTests(unittest.TestCase):
             breakdown, msg = temanager.generate_connection_breakdown(
                 solution, connection_request
             )
+            self.assertIsNotNone(breakdown)
+
             breakdown_json = json.dumps(breakdown)
 
             print(f"breakdown: {breakdown_json}")
-            self.assertIsNotNone(breakdown)
 
-            breakdowns.add(breakdown)
+            breakdowns.add(breakdown_json)
 
             graph = TESolver(graph, traffic_matrix).update_graph(graph, solution)
 
