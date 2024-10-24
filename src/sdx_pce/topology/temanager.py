@@ -20,7 +20,7 @@ from sdx_pce.models import (
 )
 from sdx_pce.topology.manager import TopologyManager
 from sdx_pce.utils.constants import Constants
-from sdx_pce.utils.exceptions import UnknownRequestError, ValidationError, TEError
+from sdx_pce.utils.exceptions import TEError, UnknownRequestError, ValidationError
 
 UNUSED_VLAN = None
 
