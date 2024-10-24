@@ -741,6 +741,8 @@ class TEManager:
 
         breakdowns = {}
         i = 0
+        upstream_egress_vlan = None
+        downstream_ingress_vlan = None
         for domain, segment in domain_breakdown.items():
 
             # These are topology ports
