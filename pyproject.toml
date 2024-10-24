@@ -80,7 +80,7 @@ src_paths = ["src", "tests", "scripts"]
 [tool.coverage.run]
 branch = true
 # source_pkgs = sdx.pce
-omit = [ "tests/*", "src/sdx_pce/topology/temanager.py" ]
+omit = ["tests/*", "src/*"]
 relative_files = true
 
 [tool.coverage.report]
