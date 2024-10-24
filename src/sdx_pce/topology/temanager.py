@@ -629,7 +629,7 @@ class TEManager:
 
         # Return a dict containing VLAN-tagged breakdown in the
         # expected format.
-        return tagged_breakdown.to_dict().get("breakdowns")
+        return tagged_breakdown.to_dict().get("breakdowns"), "Breakdowns Succeeded"
 
     def _get_ports_by_link(self, link: ConnectionPath):
         """
