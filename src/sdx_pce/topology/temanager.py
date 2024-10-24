@@ -418,7 +418,7 @@ class TEManager:
         """
         if solution is None or solution.connection_map is None:
             self._logger.warning(f"Can't find a solution: {solution}")
-            return None, "No TE Solution found"
+            return None, "Failed: No TE Solution found"
 
         breakdown = {}
         paths = solution.connection_map  # p2p for now
@@ -629,7 +629,10 @@ class TEManager:
 
         # Return a dict containing VLAN-tagged breakdown in the
         # expected format.
-        return tagged_breakdown.to_dict().get("breakdowns"), "Breakdowns Succeeded"
+        return (
+            tagged_breakdown.to_dict().get("breakdowns"),
+            "Succeeded:tagged breakdowns",
+        )
 
     def _get_ports_by_link(self, link: ConnectionPath):
         """
@@ -735,11 +738,11 @@ class TEManager:
             self._logger.info(
                 f"upstream_egress_vlan: {upstream_egress_vlan}; upstream_egress: {upstream_egress}; downstream_ingress: {downstream_ingress}"
             )
-            if upstream_egress_vlan is None:
-                return (
-                    None,
-                    f"No common VLAN found on the link:{upstream_egress['id']} -> {downstream_ingress['id']}",
-                )
+            # if upstream_egress_vlan is None:
+            #    return (
+            #        None,
+            #        f"Failed: No common VLAN found on the link:{upstream_egress['id']} -> {downstream_ingress['id']}",
+            #    )
             common_vlan_on_link[domain] = upstream_egress_vlan
 
         breakdowns = {}
@@ -806,7 +809,7 @@ class TEManager:
                     f"Can't proceed. Rolling back reservations."
                 )
                 self.unreserve_vlan(request_id=request_id)
-                return None, f"VLAN reservation failed for domain: {domain}"
+                return None, f"Failed: VLAN reservation failed for domain: {domain}"
 
             upstream_egress_vlan = egress_vlan
 
@@ -873,7 +876,7 @@ class TEManager:
 
         return (
             VlanTaggedBreakdowns(breakdowns=breakdowns),
-            "Vlan Researvation Succeeded",
+            "Succeeded: Vlan Researvation",
         )
 
     def _find_vlan_on_path(self, path):
