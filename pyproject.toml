@@ -80,8 +80,31 @@ src_paths = ["src", "tests", "scripts"]
 [tool.coverage.run]
 branch = true
 # source_pkgs = sdx.pce
-omit = [ "tests/*" ]
+omit = [ 
+    "tests/*",
+    "*/logger.*",  # Exclude all lines containing 'logger' 
+    "*/logging.*", # Exclude all lines containing 'logging' 
+ ]
 relative_files = true
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self\\.debug",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+    ]
 
 # The section below will let us have relative paths in test coverage
 # report. See https://hynek.me/articles/testing-packaging/
