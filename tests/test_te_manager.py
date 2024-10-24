@@ -65,7 +65,8 @@ class TEManagerTests(unittest.TestCase):
 
     def test_connection_breakdown_none_input(self):
         # Expect no breakdown when input is None.
-        self.assertIsNone(self.temanager.generate_connection_breakdown(None, None))
+        breakdown, msg = self.temanager.generate_connection_breakdown(None, None)
+        self.assertIsNone(breakdown)
 
     def test_connection_breakdown_tm(self):
         # Breaking down a traffic matrix.
@@ -82,7 +83,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = self.temanager.generate_connection_breakdown(solution, request)
+        breakdown, msg = self.temanager.generate_connection_breakdown(solution, request)
         print(f"Breakdown: {breakdown}")
         self.assertIsNotNone(breakdown)
         self.assertIsInstance(breakdown, dict)
@@ -108,7 +109,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = self.temanager.generate_connection_breakdown(solution, request)
+        breakdown, msg = self.temanager.generate_connection_breakdown(solution, request)
         print(f"Breakdown: {breakdown}")
 
         self.assertIsNotNone(breakdown)
@@ -147,7 +148,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = self.temanager.generate_connection_breakdown(solution, request)
+        breakdown, msg = self.temanager.generate_connection_breakdown(solution, request)
         print(f"Breakdown: {breakdown}")
 
         self.assertIsNotNone(breakdown)
@@ -200,7 +201,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(solution.connection_map)
         self.assertNotEqual(solution.cost, 0)
 
-        breakdown = self.temanager.generate_connection_breakdown(solution, request)
+        breakdown, msg = self.temanager.generate_connection_breakdown(solution, request)
         print(f"Breakdown: {breakdown}")
 
         sax = breakdown.get("urn:sdx:topology:sax.net")
@@ -227,7 +228,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertEqual(solution.cost, 0)
 
         # If there's no solution, there should be no breakdown either.
-        breakdown = self.temanager.generate_connection_breakdown(solution, request)
+        breakdown, msg = self.temanager.generate_connection_breakdown(solution, request)
         self.assertIsNone(breakdown)
 
     def test_generate_graph_and_connection_with_sax_2_invalid(self):
@@ -386,7 +387,7 @@ class TEManagerTests(unittest.TestCase):
         values = sum([v for v in solution.connection_map.values()], [])
         self.assertEqual(len(links), len(values))
 
-        breakdown = temanager.generate_connection_breakdown(
+        breakdown, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         print(f"breakdown: {json.dumps(breakdown)}")
@@ -432,7 +433,7 @@ class TEManagerTests(unittest.TestCase):
         values = sum([v for v in solution.connection_map.values()], [])
         self.assertEqual(len(links), len(values))
 
-        breakdown = temanager.generate_connection_breakdown(
+        breakdown, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         print(f"breakdown: {json.dumps(breakdown)}")
@@ -531,7 +532,7 @@ class TEManagerTests(unittest.TestCase):
         values = sum([v for v in solution.connection_map.values()], [])
         self.assertEqual(len(links), len(values))
 
-        breakdown = temanager.generate_connection_breakdown(
+        breakdown, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         print(f"breakdown: {json.dumps(breakdown)}")
@@ -666,7 +667,7 @@ class TEManagerTests(unittest.TestCase):
         values = sum([v for v in solution.connection_map.values()], [])
         self.assertEqual(len(links), len(values))
 
-        breakdown = temanager.generate_connection_breakdown(
+        breakdown, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         print(f"breakdown: {json.dumps(breakdown)}")
@@ -729,7 +730,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        breakdown = temanager.generate_connection_breakdown(
+        breakdown, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         print(f"breakdown: {json.dumps(breakdown)}")
@@ -749,7 +750,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        breakdown2 = temanager.generate_connection_breakdown(
+        breakdown2, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         print(f"breakdown2: {json.dumps(breakdown2)}")
@@ -809,7 +810,7 @@ class TEManagerTests(unittest.TestCase):
 
             self.assertIsNotNone(solution.connection_map)
 
-            breakdown = json.dumps(
+            breakdown, msg = json.dumps(
                 temanager.generate_connection_breakdown(solution, connection_request)
             )
 
@@ -859,7 +860,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(solution1, ConnectionSolution)
         self.assertIsNotNone(solution1.connection_map)
 
-        breakdown1 = temanager.generate_connection_breakdown(
+        breakdown1, msg = temanager.generate_connection_breakdown(
             solution1, connection_request1
         )
         print(f"Breakdown #1: {json.dumps(breakdown1)}")
@@ -880,7 +881,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(solution2, ConnectionSolution)
         self.assertIsNotNone(solution2.connection_map)
 
-        breakdown2 = temanager.generate_connection_breakdown(
+        breakdown2, msg = temanager.generate_connection_breakdown(
             solution2, connection_request2
         )
         print(f"Breakdown #2: {json.dumps(breakdown2)}")
@@ -957,7 +958,7 @@ class TEManagerTests(unittest.TestCase):
                 connection_map={}, cost=None, request_id=traffic_matrix.request_id
             )
             result.connection_map[connection_request] = connection_solution
-            breakdown = temanager.generate_connection_breakdown(
+            breakdown, msg = temanager.generate_connection_breakdown(
                 result, connection_object_map[connection_request]
             )
             temanager._logger.info(
@@ -1001,7 +1002,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution.connection_map)
 
-        breakdown1 = temanager.generate_connection_breakdown(
+        breakdown1, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         print(f"breakdown1: {json.dumps(breakdown1)}")
@@ -1010,7 +1011,7 @@ class TEManagerTests(unittest.TestCase):
         temanager.unreserve_vlan(request_id=connection_request.get("id"))
 
         # Can we get the same breakdown for the same request now?
-        breakdown2 = temanager.generate_connection_breakdown(
+        breakdown2, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         print(f"breakdown2: {json.dumps(breakdown2)}")
@@ -1019,7 +1020,7 @@ class TEManagerTests(unittest.TestCase):
 
         # If we generate another breakdown without un-reserving any
         # VLANs, the result should be distinct from the previous ones.
-        breakdown3 = temanager.generate_connection_breakdown(
+        breakdown3, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         print(f"breakdown3: {json.dumps(breakdown3)}")
@@ -1059,7 +1060,7 @@ class TEManagerTests(unittest.TestCase):
         # This hopefully should find a solution.
         self.assertIsNotNone(solution.connection_map)
 
-        breakdown = temanager.generate_connection_breakdown(
+        breakdown, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         print(f"breakdown: {json.dumps(breakdown)}")
@@ -1239,7 +1240,7 @@ class TEManagerTests(unittest.TestCase):
         values = sum([v for v in solution.connection_map.values()], [])
         self.assertEqual(len(links), len(values))
 
-        breakdown = temanager.generate_connection_breakdown(
+        breakdown, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         print(f"breakdown: {json.dumps(breakdown)}")
@@ -1360,7 +1361,7 @@ class TEManagerTests(unittest.TestCase):
         values = sum([v for v in solution.connection_map.values()], [])
         self.assertEqual(len(links), len(values))
 
-        breakdown = temanager.generate_connection_breakdown(
+        breakdown, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         print(f"breakdown: {json.dumps(breakdown)}")
@@ -1456,7 +1457,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution)
 
-        breakdown = temanager.generate_connection_breakdown(
+        breakdown, msg = temanager.generate_connection_breakdown(
             solution, connection_request
         )
 
