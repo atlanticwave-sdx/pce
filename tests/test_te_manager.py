@@ -810,9 +810,10 @@ class TEManagerTests(unittest.TestCase):
 
             self.assertIsNotNone(solution.connection_map)
 
-            breakdown, msg = json.dumps(
-                temanager.generate_connection_breakdown(solution, connection_request)
+            breakdown, msg = temanager.generate_connection_breakdown(
+                solution, connection_request
             )
+            json.dumps(breakdown)
 
             print(f"breakdown: {breakdown}")
             self.assertIsNotNone(breakdown)
