@@ -80,8 +80,21 @@ src_paths = ["src", "tests", "scripts"]
 [tool.coverage.run]
 branch = true
 # source_pkgs = sdx.pce
-omit = [ "tests/*" ]
+omit = ["tests/*", "src/*"]
 relative_files = true
+
+[tool.coverage.report]
+exclude_also = [
+    "def __repr__",
+    "if self.debug:",
+    "self._logger",
+    "raise",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+    ]
 
 # The section below will let us have relative paths in test coverage
 # report. See https://hynek.me/articles/testing-packaging/
