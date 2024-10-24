@@ -16,12 +16,6 @@ class GrenmlConverterTests(unittest.TestCase):
     # TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
     # AMLIGHT_TOPOLOGY_FILE = TEST_DATA_DIR / "topologies" / "amlight.json"
 
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     def test_grenml_converter_amlight(self):
         TopologyManager()
 
