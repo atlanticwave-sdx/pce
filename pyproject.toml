@@ -55,7 +55,7 @@ lint = [
 where = "src"
 
 [tool.pytest.ini_options]
-addopts = "--cov=sdx_pce --cov-report html --cov-report term-missing:skip-covered"
+addopts = "--cov=sdx_pce --cov-report html --cov-report lcov --cov-report term-missing:skip-covered"
 testpaths = [
     "tests"
 ]
