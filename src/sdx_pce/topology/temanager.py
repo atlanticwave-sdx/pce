@@ -873,7 +873,7 @@ class TEManager:
 
         return (
             VlanTaggedBreakdowns(breakdowns=breakdowns),
-            f"Vlan Researvation Succeeded",
+            "Vlan Researvation Succeeded",
         )
 
     def _find_vlan_on_path(self, path):
