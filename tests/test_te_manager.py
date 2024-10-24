@@ -7,7 +7,7 @@ import networkx as nx
 from sdx_pce.load_balancing.te_solver import TESolver
 from sdx_pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
 from sdx_pce.topology.temanager import TEManager
-from sdx_pce.utils.exceptions import UnknownRequestError
+from sdx_pce.utils.exceptions import UnknownRequestError, ValidationError, TEError
 
 from . import TestData
 
@@ -65,7 +65,17 @@ class TEManagerTests(unittest.TestCase):
 
     def test_connection_breakdown_none_input(self):
         # Expect no breakdown when input is None.
-        self.assertIsNone(self.temanager.generate_connection_breakdown(None, None))
+        """
+        Test that generate_connection_breakdown() raises an exception
+        when given invalid input.
+        """
+        invalid_solution = None
+        invalid_request = None
+
+        with self.assertRaises(TEError):
+            self.temanager.generate_connection_breakdown(
+                invalid_solution, invalid_request
+            )
 
     def test_connection_breakdown_tm(self):
         # Breaking down a traffic matrix.
@@ -227,8 +237,8 @@ class TEManagerTests(unittest.TestCase):
         self.assertEqual(solution.cost, 0)
 
         # If there's no solution, there should be no breakdown either.
-        breakdown = self.temanager.generate_connection_breakdown(solution, request)
-        self.assertIsNone(breakdown)
+        with self.assertRaises(TEError):
+            self.temanager.generate_connection_breakdown(solution, request)
 
     def test_generate_graph_and_connection_with_sax_2_invalid(self):
         """
@@ -1456,17 +1466,12 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution)
 
-        breakdown = temanager.generate_connection_breakdown(
-            solution, connection_request
-        )
-
-        print(f"breakdown: {json.dumps(breakdown)}")
-
         # Although we have a solution (in terms of connectivity
         # between ports), we should not have a breakdown at this
         # point, because we asked for a port that is not present on
         # the port.
-        self.assertIsNone(breakdown)
+        with self.assertRaises(TEError):
+            self.temanager.generate_connection_breakdown(solution, connection_request)
 
     def _vlan_meets_request(self, requested_vlan: str, assigned_vlan: int) -> bool:
         """

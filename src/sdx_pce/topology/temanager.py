@@ -20,7 +20,7 @@ from sdx_pce.models import (
 )
 from sdx_pce.topology.manager import TopologyManager
 from sdx_pce.utils.constants import Constants
-from sdx_pce.utils.exceptions import UnknownRequestError, ValidationError
+from sdx_pce.utils.exceptions import UnknownRequestError, ValidationError, TEError
 
 UNUSED_VLAN = None
 
@@ -417,8 +417,8 @@ class TEManager:
         assigned yet.  We assign ports in this step.
         """
         if solution is None or solution.connection_map is None:
-            self._logger.warning(f"Can't find a breakdown for {solution}")
-            return None
+            self._logger.warning(f"Can't find a TE solution for {connection_request}")
+            raise TEError(f"Can't find a TE solution for: {connection_request}", 410)
 
         breakdown = {}
         paths = solution.connection_map  # p2p for now
@@ -616,7 +616,10 @@ class TEManager:
         # Make tests pass, temporarily.
         # ToDo: need to throw an exception if tagged_breakdown is None
         if tagged_breakdown is None:
-            return None
+            raise TEError(
+                f"Can't find a valid vlan breakdown solution for: {connection_request}",
+                409,
+            )
 
         assert isinstance(tagged_breakdown, VlanTaggedBreakdowns)
 
