@@ -61,7 +61,7 @@ jobs:
           # Run tests and collect coverage data.
           python -m pytest
           # Generate LCOV format coverage data for coveralls.
-          python -m coverage lcov -o coverage.lcov
+          #python -m coverage lcov -o coverage.lcov
 
       - name: Build packages
         run: |
