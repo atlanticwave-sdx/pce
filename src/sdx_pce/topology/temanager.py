@@ -733,16 +733,16 @@ class TEManager:
             upstream_egress = segment.get("egress_port")
             downstream_ingress = next_segment.get("ingress_port")
             upstream_egress_vlan = self._find_common_vlan_on_link(
-                domain, upstream_egress, next_domain, downstream_ingress
+                domain, upstream_egress["id"], next_domain, downstream_ingress["id"]
             )
             self._logger.info(
                 f"upstream_egress_vlan: {upstream_egress_vlan}; upstream_egress: {upstream_egress}; downstream_ingress: {downstream_ingress}"
             )
-            # if upstream_egress_vlan is None:
-            #    return (
-            #        None,
-            #        f"Failed: No common VLAN found on the link:{upstream_egress['id']} -> {downstream_ingress['id']}",
-            #    )
+            if upstream_egress_vlan is None:
+                return (
+                    None,
+                    f"Failed: No common VLAN found on the link:{upstream_egress['id']} -> {downstream_ingress['id']}",
+                )
             common_vlan_on_link[domain] = upstream_egress_vlan
 
         breakdowns = {}
@@ -913,13 +913,14 @@ class TEManager:
 
         This function is used to find a common VLAN on the inter-domain link.
         """
-        upstream_vlan_table = self._vlan_tags_table.get(domain).get(
-            upstream_egress["id"]
-        )
+        upstream_vlan_table = self._vlan_tags_table.get(domain).get(upstream_egress)
         downstream_vlan_table = self._vlan_tags_table.get(next_domain).get(
-            downstream_ingress["id"]
+            downstream_ingress
         )
 
+        if upstream_vlan_table is None or downstream_vlan_table is None:
+            self._logger.error(f"Can't find VLAN tables for {domain} and {next_domain}")
+            return None
         common_vlans = set(upstream_vlan_table.keys()).intersection(
             downstream_vlan_table.keys()
         )
@@ -932,7 +933,7 @@ class TEManager:
                 return vlan
 
         self._logger.warning(
-            f"No common VLAN found between {domain} and {next_domain} for ports {upstream_egress['id']} and {downstream_ingress['id']}"
+            f"No common VLAN found between {domain} and {next_domain} for ports {upstream_egress} and {downstream_ingress}"
         )
         return None
 
