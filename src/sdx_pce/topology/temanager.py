@@ -408,7 +408,7 @@ class TEManager:
 
     def generate_connection_breakdown(
         self, solution: ConnectionSolution, connection_request: dict
-    ) -> dict:
+    ) -> (dict, str):
         """
         Take a connection solution and generate a breakdown.
 
@@ -417,8 +417,8 @@ class TEManager:
         assigned yet.  We assign ports in this step.
         """
         if solution is None or solution.connection_map is None:
-            self._logger.warning(f"Can't find a breakdown for {solution}")
-            return None
+            self._logger.warning(f"Can't find a solution: {solution}")
+            return None, "No TE Solution found"
 
         breakdown = {}
         paths = solution.connection_map  # p2p for now
@@ -604,7 +604,7 @@ class TEManager:
             f"egress_user_port: {egress_user_port}"
         )
 
-        tagged_breakdown = self._reserve_vlan_breakdown(
+        tagged_breakdown, error_msg = self._reserve_vlan_breakdown(
             domain_breakdown=domain_breakdown,
             request_id=solution.request_id,
             ingress_user_port=ingress_user_port,
@@ -617,7 +617,7 @@ class TEManager:
         # Make tests pass, temporarily.
         # ToDo: need to throw an exception if tagged_breakdown is None
         if tagged_breakdown is None:
-            return None
+            return None, error_msg
 
         assert isinstance(tagged_breakdown, VlanTaggedBreakdowns)
 
@@ -678,7 +678,7 @@ class TEManager:
         request_id: str,
         ingress_user_port=None,
         egress_user_port=None,
-    ) -> Optional[VlanTaggedBreakdowns]:
+    ) -> (Optional[VlanTaggedBreakdowns], str):
         """
         Upate domain breakdown with VLAN reservation information.
 
@@ -736,7 +736,10 @@ class TEManager:
                 f"upstream_egress_vlan: {upstream_egress_vlan}; upstream_egress: {upstream_egress}; downstream_ingress: {downstream_ingress}"
             )
             if upstream_egress_vlan is None:
-                return None
+                return (
+                    None,
+                    f"No common VLAN found on the link:{upstream_egress['id']} -> {downstream_ingress['id']}",
+                )
             common_vlan_on_link[domain] = upstream_egress_vlan
 
         breakdowns = {}
@@ -750,7 +753,7 @@ class TEManager:
             egress_port = segment.get("egress_port")
 
             if ingress_port is None or egress_port is None:
-                return None
+                return None, f"Ports missed in the breakdown:{segment}"
 
             ingress_user_port_tag = None
             egress_user_port_tag = None
@@ -803,7 +806,7 @@ class TEManager:
                     f"Can't proceed. Rolling back reservations."
                 )
                 self.unreserve_vlan(request_id=request_id)
-                return None
+                return None, f"VLAN reservation failed for domain: {domain}"
 
             upstream_egress_vlan = egress_vlan
 
@@ -868,7 +871,10 @@ class TEManager:
                 uni_z=port_z,
             )
 
-        return VlanTaggedBreakdowns(breakdowns=breakdowns)
+        return (
+            VlanTaggedBreakdowns(breakdowns=breakdowns),
+            f"Vlan Researvation Succeeded",
+        )
 
     def _find_vlan_on_path(self, path):
         """
@@ -898,7 +904,7 @@ class TEManager:
 
     def _find_common_vlan_on_link(
         self, domain, upstream_egress, next_domain, downstream_ingress
-    ):
+    ) -> Optional[str]:
         """
         Find a common VLAN on the inter-domain link.
 
