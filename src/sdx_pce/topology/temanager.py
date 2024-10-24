@@ -478,6 +478,7 @@ class TEManager:
         # may lead to incorrect results.  Dicts are lexically ordered,
         # and that may break some assumptions about the order in which
         # we form and traverse the breakdown.
+        # From 3.7 onwards: Dictionaries are ordered. The order of insertion is preserved.
 
         # Note: Extra flag to indicate if the connection request is in
         # the format of TrafficMatrix or not.
@@ -700,30 +701,51 @@ class TEManager:
                  each port along a path, or None if failure.
         """
 
-        # # Check if there exist a path of vlan continuity.  This is
+        # ToDo: Check if there exist a path of vlan continuity.  This is
         # # disabled for now, until the simple case is handled.
         # selected_vlan = self.find_vlan_on_path(domain_breakdown)
         # if selected_vlan is not None:
         #     return self._reserve_vlan_on_path(domain_breakdown, selected_vlan)
 
-        # if not, assuming vlan translation on the domain border port
+        # It may be the case that end-to-end VLAN continuity is not necessary
+        # as long as the vlan on the two port in a inter-OXP link is the same.
+        # Currently, we implement a simple algorithm to reserve vlan selected
+        # by the upstream port. This is a temporary solution until we implement
+        # a more efficinet algorithm to reserve vlan on a multi-domain path.
 
         self._logger.info(
             f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}"
         )
 
-        breakdowns = {}
+        domain_breakdown_list = list(domain_breakdown.items())
+        domain_breakdown_list_len = len(domain_breakdown_list)
+        common_vlan_on_link = {}  # {domain1: upstream_egress_vlan}
+        for i in range(domain_breakdown_list_len - 1):
+            domain, segment = domain_breakdown_list[i]
+            next_domain, next_segment = domain_breakdown_list[i + 1]
+            self._logger.info(
+                f"Find a common vlan: domain: {domain}, segment: {segment}, next_domain: {next_domain}, next_segment: {next_segment}"
+            )
 
-        # upstream_o_vlan = ""
+            upstream_egress = segment.get("egress_port")
+            downstream_ingress = next_segment.get("ingress_port")
+            upstream_egress_vlan = self._find_common_vlan_on_link(
+                domain, upstream_egress, next_domain, downstream_ingress
+            )
+            self._logger.info(
+                f"upstream_egress_vlan: {upstream_egress_vlan}; upstream_egress: {upstream_egress}; downstream_ingress: {downstream_ingress}"
+            )
+            if upstream_egress_vlan is None:
+                return None
+            common_vlan_on_link[domain] = upstream_egress_vlan
+
+        breakdowns = {}
+        i = 0
         for domain, segment in domain_breakdown.items():
+
             # These are topology ports
             ingress_port = segment.get("ingress_port")
             egress_port = segment.get("egress_port")
-
-            self._logger.debug(
-                f"VLAN reservation: domain: {domain}, "
-                f"ingress_port: {ingress_port}, egress_port: {egress_port}"
-            )
 
             if ingress_port is None or egress_port is None:
                 return None
@@ -741,11 +763,36 @@ class TEManager:
             ):
                 egress_user_port_tag = egress_user_port.get("vlan_range")
 
+            self._logger.info(
+                f"VLAN reservation: domain: {domain}, "
+                f"ingress_port: {ingress_port}, egress_port: {egress_port},"
+                f"ingress_user_port_tag: {ingress_user_port_tag}, egress_user_port_tag: {egress_user_port_tag},"
+                f"upstream_egress_vlan: {upstream_egress_vlan}"
+            )
+
+            if i == 0:  # first domain
+                upstream_egress_vlan = None
+                downstream_ingress_vlan = common_vlan_on_link.get(domain)
+            elif i == domain_breakdown_list_len - 1:  # last domain
+                downstream_ingress_vlan = None
+            else:  # middle domain
+                downstream_ingress_vlan = common_vlan_on_link.get(domain)
+
+            i += 1
+
             ingress_vlan = self._reserve_vlan(
-                domain, ingress_port, request_id, ingress_user_port_tag
+                domain,
+                ingress_port,
+                request_id,
+                ingress_user_port_tag,
+                upstream_egress_vlan,
             )
             egress_vlan = self._reserve_vlan(
-                domain, egress_port, request_id, egress_user_port_tag
+                domain,
+                egress_port,
+                request_id,
+                egress_user_port_tag,
+                downstream_ingress_vlan,
             )
 
             if ingress_vlan is None or egress_vlan is None:
@@ -755,6 +802,8 @@ class TEManager:
                 )
                 self.unreserve_vlan(request_id=request_id)
                 return None
+
+            upstream_egress_vlan = egress_vlan
 
             ingress_port_id = ingress_port["id"]
             egress_port_id = egress_port["id"]
@@ -845,7 +894,45 @@ class TEManager:
         # return domain_breakdown
         assert False, "Not implemented"
 
-    def _reserve_vlan(self, domain: str, port: dict, request_id: str, tag: str = None):
+    def _find_common_vlan_on_link(
+        self, domain, upstream_egress, next_domain, downstream_ingress
+    ):
+        """
+        Find a common VLAN on the inter-domain link.
+
+        This function is used to find a common VLAN on the inter-domain link.
+        """
+        upstream_vlan_table = self._vlan_tags_table.get(domain).get(
+            upstream_egress["id"]
+        )
+        downstream_vlan_table = self._vlan_tags_table.get(next_domain).get(
+            downstream_ingress["id"]
+        )
+
+        common_vlans = set(upstream_vlan_table.keys()).intersection(
+            downstream_vlan_table.keys()
+        )
+
+        for vlan in common_vlans:
+            if (
+                upstream_vlan_table[vlan] is UNUSED_VLAN
+                and downstream_vlan_table[vlan] is UNUSED_VLAN
+            ):
+                return vlan
+
+        self._logger.warning(
+            f"No common VLAN found between {domain} and {next_domain} for ports {upstream_egress['id']} and {downstream_ingress['id']}"
+        )
+        return None
+
+    def _reserve_vlan(
+        self,
+        domain: str,
+        port: dict,
+        request_id: str,
+        tag: str = None,
+        upstream_egress_vlan: str = None,
+    ):
         """
         Find unused VLANs for given domain/port and mark them in-use.
 
@@ -859,6 +946,7 @@ class TEManager:
             preferences.  See the description of "vlan" under
             "Mandatory Attributes" section of the Service Provisioning
             Data Model Specification 1.0 for details.
+        :param upstream_vlan: a string that contains the upstream tag to use
 
             https://sdx-docs.readthedocs.io/en/latest/specs/provisioning-api-1.0.html#mandatory-attributes
         """
@@ -893,6 +981,12 @@ class TEManager:
                 f"Can't find a VLAN table for domain: {domain} port: {port_id}"
             )
             return None
+
+        if tag is None:
+            tag = upstream_egress_vlan
+            self._logger.info(f"tag is None, using the upstream_egress_vlan: {tag}")
+        else:
+            self._logger.info(f"tag is not None, using the tag: {tag}")
 
         if tag in (None, "any"):
             # Find the first available VLAN tag from the table.
