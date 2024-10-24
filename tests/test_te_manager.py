@@ -57,6 +57,57 @@ class TEManagerTests(unittest.TestCase):
         expected_range = []
         self.assertEqual(expanded_range, expected_range)
 
+    def test_find_common_vlan_on_link(self):
+        """
+        Test the _find_common_vlan_on_link() method.
+        """
+        # Load topologies
+        sax_topology = json.loads(TestData.TOPOLOGY_FILE_SAX.read_text())
+        zaoxi_topology = json.loads(TestData.TOPOLOGY_FILE_ZAOXI.read_text())
+
+        # Initialize TEManager and add topologies
+        temanager = TEManager(topology_data=None)
+        temanager.add_topology(sax_topology)
+        temanager._update_vlan_tags_table(
+            domain_name=sax_topology.get("id"),
+            port_map=temanager.topology_manager.get_port_map(),
+        )
+
+        temanager.add_topology(zaoxi_topology)
+        temanager._update_vlan_tags_table(
+            domain_name=zaoxi_topology.get("id"),
+            port_map=temanager.topology_manager.get_port_map(),
+        )
+
+        # Define test cases
+        test_cases = [
+            {
+                "domain": "urn:sdx:topology:sax.net",
+                "upstream_egress": "urn:sdx:port:sax:B3:1",
+                "next_domain": "urn:sdx:topology:zaoxi.net",
+                "downstream_ingress": "urn:sdx:port:zaoxi:B1:1",
+                "expected_vlan": 100,  # Example expected VLAN
+            },
+            #
+            # {
+            #    "domain": "urn:sdx:topology:sax.net",
+            #    "upstream_egress": "urn:sdx:port:sax.net:SAX2:1",
+            #    "next_domain": "urn:sdx:topology:zaoxi.net",
+            #    "downstream_ingress": "urn:sdx:port:zaoxi.net:ZAOXI2:1",
+            #    "expected_vlan": None,  # Example expected VLAN when no common VLAN exists
+            # },
+        ]
+
+        for case in test_cases:
+            with self.subTest(case=case):
+                common_vlan = temanager._find_common_vlan_on_link(
+                    case["domain"],
+                    case["upstream_egress"],
+                    case["next_domain"],
+                    case["downstream_ingress"],
+                )
+                self.assertEqual(common_vlan, case["expected_vlan"])
+
     def test_generate_solver_input(self):
         print("Test Convert Connection To Topology")
         request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
