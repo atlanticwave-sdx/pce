@@ -21,9 +21,6 @@ class TEManagerTests(unittest.TestCase):
         topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT.read_text())
         self.temanager = TEManager(topology)
 
-    def tearDown(self):
-        self.temanager = None
-
     def test_expand_label_range(self):
         """
         Test the _expand_label_range() method.
