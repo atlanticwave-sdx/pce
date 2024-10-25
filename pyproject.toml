@@ -39,7 +39,9 @@ Issues = "https://github.com/atlanticwave-sdx/pce/issues"
 [project.optional-dependencies]
 test = [
     "pytest",
+    "pytest-dependency", 
     "pytest-cov",
+    "pytest-sugar",
 ]
 pygraphviz = [
     "pygraphviz"
