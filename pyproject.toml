@@ -84,6 +84,7 @@ omit = ["tests/*", "src/*"]
 relative_files = true
 
 [tool.coverage.report]
+precision = 2
 exclude_also = [
     "def __repr__",
     "if self.debug:",
