@@ -32,6 +32,7 @@ class GrenmlConverter(object):
 
     def add_nodes(self, nodes):
         for node in nodes:
+            print(node)
             location = node.location
             logging.info(f"adding node: {node.id}")
             self.grenml_manager.add_node(
