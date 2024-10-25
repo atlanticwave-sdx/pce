@@ -40,6 +40,7 @@ Issues = "https://github.com/atlanticwave-sdx/pce/issues"
 test = [
     "pytest == 8.0.1",
     "pluggy == 1.4.0",
+    "coverage == 7.4.2",
     "pytest-cov == 4.1.0",
     "pytest-sugar == 1.0.0",
 ]
