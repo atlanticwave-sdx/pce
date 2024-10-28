@@ -1524,6 +1524,55 @@ class TEManagerTests(unittest.TestCase):
         with self.assertRaises(TEError):
             self.temanager.generate_connection_breakdown(solution, connection_request)
 
+    def test_vlan_range(self):
+        """
+        Test when requests are for a range like [n:m]
+        """
+
+        connection_request = json.loads(
+            """
+            {
+                "name": "new-connection",            
+                "id": "test-connection-id",
+                "endpoints": [
+                    {
+                        "port_id": "urn:sdx:port:amlight.net:A1:1",
+                        "vlan": "100:200"
+                    },
+                    {
+                        "port_id": "urn:sdx:port:amlight:B1:1",
+                        "vlan": "100:200"
+                    }
+                ]
+            }
+            """
+        )
+
+        temanager = TEManager(topology_data=None)
+
+        temanager.add_topology(
+            json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_USER_PORT.read_text())
+        )
+
+        graph = temanager.generate_graph_te()
+
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        conn = temanager.requests_connectivity(traffic_matrix)
+        print(f"Graph connectivity: {conn}")
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        self.assertIsNotNone(solution)
+
+        self.temanager.generate_connection_breakdown(solution, connection_request)
+
     def _vlan_meets_request(self, requested_vlan: str, assigned_vlan: int) -> bool:
         """
         A helper to compare requested VLAN against the VLAN assignment
