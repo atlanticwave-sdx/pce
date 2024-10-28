@@ -1,6 +1,5 @@
 import pathlib
 import tempfile
-
 from importlib.resources import files
 
 
