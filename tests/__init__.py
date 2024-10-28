@@ -1,12 +1,7 @@
 import pathlib
 import tempfile
 
-try:
-    # Use stdlib modules with Python > 3.8.
-    from importlib.resources import files
-except ImportError:
-    # Use compatibility library with Python 3.8.
-    from importlib_resources import files
+from importlib.resources import files
 
 
 class TestData:
