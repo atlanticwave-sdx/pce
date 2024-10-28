@@ -1519,8 +1519,8 @@ class TEManagerTests(unittest.TestCase):
 
         # Although we have a solution (in terms of connectivity
         # between ports), we should not have a breakdown at this
-        # point, because we asked for a port that is not present on
-        # the port.
+        # point, because we asked for a VLAN tag that is not present
+        # on the port.
         with self.assertRaises(TEError):
             self.temanager.generate_connection_breakdown(solution, connection_request)
 
