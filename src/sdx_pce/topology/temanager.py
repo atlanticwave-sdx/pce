@@ -933,7 +933,10 @@ class TEManager:
         """
         import re
 
-        return bool(re.match(r"\d+:\d+", tag))
+        if isinstance(tag, str):
+            return bool(re.match(r"\d+:\d+", tag))
+        else:
+            return False
 
     def _handle_vlan_range(self, tag):
         print("HERE HERE HERE")
