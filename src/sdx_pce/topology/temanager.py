@@ -927,6 +927,17 @@ class TEManager:
         )
         return None
 
+    def _tag_is_vlan_range(self, tag: str) -> bool:
+        """
+        Return True if tag is of the form `n:m`
+        """
+        import re
+
+        return bool(re.match(r"\d+:\d+", tag))
+
+    def _handle_vlan_range(self, tag):
+        print("HERE HERE HERE")
+
     def _reserve_vlan(
         self,
         domain: str,
@@ -995,6 +1006,29 @@ class TEManager:
             for vlan_tag, vlan_usage in vlan_table.items():
                 if vlan_usage is UNUSED_VLAN:
                     available_tag = vlan_tag
+        elif self._tag_is_vlan_range(tag):
+            # expand the range.
+            start, end = map(int, tag.split(":"))
+            vlans = list(range(start, end + 1))
+
+            self._logger.debug(f"Attempting to reseve vlan range {vlans}")
+
+            # Check if all VLANs in the range are available.
+            for vlan in vlans:
+                if vlan_table[vlan] is not UNUSED_VLAN:
+                    raise Exception(f"VLAN {vlan} is in use; can't reserve {tag} range")
+
+            # Mark range in use.
+            for vlan in vlans:
+                vlan_table[vlan] = request_id
+
+            self._logger.debug(
+                f"reserve_vlan domain {domain}, after reservation: "
+                f"vlan_table: {vlan_table}, requested range: {tag}"
+            )
+
+            # Return the whole list to indicate success.
+            return vlans
         else:
             if tag in vlan_table:
                 if vlan_table[tag] is UNUSED_VLAN:
