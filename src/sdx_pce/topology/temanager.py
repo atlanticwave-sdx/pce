@@ -1,4 +1,5 @@
 import logging
+import re
 import threading
 from itertools import chain
 from typing import List, Optional
@@ -931,8 +932,6 @@ class TEManager:
         """
         Return True if tag is of the form `n:m`
         """
-        import re
-
         if isinstance(tag, str):
             return bool(re.match(r"\d+:\d+", tag))
         else:
