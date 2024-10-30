@@ -1571,7 +1571,14 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution)
 
-        self.temanager.generate_connection_breakdown(solution, connection_request)
+        breakdown = self.temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
+        pprint.pprint(f"Breakdown: {breakdown}")
+
+        self.assertIsNotNone(breakdown)
+        self.assertIsInstance(breakdown, dict)
+        self.assertEqual(len(breakdown), 1)
 
     def _vlan_meets_request(self, requested_vlan: str, assigned_vlan: int) -> bool:
         """
