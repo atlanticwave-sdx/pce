@@ -1030,8 +1030,8 @@ class TEManager:
                 f"vlan_table: {vlan_table}, requested range: {tag}"
             )
 
-            # Return the whole list to indicate success.
-            return vlans
+            # Return the tag to indicate success.
+            return tag
         else:
             if tag in vlan_table:
                 if vlan_table[tag] is UNUSED_VLAN:
