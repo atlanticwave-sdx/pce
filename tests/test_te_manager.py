@@ -1571,7 +1571,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(solution)
 
-        breakdown = self.temanager.generate_connection_breakdown(
+        breakdown = temanager.generate_connection_breakdown(
             solution, connection_request
         )
         pprint.pprint(f"Breakdown: {breakdown}")
