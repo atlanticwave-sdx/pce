@@ -1536,11 +1536,11 @@ class TEManagerTests(unittest.TestCase):
                 "id": "test-connection-id",
                 "endpoints": [
                     {
-                        "port_id": "urn:sdx:port:amlight.net:A1:1",
+                        "port_id": "urn:sdx:port:ampath.net:Ampath1:50",
                         "vlan": "100:200"
                     },
                     {
-                        "port_id": "urn:sdx:port:amlight:B1:1",
+                        "port_id": "urn:sdx:port:ampath.net:Ampath2:50",
                         "vlan": "100:200"
                     }
                 ]
