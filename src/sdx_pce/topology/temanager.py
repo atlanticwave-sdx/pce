@@ -961,9 +961,10 @@ class TEManager:
             preferences.  See the description of "vlan" under
             "Mandatory Attributes" section of the Service Provisioning
             Data Model Specification 1.0 for details.
-        :param upstream_vlan: a string that contains the upstream tag to use
 
             https://sdx-docs.readthedocs.io/en/latest/specs/provisioning-api-1.0.html#mandatory-attributes
+        :param upstream_egress_vlan: a string that contains the
+            upstream tag to use
         """
 
         # with self._topology_lock:
