@@ -1551,7 +1551,7 @@ class TEManagerTests(unittest.TestCase):
         temanager = TEManager(topology_data=None)
 
         temanager.add_topology(
-            json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_USER_PORT.read_text())
+            json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_v2.read_text())
         )
 
         graph = temanager.generate_graph_te()
