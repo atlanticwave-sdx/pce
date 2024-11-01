@@ -1524,7 +1524,7 @@ class TEManagerTests(unittest.TestCase):
         with self.assertRaises(TEError):
             self.temanager.generate_connection_breakdown(solution, connection_request)
 
-    def test_vlan_range(self):
+    def test_vlan_range_one_domain(self):
         """
         Test when requests are for a range like [n:m]
         """
