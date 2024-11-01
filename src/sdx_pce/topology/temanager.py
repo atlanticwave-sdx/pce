@@ -937,9 +937,6 @@ class TEManager:
         else:
             return False
 
-    def _handle_vlan_range(self, tag):
-        print("HERE HERE HERE")
-
     def _reserve_vlan(
         self,
         domain: str,
