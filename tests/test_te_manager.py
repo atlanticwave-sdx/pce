@@ -1526,7 +1526,8 @@ class TEManagerTests(unittest.TestCase):
 
     def test_vlan_range_one_domain(self):
         """
-        Test when requests are for a range like [n:m]
+        Test when requests are for a range like [n:m], just for one
+        domain.
         """
 
         connection_request = json.loads(
