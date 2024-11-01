@@ -1581,6 +1581,32 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(breakdown, dict)
         self.assertEqual(len(breakdown), 1)
 
+        ampath = breakdown.get("urn:sdx:topology:ampath.net")
+        self.assertIsNotNone(ampath)
+
+        self.assertEqual(ampath.get("name"), "AMPATH_vlan_100:200_100:200")
+        self.assertEqual(ampath.get("dynamic_backup_path"), True)
+
+        self.assertIsInstance(ampath.get("uni_a"), dict)
+        self.assertIsInstance(ampath.get("uni_a").get("tag"), dict)
+        self.assertIsInstance(ampath.get("uni_a").get("tag").get("value"), str)
+        self.assertEqual(ampath.get("uni_a").get("tag").get("value"), "100:200")
+        self.assertIsInstance(ampath.get("uni_a").get("tag").get("tag_type"), int)
+        self.assertIsInstance(ampath.get("uni_a").get("port_id"), str)
+        self.assertEqual(
+            ampath.get("uni_a").get("port_id"), "urn:sdx:port:ampath.net:Ampath1:50"
+        )
+
+        self.assertIsInstance(ampath.get("uni_z"), dict)
+        self.assertIsInstance(ampath.get("uni_z").get("tag"), dict)
+        self.assertIsInstance(ampath.get("uni_z").get("tag").get("value"), str)
+        self.assertEqual(ampath.get("uni_z").get("tag").get("value"), "100:200")
+        self.assertIsInstance(ampath.get("uni_z").get("tag").get("tag_type"), int)
+        self.assertIsInstance(ampath.get("uni_z").get("port_id"), str)
+        self.assertEqual(
+            ampath.get("uni_z").get("port_id"), "urn:sdx:port:ampath.net:Ampath2:50"
+        )
+
     def _vlan_meets_request(self, requested_vlan: str, assigned_vlan: int) -> bool:
         """
         A helper to compare requested VLAN against the VLAN assignment
