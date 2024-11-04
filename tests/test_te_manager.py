@@ -1571,9 +1571,7 @@ class TEManagerTests(unittest.TestCase):
             """
         )
 
-        temanager = TEManager(topology_data=None)
-
-        temanager.add_topology(
+        temanager = TEManager(topology_data=
             json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_v2.read_text())
         )
 
