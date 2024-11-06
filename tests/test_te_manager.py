@@ -1571,8 +1571,8 @@ class TEManagerTests(unittest.TestCase):
             """
         )
 
-        temanager = TEManager(topology_data=
-            json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_v2.read_text())
+        temanager = TEManager(
+            topology_data=json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_v2.read_text())
         )
 
         graph = temanager.generate_graph_te()
@@ -1626,6 +1626,56 @@ class TEManagerTests(unittest.TestCase):
         self.assertEqual(
             ampath.get("uni_z").get("port_id"), "urn:sdx:port:ampath.net:Ampath2:50"
         )
+
+    def test_vlan_range_three_domains(self):
+        """
+        Test when requests are for a range like [n:m], and port
+        allocations span multiple domains.
+        """
+
+        connection_request = json.loads(
+            """
+            {
+                "name": "new-connection",            
+                "id": "test-connection-id",
+                "endpoints": [
+                    {
+                        "port_id": "urn:sdx:port:ampath.net:Ampath1:50",
+                        "vlan": "100:200"
+                    },
+                    {
+                        "port_id": "urn:sdx:port:sax.net:Sax01:50",
+                        "vlan": "100:200"
+                    }
+                ]
+            }
+            """
+        )
+
+        temanager = TEManager(topology_data=None)
+
+        for topology_file in [
+            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+            TestData.TOPOLOGY_FILE_ZAOXI_v2,
+            TestData.TOPOLOGY_FILE_SAX_v2,
+        ]:
+            temanager.add_topology(json.loads(topology_file.read_text()))
+
+        temanager = TEManager(
+            topology_data=json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_v2.read_text())
+        )
+
+        graph = temanager.generate_graph_te()
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+
+        # TODO: debug this: why is traffic_matrix None?
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        conn = temanager.requests_connectivity(traffic_matrix)
+        print(f"Graph connectivity: {conn}")
 
     def _vlan_meets_request(self, requested_vlan: str, assigned_vlan: int) -> bool:
         """
