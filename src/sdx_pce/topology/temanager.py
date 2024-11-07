@@ -354,25 +354,15 @@ class TEManager:
 
         for connectionRequest, links in solution.connection_map.items():
             for link in links:
-                assert isinstance(link, ConnectionPath)
+                if not isinstance(link, ConnectionPath):
+                    self._logger.error(f"{link} is not a ConnectionPath")
+                    continue
 
-                src_node = self.graph.nodes.get(link.source)
-                assert src_node is not None
+                p1, p2 = self._get_ports_by_link(link)
+                self._logger.info(f"get_links_on_path: ports: {p1}, {p2}")
 
-                dst_node = self.graph.nodes.get(link.destination)
-                assert dst_node is not None
-
-                ports = self._get_ports_by_link(link)
-
-                self._logger.info(
-                    f"get_links_on_path: src_node: {src_node} (#{link.source}), "
-                    f"dst_node: {dst_node} (#{link.destination}), "
-                    f"ports: {ports}"
-                )
-
-                if ports:
-                    p1, p2 = ports
-                    result.append({"source": p1["id"], "destination": p2["id"]})
+                if p1 and p2:
+                    result.append({"source": p1.get("id"), "destination": p2.get("id")})
 
         return connectionRequest, result
 
@@ -431,17 +421,22 @@ class TEManager:
             for count, link in enumerate(links):
                 self._logger.info(f"count: {count}, link: {link}")
 
-                assert isinstance(link, ConnectionPath)
+                if not isinstance(link, ConnectionPath):
+                    self._logger.error(f"{link} is not ConnectionPath")
+                    continue
 
                 src_node = self.graph.nodes.get(link.source)
-                assert src_node is not None
-
                 dst_node = self.graph.nodes.get(link.destination)
-                assert dst_node is not None
 
                 self._logger.info(
                     f"source node: {src_node}, destination node: {dst_node}"
                 )
+
+                if None in [src_node, dst_node]:
+                    self._logger.error(
+                        f"Skipping: src_node: {src_node}, dst_node: {dst_node}"
+                    )
+                    continue
 
                 src_domain = self.topology_manager.get_domain_name(src_node["id"])
                 dst_domain = self.topology_manager.get_domain_name(dst_node["id"])
@@ -621,7 +616,11 @@ class TEManager:
                 409,
             )
 
-        assert isinstance(tagged_breakdown, VlanTaggedBreakdowns)
+        if not isinstance(tagged_breakdown, VlanTaggedBreakdowns):
+            raise TEError(
+                f"Validation error: {tagged_breakdown} is not the expected type",
+                409,
+            )
 
         # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
         self.update_link_bandwidth(solution, reduce=True)
@@ -639,7 +638,9 @@ class TEManager:
 
         Returns a (Port, Port) tuple.
         """
-        assert isinstance(link, ConnectionPath)
+        if not isinstance(link, ConnectionPath):
+            self._logger.error(f"{link} is not ConnectionPath")
+            return None, None
 
         node1 = self.graph.nodes[link.source]["id"]
         node2 = self.graph.nodes[link.destination]["id"]
@@ -648,12 +649,14 @@ class TEManager:
 
         # Avoid some possible crashes.
         if ports is None:
+            self._logger.error(f"Could not find a port matching {node1} and {node2}")
             return None, None
 
         n1, p1, n2, p2 = ports
 
-        assert n1 == node1
-        assert n2 == node2
+        if n1 != node1 or n2 != node2:
+            self._logger.error(f"Node mismatch: {n1}!={node1} or {n2}!={node2}")
+            return None, None
 
         return p1, p2
 
