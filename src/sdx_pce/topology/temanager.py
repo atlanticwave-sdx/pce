@@ -354,7 +354,9 @@ class TEManager:
 
         for connectionRequest, links in solution.connection_map.items():
             for link in links:
-                assert isinstance(link, ConnectionPath)
+                if not isinstance(link, ConnectionPath):
+                    self._logger.error(f"{link} is not a ConnectionPath")
+                    continue
 
                 ports = self._get_ports_by_link(link)
 
