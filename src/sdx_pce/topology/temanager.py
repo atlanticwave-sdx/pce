@@ -358,13 +358,11 @@ class TEManager:
                     self._logger.error(f"{link} is not a ConnectionPath")
                     continue
 
-                ports = self._get_ports_by_link(link)
+                p1, p2 = self._get_ports_by_link(link)
+                self._logger.info(f"get_links_on_path: ports: {p1}, {p2}")
 
-                self._logger.info(f"get_links_on_path: ports: {ports}")
-
-                if ports:
-                    p1, p2 = ports
-                    result.append({"source": p1["id"], "destination": p2["id"]})
+                if p1 and p2:
+                    result.append({"source": p1.get("id"), "destination": p2.get("id")})
 
         return connectionRequest, result
 
