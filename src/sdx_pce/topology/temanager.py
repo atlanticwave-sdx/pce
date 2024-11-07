@@ -426,14 +426,17 @@ class TEManager:
                     continue
 
                 src_node = self.graph.nodes.get(link.source)
-                assert src_node is not None
-
                 dst_node = self.graph.nodes.get(link.destination)
-                assert dst_node is not None
 
                 self._logger.info(
                     f"source node: {src_node}, destination node: {dst_node}"
                 )
+
+                if None in [src_node, dst_node]:
+                    self._logger.error(
+                        f"Skipping: src_node: {src_node}, dst_node: {dst_node}"
+                    )
+                    continue
 
                 src_domain = self.topology_manager.get_domain_name(src_node["id"])
                 dst_domain = self.topology_manager.get_domain_name(dst_node["id"])
