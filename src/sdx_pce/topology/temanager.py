@@ -640,6 +640,7 @@ class TEManager:
 
         # Avoid some possible crashes.
         if ports is None:
+            self._logger.error(f"Could not find a port matching {node1} and {node2}")
             return None, None
 
         n1, p1, n2, p2 = ports
