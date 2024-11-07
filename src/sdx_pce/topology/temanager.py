@@ -616,7 +616,11 @@ class TEManager:
                 409,
             )
 
-        assert isinstance(tagged_breakdown, VlanTaggedBreakdowns)
+        if not isinstance(tagged_breakdown, VlanTaggedBreakdowns):
+            raise TEError(
+                f"Validation error: {tagged_breakdown} is not the expected type",
+                409,
+            )
 
         # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
         self.update_link_bandwidth(solution, reduce=True)
