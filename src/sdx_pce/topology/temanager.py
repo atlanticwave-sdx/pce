@@ -421,7 +421,9 @@ class TEManager:
             for count, link in enumerate(links):
                 self._logger.info(f"count: {count}, link: {link}")
 
-                assert isinstance(link, ConnectionPath)
+                if not isinstance(link, ConnectionPath):
+                    self._logger.error(f"{link} is not ConnectionPath")
+                    continue
 
                 src_node = self.graph.nodes.get(link.source)
                 assert src_node is not None
