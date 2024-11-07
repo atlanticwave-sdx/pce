@@ -357,10 +357,14 @@ class TEManager:
                 assert isinstance(link, ConnectionPath)
 
                 src_node = self.graph.nodes.get(link.source)
-                assert src_node is not None
-
                 dst_node = self.graph.nodes.get(link.destination)
-                assert dst_node is not None
+
+                if None in [src_node, dst_node]:
+                    self._logger.error(
+                        f"Could not find nodes matching {link} "
+                        f"(src: src_node, dst: {dst_node})"
+                    )
+                    continue
 
                 ports = self._get_ports_by_link(link)
 
