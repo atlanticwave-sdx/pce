@@ -629,7 +629,9 @@ class TEManager:
 
         Returns a (Port, Port) tuple.
         """
-        assert isinstance(link, ConnectionPath)
+        if not isinstance(link, ConnectionPath):
+            self._logger.error(f"{link} is not ConnectionPath")
+            return None, None
 
         node1 = self.graph.nodes[link.source]["id"]
         node2 = self.graph.nodes[link.destination]["id"]
@@ -642,8 +644,9 @@ class TEManager:
 
         n1, p1, n2, p2 = ports
 
-        assert n1 == node1
-        assert n2 == node2
+        if n1 != node1 or n2 != node2:
+            self._logger.error(f"Node mismatch: {n1}!={node1} or {n2}!={node2}")
+            return None, None
 
         return p1, p2
 
