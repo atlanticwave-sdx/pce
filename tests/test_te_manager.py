@@ -1664,6 +1664,30 @@ class TEManagerTests(unittest.TestCase):
         conn = temanager.requests_connectivity(traffic_matrix)
         print(f"Graph connectivity: {conn}")
 
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        self.assertIsNotNone(solution)
+
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
+        print(f"{breakdown}")
+
+        self.assertIsNotNone(breakdown)
+        self.assertIsInstance(breakdown, dict)
+        self.assertEqual(len(breakdown), 2)
+
+        ampath = breakdown.get("urn:sdx:topology:ampath.net")
+        sax = breakdown.get("urn:sdx:topology:sax.net")
+        zaoxi = breakdown.get("urn:sdx:topology:zaoxi.net")
+
+        # TODO: form a request that will result in a breakdown that
+        # spans all three domains.
+        self.assertIsNotNone(ampath)
+        self.assertIsNotNone(sax)
+        self.assertIsNone(zaoxi)
+
     def _vlan_meets_request(self, requested_vlan: str, assigned_vlan: int) -> bool:
         """
         A helper to compare requested VLAN against the VLAN assignment
