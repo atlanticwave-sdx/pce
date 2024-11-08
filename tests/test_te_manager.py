@@ -1555,7 +1555,7 @@ class TEManagerTests(unittest.TestCase):
         connection_request = json.loads(
             """
             {
-                "name": "new-connection",            
+                "name": "new-connection",
                 "id": "test-connection-id",
                 "endpoints": [
                     {
