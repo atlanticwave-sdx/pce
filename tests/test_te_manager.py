@@ -1661,10 +1661,6 @@ class TEManagerTests(unittest.TestCase):
         ]:
             temanager.add_topology(json.loads(topology_file.read_text()))
 
-        temanager = TEManager(
-            topology_data=json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_v2.read_text())
-        )
-
         graph = temanager.generate_graph_te()
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
