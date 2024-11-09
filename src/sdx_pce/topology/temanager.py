@@ -938,6 +938,47 @@ class TEManager:
             downstream_vlan_table.keys()
         )
 
+        self._logger.info(
+            f"Looking for common VLANS for connection_request: {connection_request}"
+        )
+
+        # TODO: shouldn't we update VLAN allocation tables here?
+
+        # TODO: This is a work-around to find out if a VLAN range was
+        # specified in the connection request, and then handle it
+        # accordingly.  This code could probably be simplified if we
+        # use a "proper" data structure to represent the original
+        # connection request internally.
+        if connection_request and isinstance(connection_request, dict):
+            ingress_vlans_str = connection_request.get("ingress_port").get("vlan_range")
+            egress_vlans_str = connection_request.get("egress_port").get("vlan_range")
+
+            self._logger.info(
+                f"Found ingress_vlans: {ingress_vlans_str}, "
+                f"egress_vlans: {egress_vlans_str}"
+            )
+
+            if self._tag_is_vlan_range(ingress_vlans_str) and self._tag_is_vlan_range(
+                egress_vlans_str
+            ):
+                start, end = map(int, ingress_vlans_str.split(":"))
+                vlans = list(range(start, end + 1))
+
+                for vlan in vlans:
+                    if upstream_vlan_table[vlan] is not UNUSED_VLAN:
+                        raise Exception(
+                            f"Upstream VLAN {vlan} is in use; can't reserve {tag} range"
+                        )
+
+                    if downstream_vlan_table[vlan] is not UNUSED_VLAN:
+                        raise Exception(
+                            f"Downstream VLAN {vlan} is in use; can't reserve {tag} range"
+                        )
+
+                # We'll simply assume that both ingress and egress
+                # ranges are the same.
+                return ingress_vlans_str
+
         for vlan in common_vlans:
             if (
                 upstream_vlan_table[vlan] is UNUSED_VLAN
@@ -946,7 +987,8 @@ class TEManager:
                 return vlan
 
         self._logger.warning(
-            f"No common VLAN found between {domain} and {next_domain} for ports {upstream_egress} and {downstream_ingress}"
+            f"No common VLAN found between {domain} and {next_domain} "
+            f"for ports {upstream_egress} and {downstream_ingress}"
         )
         return None
 
