@@ -606,7 +606,7 @@ class TEManager:
 
         tagged_breakdown = self._reserve_vlan_breakdown(
             domain_breakdown=domain_breakdown,
-            request_id=solution.request_id,
+            connection_request=connection_request,
             ingress_user_port=ingress_user_port,
             egress_user_port=egress_user_port,
         )
@@ -678,7 +678,7 @@ class TEManager:
     def _reserve_vlan_breakdown(
         self,
         domain_breakdown: dict,
-        request_id: str,
+        connection_request: dict,
         ingress_user_port=None,
         egress_user_port=None,
     ) -> Optional[VlanTaggedBreakdowns]:
@@ -728,8 +728,13 @@ class TEManager:
 
             upstream_egress = segment.get("egress_port")
             downstream_ingress = next_segment.get("ingress_port")
+
             upstream_egress_vlan = self._find_common_vlan_on_link(
-                domain, upstream_egress["id"], next_domain, downstream_ingress["id"]
+                domain,
+                upstream_egress["id"],
+                next_domain,
+                downstream_ingress["id"],
+                connection_request,
             )
             self._logger.info(
                 f"upstream_egress_vlan: {upstream_egress_vlan}; upstream_egress: {upstream_egress}; downstream_ingress: {downstream_ingress}"
@@ -897,7 +902,12 @@ class TEManager:
         assert False, "Not implemented"
 
     def _find_common_vlan_on_link(
-        self, domain, upstream_egress, next_domain, downstream_ingress
+        self,
+        domain,
+        upstream_egress,
+        next_domain,
+        downstream_ingress,
+        connection_request=None,
     ) -> Optional[str]:
         """
         Find a common VLAN on the inter-domain link.
