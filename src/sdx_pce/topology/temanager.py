@@ -712,6 +712,18 @@ class TEManager:
 
         # if not, assuming vlan translation on the domain border port
 
+        self._logger.info(f"Assigning VLANs for request: {connection_request}")
+
+        # TODO: Generating a request_id locally is a workaround until
+        # we get rid of the old style connection request.
+        if isinstance(connection_request, dict):
+            request_id = connection_request.get("id")
+        else:
+            from uuid import uuid4
+
+            request_id = uuid4()
+            self._logger.warning(f"Generated ID {request_id} for old style request")
+
         self._logger.info(
             f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}"
         )
