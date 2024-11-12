@@ -1627,21 +1627,18 @@ class TEManagerTests(unittest.TestCase):
             ampath.get("uni_z").get("port_id"), "urn:sdx:port:ampath.net:Ampath2:50"
         )
 
-    def test_vlan_range_two_domains(self):
+    def test_vlan_range_three_domains(self):
         """
         Test when requests are for a range like [n:m], and port
         allocations span multiple domains.
         """
 
         connection_request = {
-            "name": "new-connection",
-            "id": "test-connection-id",
+            "name": "new-connection-three-domains",
+            "id": "test-connection-id-three-domains",
             "endpoints": [
-                {"port_id": "urn:sdx:port:ampath.net:Ampath1:1", "vlan": "100:200"},
-                # {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "100:200"},
-                # {"port_id": "urn:sdx:port:tenet.ac.za:Tenet01:50", "vlan": "100:200"},
-                # {"port_id": "urn:sdx:port:sax.net:Sax01:50", "vlan": "100:200"},
-                {"port_id": "urn:sdx:port:sax.net:Sax01:41", "vlan": "100:200"},
+                {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "100:200"},
+                {"port_id": "urn:sdx:port:tenet.ac.za:Tenet01:50", "vlan": "100:200"},
             ],
         }
 
@@ -1657,7 +1654,6 @@ class TEManagerTests(unittest.TestCase):
         graph = temanager.generate_graph_te()
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
-        # TODO: debug this: why is traffic_matrix None?
         print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
 
         self.assertIsNotNone(graph)
@@ -1678,20 +1674,19 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsNotNone(breakdown)
         self.assertIsInstance(breakdown, dict)
-        self.assertEqual(len(breakdown), 2)
+        self.assertEqual(len(breakdown), 3)
 
         ampath = breakdown.get("urn:sdx:topology:ampath.net")
         sax = breakdown.get("urn:sdx:topology:sax.net")
-        zaoxi = breakdown.get("urn:sdx:topology:zaoxi.net")
+        tenet = breakdown.get("urn:sdx:topology:tenet.ac.za")
 
-        # TODO: form a request that will result in a breakdown that
-        # spans all three domains.
         self.assertIsNotNone(ampath)
         self.assertIsNotNone(sax)
-        self.assertIsNone(zaoxi)
+        self.assertIsNotNone(tenet)
 
         print(f"ampath: {ampath}")
         print(f"sax: {sax}")
+        print(f"tenet: {tenet}")
 
         self.assertIsNotNone(ampath)
 
