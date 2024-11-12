@@ -1709,7 +1709,6 @@ class TEManagerTests(unittest.TestCase):
         # self.assertIsInstance(ampath.get("uni_z").get("tag").get("value"), str)
         # self.assertEqual(ampath.get("uni_z").get("tag").get("value"), "100:200")
 
-        # TODO -- we need a range here.
         t1 = ampath.get("uni_z").get("tag").get("value")
         self.assertTrue(temanager._tag_is_vlan_range(t1), f"range expected, got {t1}")
 
@@ -1728,7 +1727,6 @@ class TEManagerTests(unittest.TestCase):
         # self.assertIsInstance(sax.get("uni_a").get("tag").get("value"), str)
         # self.assertEqual(sax.get("uni_a").get("tag").get("value"), "100:200")
 
-        # TODO -- we need a range here as well.
         t2 = ampath.get("uni_z").get("tag").get("value")
         self.assertTrue(temanager._tag_is_vlan_range(t1), f"range expected, got {t2}")
 
