@@ -1627,7 +1627,7 @@ class TEManagerTests(unittest.TestCase):
             ampath.get("uni_z").get("port_id"), "urn:sdx:port:ampath.net:Ampath2:50"
         )
 
-    def test_vlan_range_three_domains(self):
+    def test_vlan_range_two_domains(self):
         """
         Test when requests are for a range like [n:m], and port
         allocations span multiple domains.
