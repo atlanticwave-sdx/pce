@@ -974,12 +974,14 @@ class TEManager:
                 for vlan in vlans:
                     if upstream_vlan_table[vlan] is not UNUSED_VLAN:
                         raise Exception(
-                            f"Upstream VLAN {vlan} is in use; can't reserve {ingress_vlans_str} range"
+                            f"Upstream VLAN {vlan} is in use; "
+                            f"can't reserve {ingress_vlans_str} range"
                         )
 
                     if downstream_vlan_table[vlan] is not UNUSED_VLAN:
                         raise Exception(
-                            f"Downstream VLAN {vlan} is in use; can't reserve {egress_vlans_str} range"
+                            f"Downstream VLAN {vlan} is in use; "
+                            f"can't reserve {egress_vlans_str} range"
                         )
 
                 # We'll simply assume that both ingress and egress
