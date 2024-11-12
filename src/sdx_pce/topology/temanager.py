@@ -1063,7 +1063,7 @@ class TEManager:
 
         vlan_table = domain_table.get(port_id)
 
-        self._logger.debug(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
+        # self._logger.debug(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
 
         if vlan_table is None:
             self._logger.warning(
@@ -1098,10 +1098,10 @@ class TEManager:
             for vlan in vlans:
                 vlan_table[vlan] = request_id
 
-            self._logger.debug(
-                f"reserve_vlan domain {domain}, after reservation: "
-                f"vlan_table: {vlan_table}, requested range: {tag}"
-            )
+            # self._logger.debug(
+            #     f"reserve_vlan domain {domain}, after reservation: "
+            #     f"vlan_table: {vlan_table}, requested range: {tag}"
+            # )
 
             # Return the tag to indicate success.
             return tag
@@ -1120,10 +1120,10 @@ class TEManager:
         # mark the tag as in-use.
         vlan_table[available_tag] = request_id
 
-        self._logger.debug(
-            f"reserve_vlan domain {domain}, after reservation: "
-            f"vlan_table: {vlan_table}, available_tag: {available_tag}"
-        )
+        # self._logger.debug(
+        #     f"reserve_vlan domain {domain}, after reservation: "
+        #     f"vlan_table: {vlan_table}, available_tag: {available_tag}"
+        # )
 
         return available_tag
 
