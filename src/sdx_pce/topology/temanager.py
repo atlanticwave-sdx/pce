@@ -961,6 +961,10 @@ class TEManager:
             # Do we have a range of VLANs to handle?
             if self._tag_is_vlan_range(ingress_vlans_str):
 
+                # Both ingress and egress ranges should be the same
+                # for inter-domain links, since we (currently) infer
+                # it from the original request.
+                #
                 # It is quite unlikely that we'll ever get to this
                 # error state, but this is worth checking anyway.
                 if not self._tag_is_vlan_range(egress_vlans_str):
@@ -985,8 +989,6 @@ class TEManager:
                             f"can't reserve {egress_vlans_str} range"
                         )
 
-                # We'll simply assume that both ingress and egress
-                # ranges are the same.
                 return ingress_vlans_str
 
         for vlan in common_vlans:
