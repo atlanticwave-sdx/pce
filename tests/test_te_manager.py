@@ -1688,53 +1688,53 @@ class TEManagerTests(unittest.TestCase):
         print(f"sax: {sax}")
         print(f"tenet: {tenet}")
 
-        self.assertIsNotNone(ampath)
-
+        # Check Ampath part of the breakdown.
         self.assertIsInstance(ampath.get("name"), str)
         self.assertEqual(ampath.get("dynamic_backup_path"), True)
 
         self.assertIsInstance(ampath.get("uni_a"), dict)
         self.assertIsInstance(ampath.get("uni_a").get("tag"), dict)
+
         self.assertIsInstance(ampath.get("uni_a").get("tag").get("value"), str)
         self.assertEqual(ampath.get("uni_a").get("tag").get("value"), "100:200")
         self.assertIsInstance(ampath.get("uni_a").get("tag").get("tag_type"), int)
         self.assertIsInstance(ampath.get("uni_a").get("port_id"), str)
-        # self.assertEqual(
-        #     ampath.get("uni_a").get("port_id"), "urn:sdx:port:ampath.net:Ampath1:50"
-        # )
+        self.assertEqual(
+            ampath.get("uni_a").get("port_id"), "urn:sdx:port:ampath.net:Ampath1:50"
+        )
 
         self.assertIsInstance(ampath.get("uni_z"), dict)
         self.assertIsInstance(ampath.get("uni_z").get("tag"), dict)
-
-        # self.assertIsInstance(ampath.get("uni_z").get("tag").get("value"), str)
-        # self.assertEqual(ampath.get("uni_z").get("tag").get("value"), "100:200")
+        self.assertIsInstance(ampath.get("uni_z").get("tag").get("value"), str)
+        self.assertEqual(ampath.get("uni_z").get("tag").get("value"), "100:200")
 
         t1 = ampath.get("uni_z").get("tag").get("value")
         self.assertTrue(temanager._tag_is_vlan_range(t1), f"range expected, got {t1}")
 
         self.assertIsInstance(ampath.get("uni_z").get("tag").get("tag_type"), int)
         self.assertIsInstance(ampath.get("uni_z").get("port_id"), str)
-        # self.assertEqual(
-        #     ampath.get("uni_z").get("port_id"), "urn:sdx:port:ampath.net:Ampath1:40"
-        # )
+        self.assertEqual(
+            ampath.get("uni_z").get("port_id"), "urn:sdx:port:ampath.net:Ampath1:40"
+        )
 
+        # Check SAX part of the breakdown.
         self.assertIsInstance(sax.get("name"), str)
         self.assertEqual(sax.get("dynamic_backup_path"), True)
 
         self.assertIsInstance(sax.get("uni_a"), dict)
         self.assertIsInstance(sax.get("uni_a").get("tag"), dict)
 
-        # self.assertIsInstance(sax.get("uni_a").get("tag").get("value"), str)
-        # self.assertEqual(sax.get("uni_a").get("tag").get("value"), "100:200")
+        self.assertIsInstance(sax.get("uni_a").get("tag").get("value"), str)
+        self.assertEqual(sax.get("uni_a").get("tag").get("value"), "100:200")
 
         t2 = ampath.get("uni_z").get("tag").get("value")
         self.assertTrue(temanager._tag_is_vlan_range(t1), f"range expected, got {t2}")
 
         self.assertIsInstance(sax.get("uni_a").get("tag").get("tag_type"), int)
         self.assertIsInstance(sax.get("uni_a").get("port_id"), str)
-        # self.assertEqual(
-        #     sax.get("uni_a").get("port_id"), "urn:sdx:port:sax.net:Sax01:40"
-        # )
+        self.assertEqual(
+            sax.get("uni_a").get("port_id"), "urn:sdx:port:sax.net:Sax01:40"
+        )
 
         self.assertIsInstance(sax.get("uni_z"), dict)
         self.assertIsInstance(sax.get("uni_z").get("tag"), dict)
@@ -1742,9 +1742,9 @@ class TEManagerTests(unittest.TestCase):
         self.assertEqual(sax.get("uni_z").get("tag").get("value"), "100:200")
         self.assertIsInstance(sax.get("uni_z").get("tag").get("tag_type"), int)
         self.assertIsInstance(sax.get("uni_z").get("port_id"), str)
-        # self.assertEqual(
-        #     sax.get("uni_z").get("port_id"), "urn:sdx:port:sax.net:Sax01:50"
-        # )
+        self.assertEqual(
+            sax.get("uni_z").get("port_id"), "urn:sdx:port:sax.net:Sax01:41"
+        )
 
     def _vlan_meets_request(self, requested_vlan: str, assigned_vlan: int) -> bool:
         """
