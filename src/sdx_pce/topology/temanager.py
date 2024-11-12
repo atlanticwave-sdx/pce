@@ -944,11 +944,11 @@ class TEManager:
 
         # TODO: shouldn't we update VLAN allocation tables here?
 
-        # TODO: This is a work-around to find out if a VLAN range was
-        # specified in the connection request, and then handle it
-        # accordingly.  This code could probably be simplified if we
-        # use a "proper" data structure to represent the original
-        # connection request internally.
+        # TODO: The block below is a work-around to find out if a VLAN
+        # range was specified in the connection request, and then
+        # handle it accordingly.  This code could probably be
+        # simplified if we use a "proper" data structure to represent
+        # the original connection request internally.
         if connection_request and isinstance(connection_request, dict):
             ingress_vlans_str = connection_request.get("ingress_port").get("vlan_range")
             egress_vlans_str = connection_request.get("egress_port").get("vlan_range")
