@@ -1680,13 +1680,13 @@ class TEManagerTests(unittest.TestCase):
         sax = breakdown.get("urn:sdx:topology:sax.net")
         tenet = breakdown.get("urn:sdx:topology:tenet.ac.za")
 
-        self.assertIsNotNone(ampath)
-        self.assertIsNotNone(sax)
-        self.assertIsNotNone(tenet)
-
         print(f"ampath: {ampath}")
         print(f"sax: {sax}")
         print(f"tenet: {tenet}")
+
+        self.assertIsNotNone(ampath)
+        self.assertIsNotNone(sax)
+        self.assertIsNotNone(tenet)
 
         # Check Ampath part of the breakdown.
         self.assertIsInstance(ampath.get("name"), str)
