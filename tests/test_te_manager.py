@@ -1746,6 +1746,35 @@ class TEManagerTests(unittest.TestCase):
             sax.get("uni_z").get("port_id"), "urn:sdx:port:sax.net:Sax01:41"
         )
 
+        # Check Tenet part of the breakdown.
+        self.assertIsInstance(tenet.get("name"), str)
+        self.assertEqual(tenet.get("dynamic_backup_path"), True)
+
+        self.assertIsInstance(tenet.get("uni_a"), dict)
+        self.assertIsInstance(tenet.get("uni_a").get("tag"), dict)
+
+        self.assertIsInstance(tenet.get("uni_a").get("tag").get("value"), str)
+        self.assertEqual(tenet.get("uni_a").get("tag").get("value"), "100:200")
+
+        t2 = ampath.get("uni_z").get("tag").get("value")
+        self.assertTrue(temanager._tag_is_vlan_range(t1), f"range expected, got {t2}")
+
+        self.assertIsInstance(tenet.get("uni_a").get("tag").get("tag_type"), int)
+        self.assertIsInstance(tenet.get("uni_a").get("port_id"), str)
+        self.assertEqual(
+            tenet.get("uni_a").get("port_id"), "urn:sdx:port:tenet.ac.za:Tenet01:41"
+        )
+
+        self.assertIsInstance(tenet.get("uni_z"), dict)
+        self.assertIsInstance(tenet.get("uni_z").get("tag"), dict)
+        self.assertIsInstance(tenet.get("uni_z").get("tag").get("value"), str)
+        self.assertEqual(tenet.get("uni_z").get("tag").get("value"), "100:200")
+        self.assertIsInstance(tenet.get("uni_z").get("tag").get("tag_type"), int)
+        self.assertIsInstance(tenet.get("uni_z").get("port_id"), str)
+        self.assertEqual(
+            tenet.get("uni_z").get("port_id"), "urn:sdx:port:tenet.ac.za:Tenet01:50"
+        )
+
     def _vlan_meets_request(self, requested_vlan: str, assigned_vlan: int) -> bool:
         """
         A helper to compare requested VLAN against the VLAN assignment
