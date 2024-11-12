@@ -1634,8 +1634,8 @@ class TEManagerTests(unittest.TestCase):
         """
 
         connection_request = {
-            "name": "new-connection-three-domains",
-            "id": "test-connection-id-three-domains",
+            "name": "vlan-range-three-domains",
+            "id": "id-vlan-range-three-domains",
             "endpoints": [
                 {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "100:200"},
                 {"port_id": "urn:sdx:port:tenet.ac.za:Tenet01:50", "vlan": "100:200"},
