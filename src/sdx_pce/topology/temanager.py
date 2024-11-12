@@ -965,7 +965,8 @@ class TEManager:
                 # error state, but this is worth checking anyway.
                 if not self._tag_is_vlan_range(egress_vlans_str):
                     raise Exception(
-                        f"VLAN range requested on ingress, but not on egress"
+                        f"VLAN range {ingress_vlans_str} requested on ingress, "
+                        f"but not on egress (egress: {egress_vlans_str}"
                     )
 
                 start, end = map(int, ingress_vlans_str.split(":"))
