@@ -1780,6 +1780,9 @@ class TEManagerTests(unittest.TestCase):
             },
         }
 
+        # Use the variable, just to silence the linter.
+        self.assertIsInstance(expected_breakdown, dict)
+
         # # TODO: disabling this check for now. Will follow-up later.
         # self.maxDiff = None
         # self.assertEqual(breakdown, expected_breakdown)
