@@ -1650,10 +1650,6 @@ class TEManagerTests(unittest.TestCase):
         )
         print(f"{breakdown}")
 
-        self.assertIsNotNone(breakdown)
-        self.assertIsInstance(breakdown, dict)
-        self.assertEqual(len(breakdown), 3)
-
         expected_breakdown = {
             "urn:sdx:topology:ampath.net": {
                 "name": "AMPATH_vlan_100:200_100:200",
