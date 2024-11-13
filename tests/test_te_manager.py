@@ -1676,104 +1676,47 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(breakdown, dict)
         self.assertEqual(len(breakdown), 3)
 
-        ampath = breakdown.get("urn:sdx:topology:ampath.net")
-        sax = breakdown.get("urn:sdx:topology:sax.net")
-        tenet = breakdown.get("urn:sdx:topology:tenet.ac.za")
+        expected_breakdown = {
+            "urn:sdx:topology:ampath.net": {
+                "name": "AMPATH_vlan_100:200_100:200",
+                "dynamic_backup_path": True,
+                "uni_a": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:ampath.net:Ampath1:50",
+                },
+                "uni_z": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:ampath.net:Ampath1:40",
+                },
+            },
+            "urn:sdx:topology:sax.net": {
+                "name": "SAX_vlan_100:200_100:200",
+                "dynamic_backup_path": True,
+                "uni_a": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:sax.net:Sax01:40",
+                },
+                "uni_z": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:sax.net:Sax01:41",
+                },
+            },
+            "urn:sdx:topology:tenet.ac.za": {
+                "name": "TENET_vlan_100:200_100:200",
+                "dynamic_backup_path": True,
+                "uni_a": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:tenet.ac.za:Tenet01:41",
+                },
+                "uni_z": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:tenet.ac.za:Tenet01:50",
+                },
+            },
+        }
 
-        print(f"ampath: {ampath}")
-        print(f"sax: {sax}")
-        print(f"tenet: {tenet}")
-
-        self.assertIsNotNone(ampath)
-        self.assertIsNotNone(sax)
-        self.assertIsNotNone(tenet)
-
-        # Check Ampath part of the breakdown.
-        self.assertIsInstance(ampath.get("name"), str)
-        self.assertEqual(ampath.get("dynamic_backup_path"), True)
-
-        self.assertIsInstance(ampath.get("uni_a"), dict)
-        self.assertIsInstance(ampath.get("uni_a").get("tag"), dict)
-
-        self.assertIsInstance(ampath.get("uni_a").get("tag").get("value"), str)
-        self.assertEqual(ampath.get("uni_a").get("tag").get("value"), "100:200")
-        self.assertIsInstance(ampath.get("uni_a").get("tag").get("tag_type"), int)
-        self.assertIsInstance(ampath.get("uni_a").get("port_id"), str)
-        self.assertEqual(
-            ampath.get("uni_a").get("port_id"), "urn:sdx:port:ampath.net:Ampath1:50"
-        )
-
-        self.assertIsInstance(ampath.get("uni_z"), dict)
-        self.assertIsInstance(ampath.get("uni_z").get("tag"), dict)
-        self.assertIsInstance(ampath.get("uni_z").get("tag").get("value"), str)
-        self.assertEqual(ampath.get("uni_z").get("tag").get("value"), "100:200")
-
-        t1 = ampath.get("uni_z").get("tag").get("value")
-        self.assertTrue(temanager._tag_is_vlan_range(t1), f"range expected, got {t1}")
-
-        self.assertIsInstance(ampath.get("uni_z").get("tag").get("tag_type"), int)
-        self.assertIsInstance(ampath.get("uni_z").get("port_id"), str)
-        self.assertEqual(
-            ampath.get("uni_z").get("port_id"), "urn:sdx:port:ampath.net:Ampath1:40"
-        )
-
-        # Check SAX part of the breakdown.
-        self.assertIsInstance(sax.get("name"), str)
-        self.assertEqual(sax.get("dynamic_backup_path"), True)
-
-        self.assertIsInstance(sax.get("uni_a"), dict)
-        self.assertIsInstance(sax.get("uni_a").get("tag"), dict)
-
-        self.assertIsInstance(sax.get("uni_a").get("tag").get("value"), str)
-        self.assertEqual(sax.get("uni_a").get("tag").get("value"), "100:200")
-
-        t2 = ampath.get("uni_z").get("tag").get("value")
-        self.assertTrue(temanager._tag_is_vlan_range(t1), f"range expected, got {t2}")
-
-        self.assertIsInstance(sax.get("uni_a").get("tag").get("tag_type"), int)
-        self.assertIsInstance(sax.get("uni_a").get("port_id"), str)
-        self.assertEqual(
-            sax.get("uni_a").get("port_id"), "urn:sdx:port:sax.net:Sax01:40"
-        )
-
-        self.assertIsInstance(sax.get("uni_z"), dict)
-        self.assertIsInstance(sax.get("uni_z").get("tag"), dict)
-        self.assertIsInstance(sax.get("uni_z").get("tag").get("value"), str)
-        self.assertEqual(sax.get("uni_z").get("tag").get("value"), "100:200")
-        self.assertIsInstance(sax.get("uni_z").get("tag").get("tag_type"), int)
-        self.assertIsInstance(sax.get("uni_z").get("port_id"), str)
-        self.assertEqual(
-            sax.get("uni_z").get("port_id"), "urn:sdx:port:sax.net:Sax01:41"
-        )
-
-        # Check Tenet part of the breakdown.
-        self.assertIsInstance(tenet.get("name"), str)
-        self.assertEqual(tenet.get("dynamic_backup_path"), True)
-
-        self.assertIsInstance(tenet.get("uni_a"), dict)
-        self.assertIsInstance(tenet.get("uni_a").get("tag"), dict)
-
-        self.assertIsInstance(tenet.get("uni_a").get("tag").get("value"), str)
-        self.assertEqual(tenet.get("uni_a").get("tag").get("value"), "100:200")
-
-        t2 = ampath.get("uni_z").get("tag").get("value")
-        self.assertTrue(temanager._tag_is_vlan_range(t1), f"range expected, got {t2}")
-
-        self.assertIsInstance(tenet.get("uni_a").get("tag").get("tag_type"), int)
-        self.assertIsInstance(tenet.get("uni_a").get("port_id"), str)
-        self.assertEqual(
-            tenet.get("uni_a").get("port_id"), "urn:sdx:port:tenet.ac.za:Tenet01:41"
-        )
-
-        self.assertIsInstance(tenet.get("uni_z"), dict)
-        self.assertIsInstance(tenet.get("uni_z").get("tag"), dict)
-        self.assertIsInstance(tenet.get("uni_z").get("tag").get("value"), str)
-        self.assertEqual(tenet.get("uni_z").get("tag").get("value"), "100:200")
-        self.assertIsInstance(tenet.get("uni_z").get("tag").get("tag_type"), int)
-        self.assertIsInstance(tenet.get("uni_z").get("port_id"), str)
-        self.assertEqual(
-            tenet.get("uni_z").get("port_id"), "urn:sdx:port:tenet.ac.za:Tenet01:50"
-        )
+        self.maxDiff = None
+        self.assertEqual(breakdown, expected_breakdown)
 
     def _vlan_meets_request(self, requested_vlan: str, assigned_vlan: int) -> bool:
         """
