@@ -1552,24 +1552,14 @@ class TEManagerTests(unittest.TestCase):
         domain.
         """
 
-        connection_request = json.loads(
-            """
-            {
-                "name": "new-connection",
-                "id": "test-connection-id",
-                "endpoints": [
-                    {
-                        "port_id": "urn:sdx:port:ampath.net:Ampath1:50",
-                        "vlan": "100:200"
-                    },
-                    {
-                        "port_id": "urn:sdx:port:ampath.net:Ampath2:50",
-                        "vlan": "100:200"
-                    }
-                ]
-            }
-            """
-        )
+        connection_request = {
+            "name": "vlan-range-one-domain",
+            "id": "id-vlan-range-one-domain",
+            "endpoints": [
+                {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "100:200"},
+                {"port_id": "urn:sdx:port:ampath.net:Ampath2:50", "vlan": "100:200"},
+            ],
+        }
 
         temanager = TEManager(
             topology_data=json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_v2.read_text())
