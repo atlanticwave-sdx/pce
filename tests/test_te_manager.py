@@ -1692,6 +1692,98 @@ class TEManagerTests(unittest.TestCase):
         self.maxDiff = None
         self.assertEqual(breakdown, expected_breakdown)
 
+    def test_vlan_range_three_domains_anomaly(self):
+        """
+        Test when requests are for a range like [n:m], and port
+        allocations span multiple domains.
+
+        The anomaly is that we're not getting the port we requested on
+        egress.  This test is added so that we can investigate why
+        that happens.
+        """
+
+        connection_request = {
+            "name": "vlan-range-three-domains",
+            "id": "id-vlan-range-three-domains",
+            "endpoints": [
+                {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "100:200"},
+                {"port_id": "urn:sdx:port:tenet.ac.za:Tenet01:1", "vlan": "100:200"},
+            ],
+        }
+
+        temanager = TEManager(topology_data=None)
+
+        for topology_file in [
+            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+            TestData.TOPOLOGY_FILE_ZAOXI_v2,
+            TestData.TOPOLOGY_FILE_SAX_v2,
+        ]:
+            temanager.add_topology(json.loads(topology_file.read_text()))
+
+        graph = temanager.generate_graph_te()
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        conn = temanager.requests_connectivity(traffic_matrix)
+        print(f"Graph connectivity: {conn}")
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        print(f"TESolver result: {solution}")
+
+        self.assertIsNotNone(solution)
+
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
+        print(f"{breakdown}")
+
+        expected_breakdown = {
+            "urn:sdx:topology:ampath.net": {
+                "name": "AMPATH_vlan_100:200_100:200",
+                "dynamic_backup_path": True,
+                "uni_a": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:ampath.net:Ampath1:50",
+                },
+                "uni_z": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:ampath.net:Ampath1:40",
+                },
+            },
+            "urn:sdx:topology:sax.net": {
+                "name": "SAX_vlan_100:200_100:200",
+                "dynamic_backup_path": True,
+                "uni_a": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:sax.net:Sax01:40",
+                },
+                "uni_z": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:sax.net:Sax01:41",
+                },
+            },
+            "urn:sdx:topology:tenet.ac.za": {
+                "name": "TENET_vlan_100:200_100:200",
+                "dynamic_backup_path": True,
+                "uni_a": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:tenet.ac.za:Tenet01:41",
+                },
+                "uni_z": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:tenet.ac.za:Tenet01:50",
+                },
+            },
+        }
+
+        # # TODO: disabling this check for now. Will follow-up later.
+        # self.maxDiff = None
+        # self.assertEqual(breakdown, expected_breakdown)
+
     def _vlan_meets_request(self, requested_vlan: str, assigned_vlan: int) -> bool:
         """
         A helper to compare requested VLAN against the VLAN assignment
