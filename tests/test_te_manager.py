@@ -1595,37 +1595,25 @@ class TEManagerTests(unittest.TestCase):
         breakdown = temanager.generate_connection_breakdown(
             solution, connection_request
         )
-        pprint.pprint(f"Breakdown: {breakdown}")
+        print(f"Breakdown: {breakdown}")
 
-        self.assertIsNotNone(breakdown)
-        self.assertIsInstance(breakdown, dict)
-        self.assertEqual(len(breakdown), 1)
+        expected_breakdown = {
+            "urn:sdx:topology:ampath.net": {
+                "name": "AMPATH_vlan_100:200_100:200",
+                "dynamic_backup_path": True,
+                "uni_a": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:ampath.net:Ampath1:50",
+                },
+                "uni_z": {
+                    "tag": {"value": "100:200", "tag_type": 1},
+                    "port_id": "urn:sdx:port:ampath.net:Ampath2:50",
+                },
+            }
+        }
 
-        ampath = breakdown.get("urn:sdx:topology:ampath.net")
-        self.assertIsNotNone(ampath)
-
-        self.assertEqual(ampath.get("name"), "AMPATH_vlan_100:200_100:200")
-        self.assertEqual(ampath.get("dynamic_backup_path"), True)
-
-        self.assertIsInstance(ampath.get("uni_a"), dict)
-        self.assertIsInstance(ampath.get("uni_a").get("tag"), dict)
-        self.assertIsInstance(ampath.get("uni_a").get("tag").get("value"), str)
-        self.assertEqual(ampath.get("uni_a").get("tag").get("value"), "100:200")
-        self.assertIsInstance(ampath.get("uni_a").get("tag").get("tag_type"), int)
-        self.assertIsInstance(ampath.get("uni_a").get("port_id"), str)
-        self.assertEqual(
-            ampath.get("uni_a").get("port_id"), "urn:sdx:port:ampath.net:Ampath1:50"
-        )
-
-        self.assertIsInstance(ampath.get("uni_z"), dict)
-        self.assertIsInstance(ampath.get("uni_z").get("tag"), dict)
-        self.assertIsInstance(ampath.get("uni_z").get("tag").get("value"), str)
-        self.assertEqual(ampath.get("uni_z").get("tag").get("value"), "100:200")
-        self.assertIsInstance(ampath.get("uni_z").get("tag").get("tag_type"), int)
-        self.assertIsInstance(ampath.get("uni_z").get("port_id"), str)
-        self.assertEqual(
-            ampath.get("uni_z").get("port_id"), "urn:sdx:port:ampath.net:Ampath2:50"
-        )
+        self.maxDiff = None
+        self.assertEqual(breakdown, expected_breakdown)
 
     def test_vlan_range_three_domains(self):
         """
