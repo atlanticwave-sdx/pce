@@ -820,7 +820,7 @@ class TEManager:
                     f"Can't proceed. Rolling back reservations."
                 )
                 self.unreserve_vlan(request_id=request_id)
-                return None
+                raise TEError(f"Can't find a vlan assignment for: {connection_request}", 410)
 
             ingress_port_id = ingress_port["id"]
             egress_port_id = egress_port["id"]
