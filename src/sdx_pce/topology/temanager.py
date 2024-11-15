@@ -1,4 +1,5 @@
 import logging
+import re
 import threading
 from itertools import chain
 from typing import List, Optional
@@ -600,7 +601,7 @@ class TEManager:
 
         tagged_breakdown = self._reserve_vlan_breakdown(
             domain_breakdown=domain_breakdown,
-            request_id=solution.request_id,
+            connection_request=connection_request,
             ingress_user_port=ingress_user_port,
             egress_user_port=egress_user_port,
         )
@@ -680,7 +681,7 @@ class TEManager:
     def _reserve_vlan_breakdown(
         self,
         domain_breakdown: dict,
-        request_id: str,
+        connection_request: dict,
         ingress_user_port=None,
         egress_user_port=None,
     ) -> Optional[VlanTaggedBreakdowns]:
@@ -714,6 +715,18 @@ class TEManager:
 
         # if not, assuming vlan translation on the domain border port
 
+        self._logger.info(f"Assigning VLANs for request: {connection_request}")
+
+        # TODO: Generating a request_id locally is a workaround until
+        # we get rid of the old style connection request.
+        if isinstance(connection_request, dict):
+            request_id = connection_request.get("id")
+        else:
+            from uuid import uuid4
+
+            request_id = uuid4()
+            self._logger.warning(f"Generated ID {request_id} for old style request")
+
         self._logger.info(
             f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}"
         )
@@ -730,8 +743,13 @@ class TEManager:
 
             upstream_egress = segment.get("egress_port")
             downstream_ingress = next_segment.get("ingress_port")
+
             upstream_egress_vlan = self._find_common_vlan_on_link(
-                domain, upstream_egress["id"], next_domain, downstream_ingress["id"]
+                domain,
+                upstream_egress["id"],
+                next_domain,
+                downstream_ingress["id"],
+                connection_request,
             )
             self._logger.info(
                 f"upstream_egress_vlan: {upstream_egress_vlan}; upstream_egress: {upstream_egress}; downstream_ingress: {downstream_ingress}"
@@ -805,7 +823,9 @@ class TEManager:
                     f"Can't proceed. Rolling back reservations."
                 )
                 self.unreserve_vlan(request_id=request_id)
-                return None
+                raise TEError(
+                    f"Can't find a vlan assignment for: {connection_request}", 410
+                )
 
             ingress_port_id = ingress_port["id"]
             egress_port_id = egress_port["id"]
@@ -899,7 +919,12 @@ class TEManager:
         assert False, "Not implemented"
 
     def _find_common_vlan_on_link(
-        self, domain, upstream_egress, next_domain, downstream_ingress
+        self,
+        domain,
+        upstream_egress,
+        next_domain,
+        downstream_ingress,
+        connection_request=None,
     ) -> Optional[str]:
         """
         Find a common VLAN on the inter-domain link.
@@ -918,6 +943,59 @@ class TEManager:
             downstream_vlan_table.keys()
         )
 
+        self._logger.info(
+            f"Looking for common VLANS for connection_request: {connection_request}"
+        )
+
+        # TODO: shouldn't we update VLAN allocation tables here?
+
+        # The block below is a work-around to find out if a VLAN range
+        # was specified in the connection request, and then handle it
+        # accordingly.  This code could probably be simplified if we
+        # use a "proper" data structure to represent the original
+        # connection request internally.
+        if connection_request and isinstance(connection_request, dict):
+            ingress_vlans_str = connection_request.get("ingress_port").get("vlan_range")
+            egress_vlans_str = connection_request.get("egress_port").get("vlan_range")
+
+            self._logger.info(
+                f"Found ingress_vlans: {ingress_vlans_str}, "
+                f"egress_vlans: {egress_vlans_str}"
+            )
+
+            # Do we have a range of VLANs to handle?
+            if self._tag_is_vlan_range(ingress_vlans_str):
+
+                # Both ingress and egress ranges should be the same
+                # for inter-domain links, since we (currently) infer
+                # it from the original request.
+                #
+                # It is quite unlikely that we'll ever get to this
+                # error state, but this is worth checking anyway.
+                if not self._tag_is_vlan_range(egress_vlans_str):
+                    raise Exception(
+                        f"VLAN range {ingress_vlans_str} requested on ingress, "
+                        f"but not on egress (egress: {egress_vlans_str}"
+                    )
+
+                start, end = map(int, ingress_vlans_str.split(":"))
+                vlans = list(range(start, end + 1))
+
+                for vlan in vlans:
+                    if upstream_vlan_table[vlan] is not UNUSED_VLAN:
+                        raise Exception(
+                            f"Upstream VLAN {vlan} is in use; "
+                            f"can't reserve {ingress_vlans_str} range"
+                        )
+
+                    if downstream_vlan_table[vlan] is not UNUSED_VLAN:
+                        raise Exception(
+                            f"Downstream VLAN {vlan} is in use; "
+                            f"can't reserve {egress_vlans_str} range"
+                        )
+
+                return ingress_vlans_str
+
         for vlan in common_vlans:
             if (
                 upstream_vlan_table[vlan] is UNUSED_VLAN
@@ -926,9 +1004,19 @@ class TEManager:
                 return vlan
 
         self._logger.warning(
-            f"No common VLAN found between {domain} and {next_domain} for ports {upstream_egress} and {downstream_ingress}"
+            f"No common VLAN found between {domain} and {next_domain} "
+            f"for ports {upstream_egress} and {downstream_ingress}"
         )
         return None
+
+    def _tag_is_vlan_range(self, tag: str) -> bool:
+        """
+        Return True if tag is of the form `n:m`
+        """
+        if isinstance(tag, str):
+            return bool(re.match(r"\d+:\d+", tag))
+        else:
+            return False
 
     def _reserve_vlan(
         self,
@@ -951,9 +1039,10 @@ class TEManager:
             preferences.  See the description of "vlan" under
             "Mandatory Attributes" section of the Service Provisioning
             Data Model Specification 1.0 for details.
-        :param upstream_vlan: a string that contains the upstream tag to use
 
             https://sdx-docs.readthedocs.io/en/latest/specs/provisioning-api-1.0.html#mandatory-attributes
+        :param upstream_egress_vlan: a string that contains the
+            upstream tag to use
         """
 
         # with self._topology_lock:
@@ -979,7 +1068,7 @@ class TEManager:
 
         vlan_table = domain_table.get(port_id)
 
-        self._logger.debug(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
+        # self._logger.debug(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
 
         if vlan_table is None:
             self._logger.warning(
@@ -998,6 +1087,29 @@ class TEManager:
             for vlan_tag, vlan_usage in vlan_table.items():
                 if vlan_usage is UNUSED_VLAN:
                     available_tag = vlan_tag
+        elif self._tag_is_vlan_range(tag):
+            # expand the range.
+            start, end = map(int, tag.split(":"))
+            vlans = list(range(start, end + 1))
+
+            self._logger.debug(f"Attempting to reseve vlan range {vlans}")
+
+            # Check if all VLANs in the range are available.
+            for vlan in vlans:
+                if vlan_table[vlan] is not UNUSED_VLAN:
+                    raise Exception(f"VLAN {vlan} is in use; can't reserve {tag} range")
+
+            # Mark range in use.
+            for vlan in vlans:
+                vlan_table[vlan] = request_id
+
+            # self._logger.debug(
+            #     f"reserve_vlan domain {domain}, after reservation: "
+            #     f"vlan_table: {vlan_table}, requested range: {tag}"
+            # )
+
+            # Return the tag to indicate success.
+            return tag
         else:
             if tag in vlan_table:
                 if vlan_table[tag] is UNUSED_VLAN:
@@ -1013,10 +1125,10 @@ class TEManager:
         # mark the tag as in-use.
         vlan_table[available_tag] = request_id
 
-        self._logger.debug(
-            f"reserve_vlan domain {domain}, after reservation: "
-            f"vlan_table: {vlan_table}, available_tag: {available_tag}"
-        )
+        # self._logger.debug(
+        #     f"reserve_vlan domain {domain}, after reservation: "
+        #     f"vlan_table: {vlan_table}, available_tag: {available_tag}"
+        # )
 
         return available_tag
 
