@@ -39,6 +39,7 @@ Issues = "https://github.com/atlanticwave-sdx/pce/issues"
 [project.optional-dependencies]
 test = [
     "pytest >= 7.1.2",
+    "coverage == 7.6.1",   # See https://github.com/nedbat/coveragepy/issues/1896
     "pytest-cov >= 3.0.0",
     "pytest-sugar >= 1.0.0",
 ]
