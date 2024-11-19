@@ -19,7 +19,8 @@ permissions:
 jobs:
   test:
 
-    runs-on: ubuntu-latest
+    runs-on:
+      - ubuntu-latest
 
     strategy:
       fail-fast: false
