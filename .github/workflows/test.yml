@@ -61,18 +61,18 @@ jobs:
           # Run tests and collect coverage data.
           python -m pytest
           # Generate LCOV format coverage data for coveralls.
-          #coverage lcov -o coverage.lcov
+          coverage lcov -o coverage.lcov
 
       - name: Build packages
         run: |
           python -m flit build
 
-      #- name: Send coverage data to coveralls.io
-      #  uses: coverallsapp/github-action@main
-      #  with:
-      #    flag-name: run-${{ join(matrix.*, '-') }}
-      #    file: coverage.lcov
-      #    parallel: true
+      - name: Send coverage data to coveralls.io
+       uses: coverallsapp/github-action@main
+       with:
+         flag-name: run-${{ join(matrix.*, '-') }}
+         file: coverage.lcov
+         parallel: true
 
   finalize:
     name: finalize
