@@ -68,11 +68,11 @@ jobs:
           python -m flit build
 
       - name: Send coverage data to coveralls.io
-       uses: coverallsapp/github-action@main
-       with:
-         flag-name: run-${{ join(matrix.*, '-') }}
-         file: coverage.lcov
-         parallel: true
+        uses: coverallsapp/github-action@main
+        with:
+          flag-name: run-${{ join(matrix.*, '-') }}
+          file: coverage.lcov
+          parallel: true
 
   finalize:
     name: finalize
