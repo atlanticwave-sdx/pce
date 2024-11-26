@@ -139,7 +139,21 @@ class TEManager:
         """
         Set VLAN tags table.
         """
-        # TODO: validate the table, perhaps?
+        # Ensure that the input is in correct shape.
+        if not isinstance(table, dict):
+            raise ValidationError(f"table ({table}) is not a dict")
+
+        for domain, ports in table.items():
+            if not isinstance(domain, str):
+                raise ValidationError(f"domain ({domain}) is not a str")
+
+            for port_id, labels in ports.items():
+                if not isinstance(port_id, str):
+                    raise ValidationError(f"port_id ({port_id}) is not a str")
+
+                if not isinstance(labels, dict):
+                    raise ValidationError(f"labels ({labels}) is not a dict")
+
         self._vlan_tags_table = table
 
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
