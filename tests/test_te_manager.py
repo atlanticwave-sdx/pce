@@ -1866,3 +1866,52 @@ class TEManagerTests(unittest.TestCase):
         with self.assertRaises(ValidationError) as ctx:
             temanager.vlan_tags_table = {"domain1": {"port1": (1, None)}}
             self.assertTrue("labels ((1, None)) is not a dict" in str(ctx.exception))
+
+    def test_vlan_tags_table_ensure_no_existing_allocations(self):
+        """
+        Test that restoring VLAN tables works when there are no
+        existing allocations.
+        """
+        temanager = TEManager(topology_data=None)
+
+        for topology_file in [
+            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+            TestData.TOPOLOGY_FILE_ZAOXI_v2,
+            TestData.TOPOLOGY_FILE_SAX_v2,
+        ]:
+            temanager.add_topology(json.loads(topology_file.read_text()))
+
+        connection_request = {
+            "name": "check-existing-vlan-allocations",
+            "id": "id-check-existing-vlan-allocations",
+            "endpoints": [
+                {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "100:200"},
+                {"port_id": "urn:sdx:port:tenet.ac.za:Tenet01:1", "vlan": "100:200"},
+            ],
+        }
+
+        graph = temanager.generate_graph_te()
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        self.assertIsNotNone(solution)
+
+        print(f"TESolver result: {solution}")
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
+
+        # The VLAN table should have some allocations now, and we
+        # should not be able to change its state.
+        with self.assertRaises(ValidationError) as ctx:
+            temanager.vlan_tags_table = {"domain1": {"port1": {1: None}}}
+            expected_error = (
+                "Error: VLAN table is not empty:"
+                "(domain: urn:sdx:topology:ampath.net, port: "
+                "urn:sdx:port:ampath.net:Ampath1:40, vlan: 100)"
+            )
+            self.assertTrue(expected_error in str(ctx.exception))
