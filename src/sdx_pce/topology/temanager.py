@@ -127,6 +127,20 @@ class TEManager:
             connections.append(solution.request_id)
         return connections
 
+    @property
+    def vlan_tags_table(self) -> dict:
+        """
+        Return the current VLAN tags table.
+        """
+        return self._vlan_tags_table
+
+    @vlan_tags_table.setter
+    def vlan_tags_table(self, table: dict):
+        """
+        Set VLAN tags table.
+        """
+        self._vlan_tags_table = table
+
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
         Update VLAN tags table in a non-disruptive way, meaning: only add new
