@@ -154,6 +154,18 @@ class TEManager:
                 if not isinstance(labels, dict):
                     raise ValidationError(f"labels ({labels}) is not a dict")
 
+        # We should allow VLAN table to be restored only during
+        # startup.  If the table has VLANs that are in use, it means
+        # that we're in the wrong state.
+        for domain, ports in self._vlan_tags_table.items():
+            for port_id, labels in ports.items():
+                for vlan, status in labels.items():
+                    if status is not UNUSED_VLAN:
+                        raise ValidationError(
+                            f"Error: VLAN table is not empty:"
+                            f"(domain: {domain}, port: {port}, vlan: {vlan})"
+                        )
+
         self._vlan_tags_table = table
 
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
