@@ -163,7 +163,7 @@ class TEManager:
                     if status is not UNUSED_VLAN:
                         raise ValidationError(
                             f"Error: VLAN table is not empty:"
-                            f"(domain: {domain}, port: {port}, vlan: {vlan})"
+                            f"(domain: {domain}, port: {port_id}, vlan: {vlan})"
                         )
 
         self._vlan_tags_table = table
