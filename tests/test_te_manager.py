@@ -1815,3 +1815,26 @@ class TEManagerTests(unittest.TestCase):
             return requested_vlan in requested_range
 
         raise Exception("invalid state!")
+
+    def test_vlan_tags_table(self):
+        """
+        Test saving/restoring VLAN tags table.
+        """
+        temanager = TEManager(topology_data=None)
+
+        for topology_file in [
+            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+            TestData.TOPOLOGY_FILE_ZAOXI_v2,
+            TestData.TOPOLOGY_FILE_SAX_v2,
+        ]:
+            temanager.add_topology(json.loads(topology_file.read_text()))
+
+        # Test getter.
+        table1 = temanager.vlan_tags_table
+        self.assertIsInstance(table1, dict)
+
+        # Test setter
+        temanager.vlan_tags_table = table1
+        table2 = temanager.vlan_tags_table
+        self.assertIsInstance(table2, dict)
+        self.assertEqual(table1, table2)
