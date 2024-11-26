@@ -1023,8 +1023,8 @@ class TEManager:
         domain: str,
         port: dict,
         request_id: str,
-        tag: str = None,
-        upstream_egress_vlan: str = None,
+        tag: Optional[str] = None,
+        upstream_egress_vlan: Optional[str] = None,
     ):
         """
         Find unused VLANs for given domain/port and mark them in-use.
@@ -1170,7 +1170,7 @@ class TEManager:
         # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
         self.update_link_bandwidth(solution, reduce=False)
 
-    def get_connection_solution(self, request_id: str) -> ConnectionSolution:
+    def get_connection_solution(self, request_id: str) -> Optional[ConnectionSolution]:
         """
         Get a connection solution by request ID.
         """
