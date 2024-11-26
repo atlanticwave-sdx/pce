@@ -139,6 +139,7 @@ class TEManager:
         """
         Set VLAN tags table.
         """
+        # TODO: validate the table, perhaps?
         self._vlan_tags_table = table
 
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
