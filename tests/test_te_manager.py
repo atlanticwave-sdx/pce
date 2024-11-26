@@ -7,7 +7,7 @@ import networkx as nx
 from sdx_pce.load_balancing.te_solver import TESolver
 from sdx_pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
 from sdx_pce.topology.temanager import TEManager
-from sdx_pce.utils.exceptions import TEError, UnknownRequestError
+from sdx_pce.utils.exceptions import TEError, UnknownRequestError, ValidationError
 
 from . import TestData
 
@@ -1838,3 +1838,31 @@ class TEManagerTests(unittest.TestCase):
         table2 = temanager.vlan_tags_table
         self.assertIsInstance(table2, dict)
         self.assertEqual(table1, table2)
+
+    def test_vlan_tags_table_error_checks(self):
+        """
+        Test error checks when restoring VLAN tags table.
+        """
+        temanager = TEManager(topology_data=None)
+
+        for topology_file in [
+            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+            TestData.TOPOLOGY_FILE_ZAOXI_v2,
+            TestData.TOPOLOGY_FILE_SAX_v2,
+        ]:
+            temanager.add_topology(json.loads(topology_file.read_text()))
+
+        # input must be a dict.
+        with self.assertRaises(ValidationError) as ctx:
+            temanager.vlan_tags_table = list()
+            self.assertTrue("table ([]) is not a dict" in str(ctx.exception))
+
+        # port_id keys in the input must be a string.
+        with self.assertRaises(ValidationError) as ctx:
+            temanager.vlan_tags_table = {"domain1": {1: {1: None}}}
+            self.assertTrue("port_id (1) is not a str" in str(ctx.exception))
+
+        # the "inner" VLAN allocation table must be a dict.
+        with self.assertRaises(ValidationError) as ctx:
+            temanager.vlan_tags_table = {"domain1": {"port1": (1, None)}}
+            self.assertTrue("labels ((1, None)) is not a dict" in str(ctx.exception))
