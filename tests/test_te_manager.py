@@ -1905,6 +1905,9 @@ class TEManagerTests(unittest.TestCase):
             solution, connection_request
         )
 
+        print(f"Breakdown: {breakdown}")
+        self.assertIsNotNone(breakdown)
+
         # The VLAN table should have some allocations now, and we
         # should not be able to change its state.
         with self.assertRaises(ValidationError) as ctx:
