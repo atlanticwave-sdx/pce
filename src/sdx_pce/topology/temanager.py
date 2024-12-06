@@ -127,6 +127,47 @@ class TEManager:
             connections.append(solution.request_id)
         return connections
 
+    @property
+    def vlan_tags_table(self) -> dict:
+        """
+        Return the current VLAN tags table.
+        """
+        return self._vlan_tags_table
+
+    @vlan_tags_table.setter
+    def vlan_tags_table(self, table: dict):
+        """
+        Set VLAN tags table.
+        """
+        # Ensure that the input is in correct shape.
+        if not isinstance(table, dict):
+            raise ValidationError(f"table ({table}) is not a dict")
+
+        for domain, ports in table.items():
+            if not isinstance(domain, str):
+                raise ValidationError(f"domain ({domain}) is not a str")
+
+            for port_id, labels in ports.items():
+                if not isinstance(port_id, str):
+                    raise ValidationError(f"port_id ({port_id}) is not a str")
+
+                if not isinstance(labels, dict):
+                    raise ValidationError(f"labels ({labels}) is not a dict")
+
+        # We should allow VLAN table to be restored only during
+        # startup.  If the table has VLANs that are in use, it means
+        # that we're in the wrong state.
+        for domain, ports in self._vlan_tags_table.items():
+            for port_id, labels in ports.items():
+                for vlan, status in labels.items():
+                    if status is not UNUSED_VLAN:
+                        raise ValidationError(
+                            f"Error: VLAN table is not empty:"
+                            f"(domain: {domain}, port: {port_id}, vlan: {vlan})"
+                        )
+
+        self._vlan_tags_table = table
+
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
         Update VLAN tags table in a non-disruptive way, meaning: only add new
@@ -1023,8 +1064,8 @@ class TEManager:
         domain: str,
         port: dict,
         request_id: str,
-        tag: str = None,
-        upstream_egress_vlan: str = None,
+        tag: Optional[str] = None,
+        upstream_egress_vlan: Optional[str] = None,
     ):
         """
         Find unused VLANs for given domain/port and mark them in-use.
@@ -1170,7 +1211,7 @@ class TEManager:
         # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
         self.update_link_bandwidth(solution, reduce=False)
 
-    def get_connection_solution(self, request_id: str) -> ConnectionSolution:
+    def get_connection_solution(self, request_id: str) -> Optional[ConnectionSolution]:
         """
         Get a connection solution by request ID.
         """

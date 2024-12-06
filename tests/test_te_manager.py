@@ -7,7 +7,7 @@ import networkx as nx
 from sdx_pce.load_balancing.te_solver import TESolver
 from sdx_pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
 from sdx_pce.topology.temanager import TEManager
-from sdx_pce.utils.exceptions import TEError, UnknownRequestError
+from sdx_pce.utils.exceptions import TEError, UnknownRequestError, ValidationError
 
 from . import TestData
 
@@ -1815,3 +1815,106 @@ class TEManagerTests(unittest.TestCase):
             return requested_vlan in requested_range
 
         raise Exception("invalid state!")
+
+    def test_vlan_tags_table(self):
+        """
+        Test saving/restoring VLAN tags table.
+        """
+        temanager = TEManager(topology_data=None)
+
+        for topology_file in [
+            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+            TestData.TOPOLOGY_FILE_ZAOXI_v2,
+            TestData.TOPOLOGY_FILE_SAX_v2,
+        ]:
+            temanager.add_topology(json.loads(topology_file.read_text()))
+
+        # Test getter.
+        table1 = temanager.vlan_tags_table
+        self.assertIsInstance(table1, dict)
+
+        # Test setter
+        temanager.vlan_tags_table = table1
+        table2 = temanager.vlan_tags_table
+        self.assertIsInstance(table2, dict)
+        self.assertEqual(table1, table2)
+
+    def test_vlan_tags_table_error_checks(self):
+        """
+        Test error checks when restoring VLAN tags table.
+        """
+        temanager = TEManager(topology_data=None)
+
+        for topology_file in [
+            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+            TestData.TOPOLOGY_FILE_ZAOXI_v2,
+            TestData.TOPOLOGY_FILE_SAX_v2,
+        ]:
+            temanager.add_topology(json.loads(topology_file.read_text()))
+
+        # input must be a dict.
+        with self.assertRaises(ValidationError) as ctx:
+            temanager.vlan_tags_table = list()
+            self.assertTrue("table ([]) is not a dict" in str(ctx.exception))
+
+        # port_id keys in the input must be a string.
+        with self.assertRaises(ValidationError) as ctx:
+            temanager.vlan_tags_table = {"domain1": {1: {1: None}}}
+            self.assertTrue("port_id (1) is not a str" in str(ctx.exception))
+
+        # the "inner" VLAN allocation table must be a dict.
+        with self.assertRaises(ValidationError) as ctx:
+            temanager.vlan_tags_table = {"domain1": {"port1": (1, None)}}
+            self.assertTrue("labels ((1, None)) is not a dict" in str(ctx.exception))
+
+    def test_vlan_tags_table_ensure_no_existing_allocations(self):
+        """
+        Test that restoring VLAN tables works when there are no
+        existing allocations.
+        """
+        temanager = TEManager(topology_data=None)
+
+        for topology_file in [
+            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+            TestData.TOPOLOGY_FILE_ZAOXI_v2,
+            TestData.TOPOLOGY_FILE_SAX_v2,
+        ]:
+            temanager.add_topology(json.loads(topology_file.read_text()))
+
+        connection_request = {
+            "name": "check-existing-vlan-allocations",
+            "id": "id-check-existing-vlan-allocations",
+            "endpoints": [
+                {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "100:200"},
+                {"port_id": "urn:sdx:port:tenet.ac.za:Tenet01:1", "vlan": "100:200"},
+            ],
+        }
+
+        graph = temanager.generate_graph_te()
+        traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+
+        print(f"Generated graph: '{graph}', traffic matrix: '{traffic_matrix}'")
+        self.assertIsNotNone(graph)
+        self.assertIsNotNone(traffic_matrix)
+
+        solution = TESolver(graph, traffic_matrix).solve()
+        self.assertIsNotNone(solution)
+
+        print(f"TESolver result: {solution}")
+        breakdown = temanager.generate_connection_breakdown(
+            solution, connection_request
+        )
+
+        print(f"Breakdown: {breakdown}")
+        self.assertIsNotNone(breakdown)
+
+        # The VLAN table should have some allocations now, and we
+        # should not be able to change its state.
+        with self.assertRaises(ValidationError) as ctx:
+            temanager.vlan_tags_table = {"domain1": {"port1": {1: None}}}
+            expected_error = (
+                "Error: VLAN table is not empty:"
+                "(domain: urn:sdx:topology:ampath.net, port: "
+                "urn:sdx:port:ampath.net:Ampath1:40, vlan: 100)"
+            )
+            self.assertTrue(expected_error in str(ctx.exception))
