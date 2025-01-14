@@ -1,8 +1,8 @@
 {
     "id": "285eea4b-1e86-4d54-bd75-f14b8cb4a63a",
     "name": "Test connection request",
-    "start_time": "2000-01-23T04:56:07.000Z",
-    "end_time": "2000-01-23T04:56:07.000Z",
+    "start_time": "2030-01-23T04:56:07.000",
+    "end_time": "2030-01-23T04:56:07.000",
     "bandwidth_required": 10,
     "latency_required": 300,
     "egress_port": {

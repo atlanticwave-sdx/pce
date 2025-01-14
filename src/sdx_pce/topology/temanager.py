@@ -1,6 +1,7 @@
 import logging
 import re
 import threading
+import traceback
 from itertools import chain
 from typing import List, Optional
 
@@ -8,6 +9,7 @@ import networkx as nx
 from networkx.algorithms import approximation as approx
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
+from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
 
 from sdx_pce.models import (
     ConnectionPath,
@@ -21,7 +23,12 @@ from sdx_pce.models import (
 )
 from sdx_pce.topology.manager import TopologyManager
 from sdx_pce.utils.constants import Constants
-from sdx_pce.utils.exceptions import TEError, UnknownRequestError, ValidationError
+from sdx_pce.utils.exceptions import (
+    RequestValidationError,
+    TEError,
+    UnknownRequestError,
+    ValidationError,
+)
 
 UNUSED_VLAN = None
 
@@ -258,6 +265,32 @@ class TEManager:
         )
 
         request = ConnectionHandler().import_connection_data(connection_request)
+
+        try:
+            ConnectionValidator(request).is_valid()
+        except RequestValidationError as request_err:
+            self._logger.error(
+                f"Validation error: {request_err} for {connection_request}"
+            )
+            if "Strict QoS requirements" in str(request_err):
+                raise RequestValidationError(
+                    f"Validation error: {request_err} for {connection_request}", 410
+                )
+            if "Scheduling" in str(request_err):
+                raise RequestValidationError(
+                    f"Validation error: {request_err} for {connection_request}", 411
+                )
+            raise RequestValidationError(
+                f"Validation error: {request_err} for {connection_request}", 400
+            )
+        except Exception as e:
+            err = traceback.format_exc().replace("\n", ", ")
+            self._logger.error(
+                f"Error when generating/publishing breakdown: {e} - {err}"
+            )
+            raise RequestValidationError(
+                f"Validation error: {e} for {connection_request}", 400
+            )
 
         self._logger.info(f"generate_traffic_matrix: decoded request: {request}")
 
@@ -655,13 +688,13 @@ class TEManager:
         if tagged_breakdown is None:
             raise TEError(
                 f"Can't find a valid vlan breakdown solution for: {connection_request}",
-                409,
+                410,
             )
 
         if not isinstance(tagged_breakdown, VlanTaggedBreakdowns):
             raise TEError(
                 f"Validation error: {tagged_breakdown} is not the expected type",
-                409,
+                410,
             )
 
         # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
