@@ -1,6 +1,7 @@
 import logging
 import re
 import threading
+import traceback
 from itertools import chain
 from typing import List, Optional
 
@@ -266,9 +267,9 @@ class TEManager:
         request = ConnectionHandler().import_connection_data(connection_request)
 
         try:
-            ConnectionValidator(connection).is_valid()
+            ConnectionValidator(request).is_valid()
         except RequestValidationError as request_err:
-            self._logger.warning(
+            self._logger.error(
                 f"Validation error: {request_err} for {connection_request}"
             )
             if "Strict QoS requirements" in str(request_err):
@@ -276,9 +277,6 @@ class TEManager:
                     f"Validation error: {request_err} for {connection_request}", 410
                 )
             if "Scheduling" in str(request_err):
-                self._logger.warning(
-                    f"Validation error: {request_err} for {connection_request}"
-                )
                 raise RequestValidationError(
                     f"Validation error: {request_err} for {connection_request}", 411
                 )
@@ -287,9 +285,11 @@ class TEManager:
             )
         except Exception as e:
             err = traceback.format_exc().replace("\n", ", ")
-            logger.error(f"Error when generating/publishing breakdown: {e} - {err}")
+            self._logger.error(
+                f"Error when generating/publishing breakdown: {e} - {err}"
+            )
             raise RequestValidationError(
-                f"Validation error: {request_err} for {connection_request}", 400
+                f"Validation error: {e} for {connection_request}", 400
             )
 
         self._logger.info(f"generate_traffic_matrix: decoded request: {request}")
