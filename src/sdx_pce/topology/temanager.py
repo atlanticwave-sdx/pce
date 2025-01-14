@@ -8,6 +8,7 @@ import networkx as nx
 from networkx.algorithms import approximation as approx
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
+from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
 
 from sdx_pce.models import (
     ConnectionPath,
@@ -21,7 +22,12 @@ from sdx_pce.models import (
 )
 from sdx_pce.topology.manager import TopologyManager
 from sdx_pce.utils.constants import Constants
-from sdx_pce.utils.exceptions import TEError, UnknownRequestError, ValidationError
+from sdx_pce.utils.exceptions import (
+    RequestValidationError,
+    TEError,
+    UnknownRequestError,
+    ValidationError,
+)
 
 UNUSED_VLAN = None
 
@@ -258,6 +264,27 @@ class TEManager:
         )
 
         request = ConnectionHandler().import_connection_data(connection_request)
+
+        try:
+            ConnectionValidator(connection).is_valid()
+        except RequestValidationError as request_err:
+            self._logger.warning(
+                f"Validation error: {request_err} for {connection_request}"
+            )
+            if "Strict QoS requirements" in str(request_err):
+                raise RequestValidationError(
+                    f"Validation error: {request_err} for {connection_request}", 410
+                )
+            if "Scheduling" in str(request_err):
+                self._logger.warning(
+                    f"Validation error: {request_err} for {connection_request}"
+                )
+                raise RequestValidationError(
+                    f"Validation error: {request_err} for {connection_request}", 411
+                )
+            raise RequestValidationError(
+                f"Validation error: {request_err} for {connection_request}", 400
+            )
 
         self._logger.info(f"generate_traffic_matrix: decoded request: {request}")
 
