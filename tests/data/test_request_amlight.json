@@ -1,8 +1,8 @@
 {
     "id": "id",
     "name": "AMLight",
-    "start_time": "2000-01-23T04:56:07.000Z",
-    "end_time": "2000-01-23T04:56:07.000Z",
+    "start_time": "2030-01-23T04:56:07.000",
+    "end_time": "2030-01-23T04:56:07.000",
     "bandwidth_required": 100,
     "latency_required": 20,
     "egress_port":
