@@ -285,6 +285,12 @@ class TEManager:
             raise RequestValidationError(
                 f"Validation error: {request_err} for {connection_request}", 400
             )
+        except Exception as e:
+            err = traceback.format_exc().replace("\n", ", ")
+            logger.error(f"Error when generating/publishing breakdown: {e} - {err}")
+            raise RequestValidationError(
+                f"Validation error: {request_err} for {connection_request}", 400
+            )
 
         self._logger.info(f"generate_traffic_matrix: decoded request: {request}")
 
