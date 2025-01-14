@@ -688,13 +688,13 @@ class TEManager:
         if tagged_breakdown is None:
             raise TEError(
                 f"Can't find a valid vlan breakdown solution for: {connection_request}",
-                409,
+                410,
             )
 
         if not isinstance(tagged_breakdown, VlanTaggedBreakdowns):
             raise TEError(
                 f"Validation error: {tagged_breakdown} is not the expected type",
-                409,
+                410,
             )
 
         # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
