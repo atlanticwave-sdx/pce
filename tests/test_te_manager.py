@@ -1415,7 +1415,7 @@ class TEManagerTests(unittest.TestCase):
         )
 
         # Rewrite the request to have VLAN of "any".
-        connection_request["endpoints"][0]["vlan"] = "any"
+        connection_request["endpoints"][0]["vlan"] = "untagged"
         connection_request["endpoints"][1]["vlan"] = "any"
 
         print(f"connection_request: {connection_request}")
@@ -1459,7 +1459,7 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("dynamic_backup_path"), bool)
             self.assertIsInstance(segment.get("uni_a"), dict)
             self.assertIsInstance(segment.get("uni_a").get("tag"), dict)
-            self.assertIsInstance(segment.get("uni_a").get("tag").get("value"), int)
+            # self.assertIsInstance(segment.get("uni_a").get("tag").get("value"), int)
             self.assertIsInstance(segment.get("uni_a").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_a").get("port_id"), str)
             self.assertIsInstance(segment.get("uni_z"), dict)

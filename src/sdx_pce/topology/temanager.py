@@ -688,7 +688,7 @@ class TEManager:
         if tagged_breakdown is None:
             raise TEError(
                 f"Can't find a valid vlan breakdown solution for: {connection_request}",
-                410,
+                409,
             )
 
         if not isinstance(tagged_breakdown, VlanTaggedBreakdowns):
@@ -943,12 +943,13 @@ class TEManager:
             # segment["ingress_vlan"] = ingress_vlan
             # segment["egress_vlan"] = egress_vlan
             # upstream_o_vlan = egress_vlan
-
+            tag_type = 0 if ingress_vlan == "untagged" else 1
             port_a = VlanTaggedPort(
-                VlanTag(value=ingress_vlan, tag_type=1), port_id=ingress_port_id
+                VlanTag(value=ingress_vlan, tag_type=tag_type), port_id=ingress_port_id
             )
+            tag_type = 0 if egress_vlan == "untagged" else 1
             port_z = VlanTaggedPort(
-                VlanTag(value=egress_vlan, tag_type=1), port_id=egress_port_id
+                VlanTag(value=egress_vlan, tag_type=tag_type), port_id=egress_port_id
             )
 
             # Names look like "AMLIGHT_vlan_201_202_Ampath_Tenet".  We
@@ -1161,6 +1162,8 @@ class TEManager:
             for vlan_tag, vlan_usage in vlan_table.items():
                 if vlan_usage is UNUSED_VLAN:
                     available_tag = vlan_tag
+        elif tag == "untagged":
+            return tag
         elif self._tag_is_vlan_range(tag):
             # expand the range.
             start, end = map(int, tag.split(":"))
@@ -1171,7 +1174,10 @@ class TEManager:
             # Check if all VLANs in the range are available.
             for vlan in vlans:
                 if vlan_table[vlan] is not UNUSED_VLAN:
-                    raise Exception(f"VLAN {vlan} is in use; can't reserve {tag} range")
+                    raise TEError(
+                        f"VLAN {vlan} is in use; can't reserve {tag}",
+                        409,
+                    )
 
             # Mark range in use.
             for vlan in vlans:
@@ -1191,7 +1197,10 @@ class TEManager:
                     available_tag = tag
                 else:
                     self._logger.error(f"VLAN {tag} is in use by {vlan_table[tag]}")
-                    return None
+                    raise TEError(
+                        f"VLAN {vlan} is in use; can't reserve {tag}",
+                        409,
+                    )
             else:
                 self._logger.error(f"VLAN {tag} is not present in the table")
                 return None
