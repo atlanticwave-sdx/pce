@@ -1107,13 +1107,12 @@ class TEManagerTests(unittest.TestCase):
             breakdown3 = temanager.generate_connection_breakdown(
                 solution, connection_request
             )
+            print(f"breakdown3: {json.dumps(breakdown3)}")
+            self.assertNotEqual(breakdown1, breakdown3)
+            self.assertNotEqual(breakdown2, breakdown3)
         except TEError as e:
             print(f"Got an exception: {e}")
             self.assertTrue(True)
-
-        # print(f"breakdown3: {json.dumps(breakdown3)}")
-        # self.assertNotEqual(breakdown1, breakdown3)
-        # self.assertNotEqual(breakdown2, breakdown3)
 
     def test_connection_amlight_to_zaoxi_with_merged_topology(self):
         """
