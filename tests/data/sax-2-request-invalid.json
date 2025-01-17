@@ -4,6 +4,7 @@
         "id": "id",
         "name": "urn:sdx:port:amlight.net:Novi06:10",
         "node": "urn:sdx:port:amlight.net:Novi06",
+        "vlan_range": 150,
         "short_name": "10",
         "state": "enabled",
         "status": "up"
@@ -14,6 +15,7 @@
         "id": "id",
         "name": "urn:sdx:port:amlight.net:Novi06:9",
         "node": "urn:sdx:port:amlight.net:Novi06",
+        "vlan_range": 150,
         "short_name": "9",
         "state": "enabled",
         "status": "up"

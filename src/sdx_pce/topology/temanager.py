@@ -1191,6 +1191,7 @@ class TEManager:
             # Return the tag to indicate success.
             return tag
         else:
+            tag = int(tag)
             if tag in vlan_table:
                 if vlan_table[tag] is UNUSED_VLAN:
                     self._logger.debug(f"VLAN {tag} is available; marking as in-use")
@@ -1198,11 +1199,13 @@ class TEManager:
                 else:
                     self._logger.error(f"VLAN {tag} is in use by {vlan_table[tag]}")
                     raise TEError(
-                        f"VLAN {vlan} is in use; can't reserve {tag}",
+                        f"VLAN {tag} is in use; can't reserve {tag}",
                         409,
                     )
             else:
-                self._logger.error(f"VLAN {tag} is not present in the table")
+                self._logger.error(
+                    f"VLAN {tag}:{type(tag)} is not present in the table"
+                )
                 return None
 
         # mark the tag as in-use.

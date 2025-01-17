@@ -4,6 +4,7 @@
         "id": "urn:sdx:port:sax:B1:1",
         "name": "Novi01:1",
         "node": "urn:sdx:node:sax:B1",
+        "vlan_range": 150,
         "short_name": "10",
         "state": "enabled",
         "status": "up"
@@ -14,6 +15,7 @@
         "id": "urn:sdx:port:sax:B2:1",
         "name": "Novi02:1",
         "node": "urn:sdx:node:sax:B2",
+        "vlan_range": 150,
         "short_name": "9",
         "state": "enabled",
         "status": "up"
