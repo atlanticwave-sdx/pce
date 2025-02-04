@@ -122,7 +122,7 @@ class TopologyManagerTests(unittest.TestCase):
 
         self.assertIsInstance(topology_map, dict)
 
-        print(f"Topology map: {json.dumps(topology_map, indent=4)}")
+        self.assertTrue(len(topology_map) == 3)
 
     def test_get_topology_map_dict(self):
         print("Test Topology get_topology_map_dict")
@@ -136,7 +136,7 @@ class TopologyManagerTests(unittest.TestCase):
         for key, value in topology_map.items():
             topology_map_dict[key] = value.to_dict()
 
-        self.assertIsTrue(len(topology_map_dict) == 3)
+        self.assertTrue(len(topology_map_dict) == 3)
 
         print(f"Topology map dict: {json.dumps(topology_map_dict, indent=4)}")
 
