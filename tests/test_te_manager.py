@@ -2083,8 +2083,8 @@ class TEManagerTests(unittest.TestCase):
         self.assertIn("urn:sdx:port:sax.net:Sax01:40", reserved_vlans_sax)
         self.assertIsNone(reserved_vlans_sax["urn:sdx:port:sax.net:Sax01:40"][1])
 
-        l, h = amlight_port.services.l2vpn_ptp["vlan_range"][0].split("-")
-        self.assertTrue(int(l) <= 150 <= int(h))
+        low, high = amlight_port.services.l2vpn_ptp["vlan_range"][0].split("-")
+        self.assertTrue(int(low) <= 150 <= int(high))
 
-        l, h = sax_port.services.l2vpn_ptp["vlan_range"][0].split("-")
-        self.assertTrue(int(l) <= 1 <= int(h))
+        low, high = sax_port.services.l2vpn_ptp["vlan_range"][0].split("-")
+        self.assertTrue(int(low) <= 1 <= int(high))
