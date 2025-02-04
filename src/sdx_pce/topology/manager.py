@@ -91,6 +91,9 @@ class TopologyManager:
     def get_topology(self):
         return self._topology
 
+    def get_topology_dict(self):
+        return self._topology.to_dict()
+
     def get_topology_map(self) -> dict:
         return self._topology_map
 
@@ -517,6 +520,22 @@ class TopologyManager:
             )
             # 2.2 need to change the sub_ver of the topology?
 
+    def change_port_vlan_range(self, topology_id, port_id, value):
+        topology = self._topology_map.get(topology_id)
+        port = self.get_port_obj_by_id(topology, port_id)
+        if port is None:
+            self._logger.debug(f"Port not found in changing vlan range:{port_id}")
+            return None
+        self._logger.debug(f"Port found:{port_id};new vlan range:{value}")
+        services = port.__getattribute__(Constants.SERVICES)
+        if services:
+            l2vpn_ptp = services.__getattribute__(Constants.L2VPN_P2P)
+            if l2vpn_ptp:
+                l2vpn_ptp["vlan_range"] = value
+                self._logger.info(
+                    "updated the port:" + port_id + " vlan_range" + " to " + str(value)
+                )
+
     def update_element_property_json(self, data, element, element_id, property, value):
         elements = data[element]
         for element in elements:
@@ -540,6 +559,16 @@ class TopologyManager:
             for port in node.ports:
                 if port.id == port_id:
                     return port.to_dict()
+        return None
+
+    def get_port_obj_by_id(self, topology, port_id: str):
+        """
+        Given port id, returns a Port.
+        """
+        for node in topology.nodes:
+            for port in node.ports:
+                if port.id == port_id:
+                    return port
         return None
 
     def are_two_ports_same_domain(self, port1_id: str, port2_id: str):

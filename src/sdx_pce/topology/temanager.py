@@ -9,6 +9,12 @@ import networkx as nx
 from networkx.algorithms import approximation as approx
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
+from sdx_datamodel.parsing.exceptions import (
+    GraphNotConnectedException,
+    InvalidVlanRangeException,
+    MissingAttributeException,
+    ServiceNotSupportedException,
+)
 from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
 
 from sdx_pce.models import (
@@ -235,9 +241,9 @@ class TEManager:
                     new_vlan_ranges[domain][port_id] = ranges
 
                     # Update the 'vlan_range' property of the 'service' property in the corresponding port
-                    port = self.topology_manager.get_port_by_id(port_id)
-                    if port and port.services and port.services.l2vpn_ptp:
-                        port.services.l2vpn_ptp["vlan_range"] = ranges
+                    self.topology_manager.change_port_vlan_range(
+                        domain, port_id, ranges
+                    )
 
         self._logger.info(f"Updated VLAN ranges: {new_vlan_ranges}")
         return new_vlan_ranges
@@ -331,30 +337,32 @@ class TEManager:
             f"generate_traffic_matrix: connection_request: {connection_request}"
         )
 
-        request = ConnectionHandler().import_connection_data(connection_request)
+        try:
+            request = ConnectionHandler().import_connection_data(connection_request)
+        except MissingAttributeException as e:
+            self._logger.error(f"Missing attribute: {e} for {connection_request}")
+            raise RequestValidationError(
+                f"Validation error: {e} for {connection_request}", 400
+            )
+        except ServiceNotSupportedException as e:
+            self._logger.error(f"Service not supported: {e} for {connection_request}")
+            raise RequestValidationError(
+                f"Validation error: {e} for {connection_request}", 402
+            )
 
         try:
             ConnectionValidator(request).is_valid()
-        except RequestValidationError as request_err:
+        except ValueError as request_err:
+            err = traceback.format_exc().replace("\n", ", ")
             self._logger.error(
-                f"Validation error: {request_err} for {connection_request}"
+                f"Validation error: {request_err} for {connection_request}: {request_err} - {err}"
             )
-            if "Strict QoS requirements" in str(request_err):
-                raise RequestValidationError(
-                    f"Validation error: {request_err} for {connection_request}", 410
-                )
-            if "Scheduling" in str(request_err):
-                raise RequestValidationError(
-                    f"Validation error: {request_err} for {connection_request}", 411
-                )
             raise RequestValidationError(
                 f"Validation error: {request_err} for {connection_request}", 400
             )
         except Exception as e:
             err = traceback.format_exc().replace("\n", ", ")
-            self._logger.error(
-                f"Error when generating/publishing breakdown: {e} - {err}"
-            )
+            self._logger.error(f"Error when validating connection request: {e} - {err}")
             raise RequestValidationError(
                 f"Validation error: {e} for {connection_request}", 400
             )
