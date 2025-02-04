@@ -9,12 +9,12 @@
     {
         "id": "urn:sdx:port:amlight.net:A1:3",
         "name": "Novi100:1",
-        "vlan_range": 150
+        "vlan_range": "150"
     },
     "ingress_port":
     {
         "id": "urn:sdx:port:amlight.net:B1:2",
         "name": "Novi100:2",
-        "vlan_range": 160
+        "vlan_range": "160"
     }
 }

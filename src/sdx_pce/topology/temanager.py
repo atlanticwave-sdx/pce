@@ -213,7 +213,9 @@ class TEManager:
         for domain, ports in self._vlan_tags_table.items():
             new_vlan_ranges[domain] = {}
             for port_id, vlans in ports.items():
-                available_vlans = [vlan for vlan, status in vlans.items() if status == UNUSED_VLAN]
+                available_vlans = [
+                    vlan for vlan, status in vlans.items() if status == UNUSED_VLAN
+                ]
                 if available_vlans:
                     ranges = []
                     start = end = available_vlans[0]

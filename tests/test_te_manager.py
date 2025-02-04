@@ -7,7 +7,12 @@ import networkx as nx
 from sdx_pce.load_balancing.te_solver import TESolver
 from sdx_pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
 from sdx_pce.topology.temanager import TEManager
-from sdx_pce.utils.exceptions import TEError, UnknownRequestError, ValidationError
+from sdx_pce.utils.exceptions import (
+    RequestValidationError,
+    TEError,
+    UnknownRequestError,
+    ValidationError,
+)
 
 from . import TestData
 
@@ -822,8 +827,8 @@ class TEManagerTests(unittest.TestCase):
         # Find solution for another identical connection request, and
         # compare solutions.  They should be different.
         # vlan filed is enforced, so change it to make the request different
-        connection_request["ingress_port"]["label_range"] = 101
-        connection_request["egress_port"]["label_range"] = 101
+        connection_request["ingress_port"]["label_range"] = "101"
+        connection_request["egress_port"]["label_range"] = "101"
         traffic_matrix2 = temanager.generate_traffic_matrix(connection_request)
 
         solution = TESolver(graph, traffic_matrix2).solve()
@@ -875,8 +880,8 @@ class TEManagerTests(unittest.TestCase):
             # Give each connection request a unique ID.
             connection_request["id"] = f"{self.id()}-#{i}"
             print(f"connection_request: {connection_request}")
-            connection_request["ingress_port"]["label_range"] = int(init_vlan) + i
-            connection_request["egress_port"]["label_range"] = int(init_vlan) + i
+            connection_request["ingress_port"]["label_range"] = str(int(init_vlan) + i)
+            connection_request["egress_port"]["label_range"] = str(int(init_vlan) + i)
 
             traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
@@ -1488,6 +1493,58 @@ class TEManagerTests(unittest.TestCase):
             TEManager(topology_data=None).unreserve_vlan(request_id)
             self.assertEqual(e.request_id, request_id)
 
+    def test_identical_vlan_ranges(self):
+        """
+        If the vlan specified in the connection request is ranges, they have to be the same
+        """
+        temanager = TEManager(topology_data=None)
+
+        path = TestData.TOPOLOGY_FILE_AMLIGHT_USER_PORT
+        topology = json.loads(path.read_text())
+        temanager.add_topology(topology)
+
+        graph = temanager.generate_graph_te()
+
+        # Port 777 is not in the range allowed by the port.
+        connection_request = json.loads(
+            """
+            {
+                "name": "new-connection",
+                "description": "a test circuit",
+                "id": "test-connection-id",
+                "endpoints": [
+                    {
+                        "port_id": "urn:sdx:port:amlight.net:A1:1",
+                        "vlan": "777"
+                    },
+                    {
+                        "port_id": "urn:sdx:port:amlight:B1:1",
+                        "vlan": "55:90"
+                    }
+                ]
+            }
+            """
+        )
+
+        pprint.pprint(connection_request)
+
+        # Keep track of the VLANs requested.
+        requested_uni_a_vlan = connection_request["endpoints"][0]["vlan"]
+        requested_uni_z_vlan = connection_request["endpoints"][1]["vlan"]
+
+        print(
+            f"requested_uni_a_vlan: {requested_uni_a_vlan}, "
+            f"requested_uni_z_vlan: {requested_uni_z_vlan}"
+        )
+        traffic_matrix = None
+        try:
+            traffic_matrix = temanager.generate_traffic_matrix(connection_request)
+        except RequestValidationError as ex:
+            print(f"ex = {ex}")
+
+        self.assertIsNotNone(graph)
+        self.assertIsNone(traffic_matrix)
+
     def test_disallowed_vlan(self):
         """
         A test for the issue reported at
@@ -1515,7 +1572,7 @@ class TEManagerTests(unittest.TestCase):
                     },
                     {
                         "port_id": "urn:sdx:port:amlight:B1:1",
-                        "vlan": "55:90"
+                        "vlan": "777"
                     }
                 ]
             }
@@ -1935,20 +1992,20 @@ class TEManagerTests(unittest.TestCase):
 
             # Add topologies
             for path in (
-            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
-            TestData.TOPOLOGY_FILE_SAX_v2,
+                TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+                TestData.TOPOLOGY_FILE_SAX_v2,
             ):
                 topology = json.loads(path.read_text())
                 temanager.add_topology(topology)
 
             # Create a connection request across two domains
             connection_request = {
-            "name": "test-connection",
-            "id": "test-connection-id",
-            "endpoints": [
-                {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "150"},
-                {"port_id": "urn:sdx:port:sax.net:Sax1:50", "vlan": "150"},
-            ],
+                "name": "test-connection",
+                "id": "test-connection-id",
+                "endpoints": [
+                    {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "150"},
+                    {"port_id": "urn:sdx:port:sax.net:Sax1:50", "vlan": "150"},
+                ],
             }
 
             graph = temanager.generate_graph_te()
@@ -1957,10 +2014,14 @@ class TEManagerTests(unittest.TestCase):
             temanager.generate_connection_breakdown(solution, connection_request)
 
             # Verify the VLAN has been reserved in both domains
-            reserved_vlans_amlight = temanager.vlan_tags_table["urn:sdx:topology:ampath.net"]
+            reserved_vlans_amlight = temanager.vlan_tags_table[
+                "urn:sdx:topology:ampath.net"
+            ]
             reserved_vlans_sax = temanager.vlan_tags_table["urn:sdx:topology:sax.net"]
             self.assertIn("urn:sdx:port:ampath.net:Ampath1:50", reserved_vlans_amlight)
-            self.assertIn(150, reserved_vlans_amlight["urn:sdx:port:ampath.net:Ampath1:50"])
+            self.assertIn(
+                150, reserved_vlans_amlight["urn:sdx:port:ampath.net:Ampath1:50"]
+            )
             self.assertIn("urn:sdx:port:sax.net:Sax1:50", reserved_vlans_sax)
             self.assertIn(150, reserved_vlans_sax["urn:sdx:port:sax.net:Sax1:50"])
 
@@ -1968,10 +2029,14 @@ class TEManagerTests(unittest.TestCase):
             temanager.update_available_vlans()
 
             # Verify the VLAN is still reserved in both domains
-            reserved_vlans_amlight = temanager.vlan_tags_table["urn:sdx:topology:ampath.net"]
+            reserved_vlans_amlight = temanager.vlan_tags_table[
+                "urn:sdx:topology:ampath.net"
+            ]
             reserved_vlans_sax = temanager.vlan_tags_table["urn:sdx:topology:sax.net"]
             self.assertIn("urn:sdx:port:ampath.net:Ampath1:50", reserved_vlans_amlight)
-            self.assertIn(150, reserved_vlans_amlight["urn:sdx:port:ampath.net:Ampath1:50"])
+            self.assertIn(
+                150, reserved_vlans_amlight["urn:sdx:port:ampath.net:Ampath1:50"]
+            )
             self.assertIn("urn:sdx:port:sax.net:Sax1:50", reserved_vlans_sax)
             self.assertIn(150, reserved_vlans_sax["urn:sdx:port:sax.net:Sax1:50"])
 
@@ -1982,21 +2047,21 @@ class TEManagerTests(unittest.TestCase):
             temanager.update_available_vlans()
 
             # Verify the VLAN has been released in both domains
-            reserved_vlans_amlight = temanager.vlan_tags_table["urn:sdx:topology:ampath.net"]
+            reserved_vlans_amlight = temanager.vlan_tags_table[
+                "urn:sdx:topology:ampath.net"
+            ]
             reserved_vlans_sax = temanager.vlan_tags_table["urn:sdx:topology:sax.net"]
-            self.assertNotIn(150, reserved_vlans_amlight["urn:sdx:port:ampath.net:Ampath1:50"])
+            self.assertNotIn(
+                150, reserved_vlans_amlight["urn:sdx:port:ampath.net:Ampath1:50"]
+            )
             self.assertNotIn(150, reserved_vlans_sax["urn:sdx:port:sax.net:Sax1:50"])
 
             # Verify the 'vlan_range' property of the 'service' property in the corresponding port
-            amlight_port = temanager.topology_manager.get_port("urn:sdx:port:ampath.net:Ampath1:50")
-            sax_port = temanager.topology_manager.get_port("urn:sdx:port:sax.net:Sax1:50")
+            amlight_port = temanager.topology_manager.get_port(
+                "urn:sdx:port:ampath.net:Ampath1:50"
+            )
+            sax_port = temanager.topology_manager.get_port(
+                "urn:sdx:port:sax.net:Sax1:50"
+            )
             self.assertNotIn(150, amlight_port["service"]["vlan_range"])
             self.assertNotIn(150, sax_port["service"]["vlan_range"])
-
-
-
-
-
-
-
-    
