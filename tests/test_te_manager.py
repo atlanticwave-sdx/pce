@@ -1977,12 +1977,14 @@ class TEManagerTests(unittest.TestCase):
         # The VLAN table should have some allocations now, and we
         # should not be able to change its state.
         with self.assertRaises(ValidationError) as ctx:
+            print(ctx)
             temanager.vlan_tags_table = {"domain1": {"port1": {1: None}}}
             expected_error = (
                 "Error: VLAN table is not empty:"
                 "(domain: urn:sdx:topology:ampath.net, port: "
                 "urn:sdx:port:ampath.net:Ampath1:40, vlan: 100)"
             )
+            print(f"expected_error: {expected_error}")
 
         def test_update_available_vlans_across_two_domains(self):
             """
