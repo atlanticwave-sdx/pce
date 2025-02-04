@@ -175,6 +175,71 @@ class TEManager:
 
         self._vlan_tags_table = table
 
+    def update_available_vlans(self):
+        """
+        Update the available VLAN ranges for each domain and port.
+        This method iterates through the VLAN tags table and identifies the available VLANs (those with status UNUSED_VLAN).
+        It then groups consecutive VLANs into ranges and updates the new VLAN ranges for each domain and port.
+        Returns:
+            dict: A dictionary containing the updated VLAN ranges for each domain and port.
+        Example:
+            {
+                'domain1': {
+                    'port1': ['1-5', '7', '10-12'],
+                    'port2': ['3-4', '6']
+                },
+                'domain2': {
+                    'port1': ['2-3', '8-10']
+                }
+            }
+        Note:
+            - The method assumes that the VLAN tags table is a dictionary with the structure:
+                {
+                    'domain': {
+                        'port_id': {
+                            vlan_id: status,
+                            ...
+                        },
+                        ...
+                    },
+                    ...
+                }
+            - The status UNUSED_VLAN should be defined elsewhere in the code.
+            - The method logs the updated VLAN ranges using the class's logger.
+        """
+
+        new_vlan_ranges = {}
+
+        for domain, ports in self._vlan_tags_table.items():
+            new_vlan_ranges[domain] = {}
+            for port_id, vlans in ports.items():
+                available_vlans = [vlan for vlan, status in vlans.items() if status == UNUSED_VLAN]
+                if available_vlans:
+                    ranges = []
+                    start = end = available_vlans[0]
+                    for vlan in available_vlans[1:]:
+                        if vlan == end + 1:
+                            end = vlan
+                        else:
+                            if start == end:
+                                ranges.append(f"{start}")
+                            else:
+                                ranges.append(f"{start}-{end}")
+                                start = end = vlan
+                    if start == end:
+                        ranges.append(f"{start}")
+                    else:
+                        ranges.append(f"{start}-{end}")
+                    new_vlan_ranges[domain][port_id] = ranges
+
+                    # Update the 'vlan_range' property of the 'service' property in the corresponding port
+                    port = self.topology_manager.get_port_by_id(port_id)
+                    if port and port.services and port.services.l2vpn_ptp:
+                        port.services.l2vpn_ptp["vlan_range"] = ranges
+
+        self._logger.info(f"Updated VLAN ranges: {new_vlan_ranges}")
+        return new_vlan_ranges
+
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
         Update VLAN tags table in a non-disruptive way, meaning: only add new
@@ -684,7 +749,7 @@ class TEManager:
         )
 
         # Make tests pass, temporarily.
-        # ToDo: need to throw an exception if tagged_breakdown is None
+        # need to throw an exception if tagged_breakdown is None
         if tagged_breakdown is None:
             raise TEError(
                 f"Can't find a valid vlan breakdown solution for: {connection_request}",
