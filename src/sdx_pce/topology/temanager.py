@@ -773,6 +773,9 @@ class TEManager:
         # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
         self.update_link_bandwidth(solution, reduce=True)
 
+        # Update available VLANs
+        self.update_available_vlans()
+
         # keep the connection solution for future reference
         self._connectionSolution_list.append(solution)
 
@@ -1328,6 +1331,9 @@ class TEManager:
         self._connectionSolution_list.remove(solution)
         # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
         self.update_link_bandwidth(solution, reduce=False)
+
+        # Update available VLANs
+        self.update_available_vlans()
 
     def get_connection_solution(self, request_id: str) -> Optional[ConnectionSolution]:
         """
