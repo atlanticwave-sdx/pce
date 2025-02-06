@@ -9,7 +9,6 @@
         "state": "enabled",
         "status": "up"
     },
-    "end_time": "2030-01-23T04:56:07+00:00",
     "id": "id",
     "ingress_port": {
         "id": "id",
@@ -22,7 +21,6 @@
     },
     "name": "name",
     "quantity": 0,
-    "start_time": "2030-01-23T04:56:07+00:00",
     "status": "success",
     "timestamp": "2030-01-23T04:56:07+00:00",
     "version": 1

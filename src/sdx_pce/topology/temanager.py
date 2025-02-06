@@ -358,6 +358,11 @@ class TEManager:
             raise RequestValidationError(
                 f"Validation error: {request_err} for {connection_request}", 400
             )
+        except ServiceNotSupportedException as e:
+            self._logger.error(f"Service not supported: {e} for {connection_request}")
+            raise RequestValidationError(
+                f"Validation error: {e} for {connection_request}", 402
+            )
         except Exception as e:
             err = traceback.format_exc().replace("\n", ", ")
             self._logger.error(f"Error when validating connection request: {e} - {err}")
