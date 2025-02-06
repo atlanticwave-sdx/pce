@@ -9,6 +9,10 @@ import networkx as nx
 from networkx.algorithms import approximation as approx
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
+from sdx_datamodel.parsing.exceptions import (
+    MissingAttributeException,
+    ServiceNotSupportedException,
+)
 from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
 
 from sdx_pce.models import (
@@ -175,6 +179,73 @@ class TEManager:
 
         self._vlan_tags_table = table
 
+    def update_available_vlans(self):
+        """
+        Update the available VLAN ranges for each domain and port.
+        This method iterates through the VLAN tags table and identifies the available VLANs (those with status UNUSED_VLAN).
+        It then groups consecutive VLANs into ranges and updates the new VLAN ranges for each domain and port.
+        Returns:
+            dict: A dictionary containing the updated VLAN ranges for each domain and port.
+        Example:
+            {
+                'domain1': {
+                    'port1': ['1-5', '7', '10-12'],
+                    'port2': ['3-4', '6']
+                },
+                'domain2': {
+                    'port1': ['2-3', '8-10']
+                }
+            }
+        Note:
+            - The method assumes that the VLAN tags table is a dictionary with the structure:
+                {
+                    'domain': {
+                        'port_id': {
+                            vlan_id: status,
+                            ...
+                        },
+                        ...
+                    },
+                    ...
+                }
+            - The status UNUSED_VLAN should be defined elsewhere in the code.
+            - The method logs the updated VLAN ranges using the class's logger.
+        """
+
+        new_vlan_ranges = {}
+
+        for domain, ports in self._vlan_tags_table.items():
+            new_vlan_ranges[domain] = {}
+            for port_id, vlans in ports.items():
+                available_vlans = [
+                    vlan for vlan, status in vlans.items() if status == UNUSED_VLAN
+                ]
+                if available_vlans:
+                    ranges = []
+                    start = end = available_vlans[0]
+                    for vlan in available_vlans[1:]:
+                        if vlan == end + 1:
+                            end = vlan
+                        else:
+                            if start == end:
+                                ranges.append(f"{start}")
+                            else:
+                                ranges.append(f"{start}-{end}")
+                                start = end = vlan
+                    if start == end:
+                        ranges.append(f"{start}")
+                    else:
+                        ranges.append(f"{start}-{end}")
+                    new_vlan_ranges[domain][port_id] = ranges
+
+                    # Update the 'vlan_range' property of the 'service' property in the corresponding port
+                    self.topology_manager.change_port_vlan_range(
+                        domain, port_id, ranges
+                    )
+
+        self._logger.info(f"Updated VLAN ranges: {new_vlan_ranges}")
+        return new_vlan_ranges
+
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
         Update VLAN tags table in a non-disruptive way, meaning: only add new
@@ -264,30 +335,37 @@ class TEManager:
             f"generate_traffic_matrix: connection_request: {connection_request}"
         )
 
-        request = ConnectionHandler().import_connection_data(connection_request)
+        try:
+            request = ConnectionHandler().import_connection_data(connection_request)
+        except MissingAttributeException as e:
+            self._logger.error(f"Missing attribute: {e} for {connection_request}")
+            raise RequestValidationError(
+                f"Validation error: {e} for {connection_request}", 400
+            )
+        except ServiceNotSupportedException as e:
+            self._logger.error(f"Service not supported: {e} for {connection_request}")
+            raise RequestValidationError(
+                f"Validation error: {e} for {connection_request}", 402
+            )
 
         try:
             ConnectionValidator(request).is_valid()
-        except RequestValidationError as request_err:
+        except ValueError as request_err:
+            err = traceback.format_exc().replace("\n", ", ")
             self._logger.error(
-                f"Validation error: {request_err} for {connection_request}"
+                f"Validation error: {request_err} for {connection_request}: {request_err} - {err}"
             )
-            if "Strict QoS requirements" in str(request_err):
-                raise RequestValidationError(
-                    f"Validation error: {request_err} for {connection_request}", 410
-                )
-            if "Scheduling" in str(request_err):
-                raise RequestValidationError(
-                    f"Validation error: {request_err} for {connection_request}", 411
-                )
             raise RequestValidationError(
                 f"Validation error: {request_err} for {connection_request}", 400
             )
+        except ServiceNotSupportedException as e:
+            self._logger.error(f"Service not supported: {e} for {connection_request}")
+            raise RequestValidationError(
+                f"Validation error: {e} for {connection_request}", 402
+            )
         except Exception as e:
             err = traceback.format_exc().replace("\n", ", ")
-            self._logger.error(
-                f"Error when generating/publishing breakdown: {e} - {err}"
-            )
+            self._logger.error(f"Error when validating connection request: {e} - {err}")
             raise RequestValidationError(
                 f"Validation error: {e} for {connection_request}", 400
             )
@@ -684,7 +762,7 @@ class TEManager:
         )
 
         # Make tests pass, temporarily.
-        # ToDo: need to throw an exception if tagged_breakdown is None
+        # need to throw an exception if tagged_breakdown is None
         if tagged_breakdown is None:
             raise TEError(
                 f"Can't find a valid vlan breakdown solution for: {connection_request}",
@@ -699,6 +777,9 @@ class TEManager:
 
         # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
         self.update_link_bandwidth(solution, reduce=True)
+
+        # Update available VLANs
+        self.update_available_vlans()
 
         # keep the connection solution for future reference
         self._connectionSolution_list.append(solution)
@@ -1255,6 +1336,9 @@ class TEManager:
         self._connectionSolution_list.remove(solution)
         # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
         self.update_link_bandwidth(solution, reduce=False)
+
+        # Update available VLANs
+        self.update_available_vlans()
 
     def get_connection_solution(self, request_id: str) -> Optional[ConnectionSolution]:
         """

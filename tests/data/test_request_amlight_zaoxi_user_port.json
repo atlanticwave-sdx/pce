@@ -1,8 +1,6 @@
 {
     "id": "285eea4b-1e86-4d54-bd75-f14b8cb4a63a",
     "name": "Test connection request",
-    "start_time": "2030-01-23T04:56:07.000",
-    "end_time": "2030-01-23T04:56:07.000",
     "bandwidth_required": 10,
     "latency_required": 300,
     "egress_port": {
@@ -10,13 +8,13 @@
         "name": "Novi100:1",
         "node": "urn:sdx:node:amlight.net:A1",
         "status": "up",
-        "vlan_range": 150
+        "vlan_range": "150"
     },
     "ingress_port": {
         "id": "urn:sdx:port:zaoxi:B2:1",
         "name": "Novi100:2",
         "node": "urn:sdx:node:zaoxi:B2",
         "status": "up",
-        "vlan_range": 160
+        "vlan_range": "160"
     }
 }

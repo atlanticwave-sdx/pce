@@ -5,6 +5,9 @@ class Constants:
     PACKET_LOSS = "packet_loss"
     AVAILABILITY = "availability"
     WEIGHT = "weight"
+    SERVICES = "services"
+    L2VPN_P2P = "l2vpn_ptp"
+    L2VPN_P2MP = "l2vpn_ptmp"
 
     OBJECTIVE_COST = 0
     OBJECTIVE_LOAD_BALANCING = 1
