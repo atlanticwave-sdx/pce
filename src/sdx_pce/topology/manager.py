@@ -224,7 +224,7 @@ class TopologyManager:
     def update_topology(self, data):
 
         added_nodes = []
-        add_links = []
+        added_links = []
         removed_nodes = []
         removed_links = []
 
