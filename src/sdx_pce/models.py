@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List, Mapping
 
 from dataclasses_json import dataclass_json
+from sdx_datamodel.connection_sm import ConnectionStateMachine
 
 
 @dataclass_json
@@ -18,6 +19,7 @@ class ConnectionRequest:
     destination: int
     required_bandwidth: float
     required_latency: float
+    required_hop: int
 
     # Make ConnectionRequest hashable since it is used as key in
     # ConnectionSolution
@@ -36,6 +38,7 @@ class TrafficMatrix:
 
     connection_requests: List[ConnectionRequest]
     request_id: str
+    state: ConnectionStateMachine
 
 
 @dataclass_json
