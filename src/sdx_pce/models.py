@@ -19,7 +19,6 @@ class ConnectionRequest:
     destination: int
     required_bandwidth: float
     required_latency: float
-    required_hop: int
 
     # Make ConnectionRequest hashable since it is used as key in
     # ConnectionSolution
