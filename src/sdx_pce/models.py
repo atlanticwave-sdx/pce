@@ -37,7 +37,6 @@ class TrafficMatrix:
 
     connection_requests: List[ConnectionRequest]
     request_id: str
-    state: ConnectionStateMachine
 
 
 @dataclass_json

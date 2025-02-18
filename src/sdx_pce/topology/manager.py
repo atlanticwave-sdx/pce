@@ -222,48 +222,59 @@ class TopologyManager:
         return port_id.split(":")[3] != topology_id.split(":")[3]
 
     def update_topology(self, data):
+
+        added_nodes = []
+        add_links = []
+        removed_nodes = []
+        removed_links = []
+
         # likely adding new inter-domain links
         update_handler = TopologyHandler()
         topology = update_handler.import_topology_data(data)
+        old_topology = self._topology_map.get(topology.id)
         self._topology_map[topology.id] = topology
 
-        # Nodes.
-        nodes = topology.nodes
-        for node in nodes:
-            self._topology.remove_node(node.id)
+        if old_topology is not None:
+            removed_nodes = old_topology.nodes_id().difference(topology.nodes_id())
+            added_nodes = topology.nodes_id().difference(old_topology.nodes_id())
+            removed_links = old_topology.links_id().difference(topology.links_id())
+            added_links = topology.links_id().difference(old_topology.links_id())
+
+        # Update Nodes in self._topology.
+        for node_id in removed_nodes:
+            self._topology.remove_node(node_id)
+
+        for node_id in added_nodes:
+            self._topology.add_nodes(topology.get_node_by_id(node_id))
+
+        # Update the port map
+        for node in topology.nodes:
+            for port in node.ports:
+                self._port_map[port.id] = port
 
         # Links.
-        links = topology.links
-        for link in links:
-            if not self.is_link_interdomain(link, topology):
-                # print(link.id+";......."+str(link.nni))
-                self._topology.remove_link(link.id)
-                for port in link.ports:
-                    port_id = port if isinstance(port, str) else port["id"]
-                    self._port_link_map.pop(port_id)
+        # links = topology.links
+        for link in removed_links:
+            # if not self.is_link_interdomain(link, topology):
+            # print(link.id+";......."+str(link.nni))
+            self._topology.remove_link(link.id)
+            for port in link.ports:
+                port_id = port if isinstance(port, str) else port["id"]
+                self._port_link_map.pop(port_id)
 
         # Check the inter-domain links first.
         interdomain_ports = self.inter_domain_check(topology)
         if len(interdomain_ports) == 0:
             self._logger.warning("Warning: no interdomain links detected!")
 
-        # Nodes.
-        nodes = topology.nodes
-        self._topology.add_nodes(nodes)
-
         # Links.
-        links = topology.links
-        self._topology.add_links(links)
+        # links = topology.links
+        self._topology.add_links(added_links)
 
         # inter-domain links
         self.add_inter_domain_links(topology, interdomain_ports)
 
-        # Update the port node map
-        for node in topology.nodes:
-            for port in node.ports:
-                self._port_map[port.id] = port
-
-        self.update_version(True)
+        self.update_version(False)
         self.update_timestamp()
 
     def update_version(self, sub: bool):
