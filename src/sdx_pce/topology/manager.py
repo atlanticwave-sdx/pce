@@ -223,10 +223,10 @@ class TopologyManager:
 
     def update_topology(self, data):
 
-        added_nodes = []
-        added_links = []
-        removed_nodes = []
-        removed_links = []
+        added_nodes = set()
+        added_links = set()
+        removed_nodes = set()
+        removed_links = set()
 
         # likely adding new inter-domain links
         update_handler = TopologyHandler()
@@ -248,15 +248,18 @@ class TopologyManager:
                 set(old_topology.links_id())
             )
 
-        # Update Nodes in self._topology.
-        for node_id in removed_nodes:
-            self._topology.remove_node(node_id)
+        if len(added_nodes) != 0 or len(removed_nodes) != 0:
+            # Update Nodes in self._topology.
+            for node_id in removed_nodes:
+                self._topology.remove_node(node_id)
+
+            for node_id in added_nodes:
+                self._topology.add_nodes(topology.get_node_by_id(node_id))
 
         # Links.
         links = topology.links
         for link in links:
             # if not self.is_link_interdomain(link, topology):
-            # print(link.id+";......."+str(link.nni))
             self._topology.remove_link(link.id)
             for port in link.ports:
                 port_id = port if isinstance(port, str) else port["id"]
@@ -267,10 +270,7 @@ class TopologyManager:
         if len(interdomain_ports) == 0:
             self._logger.warning("Warning: no interdomain links detected!")
         else:
-            print("interdomain_ports:", interdomain_ports)
-
-        for node_id in added_nodes:
-            self._topology.add_nodes(topology.get_node_by_id(node_id))
+            self._logger.debug("interdomain_ports:", interdomain_ports)
 
         # Links.
         # links = topology.links
