@@ -235,10 +235,10 @@ class TopologyManager:
         self._topology_map[topology.id] = topology
 
         if old_topology is not None:
-            removed_nodes = old_topology.nodes_id().difference(topology.nodes_id())
-            added_nodes = topology.nodes_id().difference(old_topology.nodes_id())
-            removed_links = old_topology.links_id().difference(topology.links_id())
-            added_links = topology.links_id().difference(old_topology.links_id())
+            removed_nodes = set(old_topology.nodes_id()).difference(set(topology.nodes_id()))
+            added_nodes = set(topology.nodes_id()).difference(set(old_topology.nodes_id()))
+            removed_links = set(old_topology.links_id()).difference(set(topology.links_id()))
+            added_links = set(topology.links_id()).difference(set(old_topology.links_id()))
 
         # Update Nodes in self._topology.
         for node_id in removed_nodes:
@@ -276,6 +276,8 @@ class TopologyManager:
 
         self.update_version(False)
         self.update_timestamp()
+
+        return (removed_nodes, added_nodes, removed_links, added_links)
 
     def update_version(self, sub: bool):
         try:
