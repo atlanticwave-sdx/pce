@@ -235,26 +235,26 @@ class TopologyManager:
         self._topology_map[topology.id] = topology
 
         if old_topology is not None:
-            removed_nodes = set(old_topology.nodes_id()).difference(set(topology.nodes_id()))
-            added_nodes = set(topology.nodes_id()).difference(set(old_topology.nodes_id()))
-            removed_links = set(old_topology.links_id()).difference(set(topology.links_id()))
-            added_links = set(topology.links_id()).difference(set(old_topology.links_id()))
+            removed_nodes = set(old_topology.nodes_id()).difference(
+                set(topology.nodes_id())
+            )
+            added_nodes = set(topology.nodes_id()).difference(
+                set(old_topology.nodes_id())
+            )
+            removed_links = set(old_topology.links_id()).difference(
+                set(topology.links_id())
+            )
+            added_links = set(topology.links_id()).difference(
+                set(old_topology.links_id())
+            )
 
         # Update Nodes in self._topology.
         for node_id in removed_nodes:
             self._topology.remove_node(node_id)
 
-        for node_id in added_nodes:
-            self._topology.add_nodes(topology.get_node_by_id(node_id))
-
-        # Update the port map
-        for node in topology.nodes:
-            for port in node.ports:
-                self._port_map[port.id] = port
-
         # Links.
-        # links = topology.links
-        for link in removed_links:
+        links = topology.links
+        for link in links:
             # if not self.is_link_interdomain(link, topology):
             # print(link.id+";......."+str(link.nni))
             self._topology.remove_link(link.id)
@@ -266,13 +266,23 @@ class TopologyManager:
         interdomain_ports = self.inter_domain_check(topology)
         if len(interdomain_ports) == 0:
             self._logger.warning("Warning: no interdomain links detected!")
+        else:
+            print("interdomain_ports:", interdomain_ports)
+
+        for node_id in added_nodes:
+            self._topology.add_nodes(topology.get_node_by_id(node_id))
 
         # Links.
         # links = topology.links
-        self._topology.add_links(added_links)
+        self._topology.add_links(links)
 
         # inter-domain links
         self.add_inter_domain_links(topology, interdomain_ports)
+
+        # Update the port map
+        for node in topology.nodes:
+            for port in node.ports:
+                self._port_map[port.id] = port
 
         self.update_version(False)
         self.update_timestamp()
