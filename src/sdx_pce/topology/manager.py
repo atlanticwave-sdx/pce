@@ -248,6 +248,30 @@ class TopologyManager:
                 set(old_topology.links_id())
             )
 
+        # obtain the objects
+        removed_links_list = []
+        added_links_list = []
+        removed_nodes_list = []
+        added_nodes_list = []
+        for link_id in removed_links:
+            link_obj = self._topology.get_link_by_id(link_id)
+            if link_obj is not None:
+                removed_links_list.append(link_obj)
+        for link_id in added_links:
+            link_obj = topology.get_link_by_id(link_id)
+            if link_obj is not None:
+                added_links_list.append(link_obj)
+        for node_id in removed_nodes:
+            node_obj = self._topology.get_node_by_id(node_id)
+            if node_obj is not None:
+                removed_nodes_list.append(node_obj)
+        for node_id in added_nodes:
+            node_obj = topology.get_node_by_id(node_id)
+            if node_obj is not None:
+                added_nodes_list.append(node_obj)
+
+        # update the topology
+        # nodes
         if len(added_nodes) != 0 or len(removed_nodes) != 0:
             # Update Nodes in self._topology.
             for node_id in removed_nodes:
@@ -287,7 +311,12 @@ class TopologyManager:
         self.update_version(False)
         self.update_timestamp()
 
-        return (removed_nodes, added_nodes, removed_links, added_links)
+        return (
+            removed_nodes_list,
+            added_nodes_list,
+            removed_links_list,
+            added_links_list,
+        )
 
     def update_version(self, sub: bool):
         try:
