@@ -222,49 +222,101 @@ class TopologyManager:
         return port_id.split(":")[3] != topology_id.split(":")[3]
 
     def update_topology(self, data):
+
+        added_nodes = set()
+        added_links = set()
+        removed_nodes = set()
+        removed_links = set()
+
         # likely adding new inter-domain links
         update_handler = TopologyHandler()
         topology = update_handler.import_topology_data(data)
+        old_topology = self._topology_map.get(topology.id)
         self._topology_map[topology.id] = topology
 
-        # Nodes.
-        nodes = topology.nodes
-        for node in nodes:
-            self._topology.remove_node(node.id)
+        if old_topology is not None:
+            removed_nodes = set(old_topology.nodes_id()).difference(
+                set(topology.nodes_id())
+            )
+            added_nodes = set(topology.nodes_id()).difference(
+                set(old_topology.nodes_id())
+            )
+            removed_links = set(old_topology.links_id()).difference(
+                set(topology.links_id())
+            )
+            added_links = set(topology.links_id()).difference(
+                set(old_topology.links_id())
+            )
+
+        # obtain the objects
+        removed_links_list = []
+        added_links_list = []
+        removed_nodes_list = []
+        added_nodes_list = []
+        for link_id in removed_links:
+            link_obj = self._topology.get_link_by_id(link_id)
+            if link_obj is not None:
+                removed_links_list.append(link_obj)
+        for link_id in added_links:
+            link_obj = topology.get_link_by_id(link_id)
+            if link_obj is not None:
+                added_links_list.append(link_obj)
+        for node_id in removed_nodes:
+            node_obj = self._topology.get_node_by_id(node_id)
+            if node_obj is not None:
+                removed_nodes_list.append(node_obj)
+        for node_id in added_nodes:
+            node_obj = topology.get_node_by_id(node_id)
+            if node_obj is not None:
+                added_nodes_list.append(node_obj)
+
+        # update the topology
+        # nodes
+        if len(added_nodes) != 0 or len(removed_nodes) != 0:
+            # Update Nodes in self._topology.
+            for node_id in removed_nodes:
+                self._topology.remove_node(node_id)
+
+            for node_id in added_nodes:
+                self._topology.add_nodes(topology.get_node_by_id(node_id))
 
         # Links.
         links = topology.links
         for link in links:
-            if not self.is_link_interdomain(link, topology):
-                # print(link.id+";......."+str(link.nni))
-                self._topology.remove_link(link.id)
-                for port in link.ports:
-                    port_id = port if isinstance(port, str) else port["id"]
-                    self._port_link_map.pop(port_id)
+            # if not self.is_link_interdomain(link, topology):
+            self._topology.remove_link(link.id)
+            for port in link.ports:
+                port_id = port if isinstance(port, str) else port["id"]
+                self._port_link_map.pop(port_id)
 
         # Check the inter-domain links first.
         interdomain_ports = self.inter_domain_check(topology)
         if len(interdomain_ports) == 0:
             self._logger.warning("Warning: no interdomain links detected!")
-
-        # Nodes.
-        nodes = topology.nodes
-        self._topology.add_nodes(nodes)
+        else:
+            self._logger.debug("interdomain_ports:", interdomain_ports)
 
         # Links.
-        links = topology.links
+        # links = topology.links
         self._topology.add_links(links)
 
         # inter-domain links
         self.add_inter_domain_links(topology, interdomain_ports)
 
-        # Update the port node map
+        # Update the port map
         for node in topology.nodes:
             for port in node.ports:
                 self._port_map[port.id] = port
 
-        self.update_version(True)
+        self.update_version(False)
         self.update_timestamp()
+
+        return (
+            removed_nodes_list,
+            added_nodes_list,
+            removed_links_list,
+            added_links_list,
+        )
 
     def update_version(self, sub: bool):
         try:
