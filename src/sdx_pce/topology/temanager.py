@@ -102,7 +102,9 @@ class TEManager:
 
         :param topology_data: a dictionary that represents a topology.
         """
-        self.topology_manager.update_topology(topology_data)
+        (removed_nodes_list, added_nodes_list, removed_links_list, added_links_list) = (
+            self.topology_manager.update_topology(topology_data)
+        )
 
         # Update vlan_tags_table in a non-disruptive way. Previous concerned
         # still applies:
@@ -112,6 +114,13 @@ class TEManager:
         self._update_vlan_tags_table(
             domain_name=topology_data.get("id"),
             port_map=self.topology_manager.get_port_map(),
+        )
+
+        return (
+            removed_nodes_list,
+            added_nodes_list,
+            removed_links_list,
+            added_links_list,
         )
 
     def get_topology_map(self) -> dict:
