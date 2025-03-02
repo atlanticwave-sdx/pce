@@ -597,6 +597,18 @@ class TopologyManager:
             services = Service(l2vpn_ptp=l2vpn_ptp, l2vpn_ptmp=l2vpn_ptmp)
             port.__setattr__(Constants.SERVICES, services)
 
+        # update the whole topology
+        topology = self.get_topology()
+        port = self.get_port_obj_by_id(topology, port_id)
+        if port is None:
+            self._logger.debug(f"Port not found in changing vlan range:{port_id}")
+            return None
+        self._logger.debug(f"Port found:{port_id};new vlan range:{value}")
+        vlan_range_v1 = port.__getattribute__("vlan_range")
+        if vlan_range_v1:
+            port.__setattr__("vlan_range", value)
+        port.__setattr__(Constants.SERVICES, services)
+
         self._logger.info(
             "updated the port:" + port_id + " vlan_range" + " to " + str(value)
         )
