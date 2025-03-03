@@ -112,8 +112,13 @@ class TEManager:
             and len(added_links_list) == 0
             and len(removed_links_list) == 0
         ):
-            self._logger.info("No changes detected in the topology")
-            return (None, None, None, None)
+            self._logger.info("temanager:No changes detected in the topology")
+            return (
+                removed_nodes_list,
+                added_nodes_list,
+                removed_links_list,
+                added_links_list,
+            )
 
         # Update vlan_tags_table in a non-disruptive way. Previous concerned
         # still applies:
