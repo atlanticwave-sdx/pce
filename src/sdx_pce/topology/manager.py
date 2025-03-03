@@ -271,20 +271,6 @@ class TopologyManager:
             if node_obj is not None:
                 added_nodes_list.append(node_obj)
 
-        if (
-            len(added_nodes_list) == 0
-            and len(removed_nodes_list) == 0
-            and len(added_links_list) == 0
-            and len(removed_links_list) == 0
-        ):
-            self._logger.info("manager:No changes detected in the topology")
-            return (
-                removed_nodes_list,
-                added_nodes_list,
-                removed_links_list,
-                added_links_list,
-            )
-
         # update the topology
         # nodes
         if len(added_nodes) != 0 or len(removed_nodes) != 0:
