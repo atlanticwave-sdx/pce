@@ -5,6 +5,7 @@ from typing import Mapping
 
 import networkx as nx
 from sdx_datamodel.models.link import Link
+from sdx_datamodel.models.service import Service
 from sdx_datamodel.models.topology import (
     TOPOLOGY_INITIAL_VERSION,
     SDX_TOPOLOGY_ID_prefix,
@@ -579,14 +580,38 @@ class TopologyManager:
             self._logger.debug(f"Port not found in changing vlan range:{port_id}")
             return None
         self._logger.debug(f"Port found:{port_id};new vlan range:{value}")
+
+        vlan_range_v1 = port.__getattribute__("vlan_range")
+        if vlan_range_v1:
+            port.__setattr__("vlan_range", value)
         services = port.__getattribute__(Constants.SERVICES)
         if services:
             l2vpn_ptp = services.__getattribute__(Constants.L2VPN_P2P)
             if l2vpn_ptp:
                 l2vpn_ptp["vlan_range"] = value
-                self._logger.info(
-                    "updated the port:" + port_id + " vlan_range" + " to " + str(value)
-                )
+        else:
+            self._logger.debug(f"Port has no services (v2):{port_id}")
+            l2vpn_ptp = {}
+            l2vpn_ptmp = {}
+            l2vpn_ptp["vlan_range"] = value
+            services = Service(l2vpn_ptp=l2vpn_ptp, l2vpn_ptmp=l2vpn_ptmp)
+            port.__setattr__(Constants.SERVICES, services)
+
+        # update the whole topology
+        topology = self.get_topology()
+        port = self.get_port_obj_by_id(topology, port_id)
+        if port is None:
+            self._logger.debug(f"Port not found in changing vlan range:{port_id}")
+            return None
+        self._logger.debug(f"Port found:{port_id};new vlan range:{value}")
+        vlan_range_v1 = port.__getattribute__("vlan_range")
+        if vlan_range_v1:
+            port.__setattr__("vlan_range", value)
+        port.__setattr__(Constants.SERVICES, services)
+
+        self._logger.info(
+            "updated the port:" + port_id + " vlan_range" + " to " + str(value)
+        )
 
     def update_element_property_json(self, data, element, element_id, property, value):
         elements = data[element]

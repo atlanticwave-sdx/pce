@@ -106,11 +106,22 @@ class TEManager:
             self.topology_manager.update_topology(topology_data)
         )
 
+        if (
+            len(added_nodes_list) == 0
+            and len(removed_nodes_list) == 0
+            and len(added_links_list) == 0
+            and len(removed_links_list) == 0
+        ):
+            self._logger.info("No changes detected in the topology")
+            return (None, None, None, None)
+
         # Update vlan_tags_table in a non-disruptive way. Previous concerned
         # still applies:
         # TODO: careful here when updating VLAN tags table -- what do
         # we do when an in use VLAN tag becomes invalid in the update?
         # See https://github.com/atlanticwave-sdx/pce/issues/123
+        # For now, OXP topology update doesn't change the state: VLAN tags and bandwidth. Only node and link changes
+
         self._update_vlan_tags_table(
             domain_name=topology_data.get("id"),
             port_map=self.topology_manager.get_port_map(),
@@ -261,6 +272,7 @@ class TEManager:
         VLANs to the table. Removed VLANs will need further discussion (see
         https://github.com/atlanticwave-sdx/pce/issues/123)
         """
+        # If the domain is not in the table, add {}.
         self._vlan_tags_table.setdefault(domain_name, {})
 
         for port_id, port in port_map.items():
@@ -282,11 +294,17 @@ class TEManager:
             # is a work-around.
             all_labels = self._expand_label_range(label_range)
 
-            self._vlan_tags_table[domain_name].setdefault(port_id, {})
-            for label in all_labels:
-                self._vlan_tags_table[domain_name][port_id].setdefault(
-                    label, UNUSED_VLAN
-                )
+            port_vlan_tags_table = self._vlan_tags_table[domain_name].setdefault(
+                port_id, {}
+            )
+            # This is temporary since OXP updates only change the topology, nodes and links, not the state
+            # So we are not updating the VLAN tags table, which is only updated by PCE actions:
+            # provisioning or deletion
+            if len(port_vlan_tags_table) == 0:
+                for label in all_labels:
+                    self._vlan_tags_table[domain_name][port_id].setdefault(
+                        label, UNUSED_VLAN
+                    )
 
     def _expand_label_range(self, label_range: []) -> List[int]:
         """
