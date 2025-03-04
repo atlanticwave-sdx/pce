@@ -1286,7 +1286,10 @@ class TEManager:
 
             # Check if all VLANs in the range are available.
             for vlan in vlans:
-                if vlan_table[vlan] is not UNUSED_VLAN:
+                if (
+                    vlan_table[vlan] is not UNUSED_VLAN
+                    and vlan_table[vlan] != request_id
+                ):
                     raise TEError(
                         f"VLAN {vlan} is in use; can't reserve {tag}",
                         409,
@@ -1306,7 +1309,7 @@ class TEManager:
         else:
             tag = int(tag)
             if tag in vlan_table:
-                if vlan_table[tag] is UNUSED_VLAN:
+                if vlan_table[tag] is UNUSED_VLAN or vlan_table[tag] == request_id:
                     self._logger.debug(f"VLAN {tag} is available; marking as in-use")
                     available_tag = tag
                 else:
