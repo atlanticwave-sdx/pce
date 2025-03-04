@@ -295,7 +295,7 @@ class TopologyManager:
         if len(interdomain_ports) == 0:
             self._logger.warning("Warning: no interdomain links detected!")
         else:
-            self._logger.debug("interdomain_ports:", interdomain_ports)
+            self._logger.debug(f"interdomain_ports: {interdomain_ports}")
 
         # Links.
         # links = topology.links
