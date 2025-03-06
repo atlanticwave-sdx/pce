@@ -149,7 +149,7 @@ class TopologyManager:
             self._topology.add_links(links)
 
             # version
-            self.update_version(False)
+            self.update_version(True)
 
         # Addding to the port list
         links = topology.links
@@ -309,7 +309,15 @@ class TopologyManager:
             for port in node.ports:
                 self._port_map[port.id] = port
 
-        self.update_version(False)
+        if (
+            len(added_nodes_list) == 0
+            and len(removed_nodes_list) == 0
+            and len(added_links_list) == 0
+            and len(removed_links_list) == 0
+        ):
+            self.update_version(False)
+        else:
+            self.update_version(True)
         self.update_timestamp()
 
         return (
@@ -331,13 +339,13 @@ class TopologyManager:
         return self._topology.version
 
     def new_version(self, ver, sub_ver, sub: bool):
-        if not sub:
+        if sub:
             ver = str(int(ver) + 1)
-            sub_ver = "0"
-        else:
-            sub_ver = str(int(sub_ver) + 1)
 
-        return ver + "." + sub_ver
+        if sub_ver != "0":
+            new_version = ver + "." + str(int(sub_ver) + 1)
+
+        return new_version
 
     def update_timestamp(self):
         ct = datetime.datetime.now().isoformat()
