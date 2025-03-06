@@ -339,8 +339,9 @@ class TopologyManager:
         return self._topology.version
 
     def new_version(self, ver, sub_ver, sub: bool):
+        new_version = ver
         if sub:
-            ver = str(int(ver) + 1)
+            new_version = str(int(ver) + 1)
 
         if sub_ver != "0":
             new_version = ver + "." + str(int(sub_ver) + 1)
