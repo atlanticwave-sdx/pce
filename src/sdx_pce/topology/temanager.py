@@ -669,14 +669,14 @@ class TEManager:
         domain_name = domain.split(":")[-1].split(".")[0].upper()
         name = f"{domain_name}_vlan_{ingress_vlan}_{egress_vlan}"
         breakdowns = {}
-        breakdowns[domain] = VlanTaggedBreakdown(
+        breakdown = VlanTaggedBreakdown(
             name=name,
             dynamic_backup_path=True,
             uni_a=port_a,
             uni_z=port_z,
         )
-
-        return breakdowns.to_dict()
+        breakdowns[domain] = breakdown.to_dict()
+        return breakdowns
 
     # General case
     def generate_connection_breakdown(
