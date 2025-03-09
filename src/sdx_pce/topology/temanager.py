@@ -676,7 +676,7 @@ class TEManager:
             uni_z=port_z,
         )
 
-        return VlanTaggedBreakdowns(breakdowns=breakdowns)
+        return breakdowns
 
     # General case
     def generate_connection_breakdown(
