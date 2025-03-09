@@ -624,7 +624,7 @@ class TEManager:
         ingress_port = self.topology_manager.get_port_by_id(ingress_port_id)
         egress_port = self.topology_manager.get_port_by_id(egress_port_id)
 
-        logger.debug(
+        self._logger.debug(
             f"ingress_port: {ingress_port_id}, egress_port: {egress_port_id}, ingress_port_tag: {ingress_port_tag}, egress_port_tag: {egress_port_tag}"
         )
 
@@ -652,7 +652,7 @@ class TEManager:
             self.unreserve_vlan(request_id=request_id)
             raise TEError(f"Can't find a vlan assignment for: {request_id}", 410)
 
-        logger.debug(f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}")
+        self._logger.debug(f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}")
 
         tag_type = 0 if ingress_vlan == "untagged" else 1
         port_a = VlanTaggedPort(
