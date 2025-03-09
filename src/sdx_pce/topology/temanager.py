@@ -676,7 +676,7 @@ class TEManager:
             uni_z=port_z,
         )
 
-        return breakdowns
+        return breakdowns.to_dict()
 
     # General case
     def generate_connection_breakdown(
