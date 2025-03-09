@@ -9,10 +9,10 @@ from sdx_pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
 from sdx_pce.topology.temanager import TEManager
 from sdx_pce.utils.exceptions import (
     RequestValidationError,
+    SameSwitchRequestError,
     TEError,
     UnknownRequestError,
     ValidationError,
-    SameSwitchRequestError,
 )
 
 from . import TestData

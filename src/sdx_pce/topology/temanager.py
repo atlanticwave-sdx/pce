@@ -29,10 +29,10 @@ from sdx_pce.topology.manager import TopologyManager
 from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.exceptions import (
     RequestValidationError,
+    SameSwitchRequestError,
     TEError,
     UnknownRequestError,
     ValidationError,
-    SameSwitchRequestError,
 )
 
 UNUSED_VLAN = None
