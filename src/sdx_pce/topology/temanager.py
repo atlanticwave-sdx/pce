@@ -650,9 +650,7 @@ class TEManager:
                 f"Can't proceed. Rolling back reservations."
             )
             self.unreserve_vlan(request_id=request_id)
-            raise TEError(
-                f"Can't find a vlan assignment for: {connection_request}", 410
-            )
+            raise TEError(f"Can't find a vlan assignment for: {request_id}", 410)
 
         print(f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}")
 

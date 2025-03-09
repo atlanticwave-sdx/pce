@@ -463,7 +463,7 @@ class TEManagerTests(unittest.TestCase):
             "scheduling": {},
         }
         with self.assertRaises(RequestValidationError) as ctx:
-            traffic_matrix = temanager.generate_traffic_matrix(request)
+            temanager.generate_traffic_matrix(request)
         print(f"{ctx.exception}")
 
     def test_connection_amlight_v2_with_same_node_valid(self):
@@ -487,7 +487,7 @@ class TEManagerTests(unittest.TestCase):
             "scheduling": {},
         }
         try:
-            traffic_matrix = temanager.generate_traffic_matrix(request)
+            temanager.generate_traffic_matrix(request)
         except SameSwitchRequestError as ctx:
             print(
                 f"{str(ctx)},{ctx.request_id},{ctx.domain_id},{ctx.ingress_port},{ctx.egress_port}, {ctx.ingress_user_port_tag}, {ctx.egress_user_port_tag}"
