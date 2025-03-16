@@ -222,6 +222,19 @@ class TopologyManager:
             return False
         return port_id.split(":")[3] != topology_id.split(":")[3]
 
+    def update_ports_attributes(self, new_topology, exluding_attributes=None):
+        """
+        Update port attributes in the topology.
+        """
+        for node in new_topology.nodes:
+            for new_port in node.ports:
+                port = self._port_map.get(new_port.id)
+                if port:
+                    for attr, value in new_port.__dict__.items():
+                        if exluding_attributes and attr in exluding_attributes:
+                            continue
+                        setattr(port, attr, value)
+
     def update_topology(self, data):
 
         added_nodes = set()
