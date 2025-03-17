@@ -453,6 +453,8 @@ class TEManager:
                 egree_user_port_tag,
             )
 
+        self._logger.debug(f"temanager.graph: {list(self.graph.nodes(data=True))}")
+
         ingress_nodes = [
             x for x, y in self.graph.nodes(data=True) if y["id"] == ingress_node.id
         ]
