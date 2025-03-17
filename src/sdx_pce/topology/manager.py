@@ -255,12 +255,6 @@ class TopologyManager:
         old_topology = self._topology_map.get(topology.id)
         self._topology_map[topology.id] = topology
 
-        # excluding attributes "sevices" for now to avoid overwriting the vlan_range maintained by PCE
-        port_excluding_attributes = ["services"]
-        change_flag = self.update_ports_attributes(
-            self, topology, port_excluding_attributes
-        )
-
         if old_topology is not None:
             removed_nodes = set(old_topology.nodes_id()).difference(
                 set(topology.nodes_id())
@@ -274,6 +268,16 @@ class TopologyManager:
             added_links = set(topology.links_id()).difference(
                 set(old_topology.links_id())
             )
+            # excluding attributes "sevices" for now to avoid overwriting the vlan_range maintained by PCE
+            port_excluding_attributes = ["services"]
+            change_flag = self.update_ports_attributes(
+                self, topology, port_excluding_attributes
+            )
+            self._logger.info(
+                "Port attributes changes detected and updated: {change_flag}"
+            )
+        else:
+            self._logger.warning("No old topology found for update: {topology.id}")
 
         # obtain the objects
         removed_links_list = []
@@ -304,7 +308,7 @@ class TopologyManager:
             and len(removed_links_list) == 0
         ):
             self._logger.info(
-                "topology manager:No node and link changes detected in the topology"
+                "topology manager:No node and link changes detected in the topology {topology.id}"
             )
             return (
                 removed_nodes_list,
