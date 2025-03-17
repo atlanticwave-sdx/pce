@@ -273,11 +273,16 @@ class TopologyManager:
             change_flag = self.update_ports_attributes(
                 self, topology, port_excluding_attributes
             )
-            self._logger.info(
-                "Port attributes changes detected and updated: {change_flag}"
-            )
+            if change_flag:
+                self._logger.info(
+                    "Port attributes changes detected and updated in the topology {topology.id}"
+                )
+            else:
+                self._logger.info(
+                    "No port attributes changes detected in the topology {topology.id}"
+                )
         else:
-            self._logger.warning("No old topology found for update: {topology.id}")
+            self._logger.warning("No existing topology found for update: {topology.id}")
 
         # obtain the objects
         removed_links_list = []
