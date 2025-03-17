@@ -317,14 +317,10 @@ class TopologyManager:
             )
 
         # update the topology
-        # nodes
-        if len(removed_nodes) != 0:
-            # Update Nodes in self._topology.
-            for node_id in removed_nodes:
-                self._topology.remove_node(node_id)
-        if len(added_nodes) != 0:
-            for node_id in added_nodes:
-                self._topology.add_nodes(topology.get_node_by_id(node_id))
+        # Remove existing nodes
+        nodes = old_topology.nodes
+        for node in nodes:
+            self._topology.remove_node(node.id)
 
         # Links: we update all the links anyway to capture link state changes.
         try:
@@ -346,17 +342,28 @@ class TopologyManager:
         else:
             self._logger.debug(f"interdomain_ports: {interdomain_ports}")
 
-        # Links.
+        # Add new nodes.
+        nodes = topology.nodes
+        self._topology.add_nodes(nodes)
+
+        # Add new links.
         # links = topology.links
         self._topology.add_links(links)
 
-        # inter-domain links
-        self.add_inter_domain_links(topology, interdomain_ports)
+        # Addding to the port list
+        links = topology.links
+        for link in links:
+            for port in link.ports:
+                port_id = port if isinstance(port, str) else port["id"]
+                self._port_link_map[port_id] = link
 
         # Update the port map
         for node in topology.nodes:
             for port in node.ports:
                 self._port_map[port.id] = port
+
+        # inter-domain links
+        self.add_inter_domain_links(topology, interdomain_ports)
 
         if (
             len(added_nodes_list) == 0
