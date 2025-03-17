@@ -107,31 +107,27 @@ class TEManager:
             self.topology_manager.update_topology(topology_data)
         )
 
-        if (
+        if not (
             len(added_nodes_list) == 0
             and len(removed_nodes_list) == 0
             and len(added_links_list) == 0
             and len(removed_links_list) == 0
         ):
-            self._logger.info("temanager:No changes detected in the topology")
-            return (
-                removed_nodes_list,
-                added_nodes_list,
-                removed_links_list,
-                added_links_list,
+            # Update vlan_tags_table in a non-disruptive way. Previous concerned
+            # still applies:
+            # TODO: careful here when updating VLAN tags table -- what do
+            # we do when an in use VLAN tag becomes invalid in the update?
+            # See https://github.com/atlanticwave-sdx/pce/issues/123
+            # For now, OXP topology update doesn't change the state: VLAN tags and bandwidth. Only node and link changes
+
+            self._update_vlan_tags_table(
+                domain_name=topology_data.get("id"),
+                port_map=self.topology_manager.get_port_map(),
             )
-
-        # Update vlan_tags_table in a non-disruptive way. Previous concerned
-        # still applies:
-        # TODO: careful here when updating VLAN tags table -- what do
-        # we do when an in use VLAN tag becomes invalid in the update?
-        # See https://github.com/atlanticwave-sdx/pce/issues/123
-        # For now, OXP topology update doesn't change the state: VLAN tags and bandwidth. Only node and link changes
-
-        self._update_vlan_tags_table(
-            domain_name=topology_data.get("id"),
-            port_map=self.topology_manager.get_port_map(),
-        )
+        else:
+            self._logger.info(
+                "temanager:No node and link changes detected in the topology"
+            )
 
         return (
             removed_nodes_list,

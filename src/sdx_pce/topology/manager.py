@@ -222,20 +222,27 @@ class TopologyManager:
             return False
         return port_id.split(":")[3] != topology_id.split(":")[3]
 
-    def update_ports_attributes(self, new_topology, exluding_attributes=None):
+    def update_ports_attributes(self, new_topology, excluding_attributes=None):
         """
         Update port attributes in the topology.
         """
+        change_flag = False
         for node in new_topology.nodes:
             for new_port in node.ports:
                 port = self._port_map.get(new_port.id)
                 if port:
                     for attr, value in new_port.__dict__.items():
-                        if exluding_attributes and attr in exluding_attributes:
+                        if excluding_attributes and attr in excluding_attributes:
                             continue
-                        setattr(port, attr, value)
+                        if getattr(port, attr, None) != value:
+                            setattr(port, attr, value)
+                            change_flag = True
+        return change_flag
 
     def update_topology(self, data):
+
+        # excluding attributes
+        port_excluding_attributes = ["service"]
 
         added_nodes = set()
         added_links = set()
@@ -247,6 +254,12 @@ class TopologyManager:
         topology = update_handler.import_topology_data(data)
         old_topology = self._topology_map.get(topology.id)
         self._topology_map[topology.id] = topology
+
+        # excluding attributes "sevices" for now to avoid overwriting the vlan_range maintained by PCE
+        port_excluding_attributes = ["services"]
+        change_flag = self.update_ports_attributes(
+            self, topology, port_excluding_attributes
+        )
 
         if old_topology is not None:
             removed_nodes = set(old_topology.nodes_id()).difference(
@@ -284,6 +297,22 @@ class TopologyManager:
             if node_obj is not None:
                 added_nodes_list.append(node_obj)
 
+        if (
+            len(added_nodes_list) == 0
+            and len(removed_nodes_list) == 0
+            and len(added_links_list) == 0
+            and len(removed_links_list) == 0
+        ):
+            self._logger.info(
+                "topology manager:No node and link changes detected in the topology"
+            )
+            return (
+                removed_nodes_list,
+                added_nodes_list,
+                removed_links_list,
+                added_links_list,
+            )
+
         # update the topology
         # nodes
         if len(removed_nodes) != 0:
@@ -298,7 +327,7 @@ class TopologyManager:
         try:
             links = topology.links
             for link in links:
-                if not link.id in added_links:
+                if link.id not in added_links:
                     self._topology.remove_link(link.id)
                     for port in link.ports:
                         port_id = port if isinstance(port, str) else port["id"]
