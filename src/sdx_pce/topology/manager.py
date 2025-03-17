@@ -271,7 +271,7 @@ class TopologyManager:
             # excluding attributes "sevices" for now to avoid overwriting the vlan_range maintained by PCE
             port_excluding_attributes = ["services"]
             change_flag = self.update_ports_attributes(
-                self, topology, port_excluding_attributes
+                topology, port_excluding_attributes
             )
             if change_flag:
                 self._logger.info(
