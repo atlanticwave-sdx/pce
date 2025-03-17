@@ -429,6 +429,7 @@ class TEManagerTests(unittest.TestCase):
 
         solution = TESolver(graph, traffic_matrix).solve()
         self.assertIsInstance(solution, ConnectionSolution)
+        print(f"Solution 2: {solution}")
         # all links are up and enable, so path length should be 1
         self.assertEqual(len(next(iter(solution.connection_map.values()))), 1)
 
@@ -440,6 +441,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(solution, ConnectionSolution)
         # now direct link is disabled, path size should be 2:
         #   (ampath1, ampath3), (ampath3, ampath2)
+        print(f"Solution 2: {solution}")
         self.assertEqual(len(next(iter(solution.connection_map.values()))), 2)
 
     def test_connection_amlight_v2_with_same_port_invalid(self):

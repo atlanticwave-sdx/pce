@@ -315,12 +315,6 @@ class TopologyManager:
             self._logger.info(
                 "topology manager:No node and link changes detected in the topology {topology.id}"
             )
-            return (
-                removed_nodes_list,
-                added_nodes_list,
-                removed_links_list,
-                added_links_list,
-            )
 
         # update the topology
         # nodes
@@ -332,7 +326,7 @@ class TopologyManager:
             for node_id in added_nodes:
                 self._topology.add_nodes(topology.get_node_by_id(node_id))
 
-        # Links.
+        # Links: we update all the links anyway to capture link state changes.
         try:
             links = topology.links
             for link in links:
