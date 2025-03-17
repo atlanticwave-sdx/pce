@@ -286,22 +286,26 @@ class TopologyManager:
 
         # update the topology
         # nodes
-        if len(added_nodes) != 0 or len(removed_nodes) != 0:
+        if len(removed_nodes) != 0:
             # Update Nodes in self._topology.
             for node_id in removed_nodes:
                 self._topology.remove_node(node_id)
-
+        if len(added_nodes) != 0:
             for node_id in added_nodes:
                 self._topology.add_nodes(topology.get_node_by_id(node_id))
 
         # Links.
-        links = topology.links
-        for link in links:
-            # if not self.is_link_interdomain(link, topology):
-            self._topology.remove_link(link.id)
-            for port in link.ports:
-                port_id = port if isinstance(port, str) else port["id"]
-                self._port_link_map.pop(port_id)
+        try:
+            links = topology.links
+            for link in links:
+                if not link.id in added_links:
+                    self._topology.remove_link(link.id)
+                    for port in link.ports:
+                        port_id = port if isinstance(port, str) else port["id"]
+                        self._port_link_map.pop(port_id)
+        except Exception as e:
+            self._logger.error(f"Error in removing links: {e}")
+            self._logger.error(f"port_link_map: {self._port_link_map}")
 
         # Check the inter-domain links first.
         interdomain_ports = self.inter_domain_check(topology)
