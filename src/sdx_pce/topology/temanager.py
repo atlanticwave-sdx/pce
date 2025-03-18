@@ -435,6 +435,8 @@ class TEManager:
             )
             return None
 
+        self._logger.info(f"temanager.graph: {list(self.graph.nodes(data=True))}")
+
         if ingress_node == egress_node:
             self._logger.warning(
                 f"Source and destination nodes are the same: {ingress_node.id}"
@@ -452,8 +454,6 @@ class TEManager:
                 ingress_user_port_tag,
                 egree_user_port_tag,
             )
-
-        self._logger.debug(f"temanager.graph: {list(self.graph.nodes(data=True))}")
 
         ingress_nodes = [
             x for x, y in self.graph.nodes(data=True) if y["id"] == ingress_node.id
