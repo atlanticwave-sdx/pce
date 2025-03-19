@@ -98,7 +98,7 @@ class RandomTopologyGenerator:
         self.latency_list = []
         for u, v, w in self.graph.edges(data=True):
             w[Constants.BANDWIDTH] = random.randint(self.low_bw, self.upper_bw)
-            w[Constants.ORIGINAL_BANDWIDTH] = w[Constants.BANDWIDTH]
+            w[Constants.RESIDUAL_BANDWIDTH] = w[Constants.BANDWIDTH]
             latency = random.randint(self.low_latency, self.upper_latency)
             w[Constants.LATENCY] = latency
             self.latency_list.append(latency)

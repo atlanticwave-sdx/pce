@@ -5,11 +5,14 @@ from typing import Mapping
 
 import networkx as nx
 from sdx_datamodel.models.link import Link
+from sdx_datamodel.models.service import Service
 from sdx_datamodel.models.topology import (
     TOPOLOGY_INITIAL_VERSION,
     SDX_TOPOLOGY_ID_prefix,
 )
 from sdx_datamodel.parsing.topologyhandler import TopologyHandler
+
+from sdx_pce.utils.constants import Constants
 
 from .grenmlconverter import GrenmlConverter
 
@@ -89,6 +92,9 @@ class TopologyManager:
     def get_topology(self):
         return self._topology
 
+    def get_topology_dict(self):
+        return self._topology.to_dict()
+
     def get_topology_map(self) -> dict:
         return self._topology_map
 
@@ -143,7 +149,7 @@ class TopologyManager:
             self._topology.add_links(links)
 
             # version
-            self.update_version(False)
+            self.update_version(True)
 
         # Addding to the port list
         links = topology.links
@@ -217,49 +223,109 @@ class TopologyManager:
         return port_id.split(":")[3] != topology_id.split(":")[3]
 
     def update_topology(self, data):
+
+        added_nodes = set()
+        added_links = set()
+        removed_nodes = set()
+        removed_links = set()
+
         # likely adding new inter-domain links
         update_handler = TopologyHandler()
         topology = update_handler.import_topology_data(data)
+        old_topology = self._topology_map.get(topology.id)
         self._topology_map[topology.id] = topology
 
-        # Nodes.
-        nodes = topology.nodes
-        for node in nodes:
-            self._topology.remove_node(node.id)
+        if old_topology is not None:
+            removed_nodes = set(old_topology.nodes_id()).difference(
+                set(topology.nodes_id())
+            )
+            added_nodes = set(topology.nodes_id()).difference(
+                set(old_topology.nodes_id())
+            )
+            removed_links = set(old_topology.links_id()).difference(
+                set(topology.links_id())
+            )
+            added_links = set(topology.links_id()).difference(
+                set(old_topology.links_id())
+            )
+
+        # obtain the objects
+        removed_links_list = []
+        added_links_list = []
+        removed_nodes_list = []
+        added_nodes_list = []
+        for link_id in removed_links:
+            link_obj = self._topology.get_link_by_id(link_id)
+            if link_obj is not None:
+                removed_links_list.append(link_obj)
+        for link_id in added_links:
+            link_obj = topology.get_link_by_id(link_id)
+            if link_obj is not None:
+                added_links_list.append(link_obj)
+        for node_id in removed_nodes:
+            node_obj = self._topology.get_node_by_id(node_id)
+            if node_obj is not None:
+                removed_nodes_list.append(node_obj)
+        for node_id in added_nodes:
+            node_obj = topology.get_node_by_id(node_id)
+            if node_obj is not None:
+                added_nodes_list.append(node_obj)
+
+        # update the topology
+        # nodes
+        if len(added_nodes) != 0 or len(removed_nodes) != 0:
+            # Update Nodes in self._topology.
+            for node_id in removed_nodes:
+                self._topology.remove_node(node_id)
+
+            for node_id in added_nodes:
+                self._topology.add_nodes(topology.get_node_by_id(node_id))
 
         # Links.
         links = topology.links
         for link in links:
-            if not self.is_link_interdomain(link, topology):
-                # print(link.id+";......."+str(link.nni))
-                self._topology.remove_link(link.id)
-                for port in link.ports:
-                    port_id = port if isinstance(port, str) else port["id"]
-                    self._port_link_map.pop(port_id)
+            # if not self.is_link_interdomain(link, topology):
+            self._topology.remove_link(link.id)
+            for port in link.ports:
+                port_id = port if isinstance(port, str) else port["id"]
+                self._port_link_map.pop(port_id)
 
         # Check the inter-domain links first.
         interdomain_ports = self.inter_domain_check(topology)
         if len(interdomain_ports) == 0:
             self._logger.warning("Warning: no interdomain links detected!")
-
-        # Nodes.
-        nodes = topology.nodes
-        self._topology.add_nodes(nodes)
+        else:
+            self._logger.debug(f"interdomain_ports: {interdomain_ports}")
 
         # Links.
-        links = topology.links
+        # links = topology.links
         self._topology.add_links(links)
 
         # inter-domain links
         self.add_inter_domain_links(topology, interdomain_ports)
 
-        # Update the port node map
+        # Update the port map
         for node in topology.nodes:
             for port in node.ports:
                 self._port_map[port.id] = port
 
-        self.update_version(True)
+        if (
+            len(added_nodes_list) == 0
+            and len(removed_nodes_list) == 0
+            and len(added_links_list) == 0
+            and len(removed_links_list) == 0
+        ):
+            self.update_version(False)
+        else:
+            self.update_version(True)
         self.update_timestamp()
+
+        return (
+            removed_nodes_list,
+            added_nodes_list,
+            removed_links_list,
+            added_links_list,
+        )
 
     def update_version(self, sub: bool):
         try:
@@ -273,13 +339,14 @@ class TopologyManager:
         return self._topology.version
 
     def new_version(self, ver, sub_ver, sub: bool):
-        if not sub:
-            ver = str(int(ver) + 1)
-            sub_ver = "0"
-        else:
-            sub_ver = str(int(sub_ver) + 1)
+        new_version = ver
+        if sub:
+            new_version = str(int(ver) + 1)
 
-        return ver + "." + sub_ver
+        if sub_ver != "0":
+            new_version = ver + "." + str(int(sub_ver) + 1)
+
+        return new_version
 
     def update_timestamp(self):
         ct = datetime.datetime.now().isoformat()
@@ -408,12 +475,16 @@ class TopologyManager:
                 graph.add_edge(end_nodes[0].id, end_nodes[1].id)
                 edge = graph.edges[end_nodes[0].id, end_nodes[1].id]
                 edge["id"] = link.id
-                edge["latency"] = link.latency
-                edge["bandwidth"] = link.bandwidth
-                edge["residual_bandwidth"] = link.residual_bandwidth
+                edge[Constants.LATENCY] = link.latency
+                edge[Constants.BANDWIDTH] = (
+                    link.bandwidth * link.residual_bandwidth * 0.01
+                )
+                edge[Constants.RESIDUAL_BANDWIDTH] = (
+                    link.residual_bandwidth
+                )  # this is a percentage
                 edge["weight"] = 1000.0 * (1.0 / link.residual_bandwidth)
-                edge["packet_loss"] = link.packet_loss
-                edge["availability"] = link.availability
+                edge[Constants.PACKET_LOSS] = link.packet_loss
+                edge[Constants.AVAILABILITY] = link.availability
 
         return graph
 
@@ -433,28 +504,123 @@ class TopologyManager:
     def update_link_property(self, link_id, property, value):
         # 1. update the individual topology
         for id, topology in self._topology_map.items():
-            links = topology.links
-            for link in links:
-                self._logger.info(f"link.id={link.id}; id={id}")
-                if link.id == link_id:
-                    setattr(link, property, value)
-                    self._logger.info("updated the link.")
-                    # 1.2 need to change the sub_ver of the topology?
-
-        # 2. check on the inter-domain link?
-        # 3. update the interdomain topology
-        links = self._topology.links
-        for link in links:
-            if link.id == link_id:
+            link = topology.get_link_by_id(link_id)
+            if link is not None:
                 setattr(link, property, value)
                 self._logger.info("updated the link.")
-                # 2.2 need to change the sub_ver of the topology?
+                # 1.2 need to change the sub_ver of the topology?
+
+        # 2. check on the inter-domain link?
+        # update the interdomain topology
+        link = self._topology.get_link_by_id(link_id)
+        if link is not None:
+            setattr(link, property, value)
+            self._logger.info("updated the link.")
+            # 2.2 need to change the sub_ver of the topology?
 
         self.update_version(True)
         self.update_timestamp()
         # 4. Signal update the (networkx) graph
 
         # 5. signal Reoptimization of TE?
+
+    # on performance properties for now
+    def change_link_property_by_value(self, port_id_0, port_id_1, property, value):
+        # If it's bandwdith, we need to update the residual bandwidth as a percentage
+        # "bandwidth" remains to keep the original port bandwidth in topology json.
+        # in the graph model, linkd bandwidth is computed as bandwidth*residual_bandwidth*0.01
+        # 1. update the individual topology
+        for id, topology in self._topology_map.items():
+            link = topology.get_link_by_port_id(port_id_0, port_id_1)
+            if link is not None:
+                orignial_bw = link.__getattribute__(Constants.BANDWIDTH)
+                residual = link.__getattribute__(property)
+                if property == Constants.RESIDUAL_BANDWIDTH:
+                    residual_bw = (
+                        link.__getattribute__(Constants.BANDWIDTH) * residual * 0.01
+                    )
+                    self._logger.info(
+                        "updated the link:" + str(residual_bw) + " value:" + str(value)
+                    )
+                    new_residual = max((residual_bw + value) * 100 / orignial_bw, 0.001)
+                else:
+                    new_residual = value
+                setattr(link, property, new_residual)
+                self._logger.info(
+                    "updated the link:"
+                    + link._id
+                    + property
+                    + " from "
+                    + str(residual)
+                    + " to "
+                    + str(new_residual)
+                )
+                # 1.2 need to change the sub_ver of the topology?
+
+        # 2. check on the inter-domain link?
+        # update the interdomain topology
+        link = self._topology.get_link_by_port_id(port_id_0, port_id_1)
+        if link is not None:
+            orignial_bw = link.__getattribute__(Constants.BANDWIDTH)
+            residual = link.__getattribute__(property)
+            if property == Constants.RESIDUAL_BANDWIDTH:
+                residual_bw = (
+                    link.__getattribute__(Constants.BANDWIDTH) * residual * 0.01
+                )
+                new_residual = max((residual_bw + value) * 100 / orignial_bw, 0.001)
+            else:
+                new_residual = value
+            setattr(link, property, new_residual)
+            self._logger.info(
+                "updated the link:"
+                + link._id
+                + property
+                + " from "
+                + str(residual)
+                + " to "
+                + str(new_residual)
+            )
+            # 2.2 need to change the sub_ver of the topology?
+
+    def change_port_vlan_range(self, topology_id, port_id, value):
+        topology = self._topology_map.get(topology_id)
+        port = self.get_port_obj_by_id(topology, port_id)
+        if port is None:
+            self._logger.debug(f"Port not found in changing vlan range:{port_id}")
+            return None
+        self._logger.debug(f"Port found:{port_id};new vlan range:{value}")
+
+        vlan_range_v1 = port.__getattribute__("vlan_range")
+        if vlan_range_v1:
+            port.__setattr__("vlan_range", value)
+        services = port.__getattribute__(Constants.SERVICES)
+        if services:
+            l2vpn_ptp = services.__getattribute__(Constants.L2VPN_P2P)
+            if l2vpn_ptp:
+                l2vpn_ptp["vlan_range"] = value
+        else:
+            self._logger.debug(f"Port has no services (v2):{port_id}")
+            l2vpn_ptp = {}
+            l2vpn_ptmp = {}
+            l2vpn_ptp["vlan_range"] = value
+            services = Service(l2vpn_ptp=l2vpn_ptp, l2vpn_ptmp=l2vpn_ptmp)
+            port.__setattr__(Constants.SERVICES, services)
+
+        # update the whole topology
+        topology = self.get_topology()
+        port = self.get_port_obj_by_id(topology, port_id)
+        if port is None:
+            self._logger.debug(f"Port not found in changing vlan range:{port_id}")
+            return None
+        self._logger.debug(f"Port found:{port_id};new vlan range:{value}")
+        vlan_range_v1 = port.__getattribute__("vlan_range")
+        if vlan_range_v1:
+            port.__setattr__("vlan_range", value)
+        port.__setattr__(Constants.SERVICES, services)
+
+        self._logger.info(
+            "updated the port:" + port_id + " vlan_range" + " to " + str(value)
+        )
 
     def update_element_property_json(self, data, element, element_id, property, value):
         elements = data[element]
@@ -479,6 +645,16 @@ class TopologyManager:
             for port in node.ports:
                 if port.id == port_id:
                     return port.to_dict()
+        return None
+
+    def get_port_obj_by_id(self, topology, port_id: str):
+        """
+        Given port id, returns a Port.
+        """
+        for node in topology.nodes:
+            for port in node.ports:
+                if port.id == port_id:
+                    return port
         return None
 
     def are_two_ports_same_domain(self, port1_id: str, port2_id: str):

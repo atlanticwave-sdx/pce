@@ -4,24 +4,24 @@
         "id": "urn:sdx:port:sax:B1:1",
         "name": "Novi01:1",
         "node": "urn:sdx:node:sax:B1",
+        "vlan_range": "150",
         "short_name": "10",
         "state": "enabled",
         "status": "up"
     },
-    "end_time": "2000-01-23T04:56:07+00:00",
     "id": "id",
     "ingress_port": {
         "id": "urn:sdx:port:sax:B2:1",
         "name": "Novi02:1",
         "node": "urn:sdx:node:sax:B2",
+        "vlan_range": "150",
         "short_name": "9",
         "state": "enabled",
         "status": "up"
     },
     "name": "name",
     "quantity": 0,
-    "start_time": "2000-01-23T04:56:07+00:00",
     "status": "success",
-    "timestamp": "2000-01-23T04:56:07+00:00",
+    "timestamp": "2030-01-23T04:56:07+00:00",
     "version": 1
 }

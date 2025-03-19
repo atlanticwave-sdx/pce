@@ -26,8 +26,6 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.9"
-          - "3.10"
           - "3.11"
           - "3.12"
 
@@ -68,7 +66,7 @@ jobs:
           python -m flit build
 
       - name: Send coverage data to coveralls.io
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@main
         with:
           flag-name: run-${{ join(matrix.*, '-') }}
           file: coverage.lcov
@@ -81,6 +79,6 @@ jobs:
     if: ${{ always() }}
     steps:
       - name: Indicate completion to coveralls.io
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@main
         with:
           parallel-finished: true

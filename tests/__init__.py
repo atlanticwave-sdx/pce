@@ -1,12 +1,6 @@
 import pathlib
 import tempfile
-
-try:
-    # Use stdlib modules with Python > 3.8.
-    from importlib.resources import files
-except ImportError:
-    # Use compatibility library with Python 3.8.
-    from importlib_resources import files
+from importlib.resources import files
 
 
 class TestData:
@@ -25,6 +19,9 @@ class TestData:
     CONNECTION_REQ = REQUESTS_DIR / "test_request.json"
     CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_V1 = (
         REQUESTS_DIR / "v1.0" / "test-request-amlight-zaoxi-p2p.json"
+    )
+    CONNECTION_REQ_AMLIGHT_SAX_v2 = (
+        REQUESTS_DIR / "v1.0" / "test-request-amlight_sax-p2p-v2.json"
     )
 
     # Write test output files in OS temporary directory.

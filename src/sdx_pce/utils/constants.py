@@ -1,10 +1,13 @@
 class Constants:
-    BANDWIDTH = "bandwidth"
-    ORIGINAL_BANDWIDTH = "original_bandwidth"
+    BANDWIDTH = "bandwidth"  # used to store the current bandwidth of the link
+    RESIDUAL_BANDWIDTH = "residual_bandwidth"  # used to store the original bandwidth of the link["bandwidth"]
     LATENCY = "latency"
     PACKET_LOSS = "packet_loss"
     AVAILABILITY = "availability"
     WEIGHT = "weight"
+    SERVICES = "services"
+    L2VPN_P2P = "l2vpn_ptp"
+    L2VPN_P2MP = "l2vpn_ptmp"
 
     OBJECTIVE_COST = 0
     OBJECTIVE_LOAD_BALANCING = 1

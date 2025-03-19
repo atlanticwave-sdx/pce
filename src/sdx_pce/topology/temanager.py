@@ -1,5 +1,7 @@
 import logging
+import re
 import threading
+import traceback
 from itertools import chain
 from typing import List, Optional
 
@@ -9,10 +11,19 @@ import networkx as nx
 from networkx.algorithms import approximation as approx
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
+
 from sdx_datamodel.models.connection_request import (
     ConnectionRequestV0,
     ConnectionRequestV1,
 )
+
+from sdx_datamodel.models.connection_request import ConnectionRequest as DmConnectionRequest
+
+from sdx_datamodel.parsing.exceptions import (
+    MissingAttributeException,
+    ServiceNotSupportedException,
+)
+from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
 
 from sdx_pce.models import (
     ConnectionPath,
@@ -25,7 +36,13 @@ from sdx_pce.models import (
     VlanTaggedPort,
 )
 from sdx_pce.topology.manager import TopologyManager
-from sdx_pce.utils.exceptions import UnknownRequestError, ValidationError
+from sdx_pce.utils.constants import Constants
+from sdx_pce.utils.exceptions import (
+    RequestValidationError,
+    TEError,
+    UnknownRequestError,
+    ValidationError,
+)
 
 UNUSED_VLAN = None
 
@@ -50,6 +67,9 @@ class TEManager:
         self._topology_lock = threading.Lock()
 
         self._logger = logging.getLogger(__name__)
+
+        # Keep a list of solved solution ConnectionSolution:connectionSolution.
+        self._connectionSolution_list = []
 
         # A {domain, {port, {vlan, in_use}}} mapping.
         self._vlan_tags_table = {}
@@ -92,16 +112,41 @@ class TEManager:
 
         :param topology_data: a dictionary that represents a topology.
         """
-        self.topology_manager.update_topology(topology_data)
+        (removed_nodes_list, added_nodes_list, removed_links_list, added_links_list) = (
+            self.topology_manager.update_topology(topology_data)
+        )
+
+        if (
+            len(added_nodes_list) == 0
+            and len(removed_nodes_list) == 0
+            and len(added_links_list) == 0
+            and len(removed_links_list) == 0
+        ):
+            self._logger.info("temanager:No changes detected in the topology")
+            return (
+                removed_nodes_list,
+                added_nodes_list,
+                removed_links_list,
+                added_links_list,
+            )
 
         # Update vlan_tags_table in a non-disruptive way. Previous concerned
         # still applies:
         # TODO: careful here when updating VLAN tags table -- what do
         # we do when an in use VLAN tag becomes invalid in the update?
         # See https://github.com/atlanticwave-sdx/pce/issues/123
+        # For now, OXP topology update doesn't change the state: VLAN tags and bandwidth. Only node and link changes
+
         self._update_vlan_tags_table(
             domain_name=topology_data.get("id"),
             port_map=self.topology_manager.get_port_map(),
+        )
+
+        return (
+            removed_nodes_list,
+            added_nodes_list,
+            removed_links_list,
+            added_links_list,
         )
 
     def get_topology_map(self) -> dict:
@@ -121,12 +166,128 @@ class TEManager:
         """Get failed links on the topology (ie., Links not up and enabled)."""
         return self.topology_manager.get_failed_links()
 
+    def get_connections(self) -> List[ConnectionRequest]:
+        """Get all the connections in the _connectionSolution_list."""
+        connections = []
+        for solution in self._connectionSolution_list:
+            connections.append(solution.request_id)
+        return connections
+
+    @property
+    def vlan_tags_table(self) -> dict:
+        """
+        Return the current VLAN tags table.
+        """
+        return self._vlan_tags_table
+
+    @vlan_tags_table.setter
+    def vlan_tags_table(self, table: dict):
+        """
+        Set VLAN tags table.
+        """
+        # Ensure that the input is in correct shape.
+        if not isinstance(table, dict):
+            raise ValidationError(f"table ({table}) is not a dict")
+
+        for domain, ports in table.items():
+            if not isinstance(domain, str):
+                raise ValidationError(f"domain ({domain}) is not a str")
+
+            for port_id, labels in ports.items():
+                if not isinstance(port_id, str):
+                    raise ValidationError(f"port_id ({port_id}) is not a str")
+
+                if not isinstance(labels, dict):
+                    raise ValidationError(f"labels ({labels}) is not a dict")
+
+        # We should allow VLAN table to be restored only during
+        # startup.  If the table has VLANs that are in use, it means
+        # that we're in the wrong state.
+        for domain, ports in self._vlan_tags_table.items():
+            for port_id, labels in ports.items():
+                for vlan, status in labels.items():
+                    if status is not UNUSED_VLAN:
+                        raise ValidationError(
+                            f"Error: VLAN table is not empty:"
+                            f"(domain: {domain}, port: {port_id}, vlan: {vlan})"
+                        )
+
+        self._vlan_tags_table = table
+
+    def update_available_vlans(self):
+        """
+        Update the available VLAN ranges for each domain and port.
+        This method iterates through the VLAN tags table and identifies the available VLANs (those with status UNUSED_VLAN).
+        It then groups consecutive VLANs into ranges and updates the new VLAN ranges for each domain and port.
+        Returns:
+            dict: A dictionary containing the updated VLAN ranges for each domain and port.
+        Example:
+            {
+                'domain1': {
+                    'port1': ['1-5', '7', '10-12'],
+                    'port2': ['3-4', '6']
+                },
+                'domain2': {
+                    'port1': ['2-3', '8-10']
+                }
+            }
+        Note:
+            - The method assumes that the VLAN tags table is a dictionary with the structure:
+                {
+                    'domain': {
+                        'port_id': {
+                            vlan_id: status,
+                            ...
+                        },
+                        ...
+                    },
+                    ...
+                }
+            - The status UNUSED_VLAN should be defined elsewhere in the code.
+            - The method logs the updated VLAN ranges using the class's logger.
+        """
+
+        new_vlan_ranges = {}
+
+        for domain, ports in self._vlan_tags_table.items():
+            new_vlan_ranges[domain] = {}
+            for port_id, vlans in ports.items():
+                available_vlans = [
+                    vlan for vlan, status in vlans.items() if status == UNUSED_VLAN
+                ]
+                if available_vlans:
+                    ranges = []
+                    start = end = available_vlans[0]
+                    for vlan in available_vlans[1:]:
+                        if vlan == end + 1:
+                            end = vlan
+                        else:
+                            if start == end:
+                                ranges.append(f"{start}")
+                            else:
+                                ranges.append(f"{start}-{end}")
+                                start = end = vlan
+                    if start == end:
+                        ranges.append(f"{start}")
+                    else:
+                        ranges.append(f"{start}-{end}")
+                    new_vlan_ranges[domain][port_id] = ranges
+
+                    # Update the 'vlan_range' property of the 'service' property in the corresponding port
+                    self.topology_manager.change_port_vlan_range(
+                        domain, port_id, ranges
+                    )
+
+        self._logger.info(f"Updated VLAN ranges: {new_vlan_ranges}")
+        return new_vlan_ranges
+
     def _update_vlan_tags_table(self, domain_name: str, port_map: dict):
         """
         Update VLAN tags table in a non-disruptive way, meaning: only add new
         VLANs to the table. Removed VLANs will need further discussion (see
         https://github.com/atlanticwave-sdx/pce/issues/123)
         """
+        # If the domain is not in the table, add {}.
         self._vlan_tags_table.setdefault(domain_name, {})
 
         for port_id, port in port_map.items():
@@ -148,11 +309,17 @@ class TEManager:
             # is a work-around.
             all_labels = self._expand_label_range(label_range)
 
-            self._vlan_tags_table[domain_name].setdefault(port_id, {})
-            for label in all_labels:
-                self._vlan_tags_table[domain_name][port_id].setdefault(
-                    label, UNUSED_VLAN
-                )
+            port_vlan_tags_table = self._vlan_tags_table[domain_name].setdefault(
+                port_id, {}
+            )
+            # This is temporary since OXP updates only change the topology, nodes and links, not the state
+            # So we are not updating the VLAN tags table, which is only updated by PCE actions:
+            # provisioning or deletion
+            if len(port_vlan_tags_table) == 0:
+                for label in all_labels:
+                    self._vlan_tags_table[domain_name][port_id].setdefault(
+                        label, UNUSED_VLAN
+                    )
 
     def _expand_label_range(self, label_range: []) -> List[int]:
         """
@@ -211,15 +378,46 @@ class TEManager:
         )
 
         try:
-            #     request = ConnectionRequestV0(**connection_request)
-            # except ValidationError:
-            print("TRYING V1")
-            request = ConnectionRequestV1(**connection_request)
+            request = DmConnectionRequest.parse_obj(connection_request)
         except Exception as e:
-            print(f"COULD NOT USE {connection_request}: {e}")
-            return None
+            print(f"Exception: could not validate {connection_request}: {e}")
+            raise e
+            # return None
 
-        # request = ConnectionHandler().import_connection_data(connection_request)
+        # try:
+        #     request = ConnectionHandler().import_connection_data(connection_request)
+        # except MissingAttributeException as e:
+        #     self._logger.error(f"Missing attribute: {e} for {connection_request}")
+        #     raise RequestValidationError(
+        #         f"Validation error: {e} for {connection_request}", 400
+        #     )
+        # except ServiceNotSupportedException as e:
+        #     self._logger.error(f"Service not supported: {e} for {connection_request}")
+        #     raise RequestValidationError(
+        #         f"Validation error: {e} for {connection_request}", 402
+        #     )
+
+        # try:
+        #     ConnectionValidator(request).is_valid()
+        # except ValueError as request_err:
+        #     err = traceback.format_exc().replace("\n", ", ")
+        #     self._logger.error(
+        #         f"Validation error: {request_err} for {connection_request}: {request_err} - {err}"
+        #     )
+        #     raise RequestValidationError(
+        #         f"Validation error: {request_err} for {connection_request}", 400
+        #     )
+        # except ServiceNotSupportedException as e:
+        #     self._logger.error(f"Service not supported: {e} for {connection_request}")
+        #     raise RequestValidationError(
+        #         f"Validation error: {e} for {connection_request}", 402
+        #     )
+        # except Exception as e:
+        #     err = traceback.format_exc().replace("\n", ", ")
+        #     self._logger.error(f"Error when validating connection request: {e} - {err}")
+        #     raise RequestValidationError(
+        #         f"Validation error: {e} for {connection_request}", 400
+        #     )
 
         self._logger.info(f"generate_traffic_matrix: decoded request: {request}")
 
@@ -308,8 +506,9 @@ class TEManager:
     def graph_node_connectivity(self, source=None, dest=None):
         """
         Check that a source and destination node have connectivity.
+        No need to continue if there is no connectiviy between source and destination
         """
-        # TODO: is this method really needed?
+
         return approx.node_connectivity(self.graph, source, dest)
 
     def requests_connectivity(self, tm: TrafficMatrix) -> bool:
@@ -355,29 +554,41 @@ class TEManager:
 
         result = []
 
-        for domain, links in solution.connection_map.items():
+        for connectionRequest, links in solution.connection_map.items():
             for link in links:
-                assert isinstance(link, ConnectionPath)
+                if not isinstance(link, ConnectionPath):
+                    self._logger.error(f"{link} is not a ConnectionPath")
+                    continue
 
-                src_node = self.graph.nodes.get(link.source)
-                assert src_node is not None
+                p1, p2 = self._get_ports_by_link(link)
+                self._logger.info(f"get_links_on_path: ports: {p1}, {p2}")
 
-                dst_node = self.graph.nodes.get(link.destination)
-                assert dst_node is not None
+                if p1 and p2:
+                    result.append({"source": p1.get("id"), "destination": p2.get("id")})
 
-                ports = self._get_ports_by_link(link)
+        return connectionRequest, result
 
-                self._logger.info(
-                    f"get_links_on_path: src_node: {src_node} (#{link.source}), "
-                    f"dst_node: {dst_node} (#{link.destination}), "
-                    f"ports: {ports}"
-                )
+    def update_link_bandwidth(self, solution: ConnectionSolution, reduce=True):
+        """
+        Update the topology properties, typically the link bandwidth property after a place_connection call succeeds
+        """
+        connectionRequest, links = self.get_links_on_path(solution)
+        self._logger.info(f"connectionRequest: {connectionRequest}, links: {links}")
+        bandwidth = connectionRequest.required_bandwidth
+        if reduce:
+            bandwidth = (-1) * bandwidth
+        for link in links:
+            p1 = link["source"]
+            p2 = link["destination"]
+            # update in three places: (1) topology object (2) graph object (3) json to DB
+            # (1) topology object
+            self.topology_manager.change_link_property_by_value(
+                p1, p2, Constants.RESIDUAL_BANDWIDTH, bandwidth
+            )
 
-                if ports:
-                    p1, p2 = ports
-                    result.append({"source": p1["id"], "destination": p2["id"]})
-
-        return result
+        # (2) graph object, called by sdx-controller
+        # self.graph = TESolver.update_graph(self.graph, solution)
+        # (3) json to DB, in sdx-controller
 
     def add_breakdowns_to_connection(self, connection_request: dict, breakdowns: dict):
         """
@@ -398,8 +609,8 @@ class TEManager:
         assigned yet.  We assign ports in this step.
         """
         if solution is None or solution.connection_map is None:
-            self._logger.warning(f"Can't find a breakdown for {solution}")
-            return None
+            self._logger.warning(f"Can't find a TE solution for {connection_request}")
+            raise TEError(f"Can't find a TE solution for: {connection_request}", 410)
 
         breakdown = {}
         paths = solution.connection_map  # p2p for now
@@ -412,17 +623,22 @@ class TEManager:
             for count, link in enumerate(links):
                 self._logger.info(f"count: {count}, link: {link}")
 
-                assert isinstance(link, ConnectionPath)
+                if not isinstance(link, ConnectionPath):
+                    self._logger.error(f"{link} is not ConnectionPath")
+                    continue
 
                 src_node = self.graph.nodes.get(link.source)
-                assert src_node is not None
-
                 dst_node = self.graph.nodes.get(link.destination)
-                assert dst_node is not None
 
                 self._logger.info(
                     f"source node: {src_node}, destination node: {dst_node}"
                 )
+
+                if None in [src_node, dst_node]:
+                    self._logger.error(
+                        f"Skipping: src_node: {src_node}, dst_node: {dst_node}"
+                    )
+                    continue
 
                 src_domain = self.topology_manager.get_domain_name(src_node["id"])
                 dst_domain = self.topology_manager.get_domain_name(dst_node["id"])
@@ -441,6 +657,10 @@ class TEManager:
                         breakdown[current_domain] = current_link_set.copy()
                 else:
                     breakdown[current_domain] = current_link_set.copy()
+                    if count == len(links) - 1:
+                        current_link_set = []
+                        current_link_set.append(link)
+                        breakdown[dst_domain] = current_link_set.copy()
                     current_domain = None
                     current_link_set = []
 
@@ -582,7 +802,7 @@ class TEManager:
 
         tagged_breakdown = self._reserve_vlan_breakdown(
             domain_breakdown=domain_breakdown,
-            request_id=solution.request_id,
+            connection_request=connection_request,
             ingress_user_port=ingress_user_port,
             egress_user_port=egress_user_port,
         )
@@ -591,10 +811,27 @@ class TEManager:
         )
 
         # Make tests pass, temporarily.
+        # need to throw an exception if tagged_breakdown is None
         if tagged_breakdown is None:
-            return None
+            raise TEError(
+                f"Can't find a valid vlan breakdown solution for: {connection_request}",
+                409,
+            )
 
-        assert isinstance(tagged_breakdown, VlanTaggedBreakdowns)
+        if not isinstance(tagged_breakdown, VlanTaggedBreakdowns):
+            raise TEError(
+                f"Validation error: {tagged_breakdown} is not the expected type",
+                410,
+            )
+
+        # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
+        self.update_link_bandwidth(solution, reduce=True)
+
+        # Update available VLANs
+        self.update_available_vlans()
+
+        # keep the connection solution for future reference
+        self._connectionSolution_list.append(solution)
 
         # Return a dict containing VLAN-tagged breakdown in the
         # expected format.
@@ -606,7 +843,9 @@ class TEManager:
 
         Returns a (Port, Port) tuple.
         """
-        assert isinstance(link, ConnectionPath)
+        if not isinstance(link, ConnectionPath):
+            self._logger.error(f"{link} is not ConnectionPath")
+            return None, None
 
         node1 = self.graph.nodes[link.source]["id"]
         node2 = self.graph.nodes[link.destination]["id"]
@@ -615,12 +854,14 @@ class TEManager:
 
         # Avoid some possible crashes.
         if ports is None:
+            self._logger.error(f"Could not find a port matching {node1} and {node2}")
             return None, None
 
         n1, p1, n2, p2 = ports
 
-        assert n1 == node1
-        assert n2 == node2
+        if n1 != node1 or n2 != node2:
+            self._logger.error(f"Node mismatch: {n1}!={node1} or {n2}!={node2}")
+            return None, None
 
         return p1, p2
 
@@ -644,7 +885,7 @@ class TEManager:
     def _reserve_vlan_breakdown(
         self,
         domain_breakdown: dict,
-        request_id: str,
+        connection_request: dict,
         ingress_user_port=None,
         egress_user_port=None,
     ) -> Optional[VlanTaggedBreakdowns]:
@@ -678,26 +919,63 @@ class TEManager:
 
         # if not, assuming vlan translation on the domain border port
 
+        self._logger.info(f"Assigning VLANs for request: {connection_request}")
+
+        # TODO: Generating a request_id locally is a workaround until
+        # we get rid of the old style connection request.
+        if isinstance(connection_request, dict):
+            request_id = connection_request.get("id")
+        else:
+            from uuid import uuid4
+
+            request_id = uuid4()
+            self._logger.warning(f"Generated ID {request_id} for old style request")
+
         self._logger.info(
             f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}"
         )
 
-        breakdowns = {}
+        domain_breakdown_list = list(domain_breakdown.items())
+        domain_breakdown_list_len = len(domain_breakdown_list)
+        common_vlan_on_link = {}  # {domain1: upstream_egress_vlan}
+        for i in range(domain_breakdown_list_len - 1):
+            domain, segment = domain_breakdown_list[i]
+            next_domain, next_segment = domain_breakdown_list[i + 1]
+            self._logger.info(
+                f"Find a common vlan: domain: {domain}, segment: {segment}, next_domain: {next_domain}, next_segment: {next_segment}"
+            )
 
-        # upstream_o_vlan = ""
+            upstream_egress = segment.get("egress_port")
+            downstream_ingress = next_segment.get("ingress_port")
+
+            upstream_egress_vlan = self._find_common_vlan_on_link(
+                domain,
+                upstream_egress["id"],
+                next_domain,
+                downstream_ingress["id"],
+                connection_request,
+            )
+            self._logger.info(
+                f"upstream_egress_vlan: {upstream_egress_vlan}; upstream_egress: {upstream_egress}; downstream_ingress: {downstream_ingress}"
+            )
+            if upstream_egress_vlan is None:
+                return (
+                    None,
+                    f"Failed: No common VLAN found on the link:{upstream_egress['id']} -> {downstream_ingress['id']}",
+                )
+            common_vlan_on_link[domain] = upstream_egress_vlan
+
+        breakdowns = {}
+        i = 0
+        upstream_egress_vlan = None
+        downstream_ingress_vlan = None
         for domain, segment in domain_breakdown.items():
             # These are topology ports
             ingress_port = segment.get("ingress_port")
             egress_port = segment.get("egress_port")
 
-            self._logger.debug(
-                f"VLAN reservation: domain: {domain}, "
-                f"ingress_port: {ingress_port}, egress_port: {egress_port}"
-            )
-
             if ingress_port is None or egress_port is None:
                 return None
-
             ingress_user_port_tag = None
             egress_user_port_tag = None
             if (
@@ -711,11 +989,36 @@ class TEManager:
             ):
                 egress_user_port_tag = egress_user_port.get("vlan_range")
 
+            self._logger.info(
+                f"VLAN reservation: domain: {domain}, "
+                f"ingress_port: {ingress_port}, egress_port: {egress_port},"
+                f"ingress_user_port_tag: {ingress_user_port_tag}, egress_user_port_tag: {egress_user_port_tag},"
+                f"upstream_egress_vlan: {upstream_egress_vlan}"
+            )
+
+            if i == 0:  # first domain
+                upstream_egress_vlan = None
+                downstream_ingress_vlan = common_vlan_on_link.get(domain)
+            elif i == domain_breakdown_list_len - 1:  # last domain
+                downstream_ingress_vlan = None
+            else:  # middle domain
+                downstream_ingress_vlan = common_vlan_on_link.get(domain)
+
+            i += 1
+
             ingress_vlan = self._reserve_vlan(
-                domain, ingress_port, request_id, ingress_user_port_tag
+                domain,
+                ingress_port,
+                request_id,
+                ingress_user_port_tag,
+                upstream_egress_vlan,
             )
             egress_vlan = self._reserve_vlan(
-                domain, egress_port, request_id, egress_user_port_tag
+                domain,
+                egress_port,
+                request_id,
+                egress_user_port_tag,
+                downstream_ingress_vlan,
             )
 
             if ingress_vlan is None or egress_vlan is None:
@@ -724,10 +1027,14 @@ class TEManager:
                     f"Can't proceed. Rolling back reservations."
                 )
                 self.unreserve_vlan(request_id=request_id)
-                return None
+                raise TEError(
+                    f"Can't find a vlan assignment for: {connection_request}", 410
+                )
 
             ingress_port_id = ingress_port["id"]
             egress_port_id = egress_port["id"]
+
+            upstream_egress_vlan = egress_vlan
 
             # TODO: what to do when a port is not in the port map
             # which only has all the ports on links?
@@ -766,12 +1073,13 @@ class TEManager:
             # segment["ingress_vlan"] = ingress_vlan
             # segment["egress_vlan"] = egress_vlan
             # upstream_o_vlan = egress_vlan
-
+            tag_type = 0 if ingress_vlan == "untagged" else 1
             port_a = VlanTaggedPort(
-                VlanTag(value=ingress_vlan, tag_type=1), port_id=ingress_port_id
+                VlanTag(value=ingress_vlan, tag_type=tag_type), port_id=ingress_port_id
             )
+            tag_type = 0 if egress_vlan == "untagged" else 1
             port_z = VlanTaggedPort(
-                VlanTag(value=egress_vlan, tag_type=1), port_id=egress_port_id
+                VlanTag(value=egress_vlan, tag_type=tag_type), port_id=egress_port_id
             )
 
             # Names look like "AMLIGHT_vlan_201_202_Ampath_Tenet".  We
@@ -815,7 +1123,114 @@ class TEManager:
         # return domain_breakdown
         assert False, "Not implemented"
 
-    def _reserve_vlan(self, domain: str, port: dict, request_id: str, tag: str = None):
+    def _find_common_vlan_on_link(
+        self,
+        domain,
+        upstream_egress,
+        next_domain,
+        downstream_ingress,
+        connection_request=None,
+    ) -> Optional[str]:
+        """
+        Find a common VLAN on the inter-domain link.
+
+        This function is used to find a common VLAN on the inter-domain link.
+        """
+        upstream_vlan_table = self._vlan_tags_table.get(domain).get(upstream_egress)
+        downstream_vlan_table = self._vlan_tags_table.get(next_domain).get(
+            downstream_ingress
+        )
+
+        if upstream_vlan_table is None or downstream_vlan_table is None:
+            self._logger.error(f"Can't find VLAN tables for {domain} and {next_domain}")
+            return None
+        common_vlans = set(upstream_vlan_table.keys()).intersection(
+            downstream_vlan_table.keys()
+        )
+
+        self._logger.info(
+            f"Looking for common VLANS for connection_request: {connection_request}"
+        )
+
+        # TODO: shouldn't we update VLAN allocation tables here?
+
+        # The block below is a work-around to find out if a VLAN range
+        # was specified in the connection request, and then handle it
+        # accordingly.  This code could probably be simplified if we
+        # use a "proper" data structure to represent the original
+        # connection request internally.
+        if connection_request and isinstance(connection_request, dict):
+            ingress_vlans_str = connection_request.get("ingress_port").get("vlan_range")
+            egress_vlans_str = connection_request.get("egress_port").get("vlan_range")
+
+            self._logger.info(
+                f"Found ingress_vlans: {ingress_vlans_str}, "
+                f"egress_vlans: {egress_vlans_str}"
+            )
+
+            # Do we have a range of VLANs to handle?
+            if self._tag_is_vlan_range(ingress_vlans_str):
+
+                # Both ingress and egress ranges should be the same
+                # for inter-domain links, since we (currently) infer
+                # it from the original request.
+                #
+                # It is quite unlikely that we'll ever get to this
+                # error state, but this is worth checking anyway.
+                if not self._tag_is_vlan_range(egress_vlans_str):
+                    raise Exception(
+                        f"VLAN range {ingress_vlans_str} requested on ingress, "
+                        f"but not on egress (egress: {egress_vlans_str}"
+                    )
+
+                start, end = map(int, ingress_vlans_str.split(":"))
+                vlans = list(range(start, end + 1))
+
+                for vlan in vlans:
+                    if upstream_vlan_table[vlan] is not UNUSED_VLAN:
+                        raise Exception(
+                            f"Upstream VLAN {vlan} is in use; "
+                            f"can't reserve {ingress_vlans_str} range"
+                        )
+
+                    if downstream_vlan_table[vlan] is not UNUSED_VLAN:
+                        raise Exception(
+                            f"Downstream VLAN {vlan} is in use; "
+                            f"can't reserve {egress_vlans_str} range"
+                        )
+
+                return ingress_vlans_str
+
+        for vlan in common_vlans:
+            if (
+                upstream_vlan_table[vlan] is UNUSED_VLAN
+                and downstream_vlan_table[vlan] is UNUSED_VLAN
+            ):
+                return vlan
+
+        self._logger.warning(
+            f"No common VLAN found between {domain} and {next_domain} "
+            f"for ports {upstream_egress} and {downstream_ingress}"
+        )
+        return None
+
+    def _tag_is_vlan_range(self, tag: str) -> bool:
+        """
+        Return True if tag is of the form `n:m`
+        """
+        if isinstance(tag, str):
+            return bool(re.match(r"\d+:\d+", tag))
+        else:
+            return False
+
+    def _reserve_vlan(
+        self,
+        domain: str,
+        port: dict,
+        request_id: str,
+        tag: Optional[str] = None,
+        upstream_egress_vlan: Optional[str] = None,
+    ):
         """
         Find unused VLANs for given domain/port and mark them in-use.
 
@@ -831,6 +1246,8 @@ class TEManager:
             Data Model Specification 1.0 for details.
 
             https://sdx-docs.readthedocs.io/en/latest/specs/provisioning-api-1.0.html#mandatory-attributes
+        :param upstream_egress_vlan: a string that contains the
+            upstream tag to use
         """
 
         # with self._topology_lock:
@@ -856,7 +1273,7 @@ class TEManager:
 
         vlan_table = domain_table.get(port_id)
 
-        self._logger.debug(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
+        # self._logger.debug(f"reserve_vlan domain: {domain} vlan_table: {vlan_table}")
 
         if vlan_table is None:
             self._logger.warning(
@@ -864,30 +1281,73 @@ class TEManager:
             )
             return None
 
+        if tag is None:
+            tag = upstream_egress_vlan
+            self._logger.info(f"tag is None, using the upstream_egress_vlan: {tag}")
+        else:
+            self._logger.info(f"tag is not None, using the tag: {tag}")
+
         if tag in (None, "any"):
             # Find the first available VLAN tag from the table.
             for vlan_tag, vlan_usage in vlan_table.items():
                 if vlan_usage is UNUSED_VLAN:
                     available_tag = vlan_tag
+        elif tag == "untagged":
+            return tag
+        elif self._tag_is_vlan_range(tag):
+            # expand the range.
+            start, end = map(int, tag.split(":"))
+            vlans = list(range(start, end + 1))
+
+            self._logger.debug(f"Attempting to reseve vlan range {vlans}")
+
+            # Check if all VLANs in the range are available.
+            for vlan in vlans:
+                if (
+                    vlan_table[vlan] is not UNUSED_VLAN
+                    and vlan_table[vlan] != request_id
+                ):
+                    raise TEError(
+                        f"VLAN {vlan} is in use; can't reserve {tag}",
+                        409,
+                    )
+
+            # Mark range in use.
+            for vlan in vlans:
+                vlan_table[vlan] = request_id
+
+            # self._logger.debug(
+            #     f"reserve_vlan domain {domain}, after reservation: "
+            #     f"vlan_table: {vlan_table}, requested range: {tag}"
+            # )
+
+            # Return the tag to indicate success.
+            return tag
         else:
+            tag = int(tag)
             if tag in vlan_table:
-                if vlan_table[tag] is UNUSED_VLAN:
+                if vlan_table[tag] is UNUSED_VLAN or vlan_table[tag] == request_id:
                     self._logger.debug(f"VLAN {tag} is available; marking as in-use")
                     available_tag = tag
                 else:
                     self._logger.error(f"VLAN {tag} is in use by {vlan_table[tag]}")
-                    return None
+                    raise TEError(
+                        f"VLAN {tag} is in use; can't reserve {tag}",
+                        409,
+                    )
             else:
-                self._logger.error(f"VLAN {tag} is not present in the table")
+                self._logger.error(
+                    f"VLAN {tag}:{type(tag)} is not present in the table"
+                )
                 return None
 
         # mark the tag as in-use.
         vlan_table[available_tag] = request_id
 
-        self._logger.debug(
-            f"reserve_vlan domain {domain}, after reservation: "
-            f"vlan_table: {vlan_table}, available_tag: {available_tag}"
-        )
+        # self._logger.debug(
+        #     f"reserve_vlan domain {domain}, after reservation: "
+        #     f"vlan_table: {vlan_table}, available_tag: {available_tag}"
+        # )
 
         return available_tag
 
@@ -910,6 +1370,37 @@ class TEManager:
             raise UnknownRequestError(
                 "Unknown connection request", request_id=request_id
             )
+
+    def delete_connection(self, request_id: str):
+        """
+        Delete a connection.
+
+        This function is used to delete a connection.  It will
+        unreserve the VLANs that were reserved for the connection.
+        """
+        self.unreserve_vlan(request_id)
+        solution = self.get_connection_solution(request_id)
+        if solution is None:
+            self._logger.warning(f"Can't find a solution for request ID {request_id}")
+            return None
+
+        # Remove the solution from the list.
+        self._connectionSolution_list.remove(solution)
+        # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
+        self.update_link_bandwidth(solution, reduce=False)
+
+        # Update available VLANs
+        self.update_available_vlans()
+
+    def get_connection_solution(self, request_id: str) -> Optional[ConnectionSolution]:
+        """
+        Get a connection solution by request ID.
+        """
+        for solution in self._connectionSolution_list:
+            if solution.request_id == request_id:
+                return solution
+
+        return None
 
     def _print_vlan_tags_table(self):
         """

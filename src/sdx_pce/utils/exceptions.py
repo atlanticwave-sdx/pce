@@ -19,3 +19,31 @@ class UnknownRequestError(Exception):
         """
         super().__init__(f"{message} (ID: {request_id})")
         self.request_id = request_id
+
+
+class RequestValidationError(Exception):
+    """
+    A custom exception to represent TE (Traffic Engineering) errors.
+    """
+
+    def __init__(self, message: str, validation_code: int):
+        """
+        :param message: a string containing the error message.
+        :param te_code: an integer representing the TE error code.
+        """
+        super().__init__(f"{message} (Request Error Code: {validation_code})")
+        self.request_code = validation_code
+
+
+class TEError(Exception):
+    """
+    A custom exception to represent TE (Traffic Engineering) errors.
+    """
+
+    def __init__(self, message: str, te_code: int):
+        """
+        :param message: a string containing the error message.
+        :param te_code: an integer representing the TE error code.
+        """
+        super().__init__(f"{message} (TE Code: {te_code})")
+        self.te_code = te_code

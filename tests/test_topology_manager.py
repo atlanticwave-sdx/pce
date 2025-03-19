@@ -95,6 +95,51 @@ class TopologyManagerTests(unittest.TestCase):
         ]
         self.assertEqual(len(interdomain_links), 4)
 
+        print(f"Writing result to {self.TOPOLOGY_OUT}")
+        pathlib.Path(self.TOPOLOGY_OUT).write_text(
+            json.dumps(topology.to_dict(), indent=4)
+        )
+
+    def test_get_topology_dict(self):
+        print("Test Topology get_topology_dict")
+
+        self.test_merge_topology()
+
+        topology_dict = self.topology_manager.get_topology_dict()
+
+        self.assertIsInstance(topology_dict, dict)
+        self.assertIn("nodes", topology_dict)
+        self.assertIn("links", topology_dict)
+
+        print(f"Topology dict: {json.dumps(topology_dict, indent=4)}")
+
+    def test_get_topology_map(self):
+        print("Test Topology get_topology_map")
+
+        self.test_merge_topology()
+
+        topology_map = self.topology_manager.get_topology_map()
+
+        self.assertIsInstance(topology_map, dict)
+
+        self.assertTrue(len(topology_map) == 3)
+
+    def test_get_topology_map_dict(self):
+        print("Test Topology get_topology_map_dict")
+
+        self.test_merge_topology()
+
+        topology_map = self.topology_manager.get_topology_map()
+
+        topology_map_dict = {}
+
+        for key, value in topology_map.items():
+            topology_map_dict[key] = value.to_dict()
+
+        self.assertTrue(len(topology_map_dict) == 3)
+
+        print(f"Topology map dict: {json.dumps(topology_map_dict, indent=4)}")
+
     def test_update_topology(self):
         print("Test Topology Update!")
 
@@ -127,9 +172,9 @@ class TopologyManagerTests(unittest.TestCase):
         print(f"xml: {xml}")
         self.assertIsNotNone(xml)
 
-    def test_generate_graph(self):
+    def test_generate_graph_v2(self):
         print("Test Topology Graph")
-        self.test_merge_topology()
+        self.test_merge_topology_v2()
         graph = self.topology_manager.generate_graph()
 
         # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
