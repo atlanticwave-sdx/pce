@@ -222,18 +222,24 @@ class TopologyManager:
             return False
         return port_id.split(":")[3] != topology_id.split(":")[3]
 
+    def get_down_links(self, old_topology, topology):
+        """
+        Get the links that are down in the new topology.
+        """
+        down_links = []
+        for link in old_topology.links:
+            if link.status == "up" or link.status == None:
+                new_link = topology.get_link_by_id(link.id)
+                if new_link is not None and new_link.status == "down":
+                    down_links.append(new_link)
+        return down_links
+
     def topology_diff(self, old_topology, topology):
-        # excluding attributes
-        port_excluding_attributes = ["service"]
 
         added_nodes = set()
         added_links = set()
         removed_nodes = set()
         removed_links = set()
-
-        # likely adding new inter-domain links
-        old_topology = self._topology_map.get(topology.id)
-        self._topology_map[topology.id] = topology
 
         if old_topology is not None:
             removed_nodes = set(old_topology.nodes_id()).difference(
@@ -257,7 +263,7 @@ class TopologyManager:
         removed_nodes_list = []
         added_nodes_list = []
         for link_id in removed_links:
-            link_obj = self._topology.get_link_by_id(link_id)
+            link_obj = old_topology.get_link_by_id(link_id)
             if link_obj is not None:
                 removed_links_list.append(link_obj)
         for link_id in added_links:
@@ -265,13 +271,19 @@ class TopologyManager:
             if link_obj is not None:
                 added_links_list.append(link_obj)
         for node_id in removed_nodes:
-            node_obj = self._topology.get_node_by_id(node_id)
+            node_obj = old_topology.get_node_by_id(node_id)
             if node_obj is not None:
                 removed_nodes_list.append(node_obj)
         for node_id in added_nodes:
             node_obj = topology.get_node_by_id(node_id)
             if node_obj is not None:
                 added_nodes_list.append(node_obj)
+
+        # adding the down links to the removed links list
+        down_links = self.get_down_links(old_topology, topology)
+
+        for link in down_links:
+            removed_links_list.append(link)
 
         return (
             removed_nodes_list,
@@ -330,6 +342,7 @@ class TopologyManager:
                 port_id = port if isinstance(port, str) else port["id"]
                 self._port_link_map[port_id] = link
 
+        # extract the changes for controller rerouting actions: link removal and link down
         (removed_nodes_list, added_nodes_list, removed_links_list, added_links_list) = (
             self.topology_diff(old_topology, topology)
         )
@@ -560,9 +573,10 @@ class TopologyManager:
         # 2. check on the inter-domain link?
         # update the interdomain topology
         link = self._topology.get_link_by_id(link_id)
+
         if link is not None:
             setattr(link, property, value)
-            self._logger.info("updated the link.")
+            self._logger.info(f"updated the link:{link_id} {property} to {value}")
             # 2.2 need to change the sub_ver of the topology?
 
         # 4. Signal update the (networkx) graph
