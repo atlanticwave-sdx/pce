@@ -1,27 +1,31 @@
 import logging
 import re
 import threading
-import traceback
+
+# import traceback
 from itertools import chain
 from typing import List, Optional
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
-from pydantic import ValidationError
+
+# from pydantic import ValidationError
 from sdx_datamodel.models.connection_request import (
     ConnectionRequest as DmConnectionRequest,
 )
-from sdx_datamodel.models.connection_request import (
-    ConnectionRequestV0,
-    ConnectionRequestV1,
-)
+
+# from sdx_datamodel.models.connection_request import (
+#     ConnectionRequestV0,
+#     ConnectionRequestV1,
+# )
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
-from sdx_datamodel.parsing.exceptions import (
-    MissingAttributeException,
-    ServiceNotSupportedException,
-)
-from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
+
+# from sdx_datamodel.parsing.exceptions import (
+#     MissingAttributeException,
+#     ServiceNotSupportedException,
+# )
+# from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
 
 from sdx_pce.models import (
     ConnectionPath,
@@ -36,7 +40,7 @@ from sdx_pce.models import (
 from sdx_pce.topology.manager import TopologyManager
 from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.exceptions import (
-    RequestValidationError,
+    # RequestValidationError,
     TEError,
     UnknownRequestError,
     ValidationError,
