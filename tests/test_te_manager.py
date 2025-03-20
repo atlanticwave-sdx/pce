@@ -2100,7 +2100,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(reserved_vlans_sax["urn:sdx:port:sax.net:Sax01:41"][1])
 
         # Update available VLANs
-        temanager.update_available_vlans()
+        temanager.update_available_vlans(temanager._vlan_tags_table)
 
         # Verify the VLAN is still reserved in both domains
         reserved_vlans_amlight = temanager.vlan_tags_table[
@@ -2134,7 +2134,7 @@ class TEManagerTests(unittest.TestCase):
         temanager.unreserve_vlan(connection_request["id"])
 
         # Update available VLANs again
-        temanager.update_available_vlans()
+        temanager.update_available_vlans(temanager._vlan_tags_table)
 
         # Verify the VLAN has been released in both domains
         reserved_vlans_amlight = temanager.vlan_tags_table[

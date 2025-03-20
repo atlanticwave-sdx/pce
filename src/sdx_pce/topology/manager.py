@@ -222,25 +222,7 @@ class TopologyManager:
             return False
         return port_id.split(":")[3] != topology_id.split(":")[3]
 
-    def update_ports_attributes(self, new_topology, excluding_attributes=None):
-        """
-        Update port attributes in the topology.
-        """
-        change_flag = False
-        for node in new_topology.nodes:
-            for new_port in node.ports:
-                port = self._port_map.get(new_port.id)
-                if port:
-                    for attr, value in new_port.__dict__.items():
-                        if excluding_attributes and attr in excluding_attributes:
-                            continue
-                        if getattr(port, attr, None) != value:
-                            setattr(port, attr, value)
-                            change_flag = True
-        return change_flag
-
-    def update_topology(self, data):
-
+    def topology_diff(self, old_topology, topology):
         # excluding attributes
         port_excluding_attributes = ["service"]
 
@@ -250,8 +232,6 @@ class TopologyManager:
         removed_links = set()
 
         # likely adding new inter-domain links
-        update_handler = TopologyHandler()
-        topology = update_handler.import_topology_data(data)
         old_topology = self._topology_map.get(topology.id)
         self._topology_map[topology.id] = topology
 
@@ -268,19 +248,6 @@ class TopologyManager:
             added_links = set(topology.links_id()).difference(
                 set(old_topology.links_id())
             )
-            # excluding attributes "sevices" for now to avoid overwriting the vlan_range maintained by PCE
-            port_excluding_attributes = ["services"]
-            change_flag = self.update_ports_attributes(
-                topology, port_excluding_attributes
-            )
-            if change_flag:
-                self._logger.info(
-                    "Port attributes changes detected and updated in the topology {topology.id}"
-                )
-            else:
-                self._logger.info(
-                    "No port attributes changes detected in the topology {topology.id}"
-                )
         else:
             self._logger.warning("No existing topology found for update: {topology.id}")
 
@@ -306,6 +273,67 @@ class TopologyManager:
             if node_obj is not None:
                 added_nodes_list.append(node_obj)
 
+        return (
+            removed_nodes_list,
+            added_nodes_list,
+            removed_links_list,
+            added_links_list,
+        )
+
+    def update_topology(self, data):
+        # likely adding new inter-domain links
+        update_handler = TopologyHandler()
+        topology = update_handler.import_topology_data(data)
+        old_topology = self._topology_map.get(topology.id)
+        self._topology_map[topology.id] = topology
+
+        # Nodes.
+        nodes = topology.nodes
+        for node in nodes:
+            self._topology.remove_node(node.id)
+
+        # Links.
+        links = topology.links
+        for link in links:
+            if not self.is_link_interdomain(link, topology):
+                # print(link.id+";......."+str(link.nni))
+                self._topology.remove_link(link.id)
+                for port in link.ports:
+                    port_id = port if isinstance(port, str) else port["id"]
+                    self._port_link_map.pop(port_id)
+
+        # Check the inter-domain links first.
+        interdomain_ports = self.inter_domain_check(topology)
+        if len(interdomain_ports) == 0:
+            self._logger.warning("Warning: no interdomain links detected!")
+
+        # Nodes.
+        nodes = topology.nodes
+        self._topology.add_nodes(nodes)
+
+        # Links.
+        links = topology.links
+        self._topology.add_links(links)
+
+        # inter-domain links
+        self.add_inter_domain_links(topology, interdomain_ports)
+
+        # Update the port node map
+        for node in topology.nodes:
+            for port in node.ports:
+                self._port_map[port.id] = port
+
+        # Addding to the port list
+        links = topology.links
+        for link in links:
+            for port in link.ports:
+                port_id = port if isinstance(port, str) else port["id"]
+                self._port_link_map[port_id] = link
+
+        (removed_nodes_list, added_nodes_list, removed_links_list, added_links_list) = (
+            self.topology_diff(old_topology, topology)
+        )
+
         if (
             len(added_nodes_list) == 0
             and len(removed_nodes_list) == 0
@@ -315,62 +343,6 @@ class TopologyManager:
             self._logger.info(
                 "topology manager:No node and link changes detected in the topology {topology.id}"
             )
-
-        # update the topology
-        # Remove existing nodes
-        nodes = old_topology.nodes
-        for node in nodes:
-            self._topology.remove_node(node.id)
-
-        # Links: we update all the links anyway to capture link state changes.
-        try:
-            links = topology.links
-            for link in links:
-                if link.id not in added_links:
-                    self._topology.remove_link(link.id)
-                    for port in link.ports:
-                        port_id = port if isinstance(port, str) else port["id"]
-                        self._port_link_map.pop(port_id)
-        except Exception as e:
-            self._logger.error(f"Error in removing links: {e}")
-            self._logger.error(f"port_link_map: {self._port_link_map}")
-
-        # Check the inter-domain links first.
-        interdomain_ports = self.inter_domain_check(topology)
-        if len(interdomain_ports) == 0:
-            self._logger.warning("Warning: no interdomain links detected!")
-        else:
-            self._logger.debug(f"interdomain_ports: {interdomain_ports}")
-
-        # Add new nodes.
-        nodes = topology.nodes
-        self._topology.add_nodes(nodes)
-
-        # Add new links.
-        # links = topology.links
-        self._topology.add_links(links)
-
-        # Addding to the port list
-        links = topology.links
-        for link in links:
-            for port in link.ports:
-                port_id = port if isinstance(port, str) else port["id"]
-                self._port_link_map[port_id] = link
-
-        # Update the port map
-        for node in topology.nodes:
-            for port in node.ports:
-                self._port_map[port.id] = port
-
-        # inter-domain links
-        self.add_inter_domain_links(topology, interdomain_ports)
-
-        if (
-            len(added_nodes_list) == 0
-            and len(removed_nodes_list) == 0
-            and len(added_links_list) == 0
-            and len(removed_links_list) == 0
-        ):
             self.update_version(False)
         else:
             self.update_version(True)
@@ -556,6 +528,25 @@ class TopologyManager:
     def update_private_properties(self):
         pass
 
+    def get_residul_bandwidth(self) -> dict:
+        """
+        Get the residual bandwidth on each link in the topology.
+
+        :return: A dictionary indexed by the link ID with residual bandwidth as values.
+        """
+        residual_bandwidth = {}
+        links = self._topology.links
+
+        for link in links:
+            link_id = link.id
+            residual_bw = link.__getattribute__(Constants.RESIDUAL_BANDWIDTH)
+            if residual_bw is not None:
+                residual_bandwidth[link_id] = residual_bw
+            else:
+                self._logger.warning(f"Residual bandwidth not found for link {link_id}")
+
+        return residual_bandwidth
+
     # on performance properties for now
     def update_link_property(self, link_id, property, value):
         # 1. update the individual topology
@@ -574,8 +565,6 @@ class TopologyManager:
             self._logger.info("updated the link.")
             # 2.2 need to change the sub_ver of the topology?
 
-        self.update_version(True)
-        self.update_timestamp()
         # 4. Signal update the (networkx) graph
 
         # 5. signal Reoptimization of TE?
