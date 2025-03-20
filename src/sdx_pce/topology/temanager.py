@@ -153,7 +153,7 @@ class TEManager:
         :param bw_table: a dictionary that represents available bandwidth.
         """
 
-        for link in self.topology_manager.get_topology().get_links():
+        for link in self.topology_manager.get_topology().links:
             if link.id in bw_table:
                 residual_bw = bw_table[link.id]
                 source_port = link.ports[0]
