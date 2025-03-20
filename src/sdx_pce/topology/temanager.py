@@ -103,35 +103,41 @@ class TEManager:
 
         :param topology_data: a dictionary that represents a topology.
         """
+        # current states
+        vlan_tags_table = self._vlan_tags_table
+        residul_bw = self.topology_manager.get_residul_bandwidth()
+
+        # Update the topology
         (removed_nodes_list, added_nodes_list, removed_links_list, added_links_list) = (
             self.topology_manager.update_topology(topology_data)
         )
 
-        if (
+        if not (
             len(added_nodes_list) == 0
             and len(removed_nodes_list) == 0
             and len(added_links_list) == 0
             and len(removed_links_list) == 0
         ):
-            self._logger.info("temanager:No changes detected in the topology")
-            return (
-                removed_nodes_list,
-                added_nodes_list,
-                removed_links_list,
-                added_links_list,
+            # Update vlan_tags_table in a non-disruptive way. Previous concerned
+            # still applies:
+            # TODO: careful here when updating VLAN tags table -- what do
+            # we do when an in use VLAN tag becomes invalid in the update?
+            # See https://github.com/atlanticwave-sdx/pce/issues/123
+            # For now, OXP topology update doesn't change the existing state: VLAN tags and bandwidth,
+            # only those from added  node and link
+
+            self._update_vlan_tags_table(
+                domain_name=topology_data.get("id"),
+                port_map=self.topology_manager.get_port_map(),
             )
 
-        # Update vlan_tags_table in a non-disruptive way. Previous concerned
-        # still applies:
-        # TODO: careful here when updating VLAN tags table -- what do
-        # we do when an in use VLAN tag becomes invalid in the update?
-        # See https://github.com/atlanticwave-sdx/pce/issues/123
-        # For now, OXP topology update doesn't change the state: VLAN tags and bandwidth. Only node and link changes
-
-        self._update_vlan_tags_table(
-            domain_name=topology_data.get("id"),
-            port_map=self.topology_manager.get_port_map(),
-        )
+            # Update available VLANs in topology with current states
+            self.update_available_vlans(vlan_tags_table)
+            self.update_available_bw_in_topology(residul_bw)
+        else:
+            self._logger.info(
+                "temanager:No node and link changes detected in the topology"
+            )
 
         return (
             removed_nodes_list,
@@ -139,6 +145,25 @@ class TEManager:
             removed_links_list,
             added_links_list,
         )
+
+    def update_available_bw_in_topology(self, bw_table: dict):
+        """
+        Update available bandwidth in the topology.
+
+        :param bw_table: a dictionary that represents available bandwidth.
+        """
+
+        for link in self.topology_manager.get_topology().links:
+            if link.id in bw_table:
+                residual_bw = bw_table[link.id]
+                source_port = link.ports[0]
+                destination_port = link.ports[1]
+                self.topology_manager.change_link_property_by_value(
+                    source_port,
+                    destination_port,
+                    Constants.RESIDUAL_BANDWIDTH,
+                    residual_bw,
+                )
 
     def get_topology_map(self) -> dict:
         """
@@ -205,7 +230,7 @@ class TEManager:
 
         self._vlan_tags_table = table
 
-    def update_available_vlans(self):
+    def update_available_vlans(self, vlan_tags_table=None):
         """
         Update the available VLAN ranges for each domain and port.
         This method iterates through the VLAN tags table and identifies the available VLANs (those with status UNUSED_VLAN).
@@ -240,7 +265,7 @@ class TEManager:
 
         new_vlan_ranges = {}
 
-        for domain, ports in self._vlan_tags_table.items():
+        for domain, ports in vlan_tags_table.items():
             new_vlan_ranges[domain] = {}
             for port_id, vlans in ports.items():
                 available_vlans = [
@@ -438,6 +463,8 @@ class TEManager:
                 f"No egress node is found for egress port ID '{egress_port.id}'"
             )
             return None
+
+        self._logger.info(f"temanager.graph: {list(self.graph.nodes(data=True))}")
 
         if ingress_node == egress_node:
             self._logger.warning(
@@ -908,8 +935,8 @@ class TEManager:
         # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
         self.update_link_bandwidth(solution, reduce=True)
 
-        # Update available VLANs
-        self.update_available_vlans()
+        # Update available VLANs in topology
+        self.update_available_vlans(self._vlan_tags_table)
 
         # keep the connection solution for future reference
         self._connectionSolution_list.append(solution)
@@ -1471,8 +1498,8 @@ class TEManager:
         # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
         self.update_link_bandwidth(solution, reduce=False)
 
-        # Update available VLANs
-        self.update_available_vlans()
+        # Update available VLANs in topology
+        self.update_available_vlans(self._vlan_tags_table)
 
     def get_connection_solution(self, request_id: str) -> Optional[ConnectionSolution]:
         """

@@ -1,3 +1,4 @@
+import copy
 import json
 import pathlib
 import unittest
@@ -30,10 +31,10 @@ class TopologyManagerTests(unittest.TestCase):
         TestData.TOPOLOGY_FILE_ZAOXI_v2,
         TestData.TOPOLOGY_FILE_SAX_v2,
     ]
-    TOPOLOGY_FILE_LIST_UPDATE = [TestData.TOPOLOGY_FILE_ZAOXI]
+    TOPOLOGY_FILE_LIST_UPDATE = [TestData.TOPOLOGY_FILE_SAX_v2_UPDATE]
 
-    LINK_ID = "urn:sdx:link:amlight:A1-B2"
-    INTER_LINK_ID = "urn:sdx:link:nni:Miami-Sanpaolo"
+    LINK_ID = "urn:sdx:link:amlight:B1-B2"
+    INTER_LINK_ID = "urn:sdx:link:zaoxi:A1-B2"
 
     def setUp(self):
         self.topology_manager = TopologyManager()
@@ -140,28 +141,67 @@ class TopologyManagerTests(unittest.TestCase):
 
         print(f"Topology map dict: {json.dumps(topology_map_dict, indent=4)}")
 
-    def test_update_topology(self):
+    def test_topology_diff(self):
+        print("Test Topology Diff")
+
+        # Create the initial topology
+        self.test_merge_topology()
+
+        # Get the old topology
+        old_topology = copy.deepcopy(self.topology_manager.get_topology())
+        # print(f"old_topology: {old_topology.links}")
+        # Modify the topology by removing a link
+        new_links = []
+        for link in self.topology_manager.get_topology().links:
+            if link.id != self.LINK_ID:
+                new_links.append(link)
+
+        self.topology_manager.get_topology().links = new_links
+
+        # Modify the topology by setting a link's status to "down"
+        self.topology_manager.update_link_property(self.INTER_LINK_ID, "status", "down")
+
+        # Get the new topology
+        new_topology = self.topology_manager.get_topology()
+        # print(f"new_topology: {new_topology.links}")
+        # Get the topology diff
+        _, _, removed_links, _ = self.topology_manager.topology_diff(
+            old_topology, new_topology
+        )
+
+        print(
+            f" total removed links: {[removed_link.id for removed_link in removed_links]}"
+        )
+
+        # Check the removed_links list
+        self.assertIn(self.LINK_ID, [link.id for link in removed_links])
+
+        # Check the removed_links list for the "down" status
+        down_link = next(
+            (link for link in removed_links if link.id == self.INTER_LINK_ID), None
+        )
+        self.assertIsNotNone(down_link)
+        self.assertEqual(down_link.status, "down")
+
+    def test_update_topology_v2(self):
         print("Test Topology Update!")
 
-        self.test_merge_topology()
+        self.test_merge_topology_v2()
+
+        print(f"len of links: {len(self.topology_manager.get_topology().links)}")
 
         for topology_file in self.TOPOLOGY_FILE_LIST_UPDATE:
             print(f"Updating topology: {topology_file}")
             topology_data = json.loads(pathlib.Path(topology_file).read_text())
-            self.topology_manager.add_topology(topology_data)
+            (
+                removed_nodes_list,
+                added_nodes_list,
+                removed_links_list,
+                added_links_list,
+            ) = self.topology_manager.update_topology(topology_data)
 
-        topology = self.topology_manager.get_topology()
-
-        self.assertIsInstance(topology.to_dict(), dict)
-
-        pathlib.Path(self.TOPOLOGY_OUT).write_text(
-            json.dumps(topology.to_dict(), indent=4)
-        )
-
-        graph = self.topology_manager.generate_graph()
-        # pos = nx.spring_layout(graph, seed=225)  # Seed for reproducible layout
-        nx.draw(graph, with_labels=True)
-        plt.savefig(self.TOPOLOGY_PNG)
+        self.assertEqual(len(removed_links_list), 1)
+        self.assertEqual(len(added_links_list), 7)
 
     def test_grenml_converter(self):
         print("Test Topology GRENML Converter")

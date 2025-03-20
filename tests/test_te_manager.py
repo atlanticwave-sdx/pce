@@ -429,6 +429,7 @@ class TEManagerTests(unittest.TestCase):
 
         solution = TESolver(graph, traffic_matrix).solve()
         self.assertIsInstance(solution, ConnectionSolution)
+        print(f"Solution 2: {solution}")
         # all links are up and enable, so path length should be 1
         self.assertEqual(len(next(iter(solution.connection_map.values()))), 1)
 
@@ -440,6 +441,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(solution, ConnectionSolution)
         # now direct link is disabled, path size should be 2:
         #   (ampath1, ampath3), (ampath3, ampath2)
+        print(f"Solution 2: {solution}")
         self.assertEqual(len(next(iter(solution.connection_map.values()))), 2)
 
     def test_connection_amlight_v2_with_same_port_invalid(self):
@@ -2098,7 +2100,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(reserved_vlans_sax["urn:sdx:port:sax.net:Sax01:41"][1])
 
         # Update available VLANs
-        temanager.update_available_vlans()
+        temanager.update_available_vlans(temanager._vlan_tags_table)
 
         # Verify the VLAN is still reserved in both domains
         reserved_vlans_amlight = temanager.vlan_tags_table[
@@ -2132,7 +2134,7 @@ class TEManagerTests(unittest.TestCase):
         temanager.unreserve_vlan(connection_request["id"])
 
         # Update available VLANs again
-        temanager.update_available_vlans()
+        temanager.update_available_vlans(temanager._vlan_tags_table)
 
         # Verify the VLAN has been released in both domains
         reserved_vlans_amlight = temanager.vlan_tags_table[
