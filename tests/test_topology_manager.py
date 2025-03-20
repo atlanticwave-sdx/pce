@@ -1,7 +1,7 @@
+import copy
 import json
 import pathlib
 import unittest
-import copy
 
 import matplotlib.pyplot as plt
 import networkx as nx

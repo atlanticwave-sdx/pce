@@ -228,7 +228,7 @@ class TopologyManager:
         """
         down_links = []
         for link in old_topology.links:
-            if link.status == "up" or link.status == None:
+            if link.status == "up" or link.status is None:
                 new_link = topology.get_link_by_id(link.id)
                 if new_link is not None and new_link.status == "down":
                     down_links.append(new_link)
