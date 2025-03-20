@@ -5,20 +5,18 @@ import traceback
 from itertools import chain
 from typing import List, Optional
 
-from pydantic import ValidationError
-
 import networkx as nx
 from networkx.algorithms import approximation as approx
-from sdx_datamodel.models.port import Port
-from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
-
+from pydantic import ValidationError
+from sdx_datamodel.models.connection_request import (
+    ConnectionRequest as DmConnectionRequest,
+)
 from sdx_datamodel.models.connection_request import (
     ConnectionRequestV0,
     ConnectionRequestV1,
 )
-
-from sdx_datamodel.models.connection_request import ConnectionRequest as DmConnectionRequest
-
+from sdx_datamodel.models.port import Port
+from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 from sdx_datamodel.parsing.exceptions import (
     MissingAttributeException,
     ServiceNotSupportedException,
