@@ -40,7 +40,8 @@ from sdx_pce.models import (
 from sdx_pce.topology.manager import TopologyManager
 from sdx_pce.utils.constants import Constants
 from sdx_pce.utils.exceptions import (
-    # RequestValidationError,
+    RequestValidationError,
+    SameSwitchRequestError,
     TEError,
     UnknownRequestError,
     ValidationError,
@@ -431,6 +432,14 @@ class TEManager:
             f"ingress_port.id: {ingress_port.id}, "
             f"egress_port.id: {egress_port.id}"
         )
+        if ingress_port.id == egress_port.id:
+            self._logger.warning(
+                f"Source and destination ports are the same: {ingress_port.id}"
+            )
+            raise RequestValidationError(
+                f"Source and destination ports are the same: {ingress_port.id}",
+                400,
+            )
 
         topology = self.topology_manager.get_topology()
 
@@ -448,6 +457,24 @@ class TEManager:
                 f"No egress node is found for egress port ID '{egress_port.id}'"
             )
             return None
+
+        if ingress_node == egress_node:
+            self._logger.warning(
+                f"Source and destination nodes are the same: {ingress_node.id}"
+            )
+            domain_id = self.topology_manager.get_domain_name(ingress_node.id)
+            ingress_user_port_tag = ingress_port.vlan_range
+            egree_user_port_tag = egress_port.vlan_range
+            self._logger.info(f"Same switch request: {domain_id}")
+            raise SameSwitchRequestError(
+                f"Source and destination nodes are the same: {ingress_node.id}",
+                request.id,
+                domain_id,
+                ingress_port.id,
+                egress_port.id,
+                ingress_user_port_tag,
+                egree_user_port_tag,
+            )
 
         ingress_nodes = [
             x for x, y in self.graph.nodes(data=True) if y["id"] == ingress_node.id
@@ -600,6 +627,77 @@ class TEManager:
 
         return connection_request
 
+    # Special case: endpoints on the same device, no need to call the solver, only need vlan assignment
+    def generate_connection_breakdown_same_switch(
+        self,
+        request_id,
+        domain,
+        ingress_port_id: str,
+        egress_port_id: str,
+        ingress_port_tag,
+        egress_port_tag,
+    ):
+        """
+        Generate a breakdown for a connection request where the source and destination ports are the same.
+        """
+        ingress_port = self.topology_manager.get_port_by_id(ingress_port_id)
+        egress_port = self.topology_manager.get_port_by_id(egress_port_id)
+
+        self._logger.debug(
+            f"ingress_port: {ingress_port_id}, egress_port: {egress_port_id}, ingress_port_tag: {ingress_port_tag}, egress_port_tag: {egress_port_tag}"
+        )
+
+        ingress_vlan = self._reserve_vlan(
+            domain,
+            ingress_port,
+            request_id,
+            ingress_port_tag,
+            None,
+        )
+
+        egress_vlan = self._reserve_vlan(
+            domain,
+            egress_port,
+            request_id,
+            egress_port_tag,
+            None,
+        )
+
+        if ingress_vlan is None or egress_vlan is None:
+            self._logger.error(
+                f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}. "
+                f"Can't proceed. Rolling back reservations."
+            )
+            self.unreserve_vlan(request_id=request_id)
+            raise TEError(f"Can't find a vlan assignment for: {request_id}", 410)
+
+        self._logger.debug(f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}")
+
+        tag_type = 0 if ingress_vlan == "untagged" else 1
+        port_a = VlanTaggedPort(
+            VlanTag(value=ingress_vlan, tag_type=tag_type), port_id=ingress_port_id
+        )
+        tag_type = 0 if egress_vlan == "untagged" else 1
+        port_z = VlanTaggedPort(
+            VlanTag(value=egress_vlan, tag_type=tag_type), port_id=egress_port_id
+        )
+
+        # Names look like "AMLIGHT_vlan_201_202_Ampath_Tenet".  We
+        # can form the initial part, but where did the
+        # `Ampath_Tenet` at the end come from?
+        domain_name = domain.split(":")[-1].split(".")[0].upper()
+        name = f"{domain_name}_vlan_{ingress_vlan}_{egress_vlan}"
+        breakdowns = {}
+        breakdown = VlanTaggedBreakdown(
+            name=name,
+            dynamic_backup_path=True,
+            uni_a=port_a,
+            uni_z=port_z,
+        )
+        breakdowns[domain] = breakdown.to_dict()
+        return breakdowns
+
+    # General case
     def generate_connection_breakdown(
         self, solution: ConnectionSolution, connection_request: dict
     ) -> dict:
@@ -1255,7 +1353,7 @@ class TEManager:
         # with self._topology_lock:
         #     pass
 
-        self._logger.debug(
+        self._logger.info(
             f"Reserving VLAN for domain: {domain}, port: {port}, "
             f"request_id: {request_id}, tag:{tag}"
         )
@@ -1281,6 +1379,7 @@ class TEManager:
             self._logger.warning(
                 f"Can't find a VLAN table for domain: {domain} port: {port_id}"
             )
+            self._logger.warning(f"Available ports: {domain_table.keys()}")
             return None
 
         if tag is None:

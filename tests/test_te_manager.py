@@ -9,6 +9,7 @@ from sdx_pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
 from sdx_pce.topology.temanager import TEManager
 from sdx_pce.utils.exceptions import (
     RequestValidationError,
+    SameSwitchRequestError,
     TEError,
     UnknownRequestError,
     ValidationError,
@@ -334,7 +335,10 @@ class TEManagerTests(unittest.TestCase):
         # unresolvable port IDs, which are not present in the given
         # topology.
         request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_INVALID.read_text())
-        tm = temanager.generate_traffic_matrix(request)
+        tm = None
+        with self.assertRaises(RequestValidationError) as ctx:
+            tm = temanager.generate_traffic_matrix(request)
+        print(f"{ctx.exception}")
         self.assertIsNone(tm)
 
     def test_generate_graph_and_connection_with_sax_2_valid(self):
@@ -437,6 +441,66 @@ class TEManagerTests(unittest.TestCase):
         # now direct link is disabled, path size should be 2:
         #   (ampath1, ampath3), (ampath3, ampath2)
         self.assertEqual(len(next(iter(solution.connection_map.values()))), 2)
+
+    def test_connection_amlight_v2_with_same_port_invalid(self):
+        """
+        Test with just one topology/domain.
+        """
+        topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_v2.read_text())
+        temanager = TEManager(topology_data=topology)
+        graph = temanager.generate_graph_te()
+
+        self.assertIsInstance(graph, nx.Graph)
+
+        request = {
+            "name": "new-connection",
+            "id": "123",
+            "endpoints": [
+                {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "777"},
+                {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "777"},
+            ],
+            "qos_metrics": {},
+            "scheduling": {},
+        }
+        with self.assertRaises(RequestValidationError) as ctx:
+            temanager.generate_traffic_matrix(request)
+        print(f"{ctx.exception}")
+
+    def test_connection_amlight_v2_with_same_node_valid(self):
+        """
+        Test with just one topology/domain.
+        """
+        topology = json.loads(TestData.TOPOLOGY_FILE_AMLIGHT_v2.read_text())
+        temanager = TEManager(topology_data=topology)
+        graph = temanager.generate_graph_te()
+
+        self.assertIsInstance(graph, nx.Graph)
+
+        request = {
+            "name": "new-connection",
+            "id": "123",
+            "endpoints": [
+                {"port_id": "urn:sdx:port:ampath.net:Ampath1:40", "vlan": "untagged"},
+                {"port_id": "urn:sdx:port:ampath.net:Ampath1:50", "vlan": "777"},
+            ],
+            "qos_metrics": {},
+            "scheduling": {},
+        }
+        try:
+            temanager.generate_traffic_matrix(request)
+        except SameSwitchRequestError as ctx:
+            print(
+                f"{str(ctx)},{ctx.request_id},{ctx.domain_id},{ctx.ingress_port},{ctx.egress_port}, {ctx.ingress_user_port_tag}, {ctx.egress_user_port_tag}"
+            )
+            breakdown = temanager.generate_connection_breakdown_same_switch(
+                ctx.request_id,
+                ctx.domain_id,
+                ctx.ingress_port,
+                ctx.egress_port,
+                ctx.ingress_user_port_tag,
+                ctx.egress_user_port_tag,
+            )
+            print(f"Breakdown: {breakdown}")
 
     def test_connection_amlight_user_port(self):
         """
