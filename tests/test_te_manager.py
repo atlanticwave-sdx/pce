@@ -1534,7 +1534,7 @@ class TEManagerTests(unittest.TestCase):
             print(f"ex = {ex}")
 
         self.assertIsNotNone(graph)
-        self.assertIsNone(traffic_matrix)
+        self.assertIsNotNone(traffic_matrix)
 
     def test_disallowed_vlan(self):
         """
