@@ -21,12 +21,6 @@ from sdx_datamodel.models.connection_request import (
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 
-# from sdx_datamodel.parsing.exceptions import (
-#     MissingAttributeException,
-#     ServiceNotSupportedException,
-# )
-# from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
-
 from sdx_pce.models import (
     ConnectionPath,
     ConnectionRequest,
@@ -46,6 +40,13 @@ from sdx_pce.utils.exceptions import (
     UnknownRequestError,
     ValidationError,
 )
+
+# from sdx_datamodel.parsing.exceptions import (
+#     MissingAttributeException,
+#     ServiceNotSupportedException,
+# )
+# from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
+
 
 UNUSED_VLAN = None
 
