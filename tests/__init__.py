@@ -16,11 +16,11 @@ class TestData:
     TOPOLOGY_FILE_AMLIGHT_USER_PORT = TOPOLOGY_DIR / "amlight_user_port.json"
 
     REQUESTS_DIR = files("sdx_datamodel") / "data" / "requests"
-    CONNECTION_REQ = REQUESTS_DIR / "v0" / "test_request.json"
-    CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_V1 = (
+    CONNECTION_REQ_v0 = REQUESTS_DIR / "v0" / "test_request.json"
+    CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v1 = (
         REQUESTS_DIR / "v1.0" / "test-request-amlight-zaoxi-p2p.json"
     )
-    CONNECTION_REQ_AMLIGHT_SAX_v2 = (
+    CONNECTION_REQ_AMLIGHT_SAX_v1 = (
         REQUESTS_DIR / "v1.0" / "test-request-amlight_sax-p2p-v2.json"
     )
 
