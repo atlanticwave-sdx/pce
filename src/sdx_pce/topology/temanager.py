@@ -381,7 +381,7 @@ class TEManager:
         )
 
         try:
-            request = DmConnectionRequest(**connection_request)
+            request = DmConnectionRequest.model_validate(connection_request)
         except Exception as e:
             print(f"Exception: could not validate {connection_request}: {e}")
             raise e
