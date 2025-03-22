@@ -1,19 +1,31 @@
 import logging
 import re
 import threading
-import traceback
+
+# import traceback
 from itertools import chain
 from typing import List, Optional
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
+
+# from pydantic import ValidationError
+from sdx_datamodel.models.connection_request import (
+    ConnectionRequest as DmConnectionRequest,
+)
+
+# from sdx_datamodel.models.connection_request import (
+#     ConnectionRequestV0,
+#     ConnectionRequestV1,
+# )
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
-from sdx_datamodel.parsing.exceptions import (
-    MissingAttributeException,
-    ServiceNotSupportedException,
-)
-from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
+
+# from sdx_datamodel.parsing.exceptions import (
+#     MissingAttributeException,
+#     ServiceNotSupportedException,
+# )
+# from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
 
 from sdx_pce.models import (
     ConnectionPath,
@@ -369,39 +381,46 @@ class TEManager:
         )
 
         try:
-            request = ConnectionHandler().import_connection_data(connection_request)
-        except MissingAttributeException as e:
-            self._logger.error(f"Missing attribute: {e} for {connection_request}")
-            raise RequestValidationError(
-                f"Validation error: {e} for {connection_request}", 400
-            )
-        except ServiceNotSupportedException as e:
-            self._logger.error(f"Service not supported: {e} for {connection_request}")
-            raise RequestValidationError(
-                f"Validation error: {e} for {connection_request}", 402
-            )
-
-        try:
-            ConnectionValidator(request).is_valid()
-        except ValueError as request_err:
-            err = traceback.format_exc().replace("\n", ", ")
-            self._logger.error(
-                f"Validation error: {request_err} for {connection_request}: {request_err} - {err}"
-            )
-            raise RequestValidationError(
-                f"Validation error: {request_err} for {connection_request}", 400
-            )
-        except ServiceNotSupportedException as e:
-            self._logger.error(f"Service not supported: {e} for {connection_request}")
-            raise RequestValidationError(
-                f"Validation error: {e} for {connection_request}", 402
-            )
+            request = DmConnectionRequest(**connection_request)
         except Exception as e:
-            err = traceback.format_exc().replace("\n", ", ")
-            self._logger.error(f"Error when validating connection request: {e} - {err}")
-            raise RequestValidationError(
-                f"Validation error: {e} for {connection_request}", 400
-            )
+            print(f"Exception: could not validate {connection_request}: {e}")
+            raise e
+            # return None
+
+        # try:
+        #     request = ConnectionHandler().import_connection_data(connection_request)
+        # except MissingAttributeException as e:
+        #     self._logger.error(f"Missing attribute: {e} for {connection_request}")
+        #     raise RequestValidationError(
+        #         f"Validation error: {e} for {connection_request}", 400
+        #     )
+        # except ServiceNotSupportedException as e:
+        #     self._logger.error(f"Service not supported: {e} for {connection_request}")
+        #     raise RequestValidationError(
+        #         f"Validation error: {e} for {connection_request}", 402
+        #     )
+
+        # try:
+        #     ConnectionValidator(request).is_valid()
+        # except ValueError as request_err:
+        #     err = traceback.format_exc().replace("\n", ", ")
+        #     self._logger.error(
+        #         f"Validation error: {request_err} for {connection_request}: {request_err} - {err}"
+        #     )
+        #     raise RequestValidationError(
+        #         f"Validation error: {request_err} for {connection_request}", 400
+        #     )
+        # except ServiceNotSupportedException as e:
+        #     self._logger.error(f"Service not supported: {e} for {connection_request}")
+        #     raise RequestValidationError(
+        #         f"Validation error: {e} for {connection_request}", 402
+        #     )
+        # except Exception as e:
+        #     err = traceback.format_exc().replace("\n", ", ")
+        #     self._logger.error(f"Error when validating connection request: {e} - {err}")
+        #     raise RequestValidationError(
+        #         f"Validation error: {e} for {connection_request}", 400
+        #     )
 
         self._logger.info(f"generate_traffic_matrix: decoded request: {request}")
 
