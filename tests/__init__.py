@@ -33,14 +33,14 @@ class TestData:
     # Other test data files.
     TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
 
-    CONNECTION_REQ_AMLIGHT = TEST_DATA_DIR / "test_request_amlight.json"
-    CONNECTION_REQ_AMLIGHT_USER_PORT = (
+    CONNECTION_REQ_AMLIGHT_v0 = TEST_DATA_DIR / "test_request_amlight.json"
+    CONNECTION_REQ_AMLIGHT_USER_PORT_v0 = (
         TEST_DATA_DIR / "test_request_amlight_user_port.json"
     )
-    CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT = (
+    CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v0 = (
         TEST_DATA_DIR / "test_request_amlight_zaoxi_user_port.json"
     )
 
     TOPOLOGY_FILE_SAX_2 = TEST_DATA_DIR / "sax-2.json"
-    CONNECTION_REQ_FILE_SAX_2_INVALID = TEST_DATA_DIR / "sax-2-request-invalid.json"
-    CONNECTION_REQ_FILE_SAX_2_VALID = TEST_DATA_DIR / "sax-2-request-valid.json"
+    CONNECTION_REQ_FILE_SAX_2_INVALID_v0 = TEST_DATA_DIR / "sax-2-request-invalid.json"
+    CONNECTION_REQ_FILE_SAX_2_VALID_v0 = TEST_DATA_DIR / "sax-2-request-valid.json"

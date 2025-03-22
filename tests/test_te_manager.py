@@ -113,7 +113,7 @@ class TEManagerTests(unittest.TestCase):
 
     def test_generate_solver_input(self):
         print("Test Convert Connection To Topology")
-        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_v0.read_text())
 
         temanager = TEManager(
             topology_data=json.loads(TestData.TOPOLOGY_FILE_AMLIGHT.read_text())
@@ -334,7 +334,7 @@ class TEManagerTests(unittest.TestCase):
         # Expect None because the connection_data contains
         # unresolvable port IDs, which are not present in the given
         # topology.
-        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_INVALID.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_INVALID_v0.read_text())
         tm = None
         with self.assertRaises(RequestValidationError) as ctx:
             tm = temanager.generate_traffic_matrix(request)
@@ -359,7 +359,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(graph)
         self.assertIsInstance(graph, nx.Graph)
 
-        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_VALID.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_VALID_v0.read_text())
         tm = temanager.generate_traffic_matrix(request)
         print(f"traffic matrix: {tm}")
         self.assertIsInstance(tm, TrafficMatrix)
@@ -393,7 +393,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsInstance(graph, nx.Graph)
 
-        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_v0.read_text())
         print(f"connection request: {request}")
 
         traffic_matrix = temanager.generate_traffic_matrix(request)
@@ -515,7 +515,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(graph, nx.Graph)
 
         connection_request = json.loads(
-            TestData.CONNECTION_REQ_AMLIGHT_USER_PORT.read_text()
+            TestData.CONNECTION_REQ_AMLIGHT_USER_PORT_v0.read_text()
         )
         print(f"connection request: {connection_request}")
 
@@ -653,7 +653,7 @@ class TEManagerTests(unittest.TestCase):
         graph = temanager.generate_graph_te()
 
         connection_request = json.loads(
-            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT.read_text()
+            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v0.read_text()
         )
         print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
@@ -1020,7 +1020,7 @@ class TEManagerTests(unittest.TestCase):
         graph = TESolver(graph, traffic_matrix1).update_graph(graph, solution1)
 
         # Use another connection request that spans just one domain.
-        connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT_v0.read_text())
         print(f"Connection request #2: {connection_request2}")
 
         traffic_matrix2 = temanager.generate_traffic_matrix(connection_request2)
@@ -1083,7 +1083,7 @@ class TEManagerTests(unittest.TestCase):
         )
 
         # Use another connection request that spans just one domain.
-        connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT_v0.read_text())
         print(f"Connection request #2: {connection_request2}")
 
         traffic_matrix2 = temanager.generate_traffic_matrix(connection_request2)
@@ -1236,7 +1236,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(graph)
         self.assertIsInstance(graph, nx.Graph)
 
-        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_v0.read_text())
         tm = temanager.generate_traffic_matrix(request)
 
         print(f"tm: {tm}")
