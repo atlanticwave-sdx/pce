@@ -380,7 +380,7 @@ class TEManager:
         )
 
         try:
-            request = DmConnectionRequest.parse_obj(connection_request)
+            request = DmConnectionRequest(**connection_request)
         except Exception as e:
             print(f"Exception: could not validate {connection_request}: {e}")
             raise e
