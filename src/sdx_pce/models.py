@@ -6,7 +6,7 @@ from dataclasses_json import dataclass_json
 
 @dataclass_json
 @dataclass(frozen=True)
-class ConnectionRequest:
+class PceConnectionRequest:
     """
     A connection request.
 
@@ -34,7 +34,7 @@ class TrafficMatrix:
     Traffic matrix is input to TE Solver.
     """
 
-    connection_requests: List[ConnectionRequest]
+    connection_requests: List[PceConnectionRequest]
     request_id: str
 
 
@@ -58,7 +58,7 @@ class ConnectionSolution:
     TE Solver's result is represented as a ConnectionSolution.
     """
 
-    connection_map: Mapping[ConnectionRequest, List[ConnectionPath]]
+    connection_map: Mapping[PceConnectionRequest, List[ConnectionPath]]
     cost: float
     request_id: str
 

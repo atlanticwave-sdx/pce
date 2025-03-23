@@ -5,7 +5,7 @@ import unittest
 import networkx as nx
 
 from sdx_pce.load_balancing.te_solver import TESolver
-from sdx_pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
+from sdx_pce.models import ConnectionSolution, PceConnectionRequest, TrafficMatrix
 from sdx_pce.topology.temanager import TEManager
 from sdx_pce.utils.exceptions import (
     RequestValidationError,
@@ -1307,7 +1307,7 @@ class TEManagerTests(unittest.TestCase):
         cost = old_style_request[1]
         print(f"cost: {cost}")
 
-        new_requests: list(ConnectionRequest) = []
+        new_requests: list(PceConnectionRequest) = []
 
         print(f"type of request: {type(requests_map)}")
         assert isinstance(requests_map, dict)
@@ -1337,7 +1337,7 @@ class TEManagerTests(unittest.TestCase):
 
                 assert len(request) == 2
                 new_requests.append(
-                    ConnectionRequest(
+                    PceConnectionRequest(
                         source=source,
                         destination=destination,
                         required_bandwidth=required_bandwidth,

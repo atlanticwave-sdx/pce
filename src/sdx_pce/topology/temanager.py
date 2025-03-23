@@ -23,8 +23,8 @@ from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 
 from sdx_pce.models import (
     ConnectionPath,
-    ConnectionRequest,
     ConnectionSolution,
+    PceConnectionRequest,
     TrafficMatrix,
     VlanTag,
     VlanTaggedBreakdown,
@@ -170,7 +170,7 @@ class TEManager:
         """Get failed links on the topology (ie., Links not up and enabled)."""
         return self.topology_manager.get_failed_links()
 
-    def get_connections(self) -> List[ConnectionRequest]:
+    def get_connections(self) -> List[PceConnectionRequest]:
         """Get all the connections in the _connectionSolution_list."""
         connections = []
         for solution in self._connectionSolution_list:
@@ -506,7 +506,7 @@ class TEManager:
             f"required_bandwidth: {required_bandwidth}"
         )
 
-        request = ConnectionRequest(
+        request = PceConnectionRequest(
             source=ingress_nodes[0],
             destination=egress_nodes[0],
             required_bandwidth=required_bandwidth,
