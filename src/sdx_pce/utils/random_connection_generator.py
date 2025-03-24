@@ -1,6 +1,6 @@
 import numpy as np
 
-from sdx_pce.models import ConnectionRequest, TrafficMatrix
+from sdx_pce.models import PceConnectionRequest, TrafficMatrix
 
 
 class RandomConnectionGenerator:
@@ -34,7 +34,7 @@ class RandomConnectionGenerator:
                 required_bandwidth = bw[i]
                 required_latency = np.random.randint(l_lat, u_lat)
 
-                request = ConnectionRequest(
+                request = PceConnectionRequest(
                     source=source,
                     destination=destination,
                     required_bandwidth=required_bandwidth,
@@ -52,7 +52,7 @@ class RandomConnectionGenerator:
                 required_bandwidth = bw[i]
                 required_latency = np.random.randint(l_lat, u_lat)
 
-                request = ConnectionRequest(
+                request = PceConnectionRequest(
                     source=source,
                     destination=destination,
                     required_bandwidth=required_bandwidth,

@@ -33,7 +33,7 @@ class TESolverTests(unittest.TestCase):
         topology_data = json.loads(TestData.TOPOLOGY_FILE_SDX.read_text())
         self.temanager = TEManager(topology_data)
 
-        self.connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        self.connection_request = json.loads(TestData.CONNECTION_REQ_v0.read_text())
 
     def test_computation_breakdown(self):
         graph = self.temanager.generate_graph_te()

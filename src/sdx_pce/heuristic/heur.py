@@ -7,7 +7,7 @@ import numpy as np
 import prtpy
 
 from sdx_pce.load_balancing.te_solver import TESolver
-from sdx_pce.models import ConnectionRequest, TrafficMatrix
+from sdx_pce.models import PceConnectionRequest, TrafficMatrix
 from sdx_pce.utils.random_connection_generator import RandomConnectionGenerator
 from sdx_pce.utils.random_topology_generator import RandomTopologyGenerator
 
@@ -41,7 +41,7 @@ def matrix_to_connection(matrix):
     """
     traffic_matrix = TrafficMatrix(connection_requests=[])
     for rq in matrix:
-        request = ConnectionRequest(
+        request = PceConnectionRequest(
             source=rq[0],
             destination=rq[1],
             required_bandwidth=rq[2],

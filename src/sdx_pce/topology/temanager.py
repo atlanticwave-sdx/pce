@@ -1,24 +1,21 @@
 import logging
 import re
 import threading
-import traceback
+
+# import traceback
 from itertools import chain
 from typing import List, Optional
 
 import networkx as nx
 from networkx.algorithms import approximation as approx
+from sdx_datamodel.models.connection_request import ConnectionRequest
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
-from sdx_datamodel.parsing.exceptions import (
-    MissingAttributeException,
-    ServiceNotSupportedException,
-)
-from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
 
 from sdx_pce.models import (
     ConnectionPath,
-    ConnectionRequest,
     ConnectionSolution,
+    PceConnectionRequest,
     TrafficMatrix,
     VlanTag,
     VlanTaggedBreakdown,
@@ -34,6 +31,13 @@ from sdx_pce.utils.exceptions import (
     UnknownRequestError,
     ValidationError,
 )
+
+# from sdx_datamodel.parsing.exceptions import (
+#     MissingAttributeException,
+#     ServiceNotSupportedException,
+# )
+# from sdx_datamodel.validation.connectionvalidator import ConnectionValidator
+
 
 UNUSED_VLAN = None
 
@@ -157,7 +161,7 @@ class TEManager:
         """Get failed links on the topology (ie., Links not up and enabled)."""
         return self.topology_manager.get_failed_links()
 
-    def get_connections(self) -> List[ConnectionRequest]:
+    def get_connections(self) -> List[PceConnectionRequest]:
         """Get all the connections in the _connectionSolution_list."""
         connections = []
         for solution in self._connectionSolution_list:
@@ -369,39 +373,11 @@ class TEManager:
         )
 
         try:
-            request = ConnectionHandler().import_connection_data(connection_request)
-        except MissingAttributeException as e:
-            self._logger.error(f"Missing attribute: {e} for {connection_request}")
-            raise RequestValidationError(
-                f"Validation error: {e} for {connection_request}", 400
-            )
-        except ServiceNotSupportedException as e:
-            self._logger.error(f"Service not supported: {e} for {connection_request}")
-            raise RequestValidationError(
-                f"Validation error: {e} for {connection_request}", 402
-            )
-
-        try:
-            ConnectionValidator(request).is_valid()
-        except ValueError as request_err:
-            err = traceback.format_exc().replace("\n", ", ")
-            self._logger.error(
-                f"Validation error: {request_err} for {connection_request}: {request_err} - {err}"
-            )
-            raise RequestValidationError(
-                f"Validation error: {request_err} for {connection_request}", 400
-            )
-        except ServiceNotSupportedException as e:
-            self._logger.error(f"Service not supported: {e} for {connection_request}")
-            raise RequestValidationError(
-                f"Validation error: {e} for {connection_request}", 402
-            )
+            request = ConnectionRequest.model_validate(connection_request)
         except Exception as e:
-            err = traceback.format_exc().replace("\n", ", ")
-            self._logger.error(f"Error when validating connection request: {e} - {err}")
-            raise RequestValidationError(
-                f"Validation error: {e} for {connection_request}", 400
-            )
+            message = f"Validation error: for {connection_request}: {e}"
+            self._logger.error(message)
+            raise RequestValidationError(message, 400)
 
         self._logger.info(f"generate_traffic_matrix: decoded request: {request}")
 
@@ -486,7 +462,7 @@ class TEManager:
             f"required_bandwidth: {required_bandwidth}"
         )
 
-        request = ConnectionRequest(
+        request = PceConnectionRequest(
             source=ingress_nodes[0],
             destination=egress_nodes[0],
             required_bandwidth=required_bandwidth,

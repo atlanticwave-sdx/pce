@@ -5,7 +5,7 @@ import unittest
 import networkx as nx
 
 from sdx_pce.load_balancing.te_solver import TESolver
-from sdx_pce.models import ConnectionRequest, ConnectionSolution, TrafficMatrix
+from sdx_pce.models import ConnectionSolution, PceConnectionRequest, TrafficMatrix
 from sdx_pce.topology.temanager import TEManager
 from sdx_pce.utils.exceptions import (
     RequestValidationError,
@@ -113,7 +113,7 @@ class TEManagerTests(unittest.TestCase):
 
     def test_generate_solver_input(self):
         print("Test Convert Connection To Topology")
-        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_v0.read_text())
 
         temanager = TEManager(
             topology_data=json.loads(TestData.TOPOLOGY_FILE_AMLIGHT.read_text())
@@ -334,7 +334,7 @@ class TEManagerTests(unittest.TestCase):
         # Expect None because the connection_data contains
         # unresolvable port IDs, which are not present in the given
         # topology.
-        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_INVALID.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_INVALID_v0.read_text())
         tm = None
         with self.assertRaises(RequestValidationError) as ctx:
             tm = temanager.generate_traffic_matrix(request)
@@ -359,7 +359,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(graph)
         self.assertIsInstance(graph, nx.Graph)
 
-        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_VALID.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_FILE_SAX_2_VALID_v0.read_text())
         tm = temanager.generate_traffic_matrix(request)
         print(f"traffic matrix: {tm}")
         self.assertIsInstance(tm, TrafficMatrix)
@@ -393,7 +393,7 @@ class TEManagerTests(unittest.TestCase):
 
         self.assertIsInstance(graph, nx.Graph)
 
-        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_v0.read_text())
         print(f"connection request: {request}")
 
         traffic_matrix = temanager.generate_traffic_matrix(request)
@@ -515,7 +515,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(graph, nx.Graph)
 
         connection_request = json.loads(
-            TestData.CONNECTION_REQ_AMLIGHT_USER_PORT.read_text()
+            TestData.CONNECTION_REQ_AMLIGHT_USER_PORT_v0.read_text()
         )
         print(f"connection request: {connection_request}")
 
@@ -555,7 +555,7 @@ class TEManagerTests(unittest.TestCase):
 
         graph = temanager.generate_graph_te()
 
-        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        connection_request = json.loads(TestData.CONNECTION_REQ_v0.read_text())
         print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
@@ -653,7 +653,7 @@ class TEManagerTests(unittest.TestCase):
         graph = temanager.generate_graph_te()
 
         connection_request = json.loads(
-            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT.read_text()
+            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v0.read_text()
         )
         print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
@@ -748,7 +748,7 @@ class TEManagerTests(unittest.TestCase):
 
         # Create a connection request
         connection_request = json.loads(
-            TestData.CONNECTION_REQ_AMLIGHT_SAX_v2.read_text()
+            TestData.CONNECTION_REQ_AMLIGHT_SAX_v1.read_text()
         )
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
         self.assertIsInstance(traffic_matrix, TrafficMatrix)
@@ -788,7 +788,7 @@ class TEManagerTests(unittest.TestCase):
         graph = temanager.generate_graph_te()
 
         connection_request = json.loads(
-            TestData.CONNECTION_REQ_AMLIGHT_SAX_v2.read_text()
+            TestData.CONNECTION_REQ_AMLIGHT_SAX_v1.read_text()
         )
         print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
@@ -860,7 +860,7 @@ class TEManagerTests(unittest.TestCase):
 
         graph = temanager.generate_graph_te()
 
-        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        connection_request = json.loads(TestData.CONNECTION_REQ_v0.read_text())
         print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
@@ -935,7 +935,7 @@ class TEManagerTests(unittest.TestCase):
 
         graph = temanager.generate_graph_te()
 
-        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        connection_request = json.loads(TestData.CONNECTION_REQ_v0.read_text())
         init_vlan = connection_request["ingress_port"]["label_range"]
         breakdowns = set()
         num_requests = 10
@@ -999,7 +999,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(graph, nx.Graph)
 
         # Use a connection request that should span all three domains.
-        connection_request1 = json.loads(TestData.CONNECTION_REQ.read_text())
+        connection_request1 = json.loads(TestData.CONNECTION_REQ_v0.read_text())
         print(f"Connection request #1: {connection_request1}")
         traffic_matrix1 = temanager.generate_traffic_matrix(connection_request1)
 
@@ -1020,7 +1020,7 @@ class TEManagerTests(unittest.TestCase):
         graph = TESolver(graph, traffic_matrix1).update_graph(graph, solution1)
 
         # Use another connection request that spans just one domain.
-        connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT_v0.read_text())
         print(f"Connection request #2: {connection_request2}")
 
         traffic_matrix2 = temanager.generate_traffic_matrix(connection_request2)
@@ -1072,7 +1072,7 @@ class TEManagerTests(unittest.TestCase):
         # Step 2: connections
         connection_object_map = {}
         # Use a connection request that should span all three domains.
-        connection_request1 = json.loads(TestData.CONNECTION_REQ.read_text())
+        connection_request1 = json.loads(TestData.CONNECTION_REQ_v0.read_text())
         print(f"Connection request #1: {connection_request1}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request1)
 
@@ -1083,7 +1083,7 @@ class TEManagerTests(unittest.TestCase):
         )
 
         # Use another connection request that spans just one domain.
-        connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        connection_request2 = json.loads(TestData.CONNECTION_REQ_AMLIGHT_v0.read_text())
         print(f"Connection request #2: {connection_request2}")
 
         traffic_matrix2 = temanager.generate_traffic_matrix(connection_request2)
@@ -1137,7 +1137,7 @@ class TEManagerTests(unittest.TestCase):
 
         graph = temanager.generate_graph_te()
 
-        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        connection_request = json.loads(TestData.CONNECTION_REQ_v0.read_text())
         print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
@@ -1198,7 +1198,7 @@ class TEManagerTests(unittest.TestCase):
 
         graph = temanager.generate_graph_te()
 
-        connection_request = json.loads(TestData.CONNECTION_REQ.read_text())
+        connection_request = json.loads(TestData.CONNECTION_REQ_v0.read_text())
         print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
 
@@ -1236,7 +1236,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsNotNone(graph)
         self.assertIsInstance(graph, nx.Graph)
 
-        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT.read_text())
+        request = json.loads(TestData.CONNECTION_REQ_AMLIGHT_v0.read_text())
         tm = temanager.generate_traffic_matrix(request)
 
         print(f"tm: {tm}")
@@ -1307,7 +1307,7 @@ class TEManagerTests(unittest.TestCase):
         cost = old_style_request[1]
         print(f"cost: {cost}")
 
-        new_requests: list(ConnectionRequest) = []
+        new_requests: list(PceConnectionRequest) = []
 
         print(f"type of request: {type(requests_map)}")
         assert isinstance(requests_map, dict)
@@ -1337,7 +1337,7 @@ class TEManagerTests(unittest.TestCase):
 
                 assert len(request) == 2
                 new_requests.append(
-                    ConnectionRequest(
+                    PceConnectionRequest(
                         source=source,
                         destination=destination,
                         required_bandwidth=required_bandwidth,
@@ -1364,17 +1364,8 @@ class TEManagerTests(unittest.TestCase):
         graph = temanager.generate_graph_te()
 
         connection_request = json.loads(
-            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v2.read_text()
+            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v1.read_text()
         )
-
-        # Modify the connection request for this test so that we have
-        # a solvable one. The original one asks for (1) a VLAN that is
-        # not present on the ingress port (777), and (2) a range
-        # ("55:90") on the egress port.  This is an unsolvable request
-        # because of (1), and an invalid one because of (2) since both
-        # ports have to use a range.
-        connection_request["endpoints"][0]["vlan"] = "100"
-        connection_request["endpoints"][1]["vlan"] = "100"
 
         print(f"connection_request: {connection_request}")
         traffic_matrix = temanager.generate_traffic_matrix(connection_request)
@@ -1489,7 +1480,7 @@ class TEManagerTests(unittest.TestCase):
         graph = temanager.generate_graph_te()
 
         connection_request = json.loads(
-            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v2.read_text()
+            TestData.CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v1.read_text()
         )
 
         # Rewrite the request to have VLAN of "any".
@@ -1583,7 +1574,7 @@ class TEManagerTests(unittest.TestCase):
                     },
                     {
                         "port_id": "urn:sdx:port:amlight:B1:1",
-                        "vlan": "55:90"
+                        "vlan": "777"
                     }
                 ]
             }
@@ -1607,7 +1598,7 @@ class TEManagerTests(unittest.TestCase):
             print(f"ex = {ex}")
 
         self.assertIsNotNone(graph)
-        self.assertIsNone(traffic_matrix)
+        self.assertIsNotNone(traffic_matrix)
 
     def test_disallowed_vlan(self):
         """

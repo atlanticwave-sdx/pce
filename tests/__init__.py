@@ -16,12 +16,12 @@ class TestData:
     TOPOLOGY_FILE_AMLIGHT_USER_PORT = TOPOLOGY_DIR / "amlight_user_port.json"
 
     REQUESTS_DIR = files("sdx_datamodel") / "data" / "requests"
-    CONNECTION_REQ = REQUESTS_DIR / "test_request.json"
-    CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v2 = (
-        REQUESTS_DIR / "test_request-amlight_zaoxi-p2p-v2.json"
+    CONNECTION_REQ_v0 = REQUESTS_DIR / "v0" / "test_request.json"
+    CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v1 = (
+        REQUESTS_DIR / "v1.0" / "test-request-amlight-zaoxi-p2p.json"
     )
-    CONNECTION_REQ_AMLIGHT_SAX_v2 = (
-        REQUESTS_DIR / "test-request-amlight_sax-p2p-v2.json"
+    CONNECTION_REQ_AMLIGHT_SAX_v1 = (
+        REQUESTS_DIR / "v1.0" / "test-request-amlight_sax-p2p-v2.json"
     )
 
     # Write test output files in OS temporary directory.
@@ -33,14 +33,14 @@ class TestData:
     # Other test data files.
     TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
 
-    CONNECTION_REQ_AMLIGHT = TEST_DATA_DIR / "test_request_amlight.json"
-    CONNECTION_REQ_AMLIGHT_USER_PORT = (
+    CONNECTION_REQ_AMLIGHT_v0 = TEST_DATA_DIR / "test_request_amlight.json"
+    CONNECTION_REQ_AMLIGHT_USER_PORT_v0 = (
         TEST_DATA_DIR / "test_request_amlight_user_port.json"
     )
-    CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT = (
+    CONNECTION_REQ_AMLIGHT_ZAOXI_USER_PORT_v0 = (
         TEST_DATA_DIR / "test_request_amlight_zaoxi_user_port.json"
     )
 
     TOPOLOGY_FILE_SAX_2 = TEST_DATA_DIR / "sax-2.json"
-    CONNECTION_REQ_FILE_SAX_2_INVALID = TEST_DATA_DIR / "sax-2-request-invalid.json"
-    CONNECTION_REQ_FILE_SAX_2_VALID = TEST_DATA_DIR / "sax-2-request-valid.json"
+    CONNECTION_REQ_FILE_SAX_2_INVALID_v0 = TEST_DATA_DIR / "sax-2-request-invalid.json"
+    CONNECTION_REQ_FILE_SAX_2_VALID_v0 = TEST_DATA_DIR / "sax-2-request-valid.json"
