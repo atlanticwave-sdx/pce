@@ -242,7 +242,7 @@ class TopologyManager:
         """
         up_links = []
         for link in old_topology.links:
-            if link.status == "down" or link.status is None:
+            if link.status in ("down", None) or link.state in ("disabled", None):
                 new_link = topology.get_link_by_id(link.id)
                 if new_link is not None and (
                     new_link.status == "up" and new_link.state in ("enabled", None)
