@@ -584,7 +584,9 @@ class TopologyManager:
         # 5. signal Reoptimization of TE?
 
     # on performance properties for now
-    def change_link_property_by_value(self, port_id_0, port_id_1, property, value):
+    def change_link_property_by_value(
+        self, port_id_0, port_id_1, property, value, replace=True
+    ):
         # If it's bandwdith, we need to update the residual bandwidth as a percentage
         # "bandwidth" remains to keep the original port bandwidth in topology json.
         # in the graph model, linkd bandwidth is computed as bandwidth*residual_bandwidth*0.01
@@ -595,25 +597,32 @@ class TopologyManager:
                 orignial_bw = link.__getattribute__(Constants.BANDWIDTH)
                 residual = link.__getattribute__(property)
                 if property == Constants.RESIDUAL_BANDWIDTH:
-                    residual_bw = (
-                        link.__getattribute__(Constants.BANDWIDTH) * residual * 0.01
-                    )
+                    if replace is False:
+                        residual_bw = (
+                            link.__getattribute__(Constants.BANDWIDTH) * residual * 0.01
+                        )
+                        self._logger.info(
+                            "updated the link:"
+                            + str(residual_bw)
+                            + " value:"
+                            + str(value)
+                        )
+                        new_residual = max(
+                            (residual_bw + value) * 100 / orignial_bw, 0.001
+                        )
+                    else:
+                        new_residual = value
+                    setattr(link, property, new_residual)
                     self._logger.info(
-                        "updated the link:" + str(residual_bw) + " value:" + str(value)
+                        "updated the link:"
+                        + link._id
+                        + ":"
+                        + property
+                        + " from "
+                        + str(residual)
+                        + " to "
+                        + str(new_residual)
                     )
-                    new_residual = max((residual_bw + value) * 100 / orignial_bw, 0.001)
-                else:
-                    new_residual = value
-                setattr(link, property, new_residual)
-                self._logger.info(
-                    "updated the link:"
-                    + link._id
-                    + property
-                    + " from "
-                    + str(residual)
-                    + " to "
-                    + str(new_residual)
-                )
                 # 1.2 need to change the sub_ver of the topology?
 
         # 2. check on the inter-domain link?
@@ -623,22 +632,24 @@ class TopologyManager:
             orignial_bw = link.__getattribute__(Constants.BANDWIDTH)
             residual = link.__getattribute__(property)
             if property == Constants.RESIDUAL_BANDWIDTH:
-                residual_bw = (
-                    link.__getattribute__(Constants.BANDWIDTH) * residual * 0.01
+                if replace is False:
+                    residual_bw = (
+                        link.__getattribute__(Constants.BANDWIDTH) * residual * 0.01
+                    )
+                    new_residual = max((residual_bw + value) * 100 / orignial_bw, 0.001)
+                else:
+                    new_residual = value
+                setattr(link, property, new_residual)
+                self._logger.info(
+                    "updated the link:"
+                    + link._id
+                    + ":"
+                    + property
+                    + " from "
+                    + str(residual)
+                    + " to "
+                    + str(new_residual)
                 )
-                new_residual = max((residual_bw + value) * 100 / orignial_bw, 0.001)
-            else:
-                new_residual = value
-            setattr(link, property, new_residual)
-            self._logger.info(
-                "updated the link:"
-                + link._id
-                + property
-                + " from "
-                + str(residual)
-                + " to "
-                + str(new_residual)
-            )
             # 2.2 need to change the sub_ver of the topology?
 
     def change_port_vlan_range(self, topology_id, port_id, value):
