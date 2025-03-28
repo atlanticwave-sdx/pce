@@ -230,7 +230,9 @@ class TopologyManager:
         for link in old_topology.links:
             if link.status == "up" or link.status is None:
                 new_link = topology.get_link_by_id(link.id)
-                if new_link is not None and new_link.status == "down":
+                if new_link is not None and (
+                    new_link.status == "down" or new_link.state in ("enabled", None)
+                ):
                     down_links.append(new_link)
         return down_links
 
