@@ -231,10 +231,24 @@ class TopologyManager:
             if link.status == "up" or link.status is None:
                 new_link = topology.get_link_by_id(link.id)
                 if new_link is not None and (
-                    new_link.status == "down" or new_link.state in ("enabled", None)
+                    new_link.status == "down" or new_link.state in ("disabled", None)
                 ):
                     down_links.append(new_link)
         return down_links
+
+    def get_up_links(self, old_topology, topology):
+        """
+        Get the links that are down in the new topology.
+        """
+        up_links = []
+        for link in old_topology.links:
+            if link.status == "down" or link.status is None:
+                new_link = topology.get_link_by_id(link.id)
+                if new_link is not None and (
+                    new_link.status == "up" and new_link.state in ("enabled", None)
+                ):
+                    up_links.append(new_link)
+        return up_links
 
     def topology_diff(self, old_topology, topology):
 
@@ -286,6 +300,12 @@ class TopologyManager:
 
         for link in down_links:
             removed_links_list.append(link)
+
+        # adding the up links to the added links list
+        up_links = self.get_up_links(old_topology, topology)
+
+        for link in up_links:
+            added_links_list.append(link)
 
         return (
             removed_nodes_list,
