@@ -139,7 +139,7 @@ class TopologyManagerTests(unittest.TestCase):
 
         self.assertTrue(len(topology_map_dict) == 3)
 
-        print(f"Topology map dict: {json.dumps(topology_map_dict, indent=4)}")
+        # print(f"Topology map dict: {json.dumps(topology_map_dict, indent=4)}")
 
     def test_topology_diff(self):
         print("Test Topology Diff")

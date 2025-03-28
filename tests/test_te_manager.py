@@ -210,7 +210,7 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(topology_map, dict)
 
         for num, val in enumerate(topology_map.values()):
-            print(f"TE topology #{num}: {val}")
+            print(f"TE topology #{num}: {val.id}")
 
         request = [
             {
@@ -274,7 +274,6 @@ class TEManagerTests(unittest.TestCase):
 
         solution = self._make_tm_and_solve(temanager, request)
 
-        print(f"topology: {temanager.topology_manager.get_topology()}")
         # print(f"topology_list: {temanager.topology_manager._topology_map}")
 
         self.assertIsNotNone(solution.connection_map)
@@ -1194,7 +1193,6 @@ class TEManagerTests(unittest.TestCase):
         domains.
         """
         topology_data = json.loads(TestData.TOPOLOGY_FILE_SDX.read_text())
-        print(f"topology_data: {topology_data}")
 
         temanager = TEManager(topology_data=topology_data)
 
