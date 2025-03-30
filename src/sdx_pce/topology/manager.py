@@ -228,12 +228,33 @@ class TopologyManager:
         """
         down_links = []
         for link in old_topology.links:
-            if link.status == "up" or link.status is None:
+            if link.status in ("up", None):
                 new_link = topology.get_link_by_id(link.id)
-                if new_link is not None and (
+                if new_link and (
                     new_link.status == "down" or new_link.state in ("disabled", None)
                 ):
                     down_links.append(new_link)
+                else:  # further check its ports
+                    for port in link.ports:
+                        new_port = (
+                            next((p for p in new_link.ports if p.id == port.id), None)
+                            if new_link
+                            else None
+                        )
+                        if not new_port or (
+                            (port.status == "up" and new_port.status == "down")
+                            or (
+                                port.state == "enabled" and new_port.state == "disabled"
+                            )
+                        ):
+                            down_links.append(link)
+                            break
+        if down_links:
+            self._logger.info(
+                f"Down links detected: {[link.id for link in down_links]}"
+            )
+        else:
+            self._logger.info("No down links detected.")
         return down_links
 
     def get_up_links(self, old_topology, topology):
