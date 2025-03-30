@@ -257,6 +257,12 @@ class TopologyManager:
         removed_nodes = set()
         removed_links = set()
 
+        # obtain the objects
+        removed_links_list = []
+        added_links_list = []
+        removed_nodes_list = []
+        added_nodes_list = []
+
         if old_topology is not None:
             removed_nodes = set(old_topology.nodes_id()).difference(
                 set(topology.nodes_id())
@@ -271,13 +277,17 @@ class TopologyManager:
                 set(old_topology.links_id())
             )
         else:
-            self._logger.warning("No existing topology found for update: {topology.id}")
+            self._logger.warning(
+                f"No existing topology found for update: {topology.id}"
+            )
+            self._logger.info(f"Topology map keys: {list(self._topology_map.keys())}")
+            return (
+                removed_nodes_list,
+                added_nodes_list,
+                removed_links_list,
+                added_links_list,
+            )
 
-        # obtain the objects
-        removed_links_list = []
-        added_links_list = []
-        removed_nodes_list = []
-        added_nodes_list = []
         for link_id in removed_links:
             link_obj = old_topology.get_link_by_id(link_id)
             if link_obj is not None:
@@ -376,7 +386,7 @@ class TopologyManager:
             and len(removed_links_list) == 0
         ):
             self._logger.info(
-                "topology manager:No node and link changes detected in the topology {topology.id}"
+                f"topology manager:No node and link changes detected in the topology {topology.id}"
             )
             self.update_version(False)
         else:
