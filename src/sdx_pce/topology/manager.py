@@ -233,14 +233,16 @@ class TopologyManager:
                 if new_link and (
                     new_link.status == "down" or new_link.state in ("disabled", None)
                 ):
-                    down_links.append(new_link)
+                    down_links.append(link)
                 else:  # further check its ports
-                    for port in link.ports:
-                        new_port = (
-                            next((p for p in new_link.ports if p.id == port.id), None)
+                    for port_id in link.ports:
+                        port = self.get_port_obj_by_id(old_topology, port_id)
+                        new_port_id = (
+                            next((p for p in new_link.ports if p == port_id), None)
                             if new_link
                             else None
                         )
+                        new_port = self.get_port_obj_by_id(topology, new_port_id)
                         if not new_port or (
                             (port.status == "up" and new_port.status == "down")
                             or (
@@ -330,7 +332,8 @@ class TopologyManager:
         down_links = self.get_down_links(old_topology, topology)
 
         for link in down_links:
-            removed_links_list.append(link)
+            if link not in removed_links_list:
+                removed_links_list.append(link)
 
         # adding the up links to the added links list
         up_links = self.get_up_links(old_topology, topology)
@@ -630,11 +633,8 @@ class TopologyManager:
         if link is not None:
             setattr(link, property, value)
             self._logger.info(f"updated the link:{link_id} {property} to {value}")
-            # 2.2 need to change the sub_ver of the topology?
 
-        # 4. Signal update the (networkx) graph
-
-        # 5. signal Reoptimization of TE?
+        return link
 
     # on performance properties for now
     def change_link_property_by_value(
