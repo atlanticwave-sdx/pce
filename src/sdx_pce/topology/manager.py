@@ -249,9 +249,11 @@ class TopologyManager:
                                 port.state == "enabled" and new_port.state == "disabled"
                             )
                         ):
-                            link = self.update_link_property(
-                                new_link.id, "status", "down"
-                            )
+                            new_link = topology.get_link_by_id(link.id)
+                            if new_link:
+                                new_link = self.update_link_property(
+                                    new_link.id, "status", "down"
+                                )
                             down_links.append(link)
                             break
         if down_links:
