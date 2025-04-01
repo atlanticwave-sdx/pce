@@ -222,6 +222,30 @@ class TopologyManager:
             return False
         return port_id.split(":")[3] != topology_id.split(":")[3]
 
+    def get_down_nni_links(self, topology):
+        down_nni_links = []
+        for node in topology.nodes:
+            for port in node.ports:
+                if port.nni and port.status == "down":
+                    old_port = self.get_port_obj_by_id(self._topology, port.id)
+                    if old_port and old_port.status == "up":
+                        link = self._port_link_map.get(port.id)
+                        if link and link not in down_nni_links:
+                            down_nni_links.append(link)
+        return down_nni_links
+
+    def get_up_nni_links(self, topology):
+        up_nni_links = []
+        for node in topology.nodes:
+            for port in node.ports:
+                if port.nni and port.status == "up":
+                    old_port = self.get_port_obj_by_id(self._topology, port.id)
+                    if old_port and old_port.status == "down":
+                        link = self._port_link_map.get(port.id)
+                        if link and link not in up_nni_links:
+                            up_nni_links.append(link)
+        return up_nni_links
+
     def get_down_links(self, old_topology, topology):
         """
         Get the links that are down in the new topology.
@@ -421,6 +445,19 @@ class TopologyManager:
         else:
             self.update_version(True)
         self.update_timestamp()
+
+        # extra link status changes: up <-> down that is associated with nni port status changes: up <-> down
+        # comparing with the global topology to catch nni links
+
+        get_down_nni_links = self.get_down_nni_links(topology)
+        for link in get_down_nni_links:
+            if link not in removed_links_list:
+                removed_links_list.append(link)
+
+        get_up_nni_links = self.get_up_nni_links(topology)
+        for link in get_up_nni_links:
+            if link not in added_links_list:
+                added_links_list.append(link)
 
         return (
             removed_nodes_list,
