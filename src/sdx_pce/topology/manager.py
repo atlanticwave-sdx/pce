@@ -347,19 +347,10 @@ class TopologyManager:
             self.topology_diff(old_topology, topology)
         )
 
-        if (
-            len(added_nodes_list) == 0
-            and len(removed_nodes_list) == 0
-            and len(added_links_list) == 0
-            and len(removed_links_list) == 0
-        ):
-            self._logger.info(
-                "topology manager:No node and link changes detected in the topology {topology.id}"
-            )
-            self.update_version(False)
-        else:
+        if topology.version > old_topology.version:
             self.update_version(True)
-        self.update_timestamp()
+        if topology.timestamp != old_topology.timestamp:
+            self.update_timestamp()
 
         return (
             removed_nodes_list,
