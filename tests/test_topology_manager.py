@@ -139,7 +139,7 @@ class TopologyManagerTests(unittest.TestCase):
 
         self.assertTrue(len(topology_map_dict) == 3)
 
-        print(f"Topology map dict: {json.dumps(topology_map_dict, indent=4)}")
+        # print(f"Topology map dict: {json.dumps(topology_map_dict, indent=4)}")
 
     def test_topology_diff(self):
         print("Test Topology Diff")
@@ -149,7 +149,7 @@ class TopologyManagerTests(unittest.TestCase):
 
         # Get the old topology
         old_topology = copy.deepcopy(self.topology_manager.get_topology())
-        # print(f"old_topology: {old_topology.links}")
+
         # Modify the topology by removing a link
         new_links = []
         for link in self.topology_manager.get_topology().links:
@@ -157,13 +157,17 @@ class TopologyManagerTests(unittest.TestCase):
                 new_links.append(link)
 
         self.topology_manager.get_topology().links = new_links
+        self.assertEqual(len(new_links), 13)
 
         # Modify the topology by setting a link's status to "down"
-        self.topology_manager.update_link_property(self.INTER_LINK_ID, "status", "down")
+        link = self.topology_manager.update_link_property(
+            self.INTER_LINK_ID, "status", "down"
+        )
+        self.assertEqual(link.status, "down")
 
         # Get the new topology
         new_topology = self.topology_manager.get_topology()
-        # print(f"new_topology: {new_topology.links}")
+
         # Get the topology diff
         _, _, removed_links, _ = self.topology_manager.topology_diff(
             old_topology, new_topology
@@ -177,9 +181,10 @@ class TopologyManagerTests(unittest.TestCase):
         self.assertIn(self.LINK_ID, [link.id for link in removed_links])
 
         # Check the removed_links list for the "down" status
-        down_link = next(
-            (link for link in removed_links if link.id == self.INTER_LINK_ID), None
-        )
+        for link in removed_links:
+            if link.id == self.INTER_LINK_ID:
+                down_link = new_topology.get_link_by_id(link.id)
+                break
         self.assertIsNotNone(down_link)
         self.assertEqual(down_link.status, "down")
 

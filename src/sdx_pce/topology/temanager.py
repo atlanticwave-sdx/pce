@@ -620,7 +620,7 @@ class TEManager:
             # update in three places: (1) topology object (2) graph object (3) json to DB
             # (1) topology object
             self.topology_manager.change_link_property_by_value(
-                p1, p2, Constants.RESIDUAL_BANDWIDTH, bandwidth
+                p1, p2, Constants.RESIDUAL_BANDWIDTH, bandwidth, replace=False
             )
 
         # (2) graph object, called by sdx-controller
