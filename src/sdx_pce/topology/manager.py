@@ -222,17 +222,85 @@ class TopologyManager:
             return False
         return port_id.split(":")[3] != topology_id.split(":")[3]
 
+    def get_down_nni_links(self, topology):
+        down_nni_links = []
+        for node in topology.nodes:
+            for port in node.ports:
+                if port.nni and port.status == "down":
+                    old_port = self.get_port_obj_by_id(self._topology, port.id)
+                    if old_port and old_port.status == "up":
+                        link = self._port_link_map.get(port.id)
+                        if link and link not in down_nni_links:
+                            down_nni_links.append(link)
+        return down_nni_links
+
+    def get_up_nni_links(self, topology):
+        up_nni_links = []
+        for node in topology.nodes:
+            for port in node.ports:
+                if port.nni and port.status == "up":
+                    old_port = self.get_port_obj_by_id(self._topology, port.id)
+                    if old_port and old_port.status == "down":
+                        link = self._port_link_map.get(port.id)
+                        if link and link not in up_nni_links:
+                            up_nni_links.append(link)
+        return up_nni_links
+
     def get_down_links(self, old_topology, topology):
         """
         Get the links that are down in the new topology.
         """
         down_links = []
         for link in old_topology.links:
-            if link.status == "up" or link.status is None:
+            if link.status in ("up", None):
                 new_link = topology.get_link_by_id(link.id)
-                if new_link is not None and new_link.status == "down":
-                    down_links.append(new_link)
+                if new_link and (
+                    new_link.status == "down" or new_link.state in ("disabled", None)
+                ):
+                    down_links.append(link)
+                else:  # further check its ports
+                    for port_id in link.ports:
+                        port = self.get_port_obj_by_id(old_topology, port_id)
+                        new_port_id = (
+                            next((p for p in new_link.ports if p == port_id), None)
+                            if new_link
+                            else None
+                        )
+                        new_port = self.get_port_obj_by_id(topology, new_port_id)
+                        if not new_port or (
+                            (port.status == "up" and new_port.status == "down")
+                            or (
+                                port.state == "enabled" and new_port.state == "disabled"
+                            )
+                        ):
+                            new_link = topology.get_link_by_id(link.id)
+                            if new_link:
+                                new_link = self.update_link_property(
+                                    new_link.id, "status", "down"
+                                )
+                            down_links.append(link)
+                            break
+        if down_links:
+            self._logger.info(
+                f"Down links detected: {[link.id for link in down_links]}"
+            )
+        else:
+            self._logger.info("No down links detected.")
         return down_links
+
+    def get_up_links(self, old_topology, topology):
+        """
+        Get the links that are down in the new topology.
+        """
+        up_links = []
+        for link in old_topology.links:
+            if link.status in ("down", None) or link.state in ("disabled", None):
+                new_link = topology.get_link_by_id(link.id)
+                if new_link is not None and (
+                    new_link.status == "up" and new_link.state in ("enabled", None)
+                ):
+                    up_links.append(new_link)
+        return up_links
 
     def topology_diff(self, old_topology, topology):
 
@@ -240,6 +308,12 @@ class TopologyManager:
         added_links = set()
         removed_nodes = set()
         removed_links = set()
+
+        # obtain the objects
+        removed_links_list = []
+        added_links_list = []
+        removed_nodes_list = []
+        added_nodes_list = []
 
         if old_topology is not None:
             removed_nodes = set(old_topology.nodes_id()).difference(
@@ -255,13 +329,17 @@ class TopologyManager:
                 set(old_topology.links_id())
             )
         else:
-            self._logger.warning("No existing topology found for update: {topology.id}")
+            self._logger.warning(
+                f"No existing topology found for update: {topology.id}"
+            )
+            self._logger.info(f"Topology map keys: {list(self._topology_map.keys())}")
+            return (
+                removed_nodes_list,
+                added_nodes_list,
+                removed_links_list,
+                added_links_list,
+            )
 
-        # obtain the objects
-        removed_links_list = []
-        added_links_list = []
-        removed_nodes_list = []
-        added_nodes_list = []
         for link_id in removed_links:
             link_obj = old_topology.get_link_by_id(link_id)
             if link_obj is not None:
@@ -283,7 +361,14 @@ class TopologyManager:
         down_links = self.get_down_links(old_topology, topology)
 
         for link in down_links:
-            removed_links_list.append(link)
+            if link not in removed_links_list:
+                removed_links_list.append(link)
+
+        # adding the up links to the added links list
+        up_links = self.get_up_links(old_topology, topology)
+
+        for link in up_links:
+            added_links_list.append(link)
 
         return (
             removed_nodes_list,
@@ -351,6 +436,19 @@ class TopologyManager:
             self.update_version(True)
         if topology.timestamp != old_topology.timestamp:
             self.update_timestamp()
+
+        # extra link status changes: up <-> down that is associated with nni port status changes: up <-> down
+        # comparing with the global topology to catch nni links
+
+        get_down_nni_links = self.get_down_nni_links(topology)
+        for link in get_down_nni_links:
+            if link not in removed_links_list:
+                removed_links_list.append(link)
+
+        get_up_nni_links = self.get_up_nni_links(topology)
+        for link in get_up_nni_links:
+            if link not in added_links_list:
+                added_links_list.append(link)
 
         return (
             removed_nodes_list,
@@ -568,14 +666,13 @@ class TopologyManager:
         if link is not None:
             setattr(link, property, value)
             self._logger.info(f"updated the link:{link_id} {property} to {value}")
-            # 2.2 need to change the sub_ver of the topology?
 
-        # 4. Signal update the (networkx) graph
-
-        # 5. signal Reoptimization of TE?
+        return link
 
     # on performance properties for now
-    def change_link_property_by_value(self, port_id_0, port_id_1, property, value):
+    def change_link_property_by_value(
+        self, port_id_0, port_id_1, property, value, replace=True
+    ):
         # If it's bandwdith, we need to update the residual bandwidth as a percentage
         # "bandwidth" remains to keep the original port bandwidth in topology json.
         # in the graph model, linkd bandwidth is computed as bandwidth*residual_bandwidth*0.01
@@ -586,25 +683,32 @@ class TopologyManager:
                 orignial_bw = link.__getattribute__(Constants.BANDWIDTH)
                 residual = link.__getattribute__(property)
                 if property == Constants.RESIDUAL_BANDWIDTH:
-                    residual_bw = (
-                        link.__getattribute__(Constants.BANDWIDTH) * residual * 0.01
-                    )
+                    if replace is False:
+                        residual_bw = (
+                            link.__getattribute__(Constants.BANDWIDTH) * residual * 0.01
+                        )
+                        self._logger.info(
+                            "updated the link:"
+                            + str(residual_bw)
+                            + " value:"
+                            + str(value)
+                        )
+                        new_residual = max(
+                            (residual_bw + value) * 100 / orignial_bw, 0.001
+                        )
+                    else:
+                        new_residual = value
+                    setattr(link, property, new_residual)
                     self._logger.info(
-                        "updated the link:" + str(residual_bw) + " value:" + str(value)
+                        "updated the link:"
+                        + link._id
+                        + ":"
+                        + property
+                        + " from "
+                        + str(residual)
+                        + " to "
+                        + str(new_residual)
                     )
-                    new_residual = max((residual_bw + value) * 100 / orignial_bw, 0.001)
-                else:
-                    new_residual = value
-                setattr(link, property, new_residual)
-                self._logger.info(
-                    "updated the link:"
-                    + link._id
-                    + property
-                    + " from "
-                    + str(residual)
-                    + " to "
-                    + str(new_residual)
-                )
                 # 1.2 need to change the sub_ver of the topology?
 
         # 2. check on the inter-domain link?
@@ -614,22 +718,24 @@ class TopologyManager:
             orignial_bw = link.__getattribute__(Constants.BANDWIDTH)
             residual = link.__getattribute__(property)
             if property == Constants.RESIDUAL_BANDWIDTH:
-                residual_bw = (
-                    link.__getattribute__(Constants.BANDWIDTH) * residual * 0.01
+                if replace is False:
+                    residual_bw = (
+                        link.__getattribute__(Constants.BANDWIDTH) * residual * 0.01
+                    )
+                    new_residual = max((residual_bw + value) * 100 / orignial_bw, 0.001)
+                else:
+                    new_residual = value
+                setattr(link, property, new_residual)
+                self._logger.info(
+                    "updated the link:"
+                    + link._id
+                    + ":"
+                    + property
+                    + " from "
+                    + str(residual)
+                    + " to "
+                    + str(new_residual)
                 )
-                new_residual = max((residual_bw + value) * 100 / orignial_bw, 0.001)
-            else:
-                new_residual = value
-            setattr(link, property, new_residual)
-            self._logger.info(
-                "updated the link:"
-                + link._id
-                + property
-                + " from "
-                + str(residual)
-                + " to "
-                + str(new_residual)
-            )
             # 2.2 need to change the sub_ver of the topology?
 
     def change_port_vlan_range(self, topology_id, port_id, value):
