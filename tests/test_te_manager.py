@@ -245,9 +245,15 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
             self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
-            self.assertTrue(segment["uni_a"]["port_id"].startswith(f"urn:sdx:port:{domain}"))
-            self.assertTrue(segment["uni_z"]["port_id"].startswith(f"urn:sdx:port:{domain}"))
-            self.assertNotEqual(segment["uni_a"]["port_id"], segment["uni_z"]["port_id"])
+            self.assertTrue(
+                segment["uni_a"]["port_id"].startswith(f"urn:sdx:port:{domain}")
+            )
+            self.assertTrue(
+                segment["uni_z"]["port_id"].startswith(f"urn:sdx:port:{domain}")
+            )
+            self.assertNotEqual(
+                segment["uni_a"]["port_id"], segment["uni_z"]["port_id"]
+            )
 
     def test_connection_breakdown_three_domains_sax_connection(self):
         """
