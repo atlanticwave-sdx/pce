@@ -33,8 +33,8 @@ class TopologyManagerTests(unittest.TestCase):
     ]
     TOPOLOGY_FILE_LIST_UPDATE = [TestData.TOPOLOGY_FILE_SAX_v2_UPDATE]
 
-    LINK_ID = "urn:sdx:link:amlight:B1-B2"
-    INTER_LINK_ID = "urn:sdx:link:zaoxi:A1-B2"
+    LINK_ID = "urn:sdx:link:amlight.net:B1-B2"
+    INTER_LINK_ID = "urn:sdx:link:zaoxi.net:A1-B2"
 
     def setUp(self):
         self.topology_manager = TopologyManager()
