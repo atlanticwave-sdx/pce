@@ -282,7 +282,7 @@ class TEManager:
                                 ranges.append(f"{start}")
                             else:
                                 ranges.append(f"{start}-{end}")
-                                start = end = vlan
+                            start = end = vlan
                     if start == end:
                         ranges.append(f"{start}")
                     else:

@@ -1,6 +1,7 @@
 import json
 import pprint
 import unittest
+from unittest.mock import MagicMock
 
 import networkx as nx
 
@@ -2156,3 +2157,45 @@ class TEManagerTests(unittest.TestCase):
 
         low, high = sax_port.services.l2vpn_ptp["vlan_range"][0].split("-")
         self.assertTrue(int(low) <= 1 <= int(high))
+
+    def test_update_available_vlans_basic_checks(self):
+        """
+        Test the update_available_vlans() method with basic checks.
+        """
+        te = TEManager(topology_data=None)
+        te.topology_manager = MagicMock()
+        result = te.update_available_vlans(
+            {
+                "d1": {
+                    "p1": {
+                        1: None,
+                        2: None,
+                        3: None,
+                        4: True,
+                        5: None,
+                        6: True,
+                        7: None,
+                        8: None,
+                        9: None,
+                    },
+                },
+            },
+        )
+        self.assertEqual(result, {"d1": {"p1": ["1-3", "5", "7-9"]}})
+        result = te.update_available_vlans(
+            {
+                "d1": {
+                    "p1": {
+                        1: True,
+                        2: None,
+                        3: None,
+                        4: True,
+                        5: None,
+                        6: True,
+                        7: True,
+                        8: True,
+                    },
+                },
+            },
+        )
+        self.assertEqual(result, {"d1": {"p1": ["2-3", "5"]}})
