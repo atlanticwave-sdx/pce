@@ -432,19 +432,10 @@ class TopologyManager:
             self.topology_diff(old_topology, topology)
         )
 
-        if (
-            len(added_nodes_list) == 0
-            and len(removed_nodes_list) == 0
-            and len(added_links_list) == 0
-            and len(removed_links_list) == 0
-        ):
-            self._logger.info(
-                f"topology manager:No node and link changes detected in the topology {topology.id}"
-            )
-            self.update_version(False)
-        else:
+        if topology.version > old_topology.version:
             self.update_version(True)
-        self.update_timestamp()
+        if topology.timestamp != old_topology.timestamp:
+            self.update_timestamp()
 
         # extra link status changes: up <-> down that is associated with nni port status changes: up <-> down
         # comparing with the global topology to catch nni links
