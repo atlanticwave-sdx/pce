@@ -506,6 +506,7 @@ class TEManager:
 
         required_bandwidth = request.bandwidth_required or 0
         required_latency = request.latency_required or float("inf")
+        required_max_oxp_number = request.max_number_oxps or 0
         request_id = request.id
 
         self._logger.info(
@@ -518,6 +519,7 @@ class TEManager:
             destination=egress_nodes[0],
             required_bandwidth=required_bandwidth,
             required_latency=required_latency,
+            required_max_oxp_number=required_max_oxp_number,
         )
 
         return TrafficMatrix(connection_requests=[request], request_id=request_id)
@@ -724,7 +726,16 @@ class TEManager:
         paths = solution.connection_map  # p2p for now
 
         for domain, links in paths.items():
-            self._logger.info(f"domain: {domain}, links: {links}")
+            self._logger.info(f"request: {domain}, links: {links}")
+            if (
+                domain.required_max_oxp_number != 0
+            ) and domain.required_max_oxp_number < len(links):
+                self._logger.warning(
+                    f"Solution has more links than max number of OXPs required in {domain}, skipping breakdown"
+                )
+                raise TEError(
+                    f"Can't find a feasible TE solution for: {connection_request}", 410
+                )
 
             current_link_set = []
 

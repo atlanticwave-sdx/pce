@@ -18,6 +18,7 @@ class ConnectionRequest:
     destination: int
     required_bandwidth: float
     required_latency: float
+    required_max_oxp_number: int = 1000
 
     # Make ConnectionRequest hashable since it is used as key in
     # ConnectionSolution
