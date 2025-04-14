@@ -1,6 +1,7 @@
 import json
 import pprint
 import unittest
+from unittest.mock import MagicMock
 
 import networkx as nx
 
@@ -86,9 +87,9 @@ class TEManagerTests(unittest.TestCase):
         test_cases = [
             {
                 "domain": "urn:sdx:topology:sax.net",
-                "upstream_egress": "urn:sdx:port:sax:B3:1",
+                "upstream_egress": "urn:sdx:port:sax.net:B3:1",
                 "next_domain": "urn:sdx:topology:zaoxi.net",
-                "downstream_ingress": "urn:sdx:port:zaoxi:B1:1",
+                "downstream_ingress": "urn:sdx:port:zaoxi.net:B1:1",
                 "expected_vlan": 100,  # Example expected VLAN
             },
             #
@@ -214,9 +215,7 @@ class TEManagerTests(unittest.TestCase):
 
         request = [
             {
-                "1": [[1, 2], [3, 4]],
-                "2": [[1, 2], [3, 5]],
-                "3": [[7, 8], [8, 9]],
+                "1": [[2, 9]],
             },
             1.0,
         ]
@@ -232,11 +231,8 @@ class TEManagerTests(unittest.TestCase):
         self.assertIsInstance(breakdown, dict)
         self.assertEqual(len(breakdown), 3)
 
-        amlight = breakdown.get("urn:sdx:topology:amlight.net")
-        zaoxi = breakdown.get("urn:sdx:topology:zaoxi.net")
-        sax = breakdown.get("urn:sdx:topology:sax.net")
-
-        for segment in [zaoxi, sax, amlight]:
+        for domain in ["amlight.net", "zaoxi.net", "sax.net"]:
+            segment = breakdown.get(f"urn:sdx:topology:{domain}")
             self.assertIsInstance(segment, dict)
             self.assertIsInstance(segment.get("name"), str)
             self.assertIsInstance(segment.get("dynamic_backup_path"), bool)
@@ -250,6 +246,15 @@ class TEManagerTests(unittest.TestCase):
             self.assertIsInstance(segment.get("uni_z").get("tag").get("value"), int)
             self.assertIsInstance(segment.get("uni_z").get("tag").get("tag_type"), int)
             self.assertIsInstance(segment.get("uni_z").get("port_id"), str)
+            self.assertTrue(
+                segment["uni_a"]["port_id"].startswith(f"urn:sdx:port:{domain}")
+            )
+            self.assertTrue(
+                segment["uni_z"]["port_id"].startswith(f"urn:sdx:port:{domain}")
+            )
+            self.assertNotEqual(
+                segment["uni_a"]["port_id"], segment["uni_z"]["port_id"]
+            )
 
     def test_connection_breakdown_three_domains_sax_connection(self):
         """
@@ -1635,7 +1640,7 @@ class TEManagerTests(unittest.TestCase):
                         "vlan": "777"
                     },
                     {
-                        "port_id": "urn:sdx:port:amlight:B1:1",
+                        "port_id": "urn:sdx:port:amlight.net:B1:1",
                         "vlan": "777"
                     }
                 ]
@@ -2152,3 +2157,45 @@ class TEManagerTests(unittest.TestCase):
 
         low, high = sax_port.services.l2vpn_ptp["vlan_range"][0].split("-")
         self.assertTrue(int(low) <= 1 <= int(high))
+
+    def test_update_available_vlans_basic_checks(self):
+        """
+        Test the update_available_vlans() method with basic checks.
+        """
+        te = TEManager(topology_data=None)
+        te.topology_manager = MagicMock()
+        result = te.update_available_vlans(
+            {
+                "d1": {
+                    "p1": {
+                        1: None,
+                        2: None,
+                        3: None,
+                        4: True,
+                        5: None,
+                        6: True,
+                        7: None,
+                        8: None,
+                        9: None,
+                    },
+                },
+            },
+        )
+        self.assertEqual(result, {"d1": {"p1": ["1-3", "5", "7-9"]}})
+        result = te.update_available_vlans(
+            {
+                "d1": {
+                    "p1": {
+                        1: True,
+                        2: None,
+                        3: None,
+                        4: True,
+                        5: None,
+                        6: True,
+                        7: True,
+                        8: True,
+                    },
+                },
+            },
+        )
+        self.assertEqual(result, {"d1": {"p1": ["2-3", "5"]}})
