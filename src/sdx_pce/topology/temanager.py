@@ -10,6 +10,7 @@ from networkx.algorithms import approximation as approx
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 from sdx_datamodel.parsing.exceptions import (
+    AttributeNotSupportedException,
     MissingAttributeException,
     ServiceNotSupportedException,
 )
@@ -421,6 +422,11 @@ class TEManager:
             raise RequestValidationError(
                 f"Validation error: {e} for {connection_request}", 402
             )
+        except AttributeNotSupportedException as e:
+            self._logger.error(f"Attribute not supported: {e} for {connection_request}")
+            raise RequestValidationError(
+                f"Validation error: {e} for {connection_request}", 422
+            )
         except Exception as e:
             err = traceback.format_exc().replace("\n", ", ")
             self._logger.error(f"Error when validating connection request: {e} - {err}")
@@ -506,6 +512,7 @@ class TEManager:
 
         required_bandwidth = request.bandwidth_required or 0
         required_latency = request.latency_required or float("inf")
+        required_max_oxp_number = request.max_number_oxps or float("inf")
         request_id = request.id
 
         self._logger.info(
@@ -518,6 +525,7 @@ class TEManager:
             destination=egress_nodes[0],
             required_bandwidth=required_bandwidth,
             required_latency=required_latency,
+            required_max_oxp_number=required_max_oxp_number,
         )
 
         return TrafficMatrix(connection_requests=[request], request_id=request_id)
@@ -724,7 +732,14 @@ class TEManager:
         paths = solution.connection_map  # p2p for now
 
         for domain, links in paths.items():
-            self._logger.info(f"domain: {domain}, links: {links}")
+            self._logger.info(f"request: {domain}, links: {links}")
+            if domain.required_max_oxp_number < len(links):
+                self._logger.warning(
+                    f"Solution has more links than max number of OXPs required in {domain}, skipping breakdown"
+                )
+                raise TEError(
+                    f"Can't find a feasible TE solution for: {connection_request}", 410
+                )
 
             current_link_set = []
 
