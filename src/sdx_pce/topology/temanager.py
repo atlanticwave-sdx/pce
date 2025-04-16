@@ -512,7 +512,7 @@ class TEManager:
 
         required_bandwidth = request.bandwidth_required or 0
         required_latency = request.latency_required or float("inf")
-        required_max_oxp_number = request.max_number_oxps or 0
+        required_max_oxp_number = request.max_number_oxps or float("inf")
         request_id = request.id
 
         self._logger.info(
@@ -733,9 +733,7 @@ class TEManager:
 
         for domain, links in paths.items():
             self._logger.info(f"request: {domain}, links: {links}")
-            if (
-                domain.required_max_oxp_number != 0
-            ) and domain.required_max_oxp_number < len(links):
+            if domain.required_max_oxp_number < len(links):
                 self._logger.warning(
                     f"Solution has more links than max number of OXPs required in {domain}, skipping breakdown"
                 )
