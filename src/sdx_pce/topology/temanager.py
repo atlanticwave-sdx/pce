@@ -10,6 +10,7 @@ from networkx.algorithms import approximation as approx
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 from sdx_datamodel.parsing.exceptions import (
+    AttributeNotSupportedException,
     MissingAttributeException,
     ServiceNotSupportedException,
 )
@@ -420,6 +421,11 @@ class TEManager:
             self._logger.error(f"Service not supported: {e} for {connection_request}")
             raise RequestValidationError(
                 f"Validation error: {e} for {connection_request}", 402
+            )
+        except AttributeNotSupportedException as e:
+            self._logger.error(f"Attribute not supported: {e} for {connection_request}")
+            raise RequestValidationError(
+                f"Validation error: {e} for {connection_request}", 422
             )
         except Exception as e:
             err = traceback.format_exc().replace("\n", ", ")
