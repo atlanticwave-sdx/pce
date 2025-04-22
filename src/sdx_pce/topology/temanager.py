@@ -133,11 +133,13 @@ class TEManager:
 
             # Update available VLANs in topology with current states
             self.update_available_vlans(vlan_tags_table)
-            self.update_available_bw_in_topology(residul_bw)
         else:
             self._logger.info(
                 "temanager:No node and link changes detected in the topology"
             )
+
+        # Fix residual bandwidth after update the topology
+        self.update_available_bw_in_topology(residul_bw)
 
         return (
             removed_nodes_list,
