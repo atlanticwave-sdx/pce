@@ -385,12 +385,12 @@ class TopologyManager:
         self._topology_map[topology.id] = topology
 
         # Nodes.
-        nodes = topology.nodes
+        nodes = old_topology.nodes
         for node in nodes:
             self._topology.remove_node(node.id)
 
         # Links.
-        links = topology.links
+        links = old_topology.links
         for link in links:
             if not self.is_link_interdomain(link, topology):
                 # print(link.id+";......."+str(link.nni))
