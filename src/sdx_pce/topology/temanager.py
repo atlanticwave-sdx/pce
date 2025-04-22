@@ -506,16 +506,16 @@ class TEManager:
         ]
 
         if len(ingress_nodes) <= 0:
-            self._logger.warning(
-                f"No ingress node '{ingress_node.id}' found in the graph"
+            raise RequestValidationError(
+                f"No path available between endpoints: {ingress_node.id} not found in the graph",
+                412,
             )
-            return None
 
         if len(egress_nodes) <= 0:
-            self._logger.warning(
-                f"No egress node '{egress_node.id}' found in the graph"
+            raise RequestValidationError(
+                f"No path available between endpoints: {egress_node.id} not found in the graph",
+                412,
             )
-            return None
 
         required_bandwidth = request.bandwidth_required or 0
         required_latency = request.latency_required or float("inf")
