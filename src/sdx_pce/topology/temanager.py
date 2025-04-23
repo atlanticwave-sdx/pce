@@ -133,14 +133,16 @@ class TEManager:
             )
 
             # Update available VLANs in topology with current states
-            self.update_available_vlans(vlan_tags_table)
+            with self._topology_lock:
+                self.update_available_vlans(vlan_tags_table)
         else:
             self._logger.info(
                 "temanager:No node and link changes detected in the topology"
             )
 
         # Fix residual bandwidth after update the topology
-        self.update_available_bw_in_topology(residul_bw)
+        with self._topology_lock:
+            self.update_available_bw_in_topology(residul_bw)
 
         return (
             removed_nodes_list,
@@ -945,11 +947,11 @@ class TEManager:
                 410,
             )
 
-        # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
-        self.update_link_bandwidth(solution, reduce=True)
-
-        # Update available VLANs in topology
-        self.update_available_vlans(self._vlan_tags_table)
+        with self._topology_lock:
+            # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
+            self.update_link_bandwidth(solution, reduce=True)
+            # Update available VLANs in topology
+            self.update_available_vlans(self._vlan_tags_table)
 
         # keep the connection solution for future reference
         self._connectionSolution_list.append(solution)
@@ -1508,11 +1510,12 @@ class TEManager:
 
         # Remove the solution from the list.
         self._connectionSolution_list.remove(solution)
-        # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
-        self.update_link_bandwidth(solution, reduce=False)
 
-        # Update available VLANs in topology
-        self.update_available_vlans(self._vlan_tags_table)
+        with self._topology_lock:
+            # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
+            self.update_link_bandwidth(solution, reduce=False)
+            # Update available VLANs in topology
+            self.update_available_vlans(self._vlan_tags_table)
 
     def get_connection_solution(self, request_id: str) -> Optional[ConnectionSolution]:
         """
