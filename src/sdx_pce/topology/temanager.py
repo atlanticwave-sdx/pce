@@ -304,10 +304,15 @@ class TEManager:
         VLANs to the table. Removed VLANs will need further discussion (see
         https://github.com/atlanticwave-sdx/pce/issues/123)
         """
+        domain_port_prefix = domain_name.replace(":topology:", ":port:")
         # If the domain is not in the table, add {}.
         self._vlan_tags_table.setdefault(domain_name, {})
 
         for port_id, port in port_map.items():
+            # only process ports for the provided domain
+            if not port_id.startswith(domain_port_prefix):
+                continue
+
             # Get the label range for this port: either from the
             # port itself (v1), or from the services attached to it (v2).
             label_range = self.get_port_obj_services_label_range(port)
