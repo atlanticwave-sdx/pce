@@ -10,6 +10,7 @@ from networkx.algorithms import approximation as approx
 from sdx_datamodel.models.port import Port
 from sdx_datamodel.parsing.connectionhandler import ConnectionHandler
 from sdx_datamodel.parsing.exceptions import (
+    AttributeNotSupportedException,
     MissingAttributeException,
     ServiceNotSupportedException,
 )
@@ -134,11 +135,14 @@ class TEManager:
             # Update available VLANs in topology with current states
             with self._topology_lock:
                 self.update_available_vlans(vlan_tags_table)
-                self.update_available_bw_in_topology(residul_bw)
         else:
             self._logger.info(
                 "temanager:No node and link changes detected in the topology"
             )
+
+        # Fix residual bandwidth after update the topology
+        with self._topology_lock:
+            self.update_available_bw_in_topology(residul_bw)
 
         return (
             removed_nodes_list,
@@ -427,6 +431,11 @@ class TEManager:
             raise RequestValidationError(
                 f"Validation error: {e} for {connection_request}", 402
             )
+        except AttributeNotSupportedException as e:
+            self._logger.error(f"Attribute not supported: {e} for {connection_request}")
+            raise RequestValidationError(
+                f"Attribute not supported: {e} for {connection_request}", 422
+            )
         except Exception as e:
             err = traceback.format_exc().replace("\n", ", ")
             self._logger.error(f"Error when validating connection request: {e} - {err}")
@@ -499,16 +508,16 @@ class TEManager:
         ]
 
         if len(ingress_nodes) <= 0:
-            self._logger.warning(
-                f"No ingress node '{ingress_node.id}' found in the graph"
+            raise RequestValidationError(
+                f"No path available between endpoints: {ingress_node.id} not found in the graph",
+                412,
             )
-            return None
 
         if len(egress_nodes) <= 0:
-            self._logger.warning(
-                f"No egress node '{egress_node.id}' found in the graph"
+            raise RequestValidationError(
+                f"No path available between endpoints: {egress_node.id} not found in the graph",
+                412,
             )
-            return None
 
         required_bandwidth = request.bandwidth_required or 0
         required_latency = request.latency_required or float("inf")
