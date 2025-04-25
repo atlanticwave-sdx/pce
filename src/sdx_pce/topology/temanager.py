@@ -925,7 +925,7 @@ class TEManager:
                 f" {len(domain_breakdown.keys())=} {max_number_oxps=}"
             )
             raise TEError(
-                f"Can't fulfill QoS requiments: max number of OXPs exceeded", 410
+                "Can't fulfill QoS requiments: max number of OXPs exceeded", 410
             )
 
         self._logger.info(
