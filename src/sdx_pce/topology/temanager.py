@@ -924,7 +924,9 @@ class TEManager:
                 "Breakdown has more domains than max number of OXPs required in the request:"
                 f" {len(domain_breakdown.keys())=} {max_number_oxps=}"
             )
-            raise TEError(f"Can't fulfill QoS requiments: max number of OXPs exceeded", 410)
+            raise TEError(
+                f"Can't fulfill QoS requiments: max number of OXPs exceeded", 410
+            )
 
         self._logger.info(
             f"generate_connection_breakdown(): domain_breakdown: {domain_breakdown} "
