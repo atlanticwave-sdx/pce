@@ -811,7 +811,6 @@ class TEManager:
             f"connection_request: {connection_request}; "
             f"type: {'tm' if request_format_is_tm else 'not tm'}"
         )
-        max_number_oxps = MAX_OXP_DEFAULT
         same_domain_port_flag = False
         if not request_format_is_tm:
             connection_request = (
@@ -830,7 +829,6 @@ class TEManager:
                 connection_request["egress_port"]["id"],
             )
             self._logger.info(f"same_domain_user_port_flag: {same_domain_port_flag}")
-            max_number_oxps = connection_request.get("max_number_oxps") or max_number_oxps
 
         # Now generate the breakdown with potential user specified tags
         ingress_user_port = None
@@ -920,6 +918,7 @@ class TEManager:
             domain_breakdown[domain] = segment.copy()
             i = i + 1
 
+        max_number_oxps = connection_request.get("max_number_oxps") or MAX_OXP_DEFAULT
         if len(domain_breakdown.keys()) > max_number_oxps:
             self._logger.warning(
                 "Breakdown has more domains than max number of OXPs required in the request:"
