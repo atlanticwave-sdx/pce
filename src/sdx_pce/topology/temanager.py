@@ -830,7 +830,9 @@ class TEManager:
                 connection_request["egress_port"]["id"],
             )
             self._logger.info(f"same_domain_user_port_flag: {same_domain_port_flag}")
-            max_number_oxps = connection_request.get("max_number_oxps") or max_number_oxps
+            max_number_oxps = (
+                connection_request.get("max_number_oxps") or max_number_oxps
+            )
 
         # Now generate the breakdown with potential user specified tags
         ingress_user_port = None
