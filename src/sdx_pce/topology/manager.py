@@ -303,8 +303,8 @@ class TopologyManager:
 
         for node in old_topology.nodes:
             for port in node.ports:
-                if port not in port_link_map:  # only count for uni ports
-                    new_port = topology.get_port_obj_by_id(port.id)
+                if port.id not in port_link_map:  # only count for uni ports
+                    new_port = self.get_port_obj_by_id(topology, port.id)
                     if new_port:
                         if port.status == "up" and new_port.status == "down":
                             ports_up_to_down.append(new_port)
