@@ -697,11 +697,11 @@ class TEManager:
 
         self._logger.debug(f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}")
 
-        tag_type = 0 if ingress_vlan == "untagged" else 1
+        tag_type = 1 if ingress_vlan == "untagged" else 1
         port_a = VlanTaggedPort(
             VlanTag(value=ingress_vlan, tag_type=tag_type), port_id=ingress_port_id
         )
-        tag_type = 0 if egress_vlan == "untagged" else 1
+        tag_type = 1 if egress_vlan == "untagged" else 1
         port_z = VlanTaggedPort(
             VlanTag(value=egress_vlan, tag_type=tag_type), port_id=egress_port_id
         )
@@ -1210,11 +1210,11 @@ class TEManager:
             # segment["ingress_vlan"] = ingress_vlan
             # segment["egress_vlan"] = egress_vlan
             # upstream_o_vlan = egress_vlan
-            tag_type = 0 if ingress_vlan == "untagged" else 1
+            tag_type = 1 if ingress_vlan == "untagged" else 1
             port_a = VlanTaggedPort(
                 VlanTag(value=ingress_vlan, tag_type=tag_type), port_id=ingress_port_id
             )
-            tag_type = 0 if egress_vlan == "untagged" else 1
+            tag_type = 1 if egress_vlan == "untagged" else 1
             port_z = VlanTaggedPort(
                 VlanTag(value=egress_vlan, tag_type=tag_type), port_id=egress_port_id
             )
