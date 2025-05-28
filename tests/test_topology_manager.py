@@ -169,7 +169,7 @@ class TopologyManagerTests(unittest.TestCase):
         new_topology = self.topology_manager.get_topology()
 
         # Get the topology diff
-        _, _, removed_links, _ = self.topology_manager.topology_diff(
+        _, _, removed_links, _, _, _ = self.topology_manager.topology_diff(
             old_topology, new_topology
         )
 
@@ -203,6 +203,8 @@ class TopologyManagerTests(unittest.TestCase):
                 added_nodes_list,
                 removed_links_list,
                 added_links_list,
+                uni_ports_up_to_down,
+                uni_ports_down_to_up,
             ) = self.topology_manager.update_topology(topology_data)
 
         self.assertEqual(len(removed_links_list), 1)

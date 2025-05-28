@@ -288,6 +288,31 @@ class TopologyManager:
             self._logger.info("No down links detected.")
         return down_links
 
+    def get_uni_ports_status_changed(self, old_topology, topology):
+        """
+        Get the ports that have changed status from up to down or vice versa.
+
+        Returns two lists:
+        - ports_up_to_down: Ports whose status changed from up to down.
+        - ports_down_to_up: Ports whose status changed from down to up.
+        """
+        ports_up_to_down = []
+        ports_down_to_up = []
+
+        port_link_map = self.topology_manager.get_port_link_map()
+
+        for node in old_topology.nodes:
+            for port in node.ports:
+                if port not in port_link_map:  # only count for uni ports
+                    new_port = topology.get_port_obj_by_id(port.id)
+                    if new_port:
+                        if port.status == "up" and new_port.status == "down":
+                            ports_up_to_down.append(new_port)
+                        elif port.status == "down" and new_port.status == "up":
+                            ports_down_to_up.append(new_port)
+
+        return ports_up_to_down, ports_down_to_up
+
     def get_up_links(self, old_topology, topology):
         """
         Get the links that are down in the new topology.
@@ -370,11 +395,18 @@ class TopologyManager:
         for link in up_links:
             added_links_list.append(link)
 
+        # getting the uni port list with statuse changed
+        uni_ports_up_to_down, uni_ports_down_to_up = self.get_uni_ports_status_changed(
+            old_topology, topology
+        )
+
         return (
             removed_nodes_list,
             added_nodes_list,
             removed_links_list,
             added_links_list,
+            uni_ports_up_to_down,
+            uni_ports_down_to_up,
         )
 
     def update_topology(self, data):
@@ -428,9 +460,14 @@ class TopologyManager:
                 self._port_link_map[port_id] = link
 
         # extract the changes for controller rerouting actions: link removal and link down
-        (removed_nodes_list, added_nodes_list, removed_links_list, added_links_list) = (
-            self.topology_diff(old_topology, topology)
-        )
+        (
+            removed_nodes_list,
+            added_nodes_list,
+            removed_links_list,
+            added_links_list,
+            uni_ports_up_to_down,
+            uni_ports_down_to_up,
+        ) = self.topology_diff(old_topology, topology)
 
         if topology.version > old_topology.version:
             self.update_version(True)
@@ -455,6 +492,8 @@ class TopologyManager:
             added_nodes_list,
             removed_links_list,
             added_links_list,
+            uni_ports_up_to_down,
+            uni_ports_down_to_up,
         )
 
     def update_version(self, sub: bool):
