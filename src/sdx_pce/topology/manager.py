@@ -299,8 +299,6 @@ class TopologyManager:
         ports_up_to_down = []
         ports_down_to_up = []
 
-        port_link_map = self.topology_manager.get_port_link_map()
-
         for node in old_topology.nodes:
             for port in node.ports:
                 if port not in port_link_map:  # only count for uni ports
