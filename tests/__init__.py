@@ -42,6 +42,7 @@ class TestData:
     )
 
     TOPOLOGY_FILE_SAX_2 = TEST_DATA_DIR / "sax-2.json"
-    TOPOLOGY_FILE_SAX_v2_UPDATE = TEST_DATA_DIR / "sax-2-update.json"
+    TOPOLOGY_FILE_SAX_2_UPDATE = TEST_DATA_DIR / "sax-2-update.json"
+    TOPOLOGY_FILE_SAX_V2_UPDATE = TEST_DATA_DIR / "sax_v2_update.json"
     CONNECTION_REQ_FILE_SAX_2_INVALID = TEST_DATA_DIR / "sax-2-request-invalid.json"
     CONNECTION_REQ_FILE_SAX_2_VALID = TEST_DATA_DIR / "sax-2-request-valid.json"
