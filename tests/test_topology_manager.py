@@ -31,7 +31,8 @@ class TopologyManagerTests(unittest.TestCase):
         TestData.TOPOLOGY_FILE_ZAOXI_v2,
         TestData.TOPOLOGY_FILE_SAX_v2,
     ]
-    TOPOLOGY_FILE_LIST_UPDATE = [TestData.TOPOLOGY_FILE_SAX_v2_UPDATE]
+    TOPOLOGY_FILE_LIST_UPDATE = [TestData.TOPOLOGY_FILE_SAX_2_UPDATE]
+    TOPOLOGY_V2_FILE_LIST_UPDATE = [TestData.TOPOLOGY_FILE_SAX_V2_UPDATE]
 
     LINK_ID = "urn:sdx:link:amlight.net:B1-B2"
     INTER_LINK_ID = "urn:sdx:link:zaoxi.net:A1-B2"
@@ -169,7 +170,7 @@ class TopologyManagerTests(unittest.TestCase):
         new_topology = self.topology_manager.get_topology()
 
         # Get the topology diff
-        _, _, removed_links, _ = self.topology_manager.topology_diff(
+        _, _, removed_links, _, _, _ = self.topology_manager.topology_diff(
             old_topology, new_topology
         )
 
@@ -203,10 +204,34 @@ class TopologyManagerTests(unittest.TestCase):
                 added_nodes_list,
                 removed_links_list,
                 added_links_list,
+                uni_ports_up_to_down,
+                uni_ports_down_to_up,
             ) = self.topology_manager.update_topology(topology_data)
 
         self.assertEqual(len(removed_links_list), 1)
         self.assertEqual(len(added_links_list), 7)
+
+    def test_update_topology_uni_v2(self):
+        print("Test Topology Update!")
+
+        self.test_merge_topology_v2()
+
+        print(f"len of links: {len(self.topology_manager.get_topology().links)}")
+
+        for topology_file in self.TOPOLOGY_V2_FILE_LIST_UPDATE:
+            print(f"Updating topology: {topology_file}")
+            topology_data = json.loads(pathlib.Path(topology_file).read_text())
+            (
+                removed_nodes_list,
+                added_nodes_list,
+                removed_links_list,
+                added_links_list,
+                uni_ports_up_to_down,
+                uni_ports_down_to_up,
+            ) = self.topology_manager.update_topology(topology_data)
+
+        print(f"up ports: {uni_ports_up_to_down}")
+        self.assertEqual(len(uni_ports_up_to_down), 1)
 
     def test_grenml_converter(self):
         print("Test Topology GRENML Converter")

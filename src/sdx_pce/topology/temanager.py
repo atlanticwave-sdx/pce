@@ -110,9 +110,14 @@ class TEManager:
         residul_bw = self.topology_manager.get_residul_bandwidth()
 
         # Update the topology
-        (removed_nodes_list, added_nodes_list, removed_links_list, added_links_list) = (
-            self.topology_manager.update_topology(topology_data)
-        )
+        (
+            removed_nodes_list,
+            added_nodes_list,
+            removed_links_list,
+            added_links_list,
+            uni_ports_up_to_down,
+            uni_ports_down_to_up,
+        ) = self.topology_manager.update_topology(topology_data)
 
         if not (
             len(added_nodes_list) == 0
@@ -150,6 +155,8 @@ class TEManager:
             added_nodes_list,
             removed_links_list,
             added_links_list,
+            uni_ports_up_to_down,
+            uni_ports_down_to_up,
         )
 
     def update_available_bw_in_topology(self, bw_table: dict):
@@ -697,11 +704,11 @@ class TEManager:
 
         self._logger.debug(f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}")
 
-        tag_type = 0 if ingress_vlan == "untagged" else 1
+        tag_type = 1 if ingress_vlan == "untagged" else 1
         port_a = VlanTaggedPort(
             VlanTag(value=ingress_vlan, tag_type=tag_type), port_id=ingress_port_id
         )
-        tag_type = 0 if egress_vlan == "untagged" else 1
+        tag_type = 1 if egress_vlan == "untagged" else 1
         port_z = VlanTaggedPort(
             VlanTag(value=egress_vlan, tag_type=tag_type), port_id=egress_port_id
         )
@@ -1210,11 +1217,11 @@ class TEManager:
             # segment["ingress_vlan"] = ingress_vlan
             # segment["egress_vlan"] = egress_vlan
             # upstream_o_vlan = egress_vlan
-            tag_type = 0 if ingress_vlan == "untagged" else 1
+            tag_type = 1 if ingress_vlan == "untagged" else 1
             port_a = VlanTaggedPort(
                 VlanTag(value=ingress_vlan, tag_type=tag_type), port_id=ingress_port_id
             )
-            tag_type = 0 if egress_vlan == "untagged" else 1
+            tag_type = 1 if egress_vlan == "untagged" else 1
             port_z = VlanTaggedPort(
                 VlanTag(value=egress_vlan, tag_type=tag_type), port_id=egress_port_id
             )
