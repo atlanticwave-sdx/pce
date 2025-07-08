@@ -527,6 +527,37 @@ class TEManager:
                 412,
             )
 
+        # if one of the ingress_port and egress_port is a nni port between domains, we need to
+        # reject this request by throwing RequestValidationError
+
+        ingress_topology_id = self.topology_manager.get_domain_name(ingress_node.id)
+        ingress_topology = self.topology_manager._topology_map.get(ingress_topology_id)
+        ingress_topology_port = self.topology_manager.get_port_obj_by_id(
+            ingress_topology, ingress_port.id
+        )
+        if self.topology_manager.is_interdomain_port(
+            ingress_topology_port.nni, ingress_topology_id
+        ):
+            self._logger.warning(f"Ingress_port is a NNI port: {ingress_port.id}")
+            raise RequestValidationError(
+                f"Ingress_port is a NNI port: {ingress_port.id}",
+                412,
+            )
+        egress_topology_id = self.topology_manager.get_domain_name(egress_node.id)
+        egress_topology = self.topology_manager._topology_map.get(egress_topology_id)
+        egress_topology_port = self.topology_manager.get_port_obj_by_id(
+            egress_topology, egress_port.id
+        )
+        if self.topology_manager.is_interdomain_port(
+            egress_topology_port.nni, egress_topology_id
+        ):
+            self._logger.warning(f"Egress_port is a NNI port: {egress_port.id}")
+            raise RequestValidationError(
+                f"Egress_port is a NNI port: {egress_port.id}",
+                412,
+            )
+
+        # Now a valid request can be taken
         required_bandwidth = request.bandwidth_required or 0
         required_latency = request.latency_required or float("inf")
         request_id = request.id
