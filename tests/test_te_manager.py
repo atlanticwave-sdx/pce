@@ -1740,6 +1740,43 @@ class TEManagerTests(unittest.TestCase):
         self.maxDiff = None
         self.assertEqual(breakdown, expected_breakdown)
 
+    def test_three_domains_v2_nni_reject(self):
+        """
+        Test when requests are for a range like [n:m], and port
+        allocations span multiple domains.
+        """
+
+        connection_request = {
+            "name": "vlan-range-three-domains",
+            "id": "id-vlan-range-three-domains",
+            "endpoints": [
+                {"port_id": "urn:sdx:port:tenet.ac.za:Tenet01:41", "vlan": "100"},
+                {"port_id": "urn:sdx:port:sax.net:Sax01:40", "vlan": "100"},
+            ],
+        }
+
+        temanager = TEManager(topology_data=None)
+
+        for topology_file in [
+            TestData.TOPOLOGY_FILE_AMLIGHT_v2,
+            TestData.TOPOLOGY_FILE_ZAOXI_v2,
+            TestData.TOPOLOGY_FILE_SAX_v2,
+        ]:
+            temanager.add_topology(json.loads(topology_file.read_text()))
+
+        try:
+            graph = temanager.generate_graph_te()
+            self.assertIsNotNone(graph)
+
+            temanager.generate_traffic_matrix(connection_request)
+        except RequestValidationError as e:
+            print(f"Request validation error: {e}")
+            self.assertTrue(
+                "is a NNI port" in str(e),
+                "Expected NNI connection request rejection",
+            )
+            return
+
     def test_vlan_range_three_domains(self):
         """
         Test when requests are for a range like [n:m], and port
