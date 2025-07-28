@@ -587,6 +587,8 @@ class TopologyManager:
                 availability=100,
             )
             self._topology.add_links([link])
+            self._port_link_map[port1.id] = link
+            self._port_link_map[port2.id] = link
 
         link.status = self.status_map.get((port1.status, port2.status), "down")
         link.state = self.state_map.get((port1.state, port2.state), "disabled")
