@@ -713,7 +713,7 @@ class TopologyManager:
             link = topology.get_link_by_id(link_id)
             if link is not None:
                 setattr(link, property, value)
-                self._logger.info("updated the link.")
+                self._logger.debug("updated the link.")
                 # 1.2 need to change the sub_ver of the topology?
 
         # 2. check on the inter-domain link?
