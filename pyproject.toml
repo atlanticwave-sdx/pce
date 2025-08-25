@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "sdx-pce"
-version = "3.1.0.dev4"
+version = "3.1.0.dev10"
 description = "Heuristic and Optimal Algorithms for CSP and TE Computation"
 authors = [
     { name = "Yufeng Xin", email = "yxin@renci.org" },
@@ -29,7 +29,7 @@ dependencies = [
     "prtpy",
     "pydot",
     "dataclasses-json",
-    "sdx-datamodel @ git+https://github.com/atlanticwave-sdx/datamodel@3.0.0.dev11",
+    "sdx-datamodel @ git+https://github.com/atlanticwave-sdx/datamodel@3.0.0.dev12",
 ]
 
 [project.urls]
