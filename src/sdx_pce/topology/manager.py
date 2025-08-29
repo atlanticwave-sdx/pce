@@ -286,7 +286,7 @@ class TopologyManager:
                                 )
                             down_links.append(link)
                             self._logger.debug(
-                                f"Down links detected due to a down port: {new_link.id}:{port_id}"
+                                f"Down links detected due to a down port: {link.id}:{port_id}"
                             )
                             break
         if down_links:
