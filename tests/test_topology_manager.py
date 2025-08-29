@@ -230,8 +230,8 @@ class TopologyManagerTests(unittest.TestCase):
                 uni_ports_down_to_up,
             ) = self.topology_manager.update_topology(topology_data)
 
-        print(f"up ports: {uni_ports_up_to_down}")
         self.assertEqual(len(uni_ports_up_to_down), 1)
+        self.assertEqual(len(removed_links_list), 2)
 
     def test_grenml_converter(self):
         print("Test Topology GRENML Converter")
