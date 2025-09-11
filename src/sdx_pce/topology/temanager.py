@@ -334,7 +334,7 @@ class TEManager:
             # TODO: why is label_range sometimes None, and what to
             # do when that happens?
             if label_range is None:
-                self._logger.info(f"label_range on {port.id} is None")
+                self._logger.warning(f"label_range on {port.id} is None")
                 continue
 
             # label_range is of the form ['100-200', '1000']; let
@@ -652,7 +652,7 @@ class TEManager:
                     continue
 
                 p1, p2 = self._get_ports_by_link(link)
-                self._logger.info(f"get_links_on_path: ports: {p1}, {p2}")
+                self._logger.debug(f"get_links_on_path: ports: {p1}, {p2}")
 
                 if p1 and p2:
                     result.append({"source": p1.get("id"), "destination": p2.get("id")})
@@ -792,7 +792,7 @@ class TEManager:
                 src_node = self.graph.nodes.get(link.source)
                 dst_node = self.graph.nodes.get(link.destination)
 
-                self._logger.info(
+                self._logger.debug(
                     f"source node: {src_node}, destination node: {dst_node}"
                 )
 
@@ -807,7 +807,7 @@ class TEManager:
 
                 # TODO: what do we do when a domain can't be
                 # determined? Can a domain be `None`?
-                self._logger.info(
+                self._logger.debug(
                     f"source domain: {src_domain}, destination domain: {dst_domain}"
                 )
 
@@ -855,10 +855,10 @@ class TEManager:
             connection_request = (
                 ConnectionHandler().import_connection_data(connection_request).to_dict()
             )
-            self._logger.info(
+            self._logger.debug(
                 f'connection_request ingress_port: {connection_request["ingress_port"]["id"]}'
             )
-            self._logger.info(
+            self._logger.debug(
                 f'connection_request egress_port: {connection_request["egress_port"]["id"]}'
             )
             # flag to indicate if the request ingress and egress ports
@@ -924,7 +924,7 @@ class TEManager:
                     egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
                     if same_domain_port_flag:
                         egress_port = next_ingress_port
-                self._logger.info(
+                self._logger.debug(
                     f"ingress_port:{ingress_port}, egress_port:{egress_port}, next_ingress_port:{next_ingress_port}"
                 )
             elif i == len(breakdown) - 1:
@@ -943,8 +943,8 @@ class TEManager:
                 else:
                     _, egress_port = self._get_ports_by_link(links[-1])
 
-                self._logger.info(f"links[-1]: {links[-1]}")
-                self._logger.info(
+                self._logger.debug(f"links[-1]: {links[-1]}")
+                self._logger.debug(
                     f"ingress_port:{ingress_port}, egress_port:{egress_port}"
                 )
             else:
@@ -1130,7 +1130,7 @@ class TEManager:
                 downstream_ingress["id"],
                 connection_request,
             )
-            self._logger.info(
+            self._logger.debug(
                 f"upstream_egress_vlan: {upstream_egress_vlan}; upstream_egress: {upstream_egress}; downstream_ingress: {downstream_ingress}"
             )
             if upstream_egress_vlan is None:

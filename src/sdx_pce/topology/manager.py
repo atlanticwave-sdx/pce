@@ -222,24 +222,30 @@ class TopologyManager:
             return False
         return port_id.split(":")[3] != topology_id.split(":")[3]
 
-    def get_down_nni_links(self, topology):
+    def get_down_nni_links(self, old_topology, topology):
         down_nni_links = []
         for node in topology.nodes:
             for port in node.ports:
-                if port.nni and port.status == "down":
-                    old_port = self.get_port_obj_by_id(self._topology, port.id)
+                if (
+                    self.is_interdomain_port(port.nni, topology.id)
+                    and port.status == "down"
+                ):
+                    old_port = self.get_port_obj_by_id(old_topology, port.id)
                     if old_port and old_port.status == "up":
                         link = self._port_link_map.get(port.id)
                         if link and link not in down_nni_links:
                             down_nni_links.append(link)
         return down_nni_links
 
-    def get_up_nni_links(self, topology):
+    def get_up_nni_links(self, old_topology, topology):
         up_nni_links = []
         for node in topology.nodes:
             for port in node.ports:
-                if port.nni and port.status == "up":
-                    old_port = self.get_port_obj_by_id(self._topology, port.id)
+                if (
+                    self.is_interdomain_port(port.nni, topology.id)
+                    and port.status == "up"
+                ):
+                    old_port = self.get_port_obj_by_id(old_topology, port.id)
                     if old_port and old_port.status == "down":
                         link = self._port_link_map.get(port.id)
                         if link and link not in up_nni_links:
@@ -279,6 +285,9 @@ class TopologyManager:
                                     new_link.id, "status", "down"
                                 )
                             down_links.append(link)
+                            self._logger.debug(
+                                f"Down links detected due to a down port: {link.id}:{port_id}"
+                            )
                             break
         if down_links:
             self._logger.info(
@@ -411,6 +420,9 @@ class TopologyManager:
 
     def update_topology(self, data):
         # likely adding new inter-domain links
+
+        self._logger.debug("Warning: update topology!")
+
         update_handler = TopologyHandler()
         topology = update_handler.import_topology_data(data)
         old_topology = self._topology_map.get(topology.id)
@@ -474,15 +486,15 @@ class TopologyManager:
         if topology.timestamp != old_topology.timestamp:
             self.update_timestamp()
 
-        # extra link status changes: up <-> down that is associated with nni port status changes: up <-> down
+        # extra link status changes: up <-> down that is associated with inter-domain nni port status changes: up <-> down
         # comparing with the global topology to catch nni links
 
-        get_down_nni_links = self.get_down_nni_links(topology)
+        get_down_nni_links = self.get_down_nni_links(old_topology, topology)
         for link in get_down_nni_links:
             if link not in removed_links_list:
                 removed_links_list.append(link)
 
-        get_up_nni_links = self.get_up_nni_links(topology)
+        get_up_nni_links = self.get_up_nni_links(old_topology, topology)
         for link in get_up_nni_links:
             if link not in added_links_list:
                 added_links_list.append(link)
@@ -569,10 +581,15 @@ class TopologyManager:
         port2_id = port2.id.replace("urn:sdx:port:", "", 1)
         link_id = f"urn:sdx:link:interdomain:{port1_id}:{port2_id}"
 
+        existing_link = False
+
         for link in self._topology.links:
             if link_id == link.id:
+                link.status = self.status_map.get((port1.status, port2.status), "down")
+                link.state = self.state_map.get((port1.state, port2.state), "disabled")
+                existing_link = True
                 break
-        else:
+        if not existing_link:
             link = Link(
                 id=link_id,
                 name=f"{port1.name}--{port2.name}",
@@ -586,10 +603,14 @@ class TopologyManager:
                 packet_loss=0,
                 availability=100,
             )
+            link.status = self.status_map.get((port1.status, port2.status), "down")
+            link.state = self.state_map.get((port1.state, port2.state), "disabled")
             self._topology.add_links([link])
-
-        link.status = self.status_map.get((port1.status, port2.status), "down")
-        link.state = self.state_map.get((port1.state, port2.state), "disabled")
+            self._port_link_map[port1.id] = link
+            self._port_link_map[port2.id] = link
+            self._logger.debug(
+                f"Created interdomain link: {link_id},{port1.id}, {port2.id}"
+            )
 
     def add_inter_domain_links(self, topology, interdomain_ports):
         """Add inter-domain links (whenever possible)."""
@@ -695,7 +716,7 @@ class TopologyManager:
             link = topology.get_link_by_id(link_id)
             if link is not None:
                 setattr(link, property, value)
-                self._logger.info("updated the link.")
+                self._logger.debug("updated the link.")
                 # 1.2 need to change the sub_ver of the topology?
 
         # 2. check on the inter-domain link?
