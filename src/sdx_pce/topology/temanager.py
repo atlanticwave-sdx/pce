@@ -203,6 +203,13 @@ class TEManager:
         return connections
 
     @property
+    def connectionSolution_list(self) -> List[ConnectionSolution]:
+        """
+        Return the list of connection solutions.
+        """
+        return self._connectionSolution_list
+
+    @property
     def vlan_tags_table(self) -> dict:
         """
         Return the current VLAN tags table.
@@ -975,7 +982,7 @@ class TEManager:
             f"egress_user_port: {egress_user_port}"
         )
 
-        tagged_breakdown = self.reserve_vlan_breakdown(
+        tagged_breakdown = self._reserve_vlan_breakdown(
             domain_breakdown=domain_breakdown,
             connection_request=connection_request,
             ingress_user_port=ingress_user_port,
@@ -1057,7 +1064,7 @@ class TEManager:
         - unreserve the vlan when the path is removed
     """
 
-    def reserve_vlan_breakdown(
+    def _reserve_vlan_breakdown(
         self,
         domain_breakdown: dict,
         connection_request: dict,
@@ -1555,6 +1562,10 @@ class TEManager:
         unreserve the VLANs that were reserved for the connection.
         """
         self.unreserve_vlan(request_id)
+        with self._topology_lock:
+            # Update available VLANs in topology
+            self.update_available_vlans(self._vlan_tags_table)
+
         solution = self.get_connection_solution(request_id)
         if solution is None:
             self._logger.warning(f"Can't find a solution for request ID {request_id}")
@@ -1566,8 +1577,6 @@ class TEManager:
         with self._topology_lock:
             # Now it is the time to update the bandwidth of the links after breakdowns are successfully generated
             self.update_link_bandwidth(solution, reduce=False)
-            # Update available VLANs in topology
-            self.update_available_vlans(self._vlan_tags_table)
 
     def get_connection_solution(self, request_id: str) -> Optional[ConnectionSolution]:
         """
