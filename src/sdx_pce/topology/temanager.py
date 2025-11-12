@@ -1057,7 +1057,7 @@ class TEManager:
         - unreserve the vlan when the path is removed
     """
 
-    def _reserve_vlan_breakdown(
+    def reserve_vlan_breakdown(
         self,
         domain_breakdown: dict,
         connection_request: dict,
