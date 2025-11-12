@@ -975,7 +975,7 @@ class TEManager:
             f"egress_user_port: {egress_user_port}"
         )
 
-        tagged_breakdown = self._reserve_vlan_breakdown(
+        tagged_breakdown = self.reserve_vlan_breakdown(
             domain_breakdown=domain_breakdown,
             connection_request=connection_request,
             ingress_user_port=ingress_user_port,
