@@ -742,6 +742,7 @@ class TEManager:
             except UnknownRequestError as err:
                 self._logger.error(f"{err}")
                 raise TEError(f"Can't find a vlan assignment for: {request_id}", 410)
+            raise TEError(f"Can't find a vlan assignment for: {request_id}", 410)
 
         self._logger.debug(f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}")
 
@@ -1218,6 +1219,9 @@ class TEManager:
                     raise TEError(
                         f"Can't find a vlan assignment for: {connection_request}", 410
                     )
+                raise TEError(
+                    f"Can't find a vlan assignment for: {connection_request}", 410
+                )
 
             ingress_port_id = ingress_port["id"]
             egress_port_id = egress_port["id"]
@@ -1567,7 +1571,14 @@ class TEManager:
         This function is used to delete a connection.  It will
         unreserve the VLANs that were reserved for the connection.
         """
-        self.unreserve_vlan(request_id)
+        try:
+            self.unreserve_vlan(request_id=request_id)
+        except UnknownRequestError as err:
+            self._logger.error(f"{err}")
+            raise TEError(
+                f"Can't find a vlan assignment in delete_connection for: {request_id}",
+                410,
+            )
         with self._topology_lock:
             # Update available VLANs in topology
             self.update_available_vlans(self._vlan_tags_table)
