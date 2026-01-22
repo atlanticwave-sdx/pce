@@ -740,6 +740,7 @@ class TEManager:
             try:
                 self.unreserve_vlan(request_id=request_id)
             except UnknownRequestError as err:
+                self._logger.error(f"{err}")
                 raise TEError(f"Can't find a vlan assignment for: {request_id}", 410)
 
         self._logger.debug(f"ingress_vlan: {ingress_vlan}, egress_vlan: {egress_vlan}")
@@ -1213,6 +1214,7 @@ class TEManager:
                 try:
                     self.unreserve_vlan(request_id=request_id)
                 except UnknownRequestError as err:
+                    self._logger.error(f"{err}")
                     raise TEError(
                         f"Can't find a vlan assignment for: {connection_request}", 410
                     )
