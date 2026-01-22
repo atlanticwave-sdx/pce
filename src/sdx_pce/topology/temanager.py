@@ -1555,7 +1555,7 @@ class TEManager:
         # request ID.
         if not found_assignment:
             raise UnknownRequestError(
-                "Unknown connection request", request_id=request_id
+                "Unknown connection request in unreserve_vlan", request_id=request_id
             )
 
     def delete_connection(self, request_id: str):
