@@ -226,11 +226,23 @@ class TopologyManager:
         down_nni_links = []
         for node in topology.nodes:
             for port in node.ports:
+                link_down = False
+                old_port = self.get_port_obj_by_id(old_topology, port.id)
+                if (
+                    old_port is not None
+                    and old_port.nni is not None
+                    and port.nni is None
+                ):
+                    self._logger.warning(
+                        f"Port {port.id} has no NNI in new topology but had one in old topology"
+                    )
+                    link_down = True
                 if (
                     self.is_interdomain_port(port.nni, topology.id)
                     and port.status == "down"
                 ):
-                    old_port = self.get_port_obj_by_id(old_topology, port.id)
+                    link_down = True
+                if link_down:
                     if old_port and old_port.status == "up":
                         link = self._port_link_map.get(port.id)
                         if link and link not in down_nni_links:
