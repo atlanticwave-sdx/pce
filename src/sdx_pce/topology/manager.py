@@ -279,15 +279,25 @@ class TopologyManager:
         up_nni_links = []
         for node in topology.nodes:
             for port in node.ports:
-                if (
-                    self.is_interdomain_port(port.nni, topology.id)
-                    and port.status == "up"
-                ):
+                if self.is_interdomain_port(port.nni, topology.id):
                     old_port = self.get_port_obj_by_id(old_topology, port.id)
-                    if old_port and old_port.status == "down":
+                    if old_port is None:
+                        continue
+                    if port.status == "up":
+                        if old_port.status == "down":
+                            link = self._port_link_map.get(port.id)
+                            if link and link not in up_nni_links:
+                                up_nni_links.append(link)
+                    if port.nni is not None and old_port.nni is None:
                         link = self._port_link_map.get(port.id)
-                        if link and link not in up_nni_links:
-                            up_nni_links.append(link)
+                        if link.status == TopologyStateMachine.STATUS_ERROR:
+                            link = self.update_link_property(
+                                link.id, "status", TopologyStateMachine.STATUS_UP
+                            )
+                            self._logger.warning(
+                                f"Updated link {link.id} status to up due to port {port.id} gaining its NNI"
+                            )
+
         return up_nni_links
 
     def get_down_links(self, old_topology, topology):
