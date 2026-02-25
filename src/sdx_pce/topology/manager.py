@@ -2,9 +2,8 @@ import copy
 import datetime
 import logging
 from typing import Mapping
-import networkx as nx
 
-from sdx_datamodel.topology_sm import TopologyStateMachine
+import networkx as nx
 from sdx_datamodel.models.link import Link
 from sdx_datamodel.models.service import Service
 from sdx_datamodel.models.topology import (
@@ -12,6 +11,7 @@ from sdx_datamodel.models.topology import (
     SDX_TOPOLOGY_ID_prefix,
 )
 from sdx_datamodel.parsing.topologyhandler import TopologyHandler
+from sdx_datamodel.topology_sm import TopologyStateMachine
 
 from sdx_pce.utils.constants import Constants
 
