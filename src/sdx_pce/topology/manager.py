@@ -2,8 +2,9 @@ import copy
 import datetime
 import logging
 from typing import Mapping
-
 import networkx as nx
+
+from sdx_datamodel.topology_sm import TopologyStateMachine
 from sdx_datamodel.models.link import Link
 from sdx_datamodel.models.service import Service
 from sdx_datamodel.models.topology import (
@@ -233,10 +234,35 @@ class TopologyManager:
                     and old_port.nni is not None
                     and port.nni is None
                 ):
-                    self._logger.warning(
-                        f"Port {port.id} has no NNI in new topology but had one in old topology"
+                    error_link = self._topology.get_link_by_port_id(
+                        old_port.id, old_port.nni
                     )
-                    link_down = True
+                    self._logger.warning(
+                        f"Port {port.id} has no NNI in new topology but had one in old topology; "
+                        f"error link: {error_link.id if error_link else 'None'}"
+                    )
+                    if error_link:
+                        old_nni_port = self.get_port_obj_by_id(
+                            self._topology, old_port.nni
+                        )
+                        old_nni_port_nni = old_nni_port.nni if old_nni_port else None
+                        # if only one port's nni is lost, we consider the link is down and update the link status to error;
+                        # if both ports' nni are lost, we consider the link is removed and will be handled in the link removal process,
+                        # so we do not update the link status to error here to avoid duplicated handling of the same link
+                        if old_nni_port_nni is not None:
+                            error_link = self.update_link_property(
+                                error_link.id,
+                                "status",
+                                TopologyStateMachine.STATUS_ERROR,
+                            )
+                            self._logger.warning(
+                                f"Updated link {error_link.id} status to error due to port {port.id} losing its NNI"
+                            )
+                        else:
+                            self._logger.warning(
+                                f"NNI port {old_port.nni} associated with port {port.id} not found in topology; cannot update link status"
+                            )
+                            link_down = True
                 if (
                     self.is_interdomain_port(port.nni, topology.id)
                     and port.status == "down"
