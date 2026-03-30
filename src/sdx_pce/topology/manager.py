@@ -229,6 +229,9 @@ class TopologyManager:
             for port in node.ports:
                 link_down = False
                 old_port = self.get_port_obj_by_id(old_topology, port.id)
+                self._logger.debug(
+                    f"nnicheck for port {port.id}: old_port={old_port.nni if old_port else None}, new_port={port.nni if port else None}"
+                )
                 if (
                     old_port is not None
                     and old_port.nni is not None
@@ -536,7 +539,7 @@ class TopologyManager:
 
         # extra link status changes: up <-> down that is associated with inter-domain nni port status changes: up <-> down
         # comparing with the global topology to catch nni links
-
+        self._logger.info("Check nni links!")
         get_down_nni_links = self.get_down_nni_links(old_topology, topology)
         for link in get_down_nni_links:
             if link not in removed_links_list:
