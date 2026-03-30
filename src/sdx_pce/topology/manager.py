@@ -253,7 +253,7 @@ class TopologyManager:
                             error_link = self.update_link_property(
                                 error_link.id,
                                 "status",
-                                TopologyStateMachine.STATUS_ERROR,
+                                TopologyStateMachine.STATE.ERROR,
                             )
                             self._logger.warning(
                                 f"Updated link {error_link.id} status to error due to port {port.id} losing its NNI"
@@ -262,7 +262,7 @@ class TopologyManager:
                             self._logger.warning(
                                 f"NNI port {old_port.nni} associated with port {port.id} not found in topology; cannot update link status"
                             )
-                            link_down = True
+                            # link_down = True
                 if (
                     self.is_interdomain_port(port.nni, topology.id)
                     and port.status == "down"
@@ -290,9 +290,9 @@ class TopologyManager:
                                 up_nni_links.append(link)
                     if port.nni is not None and old_port.nni is None:
                         link = self._port_link_map.get(port.id)
-                        if link.status == TopologyStateMachine.STATUS_ERROR:
+                        if link.status == TopologyStateMachine.STATE.ERROR:
                             link = self.update_link_property(
-                                link.id, "status", TopologyStateMachine.STATUS_UP
+                                link.id, "status", TopologyStateMachine.STATE.UP
                             )
                             self._logger.warning(
                                 f"Updated link {link.id} status to up due to port {port.id} gaining its NNI"
