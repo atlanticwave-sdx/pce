@@ -256,7 +256,7 @@ class TopologyManager:
                             error_link = self.update_link_property(
                                 error_link.id,
                                 "status",
-                                TopologyStateMachine.STATE.ERROR,
+                                TopologyStateMachine.State.ERROR,
                             )
                             self._logger.warning(
                                 f"Updated link {error_link.id} status to error due to port {port.id} losing its NNI"
@@ -291,11 +291,11 @@ class TopologyManager:
                             link = self._port_link_map.get(port.id)
                             if link and link not in up_nni_links:
                                 up_nni_links.append(link)
-                    if port.nni is not None and old_port.nni is None:
+                    if port.nni not in (None, "") and old_port.nni in (None, ""):
                         link = self._port_link_map.get(port.id)
-                        if link.status == TopologyStateMachine.STATE.ERROR:
+                        if link.status == TopologyStateMachine.State.ERROR:
                             link = self.update_link_property(
-                                link.id, "status", TopologyStateMachine.STATE.UP
+                                link.id, "status", TopologyStateMachine.State.UP
                             )
                             self._logger.warning(
                                 f"Updated link {link.id} status to up due to port {port.id} gaining its NNI"
