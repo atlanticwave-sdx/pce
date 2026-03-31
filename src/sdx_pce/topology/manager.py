@@ -234,8 +234,8 @@ class TopologyManager:
                 )
                 if (
                     old_port is not None
-                    and old_port.nni is not None
-                    and port.nni is None
+                    and old_port.nni not in (None, "")
+                    and port.nni in (None, "")
                 ):
                     error_link = self._topology.get_link_by_port_id(
                         old_port.id, old_port.nni
@@ -252,7 +252,7 @@ class TopologyManager:
                         # if only one port's nni is lost, we consider the link is down and update the link status to error;
                         # if both ports' nni are lost, we consider the link is removed and will be handled in the link removal process,
                         # so we do not update the link status to error here to avoid duplicated handling of the same link
-                        if old_nni_port_nni is not None:
+                        if old_nni_port_nni not in (None, ""):
                             error_link = self.update_link_property(
                                 error_link.id,
                                 "status",
