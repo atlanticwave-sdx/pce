@@ -1280,11 +1280,7 @@ class TEManager:
             domain_name = domain.split(":")[-1].split(".")[0].upper()
             name = f"{domain_name}_vlan_{ingress_vlan}_{egress_vlan}"
 
-            breakdown_key = domain
-            if breakdown_key in breakdowns:
-                breakdown_key = f"{domain}__{len(breakdowns)}"
-
-            breakdowns[breakdown_key] = VlanTaggedBreakdown(
+            breakdowns[domain] = VlanTaggedBreakdown(
                 name=name,
                 dynamic_backup_path=True,
                 uni_a=port_a,

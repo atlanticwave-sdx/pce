@@ -2137,7 +2137,7 @@ class TEManagerTests(unittest.TestCase):
             reserved_vlans_amlight["urn:sdx:port:ampath.net:Ampath1:50"][150]
         )
         self.assertIn("urn:sdx:port:sax.net:Sax01:41", reserved_vlans_sax)
-        self.assertIsNotNone(reserved_vlans_sax["urn:sdx:port:sax.net:Sax01:41"][1])
+        self.assertIsNotNone(reserved_vlans_sax["urn:sdx:port:sax.net:Sax01:41"][150])
 
         # Update available VLANs
         temanager.update_available_vlans(temanager._vlan_tags_table)
@@ -2152,7 +2152,7 @@ class TEManagerTests(unittest.TestCase):
             reserved_vlans_amlight["urn:sdx:port:ampath.net:Ampath1:50"][150]
         )
         self.assertIn("urn:sdx:port:sax.net:Sax01:40", reserved_vlans_sax)
-        self.assertIsNotNone(reserved_vlans_sax["urn:sdx:port:sax.net:Sax01:40"][1])
+        self.assertIsNotNone(reserved_vlans_sax["urn:sdx:port:sax.net:Sax01:40"][150])
 
         # Verify the 'vlan_range' property of the 'service' property in the corresponding port
         amlight_port = temanager.topology_manager.get_port_obj_by_id(
@@ -2187,13 +2187,13 @@ class TEManagerTests(unittest.TestCase):
             reserved_vlans_amlight["urn:sdx:port:ampath.net:Ampath1:50"][150]
         )
         self.assertIn("urn:sdx:port:sax.net:Sax01:40", reserved_vlans_sax)
-        self.assertIsNone(reserved_vlans_sax["urn:sdx:port:sax.net:Sax01:40"][1])
+        self.assertIsNone(reserved_vlans_sax["urn:sdx:port:sax.net:Sax01:40"][150])
 
         low, high = amlight_port.services.l2vpn_ptp["vlan_range"][0].split("-")
         self.assertTrue(int(low) <= 150 <= int(high))
 
         low, high = sax_port.services.l2vpn_ptp["vlan_range"][0].split("-")
-        self.assertTrue(int(low) <= 1 <= int(high))
+        self.assertTrue(int(low) <= 150 <= int(high))
 
     def test_update_available_vlans_basic_checks(self):
         """
