@@ -11,6 +11,7 @@ from sdx_datamodel.models.topology import (
     SDX_TOPOLOGY_ID_prefix,
 )
 from sdx_datamodel.parsing.topologyhandler import TopologyHandler
+from sdx_datamodel.topology_sm import TopologyStateMachine
 
 from sdx_pce.utils.constants import Constants
 
@@ -226,11 +227,51 @@ class TopologyManager:
         down_nni_links = []
         for node in topology.nodes:
             for port in node.ports:
+                link_down = False
+                old_port = self.get_port_obj_by_id(old_topology, port.id)
+                self._logger.debug(
+                    f"nnicheck for port {port.id}: old_port={old_port.nni if old_port else None}, new_port={port.nni if port else None}"
+                )
+                if (
+                    old_port is not None
+                    and old_port.nni not in (None, "")
+                    and port.nni in (None, "")
+                ):
+                    error_link = self._topology.get_link_by_port_id(
+                        old_port.id, old_port.nni
+                    )
+                    self._logger.warning(
+                        f"Port {port.id} has no NNI in new topology but had one in old topology; "
+                        f"error link: {error_link.id if error_link else 'None'}"
+                    )
+                    if error_link:
+                        old_nni_port = self.get_port_obj_by_id(
+                            self._topology, old_port.nni
+                        )
+                        old_nni_port_nni = old_nni_port.nni if old_nni_port else None
+                        # if only one port's nni is lost, we consider the link is down and update the link status to error;
+                        # if both ports' nni are lost, we consider the link is removed and will be handled in the link removal process,
+                        # so we do not update the link status to error here to avoid duplicated handling of the same link
+                        if old_nni_port_nni not in (None, ""):
+                            error_link = self.update_link_property(
+                                error_link.id,
+                                "status",
+                                str(TopologyStateMachine.State.ERROR).lower(),
+                            )
+                            self._logger.warning(
+                                f"Updated link {error_link.id} status to error due to port {port.id} losing its NNI"
+                            )
+                        else:
+                            self._logger.warning(
+                                f"NNI port {old_port.nni} associated with port {port.id} not found in topology; cannot update link status"
+                            )
+                            # link_down = True
                 if (
                     self.is_interdomain_port(port.nni, topology.id)
                     and port.status == "down"
                 ):
-                    old_port = self.get_port_obj_by_id(old_topology, port.id)
+                    link_down = True
+                if link_down:
                     if old_port and old_port.status == "up":
                         link = self._port_link_map.get(port.id)
                         if link and link not in down_nni_links:
@@ -241,15 +282,27 @@ class TopologyManager:
         up_nni_links = []
         for node in topology.nodes:
             for port in node.ports:
-                if (
-                    self.is_interdomain_port(port.nni, topology.id)
-                    and port.status == "up"
-                ):
+                if self.is_interdomain_port(port.nni, topology.id):
                     old_port = self.get_port_obj_by_id(old_topology, port.id)
-                    if old_port and old_port.status == "down":
+                    if old_port is None:
+                        continue
+                    if port.status == "up":
+                        if old_port.status == "down":
+                            link = self._port_link_map.get(port.id)
+                            if link and link not in up_nni_links:
+                                up_nni_links.append(link)
+                    if port.nni not in (None, "") and old_port.nni in (None, ""):
                         link = self._port_link_map.get(port.id)
-                        if link and link not in up_nni_links:
-                            up_nni_links.append(link)
+                        if link.status == str(TopologyStateMachine.State.ERROR).lower():
+                            link = self.update_link_property(
+                                link.id,
+                                "status",
+                                str(TopologyStateMachine.State.UP).lower(),
+                            )
+                            self._logger.warning(
+                                f"Updated link {link.id} status to up due to port {port.id} gaining its NNI"
+                            )
+
         return up_nni_links
 
     def get_down_links(self, old_topology, topology):
@@ -488,7 +541,7 @@ class TopologyManager:
 
         # extra link status changes: up <-> down that is associated with inter-domain nni port status changes: up <-> down
         # comparing with the global topology to catch nni links
-
+        self._logger.info("Check nni links!")
         get_down_nni_links = self.get_down_nni_links(old_topology, topology)
         for link in get_down_nni_links:
             if link not in removed_links_list:
