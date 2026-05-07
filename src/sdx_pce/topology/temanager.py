@@ -785,13 +785,17 @@ class TEManager:
             self._logger.warning(f"Can't find a TE solution for {connection_request}")
             raise TEError(f"Can't find a TE solution for: {connection_request}", 410)
 
-        breakdown = {}
+        # Keep path order and allow the same domain to appear more than once.
+        # A dict collapses paths such as tenet -> sax -> tenet into one
+        # tenet segment, which corrupts alternate-path breakdown generation.
+        breakdown = []
         paths = solution.connection_map  # p2p for now
 
         for domain, links in paths.items():
             self._logger.info(f"domain: {domain}, links: {links}")
 
             current_link_set = []
+            current_domain = None
 
             for count, link in enumerate(links):
                 self._logger.info(f"count: {count}, link: {link}")
@@ -827,13 +831,13 @@ class TEManager:
                 if src_domain == dst_domain:
                     # current_domain = domain_1
                     if count == len(links) - 1:
-                        breakdown[current_domain] = current_link_set.copy()
+                        breakdown.append((current_domain, current_link_set.copy()))
                 else:
-                    breakdown[current_domain] = current_link_set.copy()
+                    breakdown.append((current_domain, current_link_set.copy()))
                     if count == len(links) - 1:
                         current_link_set = []
                         current_link_set.append(link)
-                        breakdown[dst_domain] = current_link_set.copy()
+                        breakdown.append((dst_domain, current_link_set.copy()))
                     current_domain = None
                     current_link_set = []
 
@@ -842,12 +846,7 @@ class TEManager:
         # now starting with the ingress_port
         first = True
         i = 0
-        domain_breakdown = {}
-
-        # TODO: using dict to represent a breakdown is dubious, and
-        # may lead to incorrect results.  Dicts are lexically ordered,
-        # and that may break some assumptions about the order in which
-        # we form and traverse the breakdown.
+        domain_breakdown = []
 
         # Note: Extra flag to indicate if the connection request is in
         # the format of TrafficMatrix or not.
@@ -891,7 +890,7 @@ class TEManager:
             ingress_user_port = connection_request.get("ingress_port")
             egress_user_port = connection_request.get("egress_port")
 
-        for domain, links in breakdown.items():
+        for domain, links in breakdown:
             self._logger.debug(
                 f"Creating domain_breakdown: domain: {domain}, links: {links}"
             )
@@ -922,6 +921,7 @@ class TEManager:
                 if (
                     not request_format_is_tm
                     and same_domain_port_flag
+                    and len(breakdown) == 1
                     and connection_request["egress_port"]["id"]
                     not in self.topology_manager.get_port_link_map()
                 ):
@@ -933,7 +933,7 @@ class TEManager:
                     _, next_ingress_port = self._get_ports_by_link(links[-1])
                 else:
                     egress_port, next_ingress_port = self._get_ports_by_link(links[-1])
-                    if same_domain_port_flag:
+                    if same_domain_port_flag and len(breakdown) == 1:
                         egress_port = next_ingress_port
                 self._logger.debug(
                     f"ingress_port:{ingress_port}, egress_port:{egress_port}, next_ingress_port:{next_ingress_port}"
@@ -968,13 +968,13 @@ class TEManager:
 
             self._logger.info(f"segment for {domain}: {segment}")
 
-            domain_breakdown[domain] = segment.copy()
+            domain_breakdown.append((domain, segment.copy()))
             i = i + 1
 
-        if len(domain_breakdown.keys()) > max_number_oxps:
+        if len(domain_breakdown) > max_number_oxps:
             self._logger.warning(
                 "Breakdown has more domains than max number of OXPs required in the request:"
-                f" {len(domain_breakdown.keys())=} {max_number_oxps=}"
+                f" {len(domain_breakdown)=} {max_number_oxps=}"
             )
             raise TEError(
                 "Can't fulfill QoS requiments: max number of OXPs exceeded", 410
@@ -1070,7 +1070,7 @@ class TEManager:
 
     def _reserve_vlan_breakdown(
         self,
-        domain_breakdown: dict,
+        domain_breakdown: list,
         connection_request: dict,
         ingress_user_port=None,
         egress_user_port=None,
@@ -1121,7 +1121,7 @@ class TEManager:
             f"reserve_vlan_breakdown: domain_breakdown: {domain_breakdown}"
         )
 
-        domain_breakdown_list = list(domain_breakdown.items())
+        domain_breakdown_list = domain_breakdown
         domain_breakdown_list_len = len(domain_breakdown_list)
         common_vlan_on_link = {}  # {domain1: upstream_egress_vlan}
         for i in range(domain_breakdown_list_len - 1):
@@ -1149,13 +1149,13 @@ class TEManager:
                     None,
                     f"Failed: No common VLAN found on the link:{upstream_egress['id']} -> {downstream_ingress['id']}",
                 )
-            common_vlan_on_link[domain] = upstream_egress_vlan
+            common_vlan_on_link[i] = upstream_egress_vlan
 
         breakdowns = {}
         i = 0
         upstream_egress_vlan = None
         downstream_ingress_vlan = None
-        for domain, segment in domain_breakdown.items():
+        for domain, segment in domain_breakdown:
             # These are topology ports
             ingress_port = segment.get("ingress_port")
             egress_port = segment.get("egress_port")
@@ -1184,11 +1184,11 @@ class TEManager:
 
             if i == 0:  # first domain
                 upstream_egress_vlan = None
-                downstream_ingress_vlan = common_vlan_on_link.get(domain)
+                downstream_ingress_vlan = common_vlan_on_link.get(i)
             elif i == domain_breakdown_list_len - 1:  # last domain
                 downstream_ingress_vlan = None
             else:  # middle domain
-                downstream_ingress_vlan = common_vlan_on_link.get(domain)
+                downstream_ingress_vlan = common_vlan_on_link.get(i)
 
             i += 1
 
@@ -1351,6 +1351,9 @@ class TEManager:
         # accordingly.  This code could probably be simplified if we
         # use a "proper" data structure to represent the original
         # connection request internally.
+        ingress_vlans_str = None
+        egress_vlans_str = None
+
         if connection_request and isinstance(connection_request, dict):
             ingress_vlans_str = connection_request.get("ingress_port").get("vlan_range")
             egress_vlans_str = connection_request.get("egress_port").get("vlan_range")
@@ -1394,6 +1397,20 @@ class TEManager:
                 return ingress_vlans_str
 
         for vlan in common_vlans:
+            if (
+                ingress_vlans_str
+                and ingress_vlans_str == egress_vlans_str
+                and str(ingress_vlans_str).isdigit()
+            ):
+                requested_vlan = int(ingress_vlans_str)
+                if (
+                    requested_vlan in common_vlans
+                    and upstream_vlan_table[requested_vlan] is UNUSED_VLAN
+                    and downstream_vlan_table[requested_vlan] is UNUSED_VLAN
+                ):
+                    return requested_vlan
+
+        for vlan in sorted(common_vlans):
             if (
                 upstream_vlan_table[vlan] is UNUSED_VLAN
                 and downstream_vlan_table[vlan] is UNUSED_VLAN
